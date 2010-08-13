@@ -26,7 +26,7 @@ indepwlsChisq <- function(S, acovS, cor.analysis = TRUE) {
     objective <- mxAlgebraObjective("obj")
     
     indep.out <- tryCatch(mxRun(mxModel(model = "Independent model", impliedS, sampleS, 
-        vecS, invAcov, obj, objective)), error = function(e) e)
+        vecS, invAcov, obj, objective), silent=TRUE, suppressWarnings=TRUE), error = function(e) e)
     
     if (inherits(indep.out, "error")) 
         stop(print(indep.out))
@@ -256,7 +256,7 @@ wls <- function(S, acovS, n, impliedS, matrices, cor.analysis = TRUE, intervals 
     } else {
         out <- list(noObservedStat=ps, n=n, indepModelChisq=indepwlsChisq(S=S, acovS=acovS, cor.analysis=cor.analysis),
                    wls.fit=wls.fit)
-        class(wls.fit) <- 'wls'
+        class(out) <- 'wls'
     }
     out
 }
