@@ -1,8 +1,43 @@
-Minus2LL <- function(x, n, type=c("saturated", "independent")) {
+indepwlsChisq <- function(S, acovS, cor.analysis = TRUE) {
+    no.var <- ncol(S)
+    sampleS <- mxMatrix("Full", ncol = no.var, nrow = no.var, values = c(S), free = FALSE, 
+        name = "sampleS")
+    if (cor.analysis) {
+        impliedS <- mxMatrix("Iden", ncol = no.var, nrow = no.var, free = FALSE, 
+            name = "impliedS")          # a bit redundant, but it simplies the later codes
+        ps <- no.var * (no.var - 1)/2
+        vecS <- mxAlgebra(vechs(sampleS - impliedS), name = "vecS")        
+    } else {
+        impliedS <- mxMatrix("Diag", ncol = no.var, nrow = no.var, values = diag(S), 
+            free = TRUE, name = "impliedS")
+        ps <- no.var * (no.var + 1)/2
+        vecS <- mxAlgebra(vech(sampleS - impliedS), name = "vecS")        
+    }
+    if (ncol(acovS) != ps) 
+        stop("No. of dimension of \"S\" does not match the dimension of \"acovS\"\n")
+    
+    # Inverse of asymptotic covariance matrix
+    invacovS <- tryCatch(solve(acovS), error = function(e) e)
+    if (inherits(invacovS, "error")) 
+        stop(print(invacovS))    
+    invAcov <- mxMatrix("Full", ncol = ps, nrow = ps, values = c(invacovS), free = FALSE, 
+        name = "invAcov")
+    obj <- mxAlgebra(t(vecS) %&% invAcov, name = "obj")
+    objective <- mxAlgebraObjective("obj")
+    
+    indep.out <- tryCatch(mxRun(mxModel(model = "Independent model", impliedS, sampleS, 
+        vecS, invAcov, obj, objective)), error = function(e) e)
+    
+    if (inherits(indep.out, "error")) 
+        stop(print(indep.out))
+    else return(indep.out@output$Minus2LogLikelihood)
+}
+
+minus2LL <- function(x, n, model=c("saturated", "independent")) {
   if (is.list(x)) {
     if (length(x) != length(n))
       stop("Lengths of \"x\" and \"n\" are not the same.\n")
-    return(mapply(Minus2LL, x=x, n=n, type=type))
+    return(mapply(minus2LL, x=x, n=n, model=model))
   } else {
     miss.index <- is.na(diag(x))
     x <- x[!miss.index, !miss.index]
@@ -12,10 +47,10 @@ Minus2LL <- function(x, n, type=c("saturated", "independent")) {
     vars <- paste("v", 1:no.var, sep="")
     dimnames(x) <- list(vars, vars)
     obsCov <- mxData(observed=x, type='cov', numObs=n)
-    if (missing(type))
-      stop("\"type\" was not specified.\n")
-    type <- match.arg(type)
-    switch(type,
+    if (missing(model))
+      stop("\"model\" was not specified.\n")
+    model <- match.arg(model)
+    switch(model,
            saturated = expCov <- mxMatrix("Symm", nrow=no.var, ncol=no.var, free=TRUE, 
                                           value=vech(x), name="expCov"),
            independent = expCov <- mxMatrix("Diag", nrow=no.var, ncol=no.var, free=TRUE, 
@@ -155,8 +190,8 @@ tssem1 <- function(my.df, n, start.values, cor.analysis = TRUE, ...) {
         dimnames(acovS) <- list(psMatnames, psMatnames)
     }
 
-    independentMinus2LL <- tryCatch(sum(Minus2LL(x=my.df, n=n, type="independent")), error = function(e) e)
-    saturatedMinus2LL <- tryCatch(sum(Minus2LL(x=my.df, n=n, type="saturated")), error = function(e) e)
+    independentMinus2LL <- tryCatch(sum(minus2LL(x=my.df, n=n, model="independent")), error = function(e) e)
+    saturatedMinus2LL <- tryCatch(sum(minus2LL(x=my.df, n=n, model="saturated")), error = function(e) e)
     
     out <- list(pooledS = pooledS, acovS = acovS, total.n = total.n, cor.analysis = cor.analysis,
                 modelMinus2LL = tssem1.fit@output$Minus2LogLikelihood,
@@ -213,15 +248,16 @@ wls <- function(S, acovS, n, impliedS, matrices, cor.analysis = TRUE, intervals 
             intervals, ",... )", sep = "")
     }
     
-    out <- tryCatch(eval(parse(text = text1)), error = function(e) e)
+    wls.fit <- tryCatch(eval(parse(text = text1)), error = function(e) e)
     
     # try to run it with error message as output
-    if (inherits(out, "error")) {
-        stop(print(out))
+    if (inherits(wls.fit, "error")) {
+        stop(print(wls.fit))
+    } else {
+        out <- list(noObservedStat=ps, n=n, indepModelChisq=indepwlsChisq(S=S, acovS=acovS, cor.analysis=cor.analysis),
+                   wls.fit=wls.fit)
+        class(wls.fit) <- 'wls'
     }
-    #else {
-    #    class(wls.fit) <- 'wls'
-    #}
     out
 }
 

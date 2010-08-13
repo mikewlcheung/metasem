@@ -30,9 +30,9 @@ tssem1(my.df, n, start.values, cor.analysis = TRUE, ...)
 	or a covariance matrix.}
   \item{modelMinus2LL}{-2LogLikelihood of the model}
   \item{independentMinus2LL}{-2LogLikelihood of the independent model
-	returned from \code{\link[metaSEM]{Minus2LL}}}
+	returned from \code{\link[metaSEM]{minus2LL}}}
   \item{saturatedMinus2LL}{-2LogLikelihood of the saturated model
-	returned from \code{\link[metaSEM]{Minus2LL}}}
+	returned from \code{\link[metaSEM]{minus2LL}}}
   \item{tssem1.fit}{A fitted object returned from \code{\link[OpenMx]{mxRun}}}
 }
 \references{
@@ -50,7 +50,7 @@ Joreskog, K. G., Sorbom, D., Du Toit, S., & Du Toit, M. (1999). \emph{LISREL 8: 
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{ \code{\link[metaSEM]{tssem2}}
+\seealso{ \code{\link[metaSEM]{tssem2}, \code{\link[metaSEM]{minus2LL}} }
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{

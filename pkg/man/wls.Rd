@@ -38,12 +38,11 @@ tssem2(tssem1.obj, impliedS, matrices, intervals = FALSE, ...)
 \details{
 %%  ~~ If necessary, more details than the description above ~~
 }
-\value{A fitted object returned from \code{\link[OpenMx]{mxRun}}
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+\value{An object of
+\item{noObservedStat}{Number of observed statistics}
+\item{n}{Sample size}
+\item{indepModelChisq}{Chi-square statistic of the independent model}
+\item{wls.fit}{A fitted object returned from \code{\link[OpenMx]{mxRun}}}
 }
 \references{
 %Bentler, P.M., & Savalei, V. (2010). Analysis of correlation structures: current status and open problems. In Kolenikov, S., Thombs, L., & Steinley, D. (Eds.). \emph{Recent Methodological Developments in Social Science Statistics} (pp. 1-36). Hoboken, NJ: Wiley. 
@@ -62,21 +61,21 @@ Joreskog, K. G., Sorbom, D., Du Toit, S., & Du Toit, M. (1999). \emph{LISREL 8: 
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{ \code{\link[metaSEM]{tssem1}}
+\seealso{ \code{\link[metaSEM]{indepwlsChisq}}, \code{\link[metaSEM]{tssem1}}
 }
 \examples{
-\dontrun{
+%\dontrun{
 # Example of wls
-my.cor <- matrix(c(1.00, 0.22, 0.24, 0.18,
-                   0.22, 1.00, 0.30, 0.22,
-                   0.24, 0.30, 1.00, 0.24,
-                   0.18, 0.22, 0.24, 1.00), ncol=4, nrow=4)
+S <- matrix(c(1.00, 0.22, 0.24, 0.18,
+              0.22, 1.00, 0.30, 0.22,
+              0.24, 0.30, 1.00, 0.24,
+              0.18, 0.22, 0.24, 1.00), ncol=4, nrow=4)
 n <- 1000
-acovS <- asyCov(my.cor, n)
+acovS <- asyCov(S, n)
 P1 <- mxMatrix("Full", ncol=1, nrow=1, value=1, free=FALSE, name="P1")
 L1 <- mxMatrix("Full", ncol=1, nrow=4, value=c(0.3, 0.4, 0.5, 0.4), free=TRUE, name="L1")
 impliedR1 <- mxAlgebra(L1 \%&\% P1, name="impliedR1")
-wls.fit <- wls(S=my.cor, acovS=acovS, n=n, impliedS=impliedR1,matrices=c(P1, L1), cor.analysis=TRUE)
+wls.fit <- wls(S=S, acovS=acovS, n=n, impliedS=impliedR1,matrices=c(P1, L1), cor.analysis=TRUE)
 
 # Example of tssem2
 digman1 <- tssem1(Digman97, Digman97.n)
@@ -86,8 +85,6 @@ value=c(0,.3,.3,.3,0,.3,0,0,0,.3),
 free=c(FALSE,TRUE,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,FALSE,TRUE), name="L2")
 impliedR2 <- mxAlgebra(L2 \%&\% P2, name="impliedR2")
 digman2 <- tssem2(digman1, impliedS=impliedR2, matrices=c(P2, L2))
+%}
 }
-}
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
 \keyword{ tssem }
