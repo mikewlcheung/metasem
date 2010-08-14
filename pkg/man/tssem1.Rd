@@ -22,12 +22,11 @@ tssem1(my.df, n, start.values, cor.analysis = TRUE, ...)
 \details{
 }
 \value{
+  \item{call}{The matched call}
   \item{pooledS}{A pooled correlation/covariance matrix}
   \item{acovS }{Asymptotic sampling covariance matrix of the pooled
 	correlation/covariance matrix}
   \item{total.n}{Sum of the sample sizes}
-  \item{cor.analysis}{logical. The output is either a pooled correlation
-	or a covariance matrix.}
   \item{modelMinus2LL}{-2LogLikelihood of the model}
   \item{independentMinus2LL}{-2LogLikelihood of the independent model
 	returned from \code{\link[metaSEM]{minus2LL}}}

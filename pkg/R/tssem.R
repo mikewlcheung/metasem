@@ -193,7 +193,7 @@ tssem1 <- function(my.df, n, start.values, cor.analysis = TRUE, ...) {
     independentMinus2LL <- tryCatch(sum(minus2LL(x=my.df, n=n, model="independent")), error = function(e) e)
     saturatedMinus2LL <- tryCatch(sum(minus2LL(x=my.df, n=n, model="saturated")), error = function(e) e)
     
-    out <- list(pooledS = pooledS, acovS = acovS, total.n = total.n, cor.analysis = cor.analysis,
+    out <- list(call = match.call(), pooledS = pooledS, acovS = acovS, total.n = total.n, 
                 modelMinus2LL = tssem1.fit@output$Minus2LogLikelihood,
                 independentMinus2LL = independentMinus2LL, saturatedMinus2LL = saturatedMinus2LL,
                 tssem1.fit = tssem1.fit)
@@ -254,8 +254,9 @@ wls <- function(S, acovS, n, impliedS, matrices, cor.analysis = TRUE, intervals 
     if (inherits(wls.fit, "error")) {
         stop(print(wls.fit))
     } else {
-        out <- list(noObservedStat=ps, n=n, indepModelChisq=indepwlsChisq(S=S, acovS=acovS, cor.analysis=cor.analysis),
-                   wls.fit=wls.fit)
+        out <- list(call = match.call(), noObservedStat=ps, n=n, 
+                    indepModelChisq=indepwlsChisq(S=S, acovS=acovS, cor.analysis=cor.analysis),
+                    indepModelDf=no.var*(no.var-1)/2, wls.fit=wls.fit)
         class(out) <- 'wls'
     }
     out
@@ -265,6 +266,15 @@ wls <- function(S, acovS, n, impliedS, matrices, cor.analysis = TRUE, intervals 
 tssem2 <- function(tssem1.obj, impliedS, matrices, intervals = FALSE, ...) {
   if (!is.element("tssem1", class(tssem1.obj)))
     stop("\"tssem1.obj\" must be an object of class \"tssem1\".")
+  # check the call to determine whether it is a correlation or covariance analysis
+  cor.analysis <- tssem1.obj$call[[match("cor.analysis", names(tssem1.obj$call))]]
+  # if not specified, the default in tssem1() is cor.analysis=TRUE
+  if (is.null(cor.analysis)) {
+     cor.analysis <- TRUE
+  } else {
+     # to handle symbolic F(T) vs. logical FALSE(TRUE)
+     cor.analysis <- as.logical(as.character(cor.analysis))
+  }
   wls(S=tssem1.obj$pooledS, acovS=tssem1.obj$acovS, n=tssem1.obj$total.n, impliedS=impliedS,
-      matrices=matrices, cor.analysis = tssem1.obj$cor.analysis, intervals = intervals, ...)
+      matrices=matrices, cor.analysis = cor.analysis, intervals = intervals, ...)
 }

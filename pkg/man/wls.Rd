@@ -39,9 +39,11 @@ tssem2(tssem1.obj, impliedS, matrices, intervals = FALSE, ...)
 %%  ~~ If necessary, more details than the description above ~~
 }
 \value{An object of
+\item{call}{The matched call}
 \item{noObservedStat}{Number of observed statistics}
 \item{n}{Sample size}
 \item{indepModelChisq}{Chi-square statistic of the independent model}
+\item{indepModelDf}{Degrees of freedom of the independent model}
 \item{wls.fit}{A fitted object returned from \code{\link[OpenMx]{mxRun}}}
 }
 \references{
@@ -64,27 +66,39 @@ Joreskog, K. G., Sorbom, D., Du Toit, S., & Du Toit, M. (1999). \emph{LISREL 8: 
 \seealso{ \code{\link[metaSEM]{indepwlsChisq}}, \code{\link[metaSEM]{tssem1}}
 }
 \examples{
-%\dontrun{
-# Example of wls
-S <- matrix(c(1.00, 0.22, 0.24, 0.18,
-              0.22, 1.00, 0.30, 0.22,
-              0.24, 0.30, 1.00, 0.24,
-              0.18, 0.22, 0.24, 1.00), ncol=4, nrow=4)
+\dontrun{
+# Analysis of correlation structure
+R1 <- matrix(c(1.00, 0.22, 0.24, 0.18,
+               0.22, 1.00, 0.30, 0.22,
+               0.24, 0.30, 1.00, 0.24,
+               0.18, 0.22, 0.24, 1.00), ncol=4, nrow=4)
 n <- 1000
-acovS <- asyCov(S, n)
+acovR <- asyCov(R1, n)
 P1 <- mxMatrix("Full", ncol=1, nrow=1, value=1, free=FALSE, name="P1")
 L1 <- mxMatrix("Full", ncol=1, nrow=4, value=c(0.3, 0.4, 0.5, 0.4), free=TRUE, name="L1")
 impliedR1 <- mxAlgebra(L1 \%&\% P1, name="impliedR1")
-wls.fit <- wls(S=S, acovS=acovS, n=n, impliedS=impliedR1,matrices=c(P1, L1), cor.analysis=TRUE)
+wls.fit1 <- wls(S=R1, acovS=acovR, n=n, impliedS=impliedR1, matrices=c(P1, L1), cor.analysis=TRUE)
+
+# Analysis of covariance structure
+S2 <- matrix(c(1.50, 0.22, 0.24, 0.18,
+               0.22, 1.60, 0.30, 0.22,
+               0.24, 0.30, 1.80, 0.24,
+               0.18, 0.22, 0.24, 1.30), ncol=4, nrow=4)
+n <- 1000
+acovS <- asyCov(S2, n, cor.analysis=FALSE)
+P2 <- mxMatrix("Full", ncol=1, nrow=1, value=1, free=FALSE, name="P2")
+L2 <- mxMatrix("Full", ncol=1, nrow=4, value=c(0.3, 0.4, 0.5, 0.4), free=TRUE, name="L2")
+E2 <- mxMatrix("Diag", ncol=4, nrow=4, value=0.2, free=TRUE, name="E2") 
+impliedS2 <- mxAlgebra(L2 \%&\% P2 + E2, name="impliedS2")
+wls.fit2 <- wls(S=S2, acovS=acovS, n=n, impliedS=impliedS2, matrices=c(P2, L2, E2), cor.analysis=FALSE, intervals=TRUE)
 
 # Example of tssem2
 digman1 <- tssem1(Digman97, Digman97.n)
-P2 <- mxMatrix("Stand", ncol=2, nrow=2, value=.2, free=TRUE, name="P2")
-L2 <- mxMatrix("Full", ncol=2, nrow=5,
-value=c(0,.3,.3,.3,0,.3,0,0,0,.3),
-free=c(FALSE,TRUE,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,FALSE,TRUE), name="L2")
-impliedR2 <- mxAlgebra(L2 \%&\% P2, name="impliedR2")
-digman2 <- tssem2(digman1, impliedS=impliedR2, matrices=c(P2, L2))
-%}
+P3 <- mxMatrix("Stand", ncol=2, nrow=2, value=.2, free=TRUE, name="P3")
+L3 <- mxMatrix("Full", ncol=2, nrow=5, value=c(0,.3,.3,.3,0,.3,0,0,0,.3),
+free=c(FALSE,TRUE,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,FALSE,TRUE), name="L3")
+impliedR3 <- mxAlgebra(L3 \%&\% P3, name="impliedR3")
+digman2 <- tssem2(digman1, impliedS=impliedR3, matrices=c(P3, L3))
+}
 }
 \keyword{ tssem }
