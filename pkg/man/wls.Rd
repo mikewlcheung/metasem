@@ -30,15 +30,15 @@ tssem2(tssem1.obj, impliedS, matrices, intervals = FALSE, ...)
 }
   \item{cor.analysis}{Logical. Analysis of correlation or covariance structure. If \code{cor.analysis=TRUE}, \code{\link[OpenMx]{vechs}} is used to vectorize \code{S}; otherwise, \code{\link[OpenMx]{vech}} is used to vectorize \code{S}.
 }
-  \item{intervals}{logical. Request likelihood-based confidence intervals on the parameter estimates.
+  \item{intervals}{logical. If \code{TRUE}, it requests likelihood-based confidence intervals on the parameter estimates; otherwise, Wald-based confidence intervals are calculated.
 }
-  \item{\dots}{Futher arguments to pass to \code{\link[OpenMx]{mxRun}}
+  \item{\dots}{Futher arguments to be passed to \code{\link[OpenMx]{mxRun}}
 }
 }
 \details{
 %%  ~~ If necessary, more details than the description above ~~
 }
-\value{An object of
+\value{An object of class \code{wls} with a list of
 \item{call}{The matched call}
 \item{noObservedStat}{Number of observed statistics}
 \item{n}{Sample size}
