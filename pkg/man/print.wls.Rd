@@ -1,22 +1,23 @@
-\name{summary.wls}
-\alias{summary.wls}
-\alias{print.summary.wls}
-\title{Summary methods for wls objects
+\name{print.wls}
+\alias{print.wls}
+\title{Print methods for wls objects 
 }
-\description{Extract coefficients and goodness-of-fit indices from wls objects.
+\description{
+%%  ~~ A concise (1-5 lines) description of what the function does. ~~
 }
 \usage{
-\method{summary}{wls}(x, ...)
+print.wls(x, ...)
 }
+%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{An object returned from \code{\link[metaSEM]{wls}}
 }
-\item{\dots}{Further arguments to be passed to \code{\link[stats]{printCoefmat}}
+  \item{\dots}{Further arguments to be passed to print
 }
 }
 \details{
-  %%  ~~ If necessary, more details than the description above ~~}
-  }
+%%  ~~ If necessary, more details than the description above ~~
+}
 \value{
 %%  ~Describe the value returned
 %%  If it is a LIST, use
@@ -35,10 +36,12 @@
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{\code{\link[metaSEM]{wls}}
+\seealso{
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
 }
-\keyword{ summary }
+% Add one or more standard keywords, see file 'KEYWORDS' in the
+% R documentation directory.
 
+\keyword{ summary }

@@ -2,7 +2,7 @@
 \alias{tssem1}
 \title{First stage of two-stage structural equation modeling (TSSEM)
 }
-\description{It conducts the first stage of TSSEM of pooling the correlation/covariance matrices with fixed-effets model.
+\description{It conducts the first stage of TSSEM of pooling the correlation/covariance matrices with fixed-effets model. It is expected that there is no missing value in the first group. 
 }
 \usage{
 tssem1(my.df, n, start.values, cor.analysis = TRUE, ...)
@@ -23,6 +23,7 @@ tssem1(my.df, n, start.values, cor.analysis = TRUE, ...)
 }
 \value{
   \item{call}{The matched call}
+  \item{data}{A list of correlation/covariance matrices from input}
   \item{pooledS}{A pooled correlation/covariance matrix}
   \item{acovS }{Asymptotic sampling covariance matrix of the pooled
 	correlation/covariance matrix}
@@ -55,6 +56,8 @@ Joreskog, K. G., Sorbom, D., Du Toit, S., & Du Toit, M. (1999). \emph{LISREL 8: 
 \examples{
 \dontrun{
 digman1 <- tssem1(Digman97, Digman97.n)
+digman1
+summary(digman1)
 }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

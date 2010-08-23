@@ -78,6 +78,7 @@ P1 <- mxMatrix("Full", ncol=1, nrow=1, value=1, free=FALSE, name="P1")
 L1 <- mxMatrix("Full", ncol=1, nrow=4, value=c(0.3, 0.4, 0.5, 0.4), free=TRUE, name="L1")
 impliedR1 <- mxAlgebra(L1 \%&\% P1, name="impliedR1")
 wls.fit1 <- wls(S=R1, acovS=acovR, n=n, impliedS=impliedR1, matrices=c(P1, L1), cor.analysis=TRUE)
+summary(wls.fit1)
 
 # Analysis of covariance structure
 S2 <- matrix(c(1.50, 0.22, 0.24, 0.18,
@@ -91,6 +92,7 @@ L2 <- mxMatrix("Full", ncol=1, nrow=4, value=c(0.3, 0.4, 0.5, 0.4), free=TRUE, n
 E2 <- mxMatrix("Diag", ncol=4, nrow=4, value=0.2, free=TRUE, name="E2") 
 impliedS2 <- mxAlgebra(L2 \%&\% P2 + E2, name="impliedS2")
 wls.fit2 <- wls(S=S2, acovS=acovS, n=n, impliedS=impliedS2, matrices=c(P2, L2, E2), cor.analysis=FALSE, intervals=TRUE)
+summary(wls.fit2)
 
 # Example of tssem2
 digman1 <- tssem1(Digman97, Digman97.n)
@@ -99,6 +101,7 @@ L3 <- mxMatrix("Full", ncol=2, nrow=5, value=c(0,.3,.3,.3,0,.3,0,0,0,.3),
 free=c(FALSE,TRUE,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,FALSE,TRUE), name="L3")
 impliedR3 <- mxAlgebra(L3 \%&\% P3, name="impliedR3")
 digman2 <- tssem2(digman1, impliedS=impliedR3, matrices=c(P3, L3))
+summary(digman2)
 }
 }
 \keyword{ tssem }

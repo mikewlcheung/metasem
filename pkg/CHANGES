@@ -1,8 +1,9 @@
-Release 0.3.2 (August 13, 2010)
+Release 0.3.2 (August 22, 2010)
 ====================================
 * Added indepWLSChisq to calculate the chi-square statistic for an independent model based on WLS
 * Added minus2LL to calculate the chi-square statistic for independent and saturated models based on ML
 * Added summary.wls and print.summary.wls for wls objects
+* Added summary.tssem1 and print.summary.tssem1 for tssem1 objects
 
 Release 0.3.1 (August 09, 2010)
 ====================================

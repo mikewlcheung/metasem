@@ -3,12 +3,11 @@
 \title{Test a list of square matrices for positive definiteness
 }
 \description{It tests a square matrix or a list of square matrices for positive
-  definiteness. It returns \code{FALSE} if the matrix is not symmetric.
+  definiteness. It returns \code{FALSE} if the matrix is not symmetric. It should be noted that variables will be removed before the analysis if values in the diagonals are missing.
 }
 \usage{
 is.pd(x, tol = 1e-06)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{A square matrix or a list of square matrices}
   \item{tol}{Relative tolerance of positiveness of smallest eigenvalue compared

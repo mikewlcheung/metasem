@@ -86,13 +86,16 @@ tssem1 <- function(my.df, n, start.values, cor.analysis = TRUE, ...) {
     ## Index for missing variables: only check the diagonals only!!!
     miss.index <- lapply(my.df, function(x) { is.na(diag(x)) })
     
-    complete.index <- NULL
-    for (i in no.groups:1) {
-        if (sum(!miss.index[[i]], na.rm = TRUE) == no.var) 
-            complete.index = i
-    }
-    if (is.null(complete.index)) 
-        stop("It is expected that at least one study has complete data!")
+    ## complete.index <- NULL
+    ## for (i in no.groups:1) {
+    ##     if (sum(!miss.index[[i]], na.rm = TRUE) == no.var) 
+    ##         complete.index = i
+    ## }
+    ## if (is.null(complete.index)) 
+    ##     stop("It is expected that at least one study has complete data!")
+     
+    if ( sum(!miss.index[[1]], na.rm = TRUE) != no.var )
+        stop("There should be no missing data in the first group.")
     
     for (i in 1:no.groups) {
         no.var.i <- sum(!miss.index[[i]], na.rm = TRUE)
@@ -159,8 +162,7 @@ tssem1 <- function(my.df, n, start.values, cor.analysis = TRUE, ...) {
     if (inherits(tssem1.fit, "error")) 
         stop(print(tssem1.fit))
     
-    pooledS <- eval(parse(text = paste("mxEval(S", complete.index, ",tssem1.fit)", 
-        sep = "")))
+    pooledS <- eval(parse(text = "mxEval(S1, tssem1.fit)"))
     
     if (cor.analysis) {
         #Hessian_S <- 0.5*tssem1.fit@output$calculatedHessian[vechs(ps.labels), vechs(ps.labels)]
@@ -173,10 +175,10 @@ tssem1 <- function(my.df, n, start.values, cor.analysis = TRUE, ...) {
     }
     
     # check dimnames
-    if (is.null(dimnames(my.df[[complete.index]]))) {
+    if (is.null(dimnames(my.df[[1]]))) {
         dimnames(pooledS) <- list(var.names, var.names)
     } else {
-        df.dim <- dimnames(my.df[[complete.index]])
+        df.dim <- dimnames(my.df[[1]])
         dimnames(pooledS) <- df.dim
         # create matrix of labels for ps
         if (cor.analysis) {
@@ -193,7 +195,7 @@ tssem1 <- function(my.df, n, start.values, cor.analysis = TRUE, ...) {
     independentMinus2LL <- tryCatch(sum(minus2LL(x=my.df, n=n, model="independent")), error = function(e) e)
     saturatedMinus2LL <- tryCatch(sum(minus2LL(x=my.df, n=n, model="saturated")), error = function(e) e)
     
-    out <- list(call = match.call(), pooledS = pooledS, acovS = acovS, total.n = total.n, 
+    out <- list(call = match.call(), data=my.df, pooledS = pooledS, acovS = acovS, total.n = total.n, 
                 modelMinus2LL = tssem1.fit@output$Minus2LogLikelihood,
                 independentMinus2LL = independentMinus2LL, saturatedMinus2LL = saturatedMinus2LL,
                 tssem1.fit = tssem1.fit)
