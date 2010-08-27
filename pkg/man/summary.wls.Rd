@@ -3,7 +3,7 @@
 \alias{print.summary.wls}
 \title{Summary methods for wls objects
 }
-\description{Extract coefficients and goodness-of-fit indices from wls objects.
+\description{Extract coefficients and goodness-of-fit indices from \code{wls} objects.
 }
 \usage{
 \method{summary}{wls}(x, ...)

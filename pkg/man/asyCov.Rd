@@ -1,15 +1,21 @@
 \name{asyCov}
 \alias{asyCov}
-\title{Estimate asymptotic covariance matrix of correlation/covariance matrix
+\title{Asymptotic covariance matrix of correlation/covariance matrix
 }
-\description{It estimates an asymptotic covariance matrix of the correlation/covariance matrix based on multivariate normality. 
+\description{It estimates an asymptotic covariance matrix of the
+  correlation/covariance matrix by assuming multivariate normality. 
 }
 \usage{
 asyCov(x, n, cor.analysis = TRUE, silent = TRUE, suppressWarnings = TRUE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{A correlation/covariance matrix or a list of correlation/covariance matrices. \code{NA} on the variables or other values defined in \code{na.strings} will be removed before the analysis. Please note that it only checks the diagonal elements of the matrices. If there are missing data, make sure that the diagonals are coded with \code{NA} or other values defined in \code{na.string}.
+  \item{x}{A correlation/covariance matrix or a list of
+	correlation/covariance matrices. \code{NA} on the variables or other
+	values defined in \code{na.strings} will be removed before the
+	analysis. Please note that it only checks the diagonal elements of
+	the matrices. If there are missing values, make sure that the
+	diagonals are coded with \code{NA} or other values as defined in \code{na.string}.
 }
   \item{n}{Sample size or a vector of sample sizes}
   \item{cor.analysis}{Logical. The output is either a correlation or covariance matrix.}

@@ -1,11 +1,11 @@
 \name{minus2LL}
 \alias{minus2LL}
-\title{Calculate -2LogLikelihood of an independent or saturated model
+\title{-2LogLikelihood of a saturated or independent model
 }
 \description{It calculates the -2LogLikelihood of a saturated or
-  independent model on a correlation/covariance matrix. If \code{x} is a
+  independent model of a correlation/covariance matrix. If \code{x} is a
   list of correlation/covariance matrices and \code{n} is a vector of sample sizes, a list of
-  -2LogLikehood are calculated. 
+  -2LogLikelihood are calculated. 
 }
 \usage{
 minus2LL(x, n, model = c("saturated", "independent"))
@@ -20,9 +20,8 @@ minus2LL(x, n, model = c("saturated", "independent"))
 }
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
 }
-\value{-2LogLikelihood of the independent or saturated model or a list
+\value{-2LogLikelihood of a saturated or independent model or a list
   of it.
 }
 \references{

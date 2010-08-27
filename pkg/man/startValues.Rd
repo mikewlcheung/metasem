@@ -1,27 +1,24 @@
 \name{startValues}
 \alias{startValues}
-\title{Calculate starting values for tssem1()
+\title{Starting values for tssem1()
 }
-\description{Calculate starting values for \code{\link{tssem1}} with
-  unweighted mean of correlation/covariance matrices. 
+\description{It calculates starting values for \code{\link{tssem1}} with
+  unweighted mean on the correlation/covariance matrices. 
 }
 \usage{
 startValues(x, cor.analysis = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{A list of correlation or covariance matrices most probably read by
-	\code{\link{readFullMat}}, \code{\link{readLowTriMat}}
-	or \code{\link{readStackVec}}. 
+  \item{x}{A list of correlation or covariance matrices
 }
   \item{cor.analysis}{logical. The output is either a correlation matrix
-	or a covariance matrix.
+	or a covariance matrix
 }
 }
 \details{It calculates the starting values with the unweighted
-  means. Missing values are removed before the calculations.
-  \link[Matrix]{nearPD} is used to ensure that the matrix of
-  the unweighted means is positive definite.
+  means on the correlation/covariance matrices. Missing values are removed before the calculations.
+  \link[Matrix]{nearPD} is used to ensure that the calculated matrix is positive definite.
 }
 \value{A symmetric matrix of starting values
 }

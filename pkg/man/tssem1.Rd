@@ -2,7 +2,8 @@
 \alias{tssem1}
 \title{First stage of two-stage structural equation modeling (TSSEM)
 }
-\description{It conducts the first stage of TSSEM of pooling the correlation/covariance matrices with fixed-effets model. It is expected that there is no missing value in the first group. 
+\description{It conducts the first stage analysis of TSSEM by pooling
+  correlation/covariance matrices with a fixed-effets model. The function expects that there is no missing data in the first group. 
 }
 \usage{
 tssem1(my.df, n, start.values, cor.analysis = TRUE, ...)
@@ -24,10 +25,10 @@ tssem1(my.df, n, start.values, cor.analysis = TRUE, ...)
 \value{
   \item{call}{The matched call}
   \item{data}{A list of correlation/covariance matrices from input}
-  \item{pooledS}{A pooled correlation/covariance matrix}
-  \item{acovS }{Asymptotic sampling covariance matrix of the pooled
+  \item{pooledS}{The pooled correlation/covariance matrix}
+  \item{acovS }{The asymptotic sampling covariance matrix of the pooled
 	correlation/covariance matrix}
-  \item{total.n}{Sum of the sample sizes}
+  \item{total.n}{Total sample size of all studies}
   \item{modelMinus2LL}{-2LogLikelihood of the model}
   \item{independentMinus2LL}{-2LogLikelihood of the independent model
 	returned from \code{\link[metaSEM]{minus2LL}}}

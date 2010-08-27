@@ -3,7 +3,7 @@
 \alias{print.summary.tssem1}
 \title{Summary methods for tssem1 objects
 }
-\description{Extract coefficients and goodness-of-fit indices from tssem1 objects.
+\description{Extract coefficients and goodness-of-fit indices from \code{tssem1} objects.
 }
 \usage{
 \method{summary}{tssem1}(x, ...)

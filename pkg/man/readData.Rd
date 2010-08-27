@@ -40,7 +40,7 @@ readStackVec(file, ...)
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-
+\dontrun{
 # Write two full correlation matrices into a file named "fullmat.dat".
 # x2 is missing in the second matrix.
 cat("1.0 0.3 0.4\n0.3 1.0 0.5\n0.4 0.5 1.0\n1.0 NA 0.4\nNA NA NA\n0.4 NA 1.0", file="fullmat.dat", sep="")
@@ -100,6 +100,7 @@ my.vec
 #x2  NA NA  NA
 #x3 0.4 NA 1.0
 
+}
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

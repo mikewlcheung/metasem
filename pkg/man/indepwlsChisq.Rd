@@ -1,8 +1,9 @@
 \name{indepwlsChisq}
 \alias{indepwlsChisq}
-\title{Calculate chi-square statistic of an independent model based on WLS
+\title{Chi-square statistic of an independent model based on WLS
 }
-\description{It calculates the chi-square statistic of an independent model based on WLS. The analysis can be either a correlation or a covariance structure. It is usually called internally by \code{wls}.
+\description{It calculates the chi-square statistic of an independent
+  model based on weighted least squares (WLS) estimation method. The analysis can be either a correlation or a covariance structure. It is usually called internally from \code{wls}.
 }
 \usage{
 indepwlsChisq(S, acovS, cor.analysis = TRUE)

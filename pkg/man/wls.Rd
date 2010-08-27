@@ -1,11 +1,11 @@
 \name{wls}
 \alias{wls}
 \alias{tssem2}
-\title{Weighted least squares on correlation or covariance structure
+\title{Fitting a correlation or covariance structure with weighted least squares
 }
-\description{Analysis of correlation or covariance structure with
-  weighted least squares (WLS) where the asymptotic covariance matrix is
-  used as the weight matrix. \code{tssem2} conducts the second stage of
+\description{It fits a correlation or covariance structure with
+  weighted least squares (WLS) where the inverse of the asymptotic covariance matrix is
+  used as the weight matrix. \code{tssem2} conducts the second stage analysis of
   two-stage strutural equation modeling (TSSEM). \code{tssem2} is simply a wrapper of \code{wls}.
 }
 \usage{
@@ -25,12 +25,12 @@ tssem2(tssem1.obj, impliedS, matrices, intervals = FALSE, ...)
 }
   \item{impliedS}{Model implied correlation/covariance matrix of an object of either \code{\link[OpenMx]{MxMatrix-class}} or \code{\link[OpenMx]{MxAlgebra-class}} 
 }
-  \item{matrices}{A vector of matrices used to calculate
+  \item{matrices}{A list of matrices used to calculate
 	\code{impliedS}. They are objects of either \code{\link[OpenMx]{MxMatrix-class}} or \code{\link[OpenMx]{MxAlgebra-class}} 
 }
   \item{cor.analysis}{Logical. Analysis of correlation or covariance structure. If \code{cor.analysis=TRUE}, \code{\link[OpenMx]{vechs}} is used to vectorize \code{S}; otherwise, \code{\link[OpenMx]{vech}} is used to vectorize \code{S}.
 }
-  \item{intervals}{logical. If \code{TRUE}, it requests likelihood-based confidence intervals on the parameter estimates; otherwise, Wald-based confidence intervals are calculated.
+  \item{intervals}{logical. If \code{TRUE}, it calculates the likelihood-based confidence intervals on the parameter estimates; otherwise, Wald-based confidence intervals are calculated.
 }
   \item{\dots}{Futher arguments to be passed to \code{\link[OpenMx]{mxRun}}
 }
