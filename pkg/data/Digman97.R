@@ -27,3 +27,6 @@ names(Digman97) <- c("Digman 1 (1994)", "Digman 2 (1994)", "Digman 3 (1963c)", "
            "Costa, McCrae, & Dye (1991)", "Barrick & Mount (1993)", "Goldberg (1992a)")
 
 Digman97.n <- c(102,149,334,162,91,656,70,70,277,227,1000,227,91,1040) 
+
+Digman97.cluster <- c(rep("Children", 4), "Adolescents", rep("Young adults", 3), rep("Mature adults", 6))
+

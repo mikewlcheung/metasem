@@ -96,12 +96,23 @@ summary(wls.fit2)
 
 # Example of tssem2
 digman1 <- tssem1(Digman97, Digman97.n)
+
 P3 <- mxMatrix("Stand", ncol=2, nrow=2, value=.2, free=TRUE, name="P3")
 L3 <- mxMatrix("Full", ncol=2, nrow=5, value=c(0,.3,.3,.3,0,.3,0,0,0,.3),
 free=c(FALSE,TRUE,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,FALSE,TRUE), name="L3")
 impliedR3 <- mxAlgebra(L3 \%&\% P3, name="impliedR3")
+
 digman2 <- tssem2(digman1, impliedS=impliedR3, matrices=c(P3, L3))
 summary(digman2)
+
+# Example of tssem2 with several clusters
+data.cluster <- tapply(Digman97, Digman97.cluster, function(x) {x})
+n.cluster <- tapply(Digman97.n, Digman97.cluster, function(x) {x})
+digman1.cluster <- mapply(tssem1, my.df=data.cluster, n=n.cluster, SIMPLIFY=FALSE)
+lapply(digman1.cluster, summary)
+
+digman2.cluster <- lapply(digman1.cluster, tssem2, impliedS=impliedR3, matrices=c(P3, L3))
+lapply(digman2.cluster, summary)
 }
 }
 \keyword{ tssem }
