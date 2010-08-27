@@ -1,17 +1,17 @@
-summary.wls <- function(x, ...) {
-    if (!is.element("wls", class(x)))
-    stop("\"x\" must be an object of class \"wls\".")
+summary.wls <- function(object, ...) {
+    if (!is.element("wls", class(object)))
+    stop("\"object\" must be an object of class \"wls\".")
 
-    n <- x$n
-    tT <- x$wls.fit@output$Minus2LogLikelihood 
-    dfT <- x$noObservedStat - summary(x$wls.fit)$estimatedParameters
-    tB <- x$indepModelChisq
-    dfB <- x$indepModelDf
+    n <- object$n
+    tT <- object$wls.fit@output$Minus2LogLikelihood 
+    dfT <- object$noObservedStat - summary(object$wls.fit)$estimatedParameters
+    tB <- object$indepModelChisq
+    dfB <- object$indepModelDf
     p <- pchisq(tT, df=dfT, lower.tail=FALSE)
-    sampleS <- mxEval(sampleS, x$wls.fit)
-    impliedS <- mxEval(impliedS, x$wls.fit)
+    sampleS <- mxEval(sampleS, object$wls.fit)
+    impliedS <- mxEval(impliedS, object$wls.fit)
     # it relies on that "Correlation structure" is used as the model name
-    if (!is.na(match("Correlation structure", x$wls.fit@name))) {
+    if (!is.na(match("Correlation structure", object$wls.fit@name))) {
        cor.analysis <- TRUE
     } else {
        cor.analysis <- FALSE
@@ -38,12 +38,12 @@ summary.wls <- function(x, ...) {
     colnames(stat) <- "Value"
   
     # calculate coefficients    
-    my.para <- summary(x$wls.fit)$parameters
+    my.para <- summary(object$wls.fit)$parameters
     # For example, P[1,2], L[1,2], ...
     my.para$name <- with(my.para, paste(matrix,"[",row,",",col,"]",sep=""))
     dimnames(my.para)[[1]] <- my.para$name
 
-    my.ci <- summary(x$wls.fit)$CI
+    my.ci <- summary(object$wls.fit)$CI
     # Determine if CIs on parameter estimates are present
     if (is.null(dimnames(my.ci))) {
       my.para$lbound <- my.para$Estimate - qnorm(.975)*my.para$Std.Error
@@ -62,7 +62,7 @@ summary.wls <- function(x, ...) {
     coefficients$"z value" <- coefficients$Estimate/coefficients$Std.Error
     coefficients$"Pr(>|z|)" <- 2*(1-pnorm(abs(coefficients$"z value")))
     
-    out <- list(call=x$call, coefficients=coefficients, stat=stat)
+    out <- list(call=object$call, coefficients=coefficients, stat=stat)
     class(out) <- "summary.wls"
     out
 }
@@ -81,32 +81,32 @@ print.summary.wls <- function(x, ...) {
     printCoefmat(x$stat, ...)
 }
 
-summary.tssem1 <- function(x, ...) {
-    if (!is.element("tssem1", class(x)))
-    stop("\"x\" must be an object of class \"tssem1\".")
+summary.tssem1 <- function(object, ...) {
+    if (!is.element("tssem1", class(object)))
+    stop("\"object\" must be an object of class \"tssem1\".")
     
     # it relies on the model name
-    if (!is.na(match("TSSEM1 Analysis of Correlation Matrix", x$tssem1.fit@name))) {
+    if (!is.na(match("TSSEM1 Analysis of Correlation Matrix", object$tssem1.fit@name))) {
        cor.analysis <- TRUE
     } else {
        cor.analysis <- FALSE
     }   
  
     # Calculate the no. of variables based on the implied S
-    mx.fit <- summary(x$tssem1.fit)
+    mx.fit <- summary(object$tssem1.fit)
     # FIXME: what if there are incomplete data in S1
-    no.var <- ncol(mxEval(S1, x$tssem1.fit))
+    no.var <- ncol(mxEval(S1, object$tssem1.fit))
     if (cor.analysis)
       ps <- no.var*(no.var-1)/2
     else ps <- no.var*(no.var+1)/2
-    n <- x$total.n
-    tT <- x$modelMinus2LL - x$saturatedMinus2LL 
+    n <- object$total.n
+    tT <- object$modelMinus2LL - object$saturatedMinus2LL 
     dfT <- mx.fit$degreesOfFreedom
-    tB <- x$independentMinus2LL - x$saturatedMinus2LL
+    tB <- object$independentMinus2LL - object$saturatedMinus2LL
     dfB <- mx.fit$degreesOfFreedom + ps
     p <- pchisq(tT, df=dfT, lower.tail=FALSE)
 
-    no.groups <- length(x$tssem1.fit@submodels)
+    no.groups <- length(object$tssem1.fit@submodels)
     RMSEA <- sqrt(no.groups)*sqrt(max((tT-dfT)/(n-1),0)/dfT)
     TLI <- (tB/dfB - tT/dfT)/(tB/dfB-1)
     CFI <- 1 - max((tT-dfT),0)/max((tT-dfT),(tB-dfB),0)
@@ -128,7 +128,7 @@ summary.tssem1 <- function(x, ...) {
         vech( stand %*% (sampleS - Sel %*% pooledS %*% t(Sel) ) %*% stand )^2
       }
     }
-    SRMR <- sqrt(mean(unlist(sapply(x$data, srmr, pooledS=x$pooledS, cor.analysis=cor.analysis))))
+    SRMR <- sqrt(mean(unlist(sapply(object$data, srmr, pooledS=object$pooledS, cor.analysis=cor.analysis))))
     #SRMR <- sqrt(mean(mapply(srmr, x$data, miss.index,
     #                         MoreArgs=list(pooledS=x$pooledS, cor.analysis=cor.analysis))))
     
@@ -139,7 +139,7 @@ summary.tssem1 <- function(x, ...) {
     colnames(stat) <- "Value"
 
     # calculate coefficients    
-    my.para <- summary(x$tssem1.fit)$parameters
+    my.para <- summary(object$tssem1.fit)$parameters
     my.para <- my.para[my.para$matrix=="S1", ]
     #Sel <- grep("^S", my.para$matrix, value=TRUE)
     #my.para <- subset(my.para, my.para$matrix==Sel)
@@ -150,7 +150,7 @@ summary.tssem1 <- function(x, ...) {
     coefficients$"z value" <- coefficients$Estimate/coefficients$Std.Error
     coefficients$"Pr(>|z|)" <- 2*(1-pnorm(abs(coefficients$"z value")))
     
-    out <- list(call=x$call, coefficients=coefficients, stat=stat)
+    out <- list(call=object$call, coefficients=coefficients, stat=stat)
     class(out) <- "summary.tssem1"
     out
 }

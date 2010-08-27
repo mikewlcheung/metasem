@@ -2,8 +2,7 @@
 \alias{startValues}
 \title{Starting values for tssem1()
 }
-\description{It calculates starting values for \code{\link{tssem1}} with
-  unweighted mean on the correlation/covariance matrices. 
+\description{It calculates starting values for \code{\link{tssem1}}. 
 }
 \usage{
 startValues(x, cor.analysis = TRUE)
@@ -18,9 +17,11 @@ startValues(x, cor.analysis = TRUE)
 }
 \details{It calculates the starting values with the unweighted
   means on the correlation/covariance matrices. Missing values are removed before the calculations.
-  \link[Matrix]{nearPD} is used to ensure that the calculated matrix is positive definite.
+  \link[Matrix]{nearPD} is used to ensure that the calculated matrix is
+  positive definite. It is usually called inside by \code{\link{tssem1}}.
 }
-\value{A symmetric matrix of starting values
+\value{A symmetric matrix of starting values with the same dimensions as
+  the complete data in \code{x}.
 }
 \references{
 %% ~put references to the literature/web site here ~

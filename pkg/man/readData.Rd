@@ -17,7 +17,7 @@ readStackVec(file, ...)
 }
   \item{no.var}{Number of variables in the data.
 }
-  \item{\dots}{Further arguments to be passed to \code{\link[base]{scan}} for \code{readLowTriMat} and \code{\link[utils]{read.table}} for \code{readFullMat} and \code{readStackVec}.
+  \item{\dots}{Further arguments to be passed to \code{\link[base]{scan}} for \code{readLowTriMat} and to \code{\link[utils]{read.table}} for \code{readFullMat} and \code{readStackVec}.
 }
 }
 \details{

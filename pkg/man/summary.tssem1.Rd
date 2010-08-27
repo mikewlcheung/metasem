@@ -6,10 +6,10 @@
 \description{Extract coefficients and goodness-of-fit indices from \code{tssem1} objects.
 }
 \usage{
-\method{summary}{tssem1}(x, ...)
+\method{summary}{tssem1}(object, ...)
 }
 \arguments{
-  \item{x}{An object returned from \code{\link[metaSEM]{tssem1}}
+  \item{object}{An object returned from \code{\link[metaSEM]{tssem1}}
 }
   \item{\dots}{Further arguments to be passed to \code{\link[stats]{printCoefmat}}
 }

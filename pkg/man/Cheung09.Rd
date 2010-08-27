@@ -6,7 +6,7 @@
 }
 \description{Four studies were selected from the data set used by Cheung
   and Chan (2005; 2009). Some variables were randomly deleted to
-  illustrate the analysis of missing data.
+  illustrate the analysis with missing data.
 %%  ~~ A concise (1-5 lines) description of the dataset. ~~
 }
 \usage{data(Cheung09)}

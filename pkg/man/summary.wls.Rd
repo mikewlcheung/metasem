@@ -6,10 +6,10 @@
 \description{Extract coefficients and goodness-of-fit indices from \code{wls} objects.
 }
 \usage{
-\method{summary}{wls}(x, ...)
+\method{summary}{wls}(object, ...)
 }
 \arguments{
-  \item{x}{An object returned from \code{\link[metaSEM]{wls}}
+  \item{object}{An object returned from \code{\link[metaSEM]{wls}}
 }
 \item{\dots}{Further arguments to be passed to \code{\link[stats]{printCoefmat}}
 }
