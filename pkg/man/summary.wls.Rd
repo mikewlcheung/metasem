@@ -1,9 +1,9 @@
 \name{summary.wls}
 \alias{summary.wls}
 \alias{print.summary.wls}
-\title{Summary methods for wls objects
+\title{Summary method for wls objects
 }
-\description{Extract coefficients and goodness-of-fit indices from \code{wls} objects.
+\description{It extracts the estimated coefficients and the goodness-of-fit indices for \code{wls} objects.
 }
 \usage{
 \method{summary}{wls}(object, ...)

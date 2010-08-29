@@ -1,6 +1,6 @@
 \name{startValues}
 \alias{startValues}
-\title{Starting values for tssem1()
+\title{Starting values for the tssem1 function
 }
 \description{It calculates starting values for \code{\link{tssem1}}. 
 }

@@ -1,9 +1,9 @@
 \name{summary.tssem1}
 \alias{summary.tssem1}
 \alias{print.summary.tssem1}
-\title{Summary methods for tssem1 objects
+\title{Summary method for tssem1 objects
 }
-\description{Extract coefficients and goodness-of-fit indices from \code{tssem1} objects.
+\description{It extracts the estimated coefficients and the goodness-of-fit indices for \code{tssem1} objects.
 }
 \usage{
 \method{summary}{tssem1}(object, ...)

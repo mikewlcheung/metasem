@@ -1,9 +1,11 @@
 \name{is.pd}
 \alias{is.pd}
-\title{Test a list of square matrices for positive definiteness
+\title{Test the positive definiteness of a list of square matrices
 }
-\description{It tests a square matrix or a list of square matrices for positive
-  definiteness. It returns \code{FALSE} if the matrix is not symmetric. It should be noted that variables will be removed before the analysis if values in the diagonals are missing.
+\description{It tests the positive definiteness of a square matrix or a
+  list of square matrices. It returns \code{FALSE} if the matrix is not
+  symmetric. It should be noted that the variables will be removed
+  before the test if the values in the diagonals are missing.
 }
 \usage{
 is.pd(x, tol = 1e-06)
