@@ -7,3 +7,4 @@ c(1,1983,14,0.47,-0.32,0.0075,0.0030,0.0077,
 ncol=8, byrow=TRUE)
 dimnames(Berkey98) <- list(NULL, c("trial","pub_year","no_of_patients",
 "PD","AL","var_PD","cov_PD_AL","var_AL"))
+Berkey98 <- data.frame(Berkey98)

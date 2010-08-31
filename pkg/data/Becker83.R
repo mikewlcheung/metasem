@@ -11,3 +11,4 @@ c(1,-0.33,0.03,25,2,
 10,-0.06,0.03,100,5),
 ncol=5, byrow=TRUE)
 dimnames(Becker83) <- list(NULL, c("study","di","vi","percentage","items"))
+Becker83 <- data.frame(Becker83)

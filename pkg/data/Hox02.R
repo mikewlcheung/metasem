@@ -22,3 +22,4 @@ c(-0.264, 0.086, 3,
 ncol=3, byrow=TRUE)
 Hox02 <- cbind(1:nrow(Hox02), Hox02)
 dimnames(Hox02) <- list(NULL, c("study", "yi","vi","weeks"))
+Hox02 <- data.frame(Hox02)

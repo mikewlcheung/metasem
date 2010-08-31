@@ -5,3 +5,4 @@ c(1,0.458,0.1,0.0513,0.0319,0.0501,
 4,0.294,0.037,0.0286,0.0179,0.0286),
 ncol=6, byrow=TRUE)
 dimnames(HedgesOlkin85) <- list(NULL, c("study", "d_att","d_ach","var_att","cov_att_ach","var_ach"))
+HedgesOlkin85 <- data.frame(HedgesOlkin85)
