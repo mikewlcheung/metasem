@@ -52,13 +52,10 @@ asyCov <- function(x, n, cor.analysis = TRUE, silent = TRUE, suppressWarnings = 
             stop(print(acovS))
         }
 
+        # When the dimensions are 1x1, dimnames are removed. Added them explicitly
+        dimnames(acovS) <- list(acovName, acovName)
+
         return(acovS)
     }
 }
-
-## More examples to test procedure
-#c.mat <- matrix(c(1,.5,.4,.3,.5,1,.3,.2,.4,.3,1,.1,.3,.2,.1,1),ncol=4)
-#c1 <- asyCov2(c.mat, n=100, cor.analysis=FALSE)
-#c2 <- asyCov2(c.mat, n=100, cor.analysis=TRUE)
-
 
