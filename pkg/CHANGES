@@ -1,9 +1,14 @@
+Release 0.3.3 (September 7, 2010)
+====================================
+* Added meta() for univariate and multivariate meta-analysis
+* Added as.mxMatrix() to convert matrices to mxMatrices
+
 Release 0.3.2 (August 29, 2010)
 ====================================
-* Added indepWLSChisq to calculate the chi-square statistic for an independent model based on WLS
-* Added minus2LL to calculate the chi-square statistic for independent and saturated models based on ML
-* Added summary.wls and print.summary.wls for wls objects
-* Added summary.tssem1 and print.summary.tssem1 for tssem1 objects
+* Added indepWLSChisq() to calculate the chi-square statistic for an independent model based on WLS
+* Added minus2LL() to calculate the chi-square statistic for independent and saturated models based on ML
+* Added summary.wls() and print.summary.wls() for wls objects
+* Added summary.tssem1() and print.summary.tssem1() for tssem1 objects
 
 Release 0.3.1 (August 09, 2010)
 ====================================

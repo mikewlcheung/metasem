@@ -67,45 +67,84 @@ Joreskog, K. G., Sorbom, D., Du Toit, S., & Du Toit, M. (1999). \emph{LISREL 8: 
 }
 \examples{
 \dontrun{
-# Analysis of correlation structure
+#### Analysis of correlation structure
 R1 <- matrix(c(1.00, 0.22, 0.24, 0.18,
                0.22, 1.00, 0.30, 0.22,
                0.24, 0.30, 1.00, 0.24,
                0.18, 0.22, 0.24, 1.00), ncol=4, nrow=4)
 n <- 1000
-acovR <- asyCov(R1, n)
+acovR1 <- asyCov(R1, n)
+## One-factor CFA model- P1: Factor variance; L1: Factor loadings 
 P1 <- mxMatrix("Full", ncol=1, nrow=1, value=1, free=FALSE, name="P1")
-L1 <- mxMatrix("Full", ncol=1, nrow=4, value=c(0.3, 0.4, 0.5, 0.4), free=TRUE, name="L1")
+L1 <- mxMatrix("Full", ncol=1, nrow=4, free=TRUE, name="L1")
 impliedR1 <- mxAlgebra(L1 \%&\% P1, name="impliedR1")
-wls.fit1 <- wls(S=R1, acovS=acovR, n=n, impliedS=impliedR1, matrices=c(P1, L1), cor.analysis=TRUE)
+wls.fit1 <- wls(S=R1, acovS=acovR1, n=n, impliedS=impliedR1, matrices=c(P1, L1), cor.analysis=TRUE)
 summary(wls.fit1)
 
-# Analysis of covariance structure
-S2 <- matrix(c(1.50, 0.22, 0.24, 0.18,
+
+#### Multiple regression analysis with RAM specification
+## Variables in R2: y, x1, x2
+R2 <- matrix(c(1.00, 0.22, 0.24, 
+               0.22, 1.00, 0.30, 
+               0.24, 0.30, 1.00, 
+               0.18, 0.22, 0.24), ncol=3, nrow=3)
+acovR2 <- asyCov(R2, n)
+
+## A2: Regression coefficents
+#   y x1 x2
+#y  F T  T 
+#x1 F F  F 
+#x2 F F  F 
+A2 <- mxMatrix("Full", ncol=3, nrow=3, byrow=TRUE,
+               free=c(FALSE, rep(TRUE, 2), rep(FALSE, 6)), name="A2")
+
+## S2: Covariance matrix of free parameters
+## Note that the diagonal elements are not involved in
+## the analysis of correlation structure
+#   y x1 x2
+#y  F F  F 
+#x1 F F  F 
+#x2 F T  F
+S2 <- mxMatrix("Stand", ncol=3, nrow=3, free=c(FALSE, FALSE, TRUE),name="S2")
+
+## Identity matrix
+Id <- mxMatrix("Iden", ncol=3, nrow=3, name="Id")
+
+## Model implied correlation matrix: (Id-A2)^-1 \%*\% S2 \%*\% ((Id-A2)^-1)'
+impliedR2 <- mxAlgebra( solve(Id-A2) \%&\% S2, name="impliedR2")
+
+wls.fit2 <- wls(S=R2, acovS=acovR2, n=n, impliedS=impliedR2, matrices=c(A2, S2, Id), cor.analysis=TRUE)
+summary(wls.fit2)
+
+
+#### Analysis of covariance structure
+S3 <- matrix(c(1.50, 0.22, 0.24, 0.18,
                0.22, 1.60, 0.30, 0.22,
                0.24, 0.30, 1.80, 0.24,
                0.18, 0.22, 0.24, 1.30), ncol=4, nrow=4)
 n <- 1000
-acovS <- asyCov(S2, n, cor.analysis=FALSE)
-P2 <- mxMatrix("Full", ncol=1, nrow=1, value=1, free=FALSE, name="P2")
-L2 <- mxMatrix("Full", ncol=1, nrow=4, value=c(0.3, 0.4, 0.5, 0.4), free=TRUE, name="L2")
-E2 <- mxMatrix("Diag", ncol=4, nrow=4, value=0.2, free=TRUE, name="E2") 
-impliedS2 <- mxAlgebra(L2 \%&\% P2 + E2, name="impliedS2")
-wls.fit2 <- wls(S=S2, acovS=acovS, n=n, impliedS=impliedS2, matrices=c(P2, L2, E2), cor.analysis=FALSE, intervals=TRUE)
-summary(wls.fit2)
+acovS3 <- asyCov(S3, n, cor.analysis=FALSE)
+P3 <- mxMatrix("Full", ncol=1, nrow=1, value=1, free=FALSE, name="P3")
+L3 <- mxMatrix("Full", ncol=1, nrow=4, value=c(0.3, 0.4, 0.5, 0.4), free=TRUE, name="L3")
+E3 <- mxMatrix("Diag", ncol=4, nrow=4, value=0.2, free=TRUE, name="E3") 
+impliedS3 <- mxAlgebra(L3 \%&\% P3 + E3, name="impliedS3")
+wls.fit3 <- wls(S=S3, acovS=acovS3, n=n, impliedS=impliedS3, matrices=c(P3, L3, E3), cor.analysis=FALSE, intervals=TRUE)
+summary(wls.fit3)
 
-# Example of tssem2
+
+##### Example of tssem2
 digman1 <- tssem1(Digman97, Digman97.n)
 
-P3 <- mxMatrix("Stand", ncol=2, nrow=2, value=.2, free=TRUE, name="P3")
-L3 <- mxMatrix("Full", ncol=2, nrow=5, value=c(0,.3,.3,.3,0,.3,0,0,0,.3),
-free=c(FALSE,TRUE,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,FALSE,TRUE), name="L3")
-impliedR3 <- mxAlgebra(L3 \%&\% P3, name="impliedR3")
+P4 <- mxMatrix("Stand", ncol=2, nrow=2, value=.2, free=TRUE, name="P4")
+L4 <- mxMatrix("Full", ncol=2, nrow=5, value=c(0,.3,.3,.3,0,.3,0,0,0,.3),
+free=c(FALSE,TRUE,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,FALSE,TRUE), name="L4")
+impliedR4 <- mxAlgebra(L4 \%&\% P4, name="impliedR4")
 
-digman2 <- tssem2(digman1, impliedS=impliedR3, matrices=c(P3, L3))
+digman2 <- tssem2(digman1, impliedS=impliedR4, matrices=c(P4, L4))
 summary(digman2)
 
-# Example of tssem2 with several clusters
+
+##### Example of tssem2 with several clusters
 data.cluster <- tapply(Digman97, Digman97.cluster, function(x) {x})
 n.cluster <- tapply(Digman97.n, Digman97.cluster, function(x) {x})
 digman1.cluster <- mapply(tssem1, my.df=data.cluster, n=n.cluster, SIMPLIFY=FALSE)

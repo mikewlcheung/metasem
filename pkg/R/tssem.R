@@ -224,8 +224,10 @@ wls <- function(S, acovS, n, impliedS, matrices, cor.analysis = TRUE, intervals 
     
     # Inverse of asymptotic covariance matrix
     invacovS <- tryCatch(solve(acovS), error = function(e) e)
-    if (inherits(invacovS, "error")) 
+    if (inherits(invacovS, "error")) {
+        cat("Error in inverting \"acovS\":\n")
         stop(print(invacovS))
+    }
     
     invAcov <- mxMatrix("Full", ncol = ps, nrow = ps, values = c(invacovS), free = FALSE, 
         name = "invAcov")
@@ -254,6 +256,7 @@ wls <- function(S, acovS, n, impliedS, matrices, cor.analysis = TRUE, intervals 
     
     # try to run it with error message as output
     if (inherits(wls.fit, "error")) {
+        cat("Error in running the mxModel:\n")
         stop(print(wls.fit))
     } else {
         out <- list(call = match.call(), noObservedStat=ps, n=n, 
