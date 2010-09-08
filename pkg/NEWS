@@ -1,5 +1,6 @@
-Release 0.3.3 (September 7, 2010)
+Release 0.3.3 (September 8, 2010)
 ====================================
+* Added new arguments in asyCov()
 * Added meta() for univariate and multivariate meta-analysis
 * Added as.mxMatrix() to convert matrices to mxMatrices
 

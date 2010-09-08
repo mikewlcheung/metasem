@@ -1,8 +1,42 @@
 #### Generate asymptotic covariance matrix of correlation/covariance matrix by *column major*
-asyCov <- function(x, n, cor.analysis = TRUE, silent = TRUE, suppressWarnings = TRUE, ...) {
+asyCov <- function(x, n, cor.analysis = TRUE, dropNA = TRUE, as.matrix = TRUE,
+                   silent = TRUE, suppressWarnings = TRUE, ...) {
     if (is.list(x)) {
-        lapply(x, asyCov, n = n, cor.analysis = cor.analysis, silent = silent, suppressWarnings = suppressWarnings, ...)
+      
+        # Check if it returns a matrix or a list
+        if (as.matrix) {
+          # No. of variables
+          if (!identical(0, var(sapply(x, function(x){dim(x)[[1]]}))))
+            stop("The dimensions of matrices should be the same in order to stack them together!")
+          
+          if (is.null(dimnames(x[[1]]))) {
+            oldNames <- paste("x", 1:dim(x[[1]])[[1]], sep = "")
+          } else {
+            oldNames <- dimnames(x[[1]])[[1]]
+          }
+          psOldNames <- outer(oldNames, oldNames, paste, sep = "")          
+          if (cor.analysis) {
+            psOldNames <- vechs(psOldNames)
+          } else {
+            psOldNames <- vech(psOldNames)
+          }
+          # cov/var of psOldNames
+          psCovNames <- paste("cov(", outer(psOldNames, psOldNames, paste, sep = "_"), ")", sep="")
+          psCovNames <- vech(matrix(psCovNames, nrow=length(psOldNames), ncol=length(psOldNames)))
+          out.list <- lapply(x, asyCov, n = n, cor.analysis = cor.analysis, silent = silent,
+                             suppressWarnings = suppressWarnings, dropNA = FALSE, ...)
+          #output
+          out <- t(sapply(out.list, function(x) {(vech(x))}))
+          dimnames(out)[[2]] <- psCovNames
+          out
+        } else {
+          #output
+          lapply(x, asyCov, n = n, cor.analysis = cor.analysis, silent = silent,
+                             suppressWarnings = suppressWarnings, dropNA = dropNA, ...)
+        }
+        
     } else {
+      
         # Assumption: check the diagonals for missing data only
         miss.index <- is.na(diag(x))
         x.new <- x[!miss.index, !miss.index]
@@ -10,16 +44,19 @@ asyCov <- function(x, n, cor.analysis = TRUE, silent = TRUE, suppressWarnings = 
             stop("x is not positive definite!\n")
         p <- nrow(x.new)
         if (is.null(dimnames(x))) {
-            cNames <- paste("x", 1:nrow(x), sep = "")
-            cNames <- cNames[!miss.index]
+            oldNames <- paste("x", 1:nrow(x), sep = "")
+            cNames <- oldNames[!miss.index]
             dimnames(x.new) <- list(cNames, cNames)
         } else {
+            oldNames <- dimnames(x)[[1]]
             cNames <- dimnames(x.new)[[1]]
         }
         # create matrix of labels for ps
+        psOldNames <- outer(oldNames, oldNames, paste, sep = "")
         psMatnames <- outer(cNames, cNames, paste, sep = "")
         
         if (cor.analysis) {
+            psOldNames <- vechs(psOldNames)
             acovName <- vechs(psMatnames)
             S <- mxMatrix("Stand", nrow = p, ncol = p, free = TRUE, values = jitter(vechs(cov2cor(x.new))), 
                 name = "S", labels = acovName)
@@ -27,6 +64,7 @@ asyCov <- function(x, n, cor.analysis = TRUE, silent = TRUE, suppressWarnings = 
                 name = "D")
             modelName <- "Asymptotic covariance matrix of correlation matrix"
         } else {
+            psOldNames <- vech(psOldNames)
             acovName <- vech(psMatnames)
             S <- mxMatrix("Symm", nrow = p, ncol = p, free = TRUE, values = jitter(vech(x.new)), 
                 name = "S", labels = acovName)
@@ -55,7 +93,16 @@ asyCov <- function(x, n, cor.analysis = TRUE, silent = TRUE, suppressWarnings = 
         # When the dimensions are 1x1, dimnames are removed. Added them explicitly
         dimnames(acovS) <- list(acovName, acovName)
 
-        return(acovS)
+        if (dropNA) {          
+          out <- acovS
+        } else {          
+          # oldNames include data for NA
+          p <- length(psOldNames)
+          out <- matrix(NA, nrow=p, ncol=p, dimnames=list(psOldNames, psOldNames))
+          out[acovName, acovName] <- acovS
+        }
+        return(out)
     }
+    
 }
 

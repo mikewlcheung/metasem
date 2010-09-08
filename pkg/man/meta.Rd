@@ -17,7 +17,7 @@ meta(y, v, x, intercept.constraints, coeff.constraints, RE.constraints, RE.lboun
   \item{y}{An effect size for univariate meta-analysis or a \eqn{k}{k} x
 	\eqn{p}{p} matrix of effect sizes for multivariate meta-analysis
 	where \eqn{k}{k} is the number of studies and \eqn{p}{p} is the
-	number of effect sizes
+	number of effect sizes. For multiple effect sizes, they can be combined via \code{\link[base]{cbind}}.
 }
   \item{v}{The sampling variance of the effect size for univarite
 	meta-analysis or a \eqn{k}{k} x \eqn{p*}{p*} matrix of the sampling
@@ -25,16 +25,29 @@ meta(y, v, x, intercept.constraints, coeff.constraints, RE.constraints, RE.lboun
 	where \eqn{p* = p(p+1)/2 }{p* = p(p+1)/2}. It is arranged by column
 	major as used by \code{\link[OpenMx]{vech}}.
 }
-  \item{x}{A predictor or a matrix of predictors. For multiple
-	predictors, they are combined via \code{\link[base]{cbind}}
+  \item{x}{A predictor or a \eqn{k}{k} x \eqn{m}{m} matrix of predictors
+	where \eqn{m}{m} is the number of predictors. They can be combined via \code{\link[base]{cbind}}.
 }
-  \item{intercept.constraints}{a
+  \item{intercept.constraints}{A \eqn{1}{1} x \eqn{p}{p} matrix
+	specifying whether the intercepts of the effect sizes are fixed or
+	free. The default is that all intercepts are free. When there is no predictor, these intercepts are the same as
+	the pooled effect sizes. The format of this matrix follows
+	\code{\link[metaSEM]{as.mxMatrix}}. The parameter estimates will be
+	constrained equally if the labels are the same.
 }
-  \item{coeff.constraints}{a
+  \item{coeff.constraints}{A \eqn{p}{p} x \eqn{m}{m} matrix
+	specifying how the predictors predict the effect sizes. The default
+	is that all \eqn{m}{m} predictors predict all \eqn{p}{p} effect sizes. The
+	format of this matrix follows \code{\link[metaSEM]{as.mxMatrix}}. The parameter estimates will be
+	constrained equally if the labels are the same.
 }
-  \item{RE.constraints}{a
+  \item{RE.constraints}{A \eqn{p}{p} x \eqn{p}{p} matrix
+	specifying the random effects. The default is that all
+	covariance/variance components are free. The format of this matrix follows \code{\link[metaSEM]{as.mxMatrix}}. The parameter estimates will be
+	constrained equally if the labels are the same. If a zero matrix is
+	specified, it becomes a fixed-effects meta-analysis.
 }
-  \item{RE.lbound}{Lower bound for the variance components. It
+  \item{RE.lbound}{It sets the lower bound for the variance components. It
 	should be noted that no lower bound is imposed on the covariance
 	components for the multivariate meta-analysis
 }

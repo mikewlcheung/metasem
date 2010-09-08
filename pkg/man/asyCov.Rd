@@ -6,7 +6,8 @@
   correlation/covariance matrix by assuming multivariate normality. 
 }
 \usage{
-asyCov(x, n, cor.analysis = TRUE, silent = TRUE, suppressWarnings = TRUE, ...)
+asyCov(x, n, cor.analysis = TRUE, dropNA = TRUE, as.matrix = TRUE, silent = TRUE, suppressWarnings =
+TRUE,  ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -18,15 +19,30 @@ asyCov(x, n, cor.analysis = TRUE, silent = TRUE, suppressWarnings = TRUE, ...)
 	diagonals are coded with \code{NA} or other values as defined in \code{na.string}.
 }
   \item{n}{Sample size or a vector of sample sizes}
-  \item{cor.analysis}{Logical. The output is either a correlation or covariance matrix.}
+  \item{cor.analysis}{Logical. The output is either a correlation or
+	covariance matrix.}
+  \item{dropNA}{Logical. If it is \code{TRUE}, the resultant dimensions
+	will be reduced by dropping the missing variables. If it is
+	\code{FALSE}, the resultant dimensions are the same as the input by
+	keeping the missing variables. }
+  \item{as.matrix}{Logical. If it is \code{TRUE} and \code{x} is a list of correlation/covariance
+	matrices with the same dimensions, the asymptotic covariance
+	matrices will be column vectorized and stacked together. If it is
+	\code{FALSE}, the output will be a list of asymptotic covariance
+	matrices. Note that if it is \code{TRUE}, \code{dropNA} will be
+	\code{FALSE} automatically. }  
   \item{silent}{Logical. Argument to be passed to \code{\link[OpenMx]{mxRun}}}
-  \item{suppressWarnings}{Logical. Argument to be passed to \code{\link[OpenMx]{mxRun}}}
+  \item{suppressWarnings}{Logical. Argument to be passed to
+	\code{\link[OpenMx]{mxRun}}}
   \item{\dots}{Futher arguments to be passed to \code{\link[OpenMx]{mxRun}}}
 }
 \details{
 %%  ~~ If necessary, more details than the description above ~~
 }
-\value{Asymptotic covariance matrix of the vectorized correlation/covariance matrix}
+\value{An asymptotic covariance matrix of the vectorized
+  correlation/covariance matrix or a list of these matrices. If
+  \code{as.matrix}=\code{TRUE} and \code{x} is a list of matrices, the output
+  is a stacked matrix. }
 \references{
 Cheung, M. W. L., & Chan, W. (2004). Testing dependent correlation coefficients via structural equation modeling. \emph{Organizational Research Methods}, \bold{7}, 206-223. 
 }
@@ -48,9 +64,9 @@ asyCov(C1, n=100)
 C2 <- matrix(c(1,0.4,NA,0.4,1,NA,NA,NA,NA), ncol=3)  
 C3 <- matrix(c(1,0.2,0.2,1), ncol=2)
 
-asyCov(list(C1,C2,C3), n=c(100,50,50))
+asyCov(list(C1,C2,C3), n=c(100,50,50), as.matrix=FALSE)
 
-
+asyCov(list(C1,C2), n=c(100,50), as.matrix=TRUE)
 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
