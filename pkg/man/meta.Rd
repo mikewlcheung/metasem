@@ -82,6 +82,30 @@ meta(y, v, x, intercept.constraints, coeff.constraints, RE.constraints, RE.lboun
 }
 \examples{
 
+## Random-effects meta-analysis
+attach(Hox02)
+rand.fit <- meta(y=yi, v=vi)
+summary(rand.fit)
+
+## Fixed-effects meta-analysis
+fixed.fit <- meta(y=yi, v=vi, RE.constraints=matrix(0, ncol=1, nrow=1))
+summary(fixed.fit)
+
+## Mixed-effects meta-analysis with "weeks" as the predictor
+mixed.fit <- meta(y=yi, v=vi, x=weeks)
+summary(mixed.fit)
+detach(Hox02)
+
+## Multivariate meta-analysis
+attach(Berkey98)
+mul.fit <- meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL))
+summary(mul.fit)
+
+## Multivariate meta-analysis with "publication year-1979" as the predictor
+mulmix.fit <- meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL), x=scale(pub_year, center=1979))
+summary(mulmix.fit)
+detach(Berkey98)
+
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

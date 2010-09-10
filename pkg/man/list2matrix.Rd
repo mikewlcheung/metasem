@@ -1,0 +1,54 @@
+\name{list2matrix}
+\alias{list2matrix}
+\title{Convert a list of symmetric matrices into a matrix
+}
+\description{It converts a list of symmetric matrices into
+  a stacked matrix. Dimensions of the symmetric matrices have to be the
+  same. It tries to preserve the dimension names. Dimension names will
+  be created if there is no dimension names in the first symmetric matrices. 
+}
+\usage{
+list2matrix(x, diag = FALSE)
+}
+\arguments{
+  \item{x}{A list of \eqn{k}{k} \eqn{p}{p} x \eqn{p}{p} symmetric matrices.
+}
+  \item{diag}{Logical. If it is \code{TRUE}, \code{\link[OpenMx]{vech}}
+	is used to vectorize the symmetric matrices. If it is \code{FALSE}, \code{\link[OpenMx]{vechs}}
+	is used to vectorize the symmetric matrices.
+}
+}
+\details{
+}
+\value{A \eqn{k}{k} x \eqn{p*}{p*} matrix where \eqn{p* = p(p-1)/2 }{p*
+	= p(p-1)/2} for \code{diag}=\code{FALSE} or \eqn{p* = p(p+1)/2
+  }{p* = p(p+1)/2} for \code{diag}=\code{TRUE}.
+
+}
+\references{
+%% ~put references to the literature/web site here ~
+}
+\author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
+}
+\note{
+%%  ~~further notes~~
+}
+
+%% ~Make other sections like Warning with \section{Warning }{....} ~
+
+\seealso{
+%% ~~objects to See Also as \code{\link{help}}, ~~~
+}
+\examples{
+C1 <- matrix(c(1,0.5,0.4,0.5,1,0.2,0.4,0.2,1), ncol=3)  
+asyCov(C1, n=100)
+C2 <- matrix(c(1,0.4,NA,0.4,1,NA,NA,NA,NA), ncol=3)  
+list2matrix(list(C1, C2))
+
+dimnames(C1) <- list( c("x","y","z"), c("x","y","z") )
+dimnames(C2) <- list( c("x","y","z"), c("x","y","z") )
+list2matrix(list(C1, C2))
+}
+% Add one or more standard keywords, see file 'KEYWORDS' in the
+% R documentation directory.
+\keyword{utilities}

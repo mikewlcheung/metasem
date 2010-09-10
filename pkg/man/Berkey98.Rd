@@ -22,7 +22,7 @@
   \item{pub_year}{Publication year}
   \item{no_of_patients}{Number of patients}
   \item{PD}{Patient improvements (mm) in \emph{probing depth}}
-  \item{AD}{Patient improvements (mm) in \emph{attachment level}}
+  \item{AL}{Patient improvements (mm) in \emph{attachment level}}
   \item{var_PD}{Sampling variance of PD}
   \item{cov_PD_AL}{Sampling covariance between PD and AD}
   \item{var_AL}{Sampling variance of AL}

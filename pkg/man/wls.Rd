@@ -1,7 +1,7 @@
 \name{wls}
 \alias{wls}
 \alias{tssem2}
-\title{Fitting a correlation or covariance structure with weighted least squares
+\title{Fit a correlation or covariance structure analysis with weighted least squares
 }
 \description{It fits a correlation or covariance structure with
   weighted least squares (WLS) where the inverse of the asymptotic covariance matrix is
