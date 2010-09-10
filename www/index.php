@@ -45,7 +45,7 @@ echo $contents; } ?>
 
 <p> No content added. </p>
 
-<p> The <strong>project summary page</strong> you can find <a href="http://<?php echo $domain; ?>/projects/<?php echo $group_name; ?>/"><strong>here</strong></a>. </p>
+<p> You can find the project web site <a href="http://courses.nus.edu.sg/course/psycwlm/Internet/metaSEM/index.html"><strong>here</strong></a>. </p>
 
 </body>
 </html>
