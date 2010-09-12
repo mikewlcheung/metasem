@@ -193,3 +193,62 @@ print.wls <- function(x, ...) {
     cat("\n\nStructure:\n")
     print(summary.default(x), ...)
 }
+
+print.meta <- function(x, ...) {
+    if (!is.element("meta", class(x)))
+      stop("\"x\" must be an object of class \"meta\".")
+    cat("Call:\n")
+    cat(deparse(x$call))
+    cat("\n\nStructure:\n")
+    print(summary.default(x), ...)
+}
+
+summary.meta <- function(object, ...) {
+    if (!is.element("meta", class(object)))
+    stop("\"object\" must be an object of class \"meta\".")
+
+    # calculate coefficients    
+    my.para <- summary(object$meta.fit)$parameters
+    # For example, P[1,2], L[1,2], ...
+    my.para$label <- my.para$name
+    my.para$name <- with(my.para, paste(matrix,"[",row,",",col,"]",sep=""))
+    
+    my.ci <- summary(object$meta.fit)$CI
+    # Determine if CIs on parameter estimates are present
+    if (is.null(dimnames(my.ci))) {
+      my.para$lbound <- my.para$Estimate - qnorm(.975)*my.para$Std.Error
+      my.para$ubound <- my.para$Estimate + qnorm(.975)*my.para$Std.Error
+      my.para <- my.para[order(my.para$matrix, my.para$row, my.para$col), ]
+      # remove rows with missing labels
+      my.para <- my.para[!is.na(my.para$label), ]
+      coefficients <- my.para[, -c(1:4,7)]
+      dimnames(coefficients)[[1]] <- my.para$label 
+    } else {
+      name <- sapply(unlist(dimnames(my.ci)[1]), function(x)
+                       {strsplit(x, "Meta analysis.", fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
+      my.ci <- data.frame(name, my.ci)
+      my.para <- merge(my.para, my.ci, by=c("name"))
+      my.para <- my.para[order(my.para$matrix, my.para$row, my.para$col), ]
+      # remove rows with missing labels
+      my.para <- my.para[!is.na(my.para$label), ]
+      coefficients <- my.para[, -c(1:4,7,9)]
+      dimnames(coefficients)[[1]] <- my.para$label 
+    }
+    coefficients$"z value" <- coefficients$Estimate/coefficients$Std.Error
+    coefficients$"Pr(>|z|)" <- 2*(1-pnorm(abs(coefficients$"z value")))
+    
+    out <- list(call=object$call, coefficients=coefficients)
+    class(out) <- "summary.meta"
+    out
+}
+
+print.summary.meta <- function(x, ...) {
+    if (!is.element("summary.meta", class(x)))
+    stop("\"x\" must be an object of class \"summary.meta\".")
+    cat("Call:\n")
+    cat(deparse(x$call))
+    cat("\n\nCoefficients:\n")
+    printCoefmat(x$coefficients, P.values=TRUE, ...)
+    ## cat("\nGoodness-of-fit indices:\n")
+    ## printCoefmat(x$stat, ...)
+}

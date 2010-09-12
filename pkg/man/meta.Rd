@@ -1,6 +1,5 @@
 \name{meta}
 \alias{meta}
-%- Also NEED an '\alias' for EACH other topic documented here.
 \title{Univariate and multivariate meta-analysis
 }
 \description{
@@ -10,7 +9,8 @@ including study characteristics as predictors. Equality constraints on
 intercepts, regression coefficients and variance components are possible.
 }
 \usage{
-meta(y, v, x, intercept.constraints, coeff.constraints, RE.constraints, RE.lbound = 1e-10, intervals = FALSE, ...)
+meta(y, v, x, intercept.constraints, coeff.constraints, RE.constraints,
+RE.startvalues=0.1, RE.lbound = 1e-10, intervals = FALSE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -46,6 +46,11 @@ meta(y, v, x, intercept.constraints, coeff.constraints, RE.constraints, RE.lboun
 	covariance/variance components are free. The format of this matrix follows \code{\link[metaSEM]{as.mxMatrix}}. The parameter estimates will be
 	constrained equally if the labels are the same. If a zero matrix is
 	specified, it becomes a fixed-effects meta-analysis.
+  }
+  \item{RE.startvalues}{A vector of \eqn{p}{p} starting values on the
+	diagonals of the variance component of the random effects. If only 1
+	scalar is given, it will be duplicated. The starting values for the
+	off-diagonals of the variance component are all 0.
 }
   \item{RE.lbound}{It sets the lower bound for the variance components. It
 	should be noted that no lower bound is imposed on the covariance
@@ -67,7 +72,13 @@ meta(y, v, x, intercept.constraints, coeff.constraints, RE.constraints, RE.lboun
 %% ...
 }
 \references{
-  Cheung, M. W. L. (2008). A model for integrating fixed-, random-, and mixed-effects meta-analyses into structural equation modeling. \emph{Psychological Methods}, \bold{13}, 182-202. 
+  Cheung, M. W. L. (2008). A model for integrating fixed-, random-, and
+  mixed-effects meta-analyses into structural equation
+  modeling. \emph{Psychological Methods}, \bold{13}, 182-202.
+  
+  Hardy, R. J., & Thompson, S. G. (1996). A likelihood approach to
+  meta-analysis with random effects. \emph{Statistics in Medicine},
+  \bold{15}, 619-629.
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
@@ -102,7 +113,8 @@ mul.fit <- meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL))
 summary(mul.fit)
 
 ## Multivariate meta-analysis with "publication year-1979" as the predictor
-mulmix.fit <- meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL), x=scale(pub_year, center=1979))
+mulmix.fit <- meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
+x=scale(pub_year, center=1979))
 summary(mulmix.fit)
 detach(Berkey98)
 

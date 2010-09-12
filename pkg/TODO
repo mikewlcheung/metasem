@@ -1,5 +1,3 @@
 Add print and summary methods for meta.obj
-Handle incomplete multivariate effect sizes in meta()
 Add functions to generate effect sizes
-Compare with previous examples with LISREL
 Verify with simulation

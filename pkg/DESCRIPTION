@@ -1,8 +1,8 @@
 Package: metaSEM
 Type: Package
 Title: Meta-analysis: A Structural Equation Modeling Approach
-Version: 0.3-3
-Date: 2010-09-10
+Version: 0.3-4
+Date: 2010-09-12
 Depends:R (>= 2.11.1), OpenMx
 Imports: Matrix
 Author: Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
