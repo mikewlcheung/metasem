@@ -1,8 +1,8 @@
 Package: metaSEM
 Type: Package
 Title: Meta-analysis: A Structural Equation Modeling Approach
-Version: 0.3-4
-Date: 2010-09-12
+Version: 0.3-5
+Date: 2010-09-14
 Depends:R (>= 2.11.1), OpenMx
 Imports: Matrix
 Author: Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
@@ -15,4 +15,4 @@ Description: The metaSEM package conducts univariate and multivariate
 License: GPL (>=2)
 LazyLoad: yes
 LazyData: yes
-URL: http://metaSEM.r-forge.r-project.org/
+URL: http://metaSEM.r-forge.r-project.org/ or http://courses.nus.edu.sg/course/psycwlm/Internet/metaSEM/

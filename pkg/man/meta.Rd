@@ -4,13 +4,13 @@
 }
 \description{
 It conducts univariate and multivariate meta-analysis based on maximum
-likelihood estimation. Mixed-effects meta-analysis is allowed by
+likelihood estimation method. Mixed-effects meta-analysis is allowed by
 including study characteristics as predictors. Equality constraints on
 intercepts, regression coefficients and variance components are possible.
 }
 \usage{
 meta(y, v, x, intercept.constraints, coeff.constraints, RE.constraints,
-RE.startvalues=0.1, RE.lbound = 1e-10, intervals = FALSE, ...)
+RE.startvalues=0.1, RE.lbound = 1e-10, intervals.type = c("z", "LB"), ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -48,15 +48,25 @@ RE.startvalues=0.1, RE.lbound = 1e-10, intervals = FALSE, ...)
 	specified, it becomes a fixed-effects meta-analysis.
   }
   \item{RE.startvalues}{A vector of \eqn{p}{p} starting values on the
-	diagonals of the variance component of the random effects. If only 1
-	scalar is given, it will be duplicated. The starting values for the
-	off-diagonals of the variance component are all 0.
+	diagonals of the variance component of the random effects. If only one
+	scalar is specified, it will be duplicated across the diagonals. The starting values for the
+	off-diagonals of the variance component are all 0. A \eqn{p}{p} x
+	\eqn{p}{p} symmetric matrix of starting values is also acceptable. 
 }
-  \item{RE.lbound}{It sets the lower bound for the variance components. It
-	should be noted that no lower bound is imposed on the covariance
-	components for the multivariate meta-analysis
+  \item{RE.lbound}{A vector of \eqn{p}{p} lower bounds on the
+	diagonals of the variance component of the random effects. If only one
+	scalar is specified, it will be duplicated across the diagonals. The
+	lower bounds for the off-diagonals of the variance component are set
+	at \code{NA}. A \eqn{p}{p} x
+	\eqn{p}{p} symmetric matrix of the lower bounds is also acceptable
 }
-  \item{intervals}{logical. If \code{TRUE}, it calculates the likelihood-based confidence intervals on the parameter estimates; otherwise, Wald-based confidence intervals are calculated.
+  \item{intervals.type}{Either \code{z} (default if missing) or
+	\code{LB}. If it is \code{z}, it calculates 95\% Wald confidence
+	intervals (CIs) based on the z statistic. If it is \code{LB}, it
+	calculates 95\% likelihood-based CIs on the
+	parameter estimates. Please note that the z values and their
+	associated p values are based on the z statistic. They are not
+	related to the likelihood-based CIs.
 }
   \item{\dots}{Futher arguments to be passed to \code{\link[OpenMx]{mxRun}}
 }
@@ -64,21 +74,31 @@ RE.startvalues=0.1, RE.lbound = 1e-10, intervals = FALSE, ...)
 \details{
 %%  ~~ If necessary, more details than the description above ~~
 }
-\value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
+\value{An object of class \code{meta} with a list of
+  \item{call}{Object returned by \code{\link[base]{match.call}}}
+  \item{data}{A data matrix of y, v and x  }
+  \item{no.y}{No. of effect sizes}
+  \item{no.x}{No. of predictors}
+  \item{miss.x}{A vector indicating whether the predictors are
+	missing. Studies will be removed if they are \code{TRUE}}
+  \item{meta.fit}{A fitted object returned from
+	\code{\link[OpenMx]{mxRun}}}
 }
 \references{
   Cheung, M. W. L. (2008). A model for integrating fixed-, random-, and
   mixed-effects meta-analyses into structural equation
   modeling. \emph{Psychological Methods}, \bold{13}, 182-202.
+
+  Cheung, M. W. L. (2009). Constructing approximate confidence intervals
+  for parameters with structural equation models. \emph{Structural Equation Modeling}, \bold{16}, 267-294.
   
   Hardy, R. J., & Thompson, S. G. (1996). A likelihood approach to
   meta-analysis with random effects. \emph{Statistics in Medicine},
   \bold{15}, 619-629.
+  
+  Neale, M. C., & Miller, M. B. (1997). The use of likelihood-based
+  confidence intervals in genetic models. \emph{Behavior
+Genetics}, \bold{27}, 113-120.
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
@@ -95,27 +115,30 @@ RE.startvalues=0.1, RE.lbound = 1e-10, intervals = FALSE, ...)
 
 ## Random-effects meta-analysis
 attach(Hox02)
-rand.fit <- meta(y=yi, v=vi)
-summary(rand.fit)
+summary( meta(y=yi, v=vi) )
 
 ## Fixed-effects meta-analysis
-fixed.fit <- meta(y=yi, v=vi, RE.constraints=matrix(0, ncol=1, nrow=1))
-summary(fixed.fit)
+summary( meta(y=yi, v=vi, RE.constraints=matrix(0, ncol=1, nrow=1)) )
 
 ## Mixed-effects meta-analysis with "weeks" as the predictor
-mixed.fit <- meta(y=yi, v=vi, x=weeks)
-summary(mixed.fit)
+## Use likelihood-based CI
+summary( meta(y=yi, v=vi, x=weeks, intervals.type="LB") )
 detach(Hox02)
+
 
 ## Multivariate meta-analysis
 attach(Berkey98)
-mul.fit <- meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL))
-summary(mul.fit)
+summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL)) )
 
 ## Multivariate meta-analysis with "publication year-1979" as the predictor
-mulmix.fit <- meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
-x=scale(pub_year, center=1979))
-summary(mulmix.fit)
+summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
+         x=scale(pub_year, center=1979)) )
+
+## Multivariate meta-analysis with an equality constraint on the slopes
+summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
+         x=scale(pub_year, center=1979),
+         coeff.constraints=matrix(c("0.3*Eq_slope", "0.3*Eq_slope"), nrow=2)) )
+
 detach(Berkey98)
 
 }

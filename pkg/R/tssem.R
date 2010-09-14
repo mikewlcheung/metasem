@@ -205,11 +205,19 @@ tssem1 <- function(my.df, n, start.values, cor.analysis = TRUE, ...) {
 
 
 
-wls <- function(S, acovS, n, impliedS, matrices, cor.analysis = TRUE, intervals = FALSE, ...) {
+wls <- function(S, acovS, n, impliedS, matrices, cor.analysis = TRUE,
+                intervals.type =c("z", "LB"), ...) {
     impliedS@name <- "impliedS"
     no.var <- ncol(S)
     sampleS <- mxMatrix("Full", ncol = no.var, nrow = no.var, values = c(S), free = FALSE, 
         name = "sampleS")
+    
+    intervals.type <- match.arg(intervals.type)
+    # Default is z
+    switch(intervals.type,
+           z = intervals <- FALSE,
+           LB = intervals <- TRUE)
+    
     if (cor.analysis) {
         model.name <- "Correlation structure"
         ps <- no.var * (no.var - 1)/2
@@ -268,7 +276,7 @@ wls <- function(S, acovS, n, impliedS, matrices, cor.analysis = TRUE, intervals 
 }
 
 
-tssem2 <- function(tssem1.obj, impliedS, matrices, intervals = FALSE, ...) {
+tssem2 <- function(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB"), ...) {
   if (!is.element("tssem1", class(tssem1.obj)))
     stop("\"tssem1.obj\" must be an object of class \"tssem1\".")
   # check the call to determine whether it is a correlation or covariance analysis
@@ -281,5 +289,5 @@ tssem2 <- function(tssem1.obj, impliedS, matrices, intervals = FALSE, ...) {
      cor.analysis <- as.logical(as.character(cor.analysis))
   }
   wls(S=tssem1.obj$pooledS, acovS=tssem1.obj$acovS, n=tssem1.obj$total.n, impliedS=impliedS,
-      matrices=matrices, cor.analysis = cor.analysis, intervals = intervals, ...)
+      matrices=matrices, cor.analysis = cor.analysis, intervals.type = intervals.type, ...)
 }

@@ -35,7 +35,7 @@ minus2LL(x, n, model = c("saturated", "independent"))
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{  \code{\link[metaSEM]{tssem1}, \code{\link[metaSEM]{indepwlsChisq}}}
+\seealso{  \code{\link[metaSEM]{tssem1}}, \code{\link[metaSEM]{indepwlsChisq}}
 }
 \examples{
 # One study

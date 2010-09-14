@@ -2,8 +2,7 @@
 \alias{print.tssem1}
 \title{Print methods for tssem1 objects 
 }
-\description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+\description{Print methods for tssem1 objects
 }
 \usage{
 print.tssem1(x, ...)

@@ -2,8 +2,7 @@
 \alias{print.meta}
 \title{Print methods for meta objects 
 }
-\description{
-%%  ~~ A concise (1-5 lines) description of what the function does. ~~
+\description{Print methods for meta objects
 }
 \usage{
 print.meta(x, ...)

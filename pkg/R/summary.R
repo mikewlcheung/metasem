@@ -61,8 +61,11 @@ summary.wls <- function(object, ...) {
     }
     coefficients$"z value" <- coefficients$Estimate/coefficients$Std.Error
     coefficients$"Pr(>|z|)" <- 2*(1-pnorm(abs(coefficients$"z value")))
-    
-    out <- list(call=object$call, coefficients=coefficients, stat=stat)
+
+    libMatrix <- installed.packages()
+    out <- list(call=object$call, coefficients=coefficients, stat=stat, R.version=as.character(getRversion()),
+                OpenMx.version=libMatrix["OpenMx", "Version"], metaSEM.version=libMatrix["metaSEM", "Version"],
+                date=date())
     class(out) <- "summary.wls"
     out
 }
@@ -75,10 +78,17 @@ print.summary.wls <- function(x, ...) {
     if (is.na(call.text[2]))
        cat(call.text[1])
     else cat(call.text[c(1,2)])
+
     cat("\n\nCoefficients:\n")
     printCoefmat(x$coefficients, P.values=TRUE, ...)
+
     cat("\nGoodness-of-fit indices:\n")
     printCoefmat(x$stat, ...)
+
+    cat("\n\nR version:", x$R.version)
+    cat("\nOpenMx version:", x$OpenMx.version)
+    cat("\nmetaSEM version:", x$metaSEM.version)
+    cat("\nDate of analysis:", x$date,"\n\n")
 }
 
 summary.tssem1 <- function(object, ...) {
@@ -149,8 +159,11 @@ summary.tssem1 <- function(object, ...) {
     coefficients <- my.para[, c(5,6)]
     coefficients$"z value" <- coefficients$Estimate/coefficients$Std.Error
     coefficients$"Pr(>|z|)" <- 2*(1-pnorm(abs(coefficients$"z value")))
-    
-    out <- list(call=object$call, coefficients=coefficients, stat=stat)
+
+    libMatrix <- installed.packages()    
+    out <- list(call=object$call, coefficients=coefficients, stat=stat, R.version=as.character(getRversion()),
+                OpenMx.version=libMatrix["OpenMx", "Version"], metaSEM.version=libMatrix["metaSEM", "Version"],
+                date=date())
     class(out) <- "summary.tssem1"
     out
 }
@@ -160,14 +173,22 @@ print.summary.tssem1 <- function(x, ...) {
     if (!is.element("summary.tssem1", class(x)))
     stop("\"x\" must be an object of class \"summary.tssem1\".")
     call.text <- deparse(x$call)
+    
     cat("Call:\n")
     if (is.na(call.text[2]))
        cat(call.text[1])
     else cat(call.text[c(1,2)])
+
     cat("\n\nCoefficients:\n")
     printCoefmat(x$coefficients, P.values=TRUE, ...)
+
     cat("\nGoodness-of-fit indices:\n")
     printCoefmat(x$stat, ...)
+
+    cat("\n\nR version:", x$R.version)
+    cat("\nOpenMx version:", x$OpenMx.version)
+    cat("\nmetaSEM version:", x$metaSEM.version)
+    cat("\nDate of analysis:", x$date, "\n\n")    
 }
 
 print.tssem1 <- function(x, ...) {
@@ -208,7 +229,8 @@ summary.meta <- function(object, ...) {
     stop("\"object\" must be an object of class \"meta\".")
 
     # calculate coefficients    
-    my.para <- summary(object$meta.fit)$parameters
+    my.mx <- summary(object$meta.fit)
+    my.para <- my.mx$parameters
     # For example, P[1,2], L[1,2], ...
     my.para$label <- my.para$name
     my.para$name <- with(my.para, paste(matrix,"[",row,",",col,"]",sep=""))
@@ -236,8 +258,19 @@ summary.meta <- function(object, ...) {
     }
     coefficients$"z value" <- coefficients$Estimate/coefficients$Std.Error
     coefficients$"Pr(>|z|)" <- 2*(1-pnorm(abs(coefficients$"z value")))
-    
-    out <- list(call=object$call, coefficients=coefficients)
+
+    intervals.type <- object$call[[match("intervals.type", names(object$call))]]
+    # default
+    if (is.null(intervals.type))
+      intervals.type <- "z"
+
+    libMatrix <- installed.packages()    
+    out <- list(call=object$call, intervals.type=intervals.type, no.studies=my.mx$numObs,
+                obsStat=my.mx$observedStatistics, estPara=my.mx$estimatedParameters,
+                df=my.mx$degreesOfFreedom, Minus2LL=my.mx$Minus2LogLikelihood,
+                coefficients=coefficients, R.version=as.character(getRversion()),
+                OpenMx.version=libMatrix["OpenMx", "Version"], metaSEM.version=libMatrix["metaSEM", "Version"],
+                date=date())                
     class(out) <- "summary.meta"
     out
 }
@@ -245,10 +278,25 @@ summary.meta <- function(object, ...) {
 print.summary.meta <- function(x, ...) {
     if (!is.element("summary.meta", class(x)))
     stop("\"x\" must be an object of class \"summary.meta\".")
+    
     cat("Call:\n")
     cat(deparse(x$call))
+    
     cat("\n\nCoefficients:\n")
     printCoefmat(x$coefficients, P.values=TRUE, ...)
-    ## cat("\nGoodness-of-fit indices:\n")
-    ## printCoefmat(x$stat, ...)
+
+    cat("\n\nNumber of studies:", x$no.studies)
+    cat("\nNumber of observed statistics:", x$obsStat)
+    cat("\nNumber of parameter estimated:", x$estPara)
+    cat("\nDegrees of freedom:", x$df)
+    cat("\n-2 log likelihood:", x$Minus2LL)        
+    cat("\n95% confidence intervals are based on: ")
+    switch(x$intervals.type,
+           z = cat("z statistic approximation."),
+           LB = cat("Likelihood-based statistic.") )
+
+    cat("\n\nR version:", x$R.version)
+    cat("\nOpenMx version:", x$OpenMx.version)
+    cat("\nmetaSEM version:", x$metaSEM.version)
+    cat("\nDate of analysis:", x$date, "\n\n")    
 }

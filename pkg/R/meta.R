@@ -1,5 +1,6 @@
 meta <- function(y, v, x, intercept.constraints, coeff.constraints,
-                 RE.constraints, RE.startvalues=0.1, RE.lbound=1e-10, intervals=FALSE, ...) {
+                 RE.constraints, RE.startvalues=0.1, RE.lbound=1e-10,
+                 intervals.type=c("z", "LB"), ...) {
   if (is.vector(y)) no.y <- 1 else no.y <- ncol(y)  
   if (is.vector(v)) no.v <- 1 else no.v <- ncol(v)
   if (missing(x)) no.x <- 0 else {
@@ -67,8 +68,23 @@ meta <- function(y, v, x, intercept.constraints, coeff.constraints,
   #  No predictor
   if (missing(RE.constraints)) {
     # Better to use starting values based on diagonal matrix rather than the UMM
-    values <- vech(diag(x=RE.startvalues, nrow=no.y, ncol=no.y))
-    lbound <- vech(diag(x=RE.lbound, nrow = no.y, ncol = no.y))
+    if (is.matrix(RE.startvalues)) {
+      if (!all(dim(RE.startvalues)==c(no.y, no.y)))
+        warning("The dimensions of \"RE.startvalues\" are incorrect.")
+      values <- vech(RE.startvalues)
+    } else {
+      values <- vech(diag(x=RE.startvalues, nrow=no.y, ncol=no.y))
+    }
+
+    if (is.matrix(RE.lbound)) {
+      if (!all(dim(RE.lbound)==c(no.y, no.y)))
+        warning("The dimensions of \"RE.lbound\" are incorrect.")
+      lbound <- vech(RE.lbound)
+    } else {
+      lbound <- matrix(NA, nrow=no.y, ncol=no.y)
+      diag(lbound) <- RE.lbound
+      lbound <- vech(lbound)
+    }
     Tau.labels <- vech(outer(1:no.y, 1:no.y, function(x,y) { paste("Tau",x,"_",y,sep="")}))
     Tau <- mxMatrix("Symm", ncol=no.y, nrow=no.y, free=TRUE, labels=Tau.labels,
                     lbound=lbound, values=values, name="Tau")      
@@ -127,8 +143,13 @@ meta <- function(y, v, x, intercept.constraints, coeff.constraints,
                     mxRAMObjective("A", "S", "F", "M"), A, S, F, M, Tau, V, 
                     S1, S2, S3, S4, mxCI(c("Tau","M", "A")))
   }
-  meta.fit <- tryCatch( mxRun(meta, intervals=intervals, ...), error = function(e) e )
-  
+
+  intervals.type <- match.arg(intervals.type)
+  # Default is z
+  switch(intervals.type,
+    z = meta.fit <- tryCatch( mxRun(meta, intervals=FALSE, ...), error = function(e) e ),
+    LB = meta.fit <- tryCatch( mxRun(meta, intervals=TRUE, ...), error = function(e) e ) )
+ 
   if (inherits(meta.fit, "error")) {
     cat("Error in running the mxModel:\n")
     stop(print(meta.fit))

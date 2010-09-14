@@ -9,8 +9,8 @@
   two-stage strutural equation modeling (TSSEM). \code{tssem2} is simply a wrapper of \code{wls}.
 }
 \usage{
-wls(S, acovS, n, impliedS, matrices, cor.analysis = TRUE, intervals = FALSE, ...)
-tssem2(tssem1.obj, impliedS, matrices, intervals = FALSE, ...) 
+wls(S, acovS, n, impliedS, matrices, cor.analysis = TRUE, intervals.type = c("z", "LB"), ...)
+tssem2(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB"), ...) 
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -30,7 +30,13 @@ tssem2(tssem1.obj, impliedS, matrices, intervals = FALSE, ...)
 }
   \item{cor.analysis}{Logical. Analysis of correlation or covariance structure. If \code{cor.analysis=TRUE}, \code{\link[OpenMx]{vechs}} is used to vectorize \code{S}; otherwise, \code{\link[OpenMx]{vech}} is used to vectorize \code{S}.
 }
-  \item{intervals}{logical. If \code{TRUE}, it calculates the likelihood-based confidence intervals on the parameter estimates; otherwise, Wald-based confidence intervals are calculated.
+  \item{intervals.type}{Either \code{z} (default if missing) or
+	\code{LB}. If it is \code{z}, it calculates 95\% Wald confidence
+	intervals (CIs) based on the z statistic. If it is \code{LB}, it
+	calculates 95\% likelihood-based CIs on the
+	parameter estimates. Please note that the z values and their
+	associated p values are based on the z statistic. They are not
+	related to the likelihood-based CIs.
 }
   \item{\dots}{Futher arguments to be passed to \code{\link[OpenMx]{mxRun}}
 }
@@ -44,7 +50,8 @@ tssem2(tssem1.obj, impliedS, matrices, intervals = FALSE, ...)
 \item{n}{Sample size}
 \item{indepModelChisq}{Chi-square statistic of the independent model}
 \item{indepModelDf}{Degrees of freedom of the independent model}
-\item{wls.fit}{A fitted object returned from \code{\link[OpenMx]{mxRun}}}
+\item{wls.fit}{A fitted object returned from
+  \code{\link[OpenMx]{mxRun}}}
 }
 \references{
 %Bentler, P.M., & Savalei, V. (2010). Analysis of correlation structures: current status and open problems. In Kolenikov, S., Thombs, L., & Steinley, D. (Eds.). \emph{Recent Methodological Developments in Social Science Statistics} (pp. 1-36). Hoboken, NJ: Wiley. 
@@ -128,7 +135,9 @@ P3 <- mxMatrix("Full", ncol=1, nrow=1, value=1, free=FALSE, name="P3")
 L3 <- mxMatrix("Full", ncol=1, nrow=4, value=c(0.3, 0.4, 0.5, 0.4), free=TRUE, name="L3")
 E3 <- mxMatrix("Diag", ncol=4, nrow=4, value=0.2, free=TRUE, name="E3") 
 impliedS3 <- mxAlgebra(L3 \%&\% P3 + E3, name="impliedS3")
-wls.fit3 <- wls(S=S3, acovS=acovS3, n=n, impliedS=impliedS3, matrices=c(P3, L3, E3), cor.analysis=FALSE, intervals=TRUE)
+
+## Use likelihood-based CI
+wls.fit3 <- wls(S=S3, acovS=acovS3, n=n, impliedS=impliedS3, matrices=c(P3, L3, E3), cor.analysis=FALSE, intervals.type="LB")
 summary(wls.fit3)
 
 
