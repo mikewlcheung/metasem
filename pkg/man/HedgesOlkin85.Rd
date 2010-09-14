@@ -8,11 +8,6 @@
 }
 \usage{data(HedgesOlkin85)}
 \format{
-  The format is:
- num [1:4, 1:6] 1 2 3 4 0.458 0.363 0.162 0.294 0.1 0.241 ...
- - attr(*, "dimnames")=List of 2
-  ..$ : NULL
-  ..$ : chr [1:6] "study" "d_att" "d_ach" "var_att" ...
 }
 \details{
         The variables are:

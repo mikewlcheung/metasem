@@ -9,11 +9,6 @@
 }
 \usage{data(Berkey98)}
 \format{
-  The format is:
- num [1:5, 1:8] 1 2 3 4 5 ...
- - attr(*, "dimnames")=List of 2
-  ..$ : NULL
-  ..$ : chr [1:8] "trial" "pub_year" "no_of_patients" "PD" ...
 }
 \details{
     The variables are:

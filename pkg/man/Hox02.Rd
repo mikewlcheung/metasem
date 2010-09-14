@@ -8,11 +8,6 @@ continuous study characteristic reported by Hox (2002).
 }
 \usage{data(Hox02)}
 \format{
-  The format is:
- num [1:20, 1:3] -0.264 -0.23 0.166 0.173 0.225 0.291 0.309 0.435 0.476 0.617 ...
- - attr(*, "dimnames")=List of 2
-  ..$ : NULL
-  ..$ : chr [1:3] "yi" "vi" "weeks"
 }
 \details{
   The variables are:

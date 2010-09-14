@@ -9,11 +9,6 @@ paradigm reported by Becker (1983)
 }
 \usage{data(Becker83)}
 \format{
-  The format is:
- num [1:10, 1:5] 1 2 3 4 5 6 7 8 9 10 ...
- - attr(*, "dimnames")=List of 2
-  ..$ : NULL
-  ..$ : chr [1:5] "study" "di" "vi" "percentage" ...
 }
 \details{
       The variables are:
