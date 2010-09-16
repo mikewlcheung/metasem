@@ -2,7 +2,7 @@
 \alias{readFullMat}
 \alias{readStackVec}
 \alias{readLowTriMat}
-\title{Read external correlation/covariance matrices
+\title{Read External Correlation/Covariance Matrices
 }
 \description{It reads full/lower triangle/stacked vectors of correlation/covariance data into a list of correlation/covariance matrices.
 }

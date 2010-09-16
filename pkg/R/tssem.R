@@ -47,8 +47,8 @@ minus2LL <- function(x, n, model=c("saturated", "independent")) {
     vars <- paste("v", 1:no.var, sep="")
     dimnames(x) <- list(vars, vars)
     obsCov <- mxData(observed=x, type='cov', numObs=n)
-    if (missing(model))
-      stop("\"model\" was not specified.\n")
+    ## if (missing(model))
+    ##   stop("\"model\" was not specified.\n")
     model <- match.arg(model)
     switch(model,
            saturated = expCov <- mxMatrix("Symm", nrow=no.var, ncol=no.var, free=TRUE, 
@@ -166,12 +166,17 @@ tssem1 <- function(my.df, n, start.values, cor.analysis = TRUE, ...) {
     
     if (cor.analysis) {
         #Hessian_S <- 0.5*tssem1.fit@output$calculatedHessian[vechs(ps.labels), vechs(ps.labels)]
-        acovS <- 2 * solve(tssem1.fit@output$calculatedHessian[vechs(ps.labels), 
-            vechs(ps.labels)])
+        acovS <- tryCatch( 2*solve(tssem1.fit@output$calculatedHessian[vechs(ps.labels),
+                           vechs(ps.labels)]), error = function(e) e) 
     } else {
         #Hessian_S <- 0.5*tssem1.fit@output$calculatedHessian[vech(ps.labels), vech(ps.labels)]
-        acovS <- 2 * solve(tssem1.fit@output$calculatedHessian[vech(ps.labels), 
-            vech(ps.labels)])
+        acovS <-  tryCatch( 2*solve(tssem1.fit@output$calculatedHessian[vech(ps.labels), 
+                            vech(ps.labels)]), error = function(e) e)
+    }
+    # Issue a warning instead of error message
+    if (inherits(acovS, "error")) {
+      cat("Error in solving the Hessian matrix.\n")
+      warning(print(acovS))
     }
     
     # check dimnames

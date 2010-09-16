@@ -1,6 +1,6 @@
 \name{print.meta}
 \alias{print.meta}
-\title{Print methods for meta objects 
+\title{Print Methods for meta Objects 
 }
 \description{Print methods for meta objects
 }

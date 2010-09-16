@@ -1,10 +1,10 @@
 \name{HedgesOlkin85}
 \alias{HedgesOlkin85}
 \docType{data}
-\title{Effects of open education reported by Hedges and Olkin (1985)
+\title{Effects of Open Education Reported by Hedges and Olkin (1985)
 }
 \description{
-  Effects of open education on attitude toward school and on reading achievement reported by Hedges and Olkin (1985)
+  Effects of open education on attitude toward school and on reading achievement reported by Hedges and Olkin (1985).
 }
 \usage{data(HedgesOlkin85)}
 \format{

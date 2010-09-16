@@ -1,11 +1,11 @@
 \name{Becker83}
 \alias{Becker83}
 \docType{data}
-\title{Studies on sex differences in conformity reported by Becker (1983)
+\title{Studies on Sex Differences in Conformity Reported by Becker (1983)
 }
 \description{
 Studies on sex differences in conformity using the fictitious norm group
-paradigm reported by Becker (1983)
+paradigm reported by Becker (1983).
 }
 \usage{data(Becker83)}
 \format{

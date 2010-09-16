@@ -1,6 +1,6 @@
 \name{print.wls}
 \alias{print.wls}
-\title{Print methods for wls objects 
+\title{Print Methods for wls Objects 
 }
 \description{Print methods for wls objects 
 }

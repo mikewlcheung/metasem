@@ -1,11 +1,11 @@
 \name{minus2LL}
 \alias{minus2LL}
-\title{-2LogLikelihood of a saturated or independent model
+\title{-2LogLikelihood of a Saturated or Independent Model
 }
 \description{It calculates the -2LogLikelihood of a saturated or
   independent model of a correlation/covariance matrix. If \code{x} is a
   list of correlation/covariance matrices and \code{n} is a vector of sample sizes, a list of
-  -2LogLikelihood are calculated. 
+  -2LogLikelihood are calculated. It is usually called internally by \code{tssem1}.
 }
 \usage{
 minus2LL(x, n, model = c("saturated", "independent"))
@@ -16,7 +16,7 @@ minus2LL(x, n, model = c("saturated", "independent"))
 }
   \item{n}{A sample size or a vector of sample sizes
 }
-   \item{model}{Either \code{independent} (default if missing) or \code{saturated}
+   \item{model}{Either \code{saturated} (default if missing) or \code{independent}
 }
 }
 \details{
@@ -44,4 +44,4 @@ minus2LL(Digman97[[1]], Digman97.n[1], model="independent")
 # 14 independent studies
 sum(minus2LL(Digman97, Digman97.n, model="saturated"))
 }
-\keyword{utilities}
+\keyword{ tssem }

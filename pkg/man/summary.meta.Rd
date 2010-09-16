@@ -1,7 +1,7 @@
 \name{summary.meta}
 \alias{summary.meta}
 \alias{print.summary.meta}
-\title{Summary method for meta objects
+\title{Summary Method for meta Objects
 }
 \description{It extracts the estimated coefficients and the test
   statistics for \code{meta} objects.

@@ -1,11 +1,11 @@
 \name{is.pd}
 \alias{is.pd}
-\title{Test the positive definiteness of a list of square matrices
+\title{Test Positive Definiteness of a List of Square Matrices
 }
 \description{It tests the positive definiteness of a square matrix or a
   list of square matrices. It returns \code{FALSE} if the matrix is not
-  symmetric. It should be noted that the variables will be removed
-  before the test if the values in the diagonals are missing.
+  symmetric. Variables with NA in the diagonals will be removed
+  before the test.
 }
 \usage{
 is.pd(x, tol = 1e-06)
@@ -37,13 +37,15 @@ is.pd(x, tol = 1e-06)
 }
 \examples{
 A <- diag(1,3)
-is.pd(A)     # TRUE
+is.pd(A)
+# TRUE
 
 B <- matrix(c(1,2,2,1), ncol=2)
-is.pd(B)     # FALSE
+is.pd(B)
+# FALSE
 
-E <- list(A,B)
-is.pd(E)     # TRUE FALSE
+is.pd(list(A, B))
+# TRUE FALSE
 }
 \keyword{utilities}
 

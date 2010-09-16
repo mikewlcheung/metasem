@@ -1,6 +1,6 @@
 \name{as.mxMatrix}
 \alias{as.mxMatrix}
-\title{Convert matrices into MxMatrix-class
+\title{Convert a Matrix into MxMatrix-class
 }
 \description{It converts a matrix into  \code{MxMatrix-class} via \code{mxMatrix}.
 }
@@ -9,14 +9,13 @@ as.mxMatrix(x, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{A matrix of characters or numeric values. If it is a matrix
-	of numeric values, there is no free parameters in the output matrix.
+  \item{x}{A character or numeric matrix 
 }
   \item{\dots}{Further arguments to be passed to
 	\code{\link[OpenMx]{mxMatrix}}. Please note that \code{type},
 	  \code{nrow}, \code{ncol}, \code{values}, \code{free} and possibly
-	  \code{labels} will be created automatically. Thus, these values
-	  should not be passed through \dots
+	  \code{labels} will be created automatically. Thus, these arguments
+	  should not be passed through \dots 
 %%     ~~Describe \code{\dots} here~~
 }
 }
@@ -25,8 +24,8 @@ as.mxMatrix(x, ...)
   present, the numeric value on the left hand side will be treated as
   either a fixed value for a fixed parameter or a starting value for a
   free parameter. For example, "1" for a fixed parameter with "1" as the
-  value and "5*beta" for a free parameter with "beta" as the label.
-%%  ~~ If necessary, more details than the description above ~~
+  value and "5*beta" for a free parameter with "5" as the starting value
+  and "beta" as the label. If it is a matrix of numeric values, there is no free parameters in the output matrix.
 }
 \value{A \code{\link[OpenMx]{MxMatrix-class}} object 
 }

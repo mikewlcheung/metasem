@@ -1,3 +1,8 @@
+Release 0.3.6 (September 16, 2010)
+====================================
+* Renamed the package to "Meta-Analysis using Structural Equation Modeling"
+* Added vcov method for meta object
+
 Release 0.3.5 (September 14, 2010)
 ====================================
 * Mainly bug fixes

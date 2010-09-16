@@ -1,11 +1,11 @@
 \name{meta}
 \alias{meta}
-\title{Univariate and multivariate meta-analysis
+\title{Fixed-, Random-, and Mixed-Effects Univariate and Multivariate Meta-Analysis
 }
 \description{
 It conducts univariate and multivariate meta-analysis based on maximum
-likelihood estimation method. Mixed-effects meta-analysis is allowed by
-including study characteristics as predictors. Equality constraints on
+likelihood estimation method. Mixed-effects meta-analysis is possible by
+adding study characteristics as predictors. Equality constraints on
 intercepts, regression coefficients and variance components are possible.
 }
 \usage{
@@ -17,7 +17,7 @@ RE.startvalues=0.1, RE.lbound = 1e-10, intervals.type = c("z", "LB"), ...)
   \item{y}{An effect size for univariate meta-analysis or a \eqn{k}{k} x
 	\eqn{p}{p} matrix of effect sizes for multivariate meta-analysis
 	where \eqn{k}{k} is the number of studies and \eqn{p}{p} is the
-	number of effect sizes. For multiple effect sizes, they can be combined via \code{\link[base]{cbind}}.
+	number of effect sizes. 
 }
   \item{v}{The sampling variance of the effect size for univarite
 	meta-analysis or a \eqn{k}{k} x \eqn{p*}{p*} matrix of the sampling
@@ -26,11 +26,11 @@ RE.startvalues=0.1, RE.lbound = 1e-10, intervals.type = c("z", "LB"), ...)
 	major as used by \code{\link[OpenMx]{vech}}.
 }
   \item{x}{A predictor or a \eqn{k}{k} x \eqn{m}{m} matrix of predictors
-	where \eqn{m}{m} is the number of predictors. They can be combined via \code{\link[base]{cbind}}.
+	where \eqn{m}{m} is the number of predictors. 
 }
   \item{intercept.constraints}{A \eqn{1}{1} x \eqn{p}{p} matrix
 	specifying whether the intercepts of the effect sizes are fixed or
-	free. The default is that all intercepts are free. When there is no predictor, these intercepts are the same as
+	free. The default is that the intercepts are free. When there is no predictor, these intercepts are the same as
 	the pooled effect sizes. The format of this matrix follows
 	\code{\link[metaSEM]{as.mxMatrix}}. The parameter estimates will be
 	constrained equally if the labels are the same.
@@ -42,21 +42,20 @@ RE.startvalues=0.1, RE.lbound = 1e-10, intervals.type = c("z", "LB"), ...)
 	constrained equally if the labels are the same.
 }
   \item{RE.constraints}{A \eqn{p}{p} x \eqn{p}{p} matrix
-	specifying the random effects. The default is that all
+	specifying the variance componets of the random effects. The default is that all
 	covariance/variance components are free. The format of this matrix follows \code{\link[metaSEM]{as.mxMatrix}}. The parameter estimates will be
 	constrained equally if the labels are the same. If a zero matrix is
 	specified, it becomes a fixed-effects meta-analysis.
   }
   \item{RE.startvalues}{A vector of \eqn{p}{p} starting values on the
 	diagonals of the variance component of the random effects. If only one
-	scalar is specified, it will be duplicated across the diagonals. The starting values for the
+	scalar is given, it will be duplicated across the diagonals. Starting values for the
 	off-diagonals of the variance component are all 0. A \eqn{p}{p} x
 	\eqn{p}{p} symmetric matrix of starting values is also acceptable. 
 }
   \item{RE.lbound}{A vector of \eqn{p}{p} lower bounds on the
 	diagonals of the variance component of the random effects. If only one
-	scalar is specified, it will be duplicated across the diagonals. The
-	lower bounds for the off-diagonals of the variance component are set
+	scalar is given, it will be duplicated across the diagonals. Lower bounds for the off-diagonals of the variance component are set
 	at \code{NA}. A \eqn{p}{p} x
 	\eqn{p}{p} symmetric matrix of the lower bounds is also acceptable
 }
@@ -64,7 +63,7 @@ RE.startvalues=0.1, RE.lbound = 1e-10, intervals.type = c("z", "LB"), ...)
 	\code{LB}. If it is \code{z}, it calculates 95\% Wald confidence
 	intervals (CIs) based on the z statistic. If it is \code{LB}, it
 	calculates 95\% likelihood-based CIs on the
-	parameter estimates. Please note that the z values and their
+	parameter estimates. Note that the z values and their
 	associated p values are based on the z statistic. They are not
 	related to the likelihood-based CIs.
 }
@@ -80,7 +79,7 @@ RE.startvalues=0.1, RE.lbound = 1e-10, intervals.type = c("z", "LB"), ...)
   \item{no.y}{No. of effect sizes}
   \item{no.x}{No. of predictors}
   \item{miss.x}{A vector indicating whether the predictors are
-	missing. Studies will be removed if they are \code{TRUE}}
+	missing. Studies will be removed before the analysis if they are \code{TRUE}}
   \item{meta.fit}{A fitted object returned from
 	\code{\link[OpenMx]{mxRun}}}
 }
@@ -91,6 +90,8 @@ RE.startvalues=0.1, RE.lbound = 1e-10, intervals.type = c("z", "LB"), ...)
 
   Cheung, M. W. L. (2009). Constructing approximate confidence intervals
   for parameters with structural equation models. \emph{Structural Equation Modeling}, \bold{16}, 267-294.
+
+  Cheung, M. W. L. (2010). Modeling multivariate effect sizes with structural equation models. \emph{Manuscript submitted for publication.}
   
   Hardy, R. J., & Thompson, S. G. (1996). A likelihood approach to
   meta-analysis with random effects. \emph{Statistics in Medicine},
@@ -120,7 +121,7 @@ summary( meta(y=yi, v=vi) )
 ## Fixed-effects meta-analysis
 summary( meta(y=yi, v=vi, RE.constraints=matrix(0, ncol=1, nrow=1)) )
 
-## Mixed-effects meta-analysis with "weeks" as the predictor
+## Mixed-effects meta-analysis with "weeks" as a predictor
 ## Use likelihood-based CI
 summary( meta(y=yi, v=vi, x=weeks, intervals.type="LB") )
 detach(Hox02)
@@ -134,11 +135,10 @@ summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL)) )
 summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
          x=scale(pub_year, center=1979)) )
 
-## Multivariate meta-analysis with an equality constraint on the slopes
+## Multivariate meta-analysis with an equality constraint on regression coefficients
 summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
          x=scale(pub_year, center=1979),
          coeff.constraints=matrix(c("0.3*Eq_slope", "0.3*Eq_slope"), nrow=2)) )
-
 detach(Berkey98)
 
 }

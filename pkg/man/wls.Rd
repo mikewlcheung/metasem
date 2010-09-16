@@ -1,12 +1,12 @@
 \name{wls}
 \alias{wls}
 \alias{tssem2}
-\title{Fit a correlation or covariance structure analysis with weighted least squares
+\title{Conduct a Correlation/Covariance Structure Analysis with Weighted Least Squares
 }
 \description{It fits a correlation or covariance structure with
   weighted least squares (WLS) where the inverse of the asymptotic covariance matrix is
-  used as the weight matrix. \code{tssem2} conducts the second stage analysis of
-  two-stage strutural equation modeling (TSSEM). \code{tssem2} is simply a wrapper of \code{wls}.
+  used as the weight matrix. \code{tssem2} conducts the second stage
+  analysis of the two-stage strutural equation modeling (TSSEM). \code{tssem2} is a wrapper of \code{wls}.
 }
 \usage{
 wls(S, acovS, n, impliedS, matrices, cor.analysis = TRUE, intervals.type = c("z", "LB"), ...)
@@ -48,8 +48,10 @@ tssem2(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB"), ...)
 \item{call}{The matched call}
 \item{noObservedStat}{Number of observed statistics}
 \item{n}{Sample size}
-\item{indepModelChisq}{Chi-square statistic of the independent model}
-\item{indepModelDf}{Degrees of freedom of the independent model}
+\item{indepModelChisq}{Chi-square statistic of the independent model
+  returned by \code{\link[metaSEM]{indepwlsChisq}} }
+\item{indepModelDf}{Degrees of freedom of the independent model returned
+by \code{\link[metaSEM]{indepwlsChisq}}}
 \item{wls.fit}{A fitted object returned from
   \code{\link[OpenMx]{mxRun}}}
 }

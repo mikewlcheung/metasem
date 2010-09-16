@@ -1,7 +1,7 @@
 \name{summary.tssem1}
 \alias{summary.tssem1}
 \alias{print.summary.tssem1}
-\title{Summary method for tssem1 objects
+\title{Summary Method for tssem1 Objects
 }
 \description{It extracts the estimated coefficients and the goodness-of-fit indices for \code{tssem1} objects.
 }

@@ -3,7 +3,7 @@
 \alias{Digman97.n}
 \alias{Digman97.cluster}
 \docType{data}
-\title{Factor correlation matrices of the Big Five Model from Digman (1997)}
+\title{Factor Correlation Matrices of Big Five Model from Digman (1997)}
 \description{
 Fourteen studies of the factor correlation matrices of the Big Five Model of personality reported by Digman (1997). 
 }
@@ -19,7 +19,7 @@ The five factors are:
   \item{ES}{Emotional Stability}
   \item{I}{Intellect or Openness to Experience}
 }
-  Digman97.n. and Digman97.cluster store the sample sizes and the types
+  Digman97.n and Digman97.cluster store the sample sizes and the types
   of participants of the studies, respectively.
 }
 \source{

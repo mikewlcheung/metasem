@@ -1,10 +1,10 @@
 \name{list2matrix}
 \alias{list2matrix}
-\title{Convert a list of symmetric matrices into a matrix
+\title{Convert a List of Symmetric Matrices into a Stacked Matrix
 }
 \description{It converts a list of symmetric matrices into
   a stacked matrix. Dimensions of the symmetric matrices have to be the
-  same. It tries to preserve the dimension names. Dimension names will
+  same. It tries to preserve the dimension names if possible. Dimension names will
   be created if there is no dimension names in the first symmetric matrices. 
 }
 \usage{
@@ -14,13 +14,13 @@ list2matrix(x, diag = FALSE)
   \item{x}{A list of \eqn{k}{k} \eqn{p}{p} x \eqn{p}{p} symmetric matrices.
 }
   \item{diag}{Logical. If it is \code{TRUE}, \code{\link[OpenMx]{vech}}
-	is used to vectorize the symmetric matrices. If it is \code{FALSE}, \code{\link[OpenMx]{vechs}}
-	is used to vectorize the symmetric matrices.
+	is used to vectorize the matrices. If it is \code{FALSE}, \code{\link[OpenMx]{vechs}}
+	is used to vectorize the matrices.
 }
 }
 \details{
 }
-\value{A \eqn{k}{k} x \eqn{p*}{p*} matrix where \eqn{p* = p(p-1)/2 }{p*
+\value{A \eqn{k}{k} x \eqn{p*}{p*} stacked matrix where \eqn{p* = p(p-1)/2 }{p*
 	= p(p-1)/2} for \code{diag}=\code{FALSE} or \eqn{p* = p(p+1)/2
   }{p* = p(p+1)/2} for \code{diag}=\code{TRUE}.
 

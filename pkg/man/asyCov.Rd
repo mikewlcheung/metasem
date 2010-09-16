@@ -1,8 +1,8 @@
 \name{asyCov}
 \alias{asyCov}
-\title{Asymptotic covariance matrix of correlation/covariance matrix
+\title{Asymptotic Covariance Matrix of a Correlation/Covariance Matrix
 }
-\description{It estimates an asymptotic covariance matrix of the
+\description{It estimates asymptotic covariance matrices of the
   correlation/covariance matrix by assuming multivariate normality. 
 }
 \usage{
@@ -14,7 +14,7 @@ TRUE,  ...)
   \item{x}{A correlation/covariance matrix or a list of
 	correlation/covariance matrices. \code{NA} on the variables or other
 	values defined in \code{na.strings} will be removed before the
-	analysis. Please note that it only checks the diagonal elements of
+	analysis. Note that it only checks the diagonal elements of
 	the matrices. If there are missing values, make sure that the
 	diagonals are coded with \code{NA} or other values as defined in \code{na.string}.
 }
@@ -30,7 +30,8 @@ TRUE,  ...)
 	matrices will be column vectorized and stacked together. If it is
 	\code{FALSE}, the output will be a list of asymptotic covariance
 	matrices. Note that if it is \code{TRUE}, \code{dropNA} will be
-	\code{FALSE} automatically. }  
+	\code{FALSE} automatically. This option is useful when passing the
+	asymptotic covariance matrices to \code{\link[metaSEM]{meta}} }  
   \item{silent}{Logical. Argument to be passed to \code{\link[OpenMx]{mxRun}}}
   \item{suppressWarnings}{Logical. Argument to be passed to
 	\code{\link[OpenMx]{mxRun}}}
@@ -71,4 +72,4 @@ asyCov(list(C1,C2), n=c(100,50), as.matrix=TRUE)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
-\keyword{ utilities }
+\keyword{ meta-analysis }

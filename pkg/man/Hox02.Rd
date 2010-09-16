@@ -1,7 +1,7 @@
 \name{Hox02}
 \alias{Hox02}
 \docType{data}
-\title{Simulated effect sizes reported by Hox (2002)}
+\title{Simulated Effect Sizes Reported by Hox (2002)}
 \description{
 Twenty stimulated studies on standardized mean difference and one
 continuous study characteristic reported by Hox (2002).

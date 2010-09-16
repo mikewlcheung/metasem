@@ -1,8 +1,8 @@
 \name{startValues}
 \alias{startValues}
-\title{Starting values for the tssem1 function
+\title{Starting Values for the tssem1 Function
 }
-\description{It calculates starting values for \code{\link{tssem1}}. 
+\description{It calculates starting values for \code{\link{tssem1}}.  
 }
 \usage{
 startValues(x, cor.analysis = TRUE)
@@ -45,4 +45,4 @@ startValues(list(C1,C2))
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
-\keyword{utilities}
+\keyword{ tssem }

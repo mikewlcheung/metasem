@@ -85,7 +85,7 @@ print.summary.wls <- function(x, ...) {
     cat("\nGoodness-of-fit indices:\n")
     printCoefmat(x$stat, ...)
 
-    cat("\n\nR version:", x$R.version)
+    cat("\nR version:", x$R.version)
     cat("\nOpenMx version:", x$OpenMx.version)
     cat("\nmetaSEM version:", x$metaSEM.version)
     cat("\nDate of analysis:", x$date,"\n\n")
@@ -185,7 +185,7 @@ print.summary.tssem1 <- function(x, ...) {
     cat("\nGoodness-of-fit indices:\n")
     printCoefmat(x$stat, ...)
 
-    cat("\n\nR version:", x$R.version)
+    cat("\nR version:", x$R.version)
     cat("\nOpenMx version:", x$OpenMx.version)
     cat("\nmetaSEM version:", x$metaSEM.version)
     cat("\nDate of analysis:", x$date, "\n\n")    
@@ -285,7 +285,7 @@ print.summary.meta <- function(x, ...) {
     cat("\n\nCoefficients:\n")
     printCoefmat(x$coefficients, P.values=TRUE, ...)
 
-    cat("\n\nNumber of studies:", x$no.studies)
+    cat("\nNumber of studies:", x$no.studies)
     cat("\nNumber of observed statistics:", x$obsStat)
     cat("\nNumber of parameter estimated:", x$estPara)
     cat("\nDegrees of freedom:", x$df)
@@ -299,4 +299,21 @@ print.summary.meta <- function(x, ...) {
     cat("\nOpenMx version:", x$OpenMx.version)
     cat("\nmetaSEM version:", x$metaSEM.version)
     cat("\nDate of analysis:", x$date, "\n\n")    
+}
+
+vcov.meta <- function(object, ...) {
+    if (!is.element("meta", class(object)))
+    stop("\"object\" must be an object of class \"meta\".")
+
+    # labels of the parameters    
+    my.name <- summary(object$meta.fit)$parameters$name
+    my.name <- my.name[!is.na(my.name)]
+    acov <- tryCatch( 2*solve(object$meta@output$calculatedHessian[my.name, my.name]), error = function(e) e) 
+    
+    if (inherits(acov, "error")) {
+      cat("Error in solving the Hessian matrix.\n")
+      stop(print(acov))
+    } else {
+      return(acov)
+    }
 }

@@ -2,7 +2,7 @@
 \alias{metaSEM-package}
 \alias{metaSEM}
 \docType{package}
-\title{Meta-analysis: A Structural Equation Modeling Approach
+\title{Meta-Analysis using Structural Equation Modeling
 }
 \description{The metaSEM package conducts univariate and multivariate
              meta-analyses using a structural equation modeling (SEM) approach
@@ -14,8 +14,8 @@
 \tabular{ll}{
 Package: \tab metaSEM\cr
 Type: \tab Package\cr
-Version: \tab 0.3.5\cr
-Date: \tab 2010-09-14\cr
+Version: \tab 0.3.6\cr
+Date: \tab 2010-09-16\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }
@@ -29,6 +29,8 @@ Maintainer: Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 \references{
 Cheung, M. W. L. (2008). A model for integrating fixed-, random-, and mixed-effects meta-analyses into structural equation modeling. \emph{Psychological Methods}, \bold{13}, 182-202. 
 
+Cheung, M. W. L. (2010). Modeling multivariate effect sizes with structural equation models. \emph{Manuscript submitted for publication.}
+  
 Cheung, M. W. L., & Chan, W. (2004). Testing dependent correlation coefficients via structural equation modeling. \emph{Organizational Research Methods}, \bold{7}, 206-223.
 
 Cheung, M. W. L., & Chan, W. (2005). Meta-analytic structural equation modeling: A two-stage approach. \emph{Psychological Methods}, \bold{10}, 40-64.

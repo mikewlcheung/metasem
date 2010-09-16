@@ -2,7 +2,7 @@
 \alias{Cheung09}
 \alias{Cheung09.n}
 \docType{data}
-\title{Data set from TSSEM User's Guide version 1.11 by Cheung (2009) 
+\title{Data Set from TSSEM User's Guide Version 1.11 by Cheung (2009) 
 }
 \description{Four studies were selected from the data set used by Cheung
   and Chan (2005; 2009). Some variables were randomly deleted to
@@ -24,5 +24,6 @@ Cheung, M. W. L., & Chan, W. (2009). A two-stage approach to synthesizing covari
 }
 \examples{
 data(Cheung09)
+## maybe str(Cheung09)
 }
 \keyword{datasets}

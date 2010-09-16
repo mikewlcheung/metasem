@@ -1,6 +1,6 @@
 \name{print.tssem1}
 \alias{print.tssem1}
-\title{Print methods for tssem1 objects 
+\title{Print Methods for tssem1 Objects 
 }
 \description{Print methods for tssem1 objects
 }
