@@ -1,6 +1,6 @@
 \name{meta}
 \alias{meta}
-\title{Fixed-, Random-, and Mixed-Effects Univariate and Multivariate Meta-Analysis
+\title{Univariate and Multivariate Meta-Analysis
 }
 \description{
 It conducts univariate and multivariate meta-analysis based on maximum

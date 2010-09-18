@@ -13,7 +13,7 @@ vcov.meta(object, ...)
 \arguments{
   \item{object}{An object returned from \code{\link[metaSEM]{meta}}
 }
-  \item{\dots}{Further arguments}
+  \item{\dots}{Further arguments (not used)}
 }
 \details{
 %%  ~~ If necessary, more details than the description above ~~

@@ -50,6 +50,7 @@ summary.wls <- function(object, ...) {
       my.para$ubound <- my.para$Estimate + qnorm(.975)*my.para$Std.Error
       my.para <- my.para[order(my.para$matrix, my.para$row, my.para$col), ]
       coefficients <- my.para[, -c(1:4)]
+	  intervals.type="z"
     } else {
       name <- sapply(unlist(dimnames(my.ci)[1]), function(x)
                        {strsplit(x, "structure.", fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
@@ -58,14 +59,15 @@ summary.wls <- function(object, ...) {
       dimnames(coefficients)[[1]] <- coefficients$name
       coefficients <- coefficients[order(coefficients$matrix, coefficients$row, coefficients$col), ]
       coefficients <- coefficients[, -c(1:4, 8)]
+	  intervals.type="LB"
     }
     coefficients$"z value" <- coefficients$Estimate/coefficients$Std.Error
     coefficients$"Pr(>|z|)" <- 2*(1-pnorm(abs(coefficients$"z value")))
 
     libMatrix <- installed.packages()
-    out <- list(call=object$call, coefficients=coefficients, stat=stat, R.version=as.character(getRversion()),
-                OpenMx.version=libMatrix["OpenMx", "Version"], metaSEM.version=libMatrix["metaSEM", "Version"],
-                date=date())
+    out <- list(call=object$call, coefficients=coefficients, stat=stat, intervals.type=intervals.type,
+                R.version=as.character(getRversion()), OpenMx.version=libMatrix["OpenMx", "Version"],
+                metaSEM.version=libMatrix["metaSEM", "Version"], date=date())
     class(out) <- "summary.wls"
     out
 }
@@ -75,11 +77,16 @@ print.summary.wls <- function(x, ...) {
     stop("\"x\" must be an object of class \"summary.wls\".")
     call.text <- deparse(x$call)
     cat("Call:\n")
-    if (is.na(call.text[2]))
-       cat(call.text[1])
-    else cat(call.text[c(1,2)])
+    for (i in 1:length(call.text)) {
+        cat(call.text[i], "\n")
+    }	
 
-    cat("\n\nCoefficients:\n")
+    cat("\n\n95% confidence intervals: ")
+    switch(x$intervals.type,
+           z = cat("z statistic approximation."),
+           LB = cat("Likelihood-based statistic.") )
+
+    cat("\nCoefficients:\n")
     printCoefmat(x$coefficients, P.values=TRUE, ...)
 
     cat("\nGoodness-of-fit indices:\n")
@@ -175,9 +182,9 @@ print.summary.tssem1 <- function(x, ...) {
     call.text <- deparse(x$call)
     
     cat("Call:\n")
-    if (is.na(call.text[2]))
-       cat(call.text[1])
-    else cat(call.text[c(1,2)])
+    for (i in 1:length(call.text)) {
+        cat(call.text[i], "\n")
+    }	
 
     cat("\n\nCoefficients:\n")
     printCoefmat(x$coefficients, P.values=TRUE, ...)
@@ -196,9 +203,9 @@ print.tssem1 <- function(x, ...) {
       stop("\"x\" must be an object of class \"tssem1\".")
     call.text <- deparse(x$call)
     cat("Call:\n")
-    if (is.na(call.text[2]))
-       cat(call.text[1])
-    else cat(call.text[c(1,2)])
+    for (i in 1:length(call.text)) {
+        cat(call.text[i], "\n")
+    }	
     cat("\n\nStructure:\n")
     print(summary.default(x), ...)
 }
@@ -208,9 +215,9 @@ print.wls <- function(x, ...) {
       stop("\"x\" must be an object of class \"wls\".")
     call.text <- deparse(x$call)
     cat("Call:\n")
-    if (is.na(call.text[2]))
-       cat(call.text[1])
-    else cat(call.text[c(1,2)])
+    for (i in 1:length(call.text)) {
+        cat(call.text[i], "\n")
+    }	
     cat("\n\nStructure:\n")
     print(summary.default(x), ...)
 }
@@ -290,7 +297,7 @@ print.summary.meta <- function(x, ...) {
     cat("\nNumber of parameter estimated:", x$estPara)
     cat("\nDegrees of freedom:", x$df)
     cat("\n-2 log likelihood:", x$Minus2LL)        
-    cat("\n95% confidence intervals are based on: ")
+    cat("\n95% confidence intervals: ")
     switch(x$intervals.type,
            z = cat("z statistic approximation."),
            LB = cat("Likelihood-based statistic.") )

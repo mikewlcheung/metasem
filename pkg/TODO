@@ -1,2 +1,4 @@
+Add chi-square stat for meta objects 
+Add anova method and analysis names for meta and wls objects
 Add functions to generate effect sizes
-Verify with simulation
+Verify with simulations
