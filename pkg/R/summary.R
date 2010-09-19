@@ -83,8 +83,8 @@ print.summary.wls <- function(x, ...) {
 
     cat("\n\n95% confidence intervals: ")
     switch(x$intervals.type,
-           z = cat("z statistic approximation."),
-           LB = cat("Likelihood-based statistic.") )
+           z = cat("z statistic approximation"),
+           LB = cat("Likelihood-based statistic") )
 
     cat("\nCoefficients:\n")
     printCoefmat(x$coefficients, P.values=TRUE, ...)
@@ -182,9 +182,14 @@ print.summary.tssem1 <- function(x, ...) {
     call.text <- deparse(x$call)
     
     cat("Call:\n")
-    for (i in 1:length(call.text)) {
-        cat(call.text[i], "\n")
-    }	
+    # Ad-hoc solution to remove very long call text
+	if ( length(call.text)>30 ) {
+        cat(call.text[1], "\n")
+    } else { 		
+        for (i in 1:length(call.text)) {
+            cat(call.text[i], "\n")
+        }	
+    }
 
     cat("\n\nCoefficients:\n")
     printCoefmat(x$coefficients, P.values=TRUE, ...)
@@ -202,10 +207,16 @@ print.tssem1 <- function(x, ...) {
     if (!is.element("tssem1", class(x)))
       stop("\"x\" must be an object of class \"tssem1\".")
     call.text <- deparse(x$call)
+
     cat("Call:\n")
-    for (i in 1:length(call.text)) {
-        cat(call.text[i], "\n")
-    }	
+    # Ad-hoc solution to remove very long call text
+	if ( length(call.text)>30 ) {
+        cat(call.text[1], "\n")
+    } else { 	
+        for (i in 1:length(call.text)) {
+            cat(call.text[i], "\n")
+        }	
+    }
     cat("\n\nStructure:\n")
     print(summary.default(x), ...)
 }
@@ -271,8 +282,13 @@ summary.meta <- function(object, ...) {
     if (is.null(intervals.type))
       intervals.type <- "z"
 
+    # Homogeneity statistic
+    no.y <- object$no.y
+    no.v <- no.y*(no.y+1)/2
+    Q.stat <- homoStat(y=object$data[, 1:no.y], v=object$data[, (no.y+1):(no.y+no.v)])
+    
     libMatrix <- installed.packages()    
-    out <- list(call=object$call, intervals.type=intervals.type, no.studies=my.mx$numObs,
+    out <- list(call=object$call, Q.stat=Q.stat, intervals.type=intervals.type, no.studies=my.mx$numObs,
                 obsStat=my.mx$observedStatistics, estPara=my.mx$estimatedParameters,
                 df=my.mx$degreesOfFreedom, Minus2LL=my.mx$Minus2LogLikelihood,
                 coefficients=coefficients, R.version=as.character(getRversion()),
@@ -292,7 +308,10 @@ print.summary.meta <- function(x, ...) {
     cat("\n\nCoefficients:\n")
     printCoefmat(x$coefficients, P.values=TRUE, ...)
 
-    cat("\nNumber of studies:", x$no.studies)
+    cat("\nQ statistic on homogeneity of effect sizes:", x$Q.stat[["Q"]])
+    cat("\nDegrees of freedom of the Q statistic:", x$Q.stat[["Q.df"]])
+    cat("\nP value of the Q statistic:", x$Q.stat[["pval"]])
+    cat("\n\nNumber of studies:", x$no.studies)
     cat("\nNumber of observed statistics:", x$obsStat)
     cat("\nNumber of parameter estimated:", x$estPara)
     cat("\nDegrees of freedom:", x$df)

@@ -49,14 +49,14 @@ tssem2(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB"), ...)
 \item{noObservedStat}{Number of observed statistics}
 \item{n}{Sample size}
 \item{indepModelChisq}{Chi-square statistic of the independent model
-  returned by \code{\link[metaSEM]{indepwlsChisq}} }
+  returned by \code{.indepwlsChisq} }
 \item{indepModelDf}{Degrees of freedom of the independent model returned
-by \code{\link[metaSEM]{indepwlsChisq}}}
+by \code{.indepwlsChisq}}
 \item{wls.fit}{A fitted object returned from
   \code{\link[OpenMx]{mxRun}}}
 }
 \references{
-%Bentler, P.M., & Savalei, V. (2010). Analysis of correlation structures: current status and open problems. In Kolenikov, S., Thombs, L., & Steinley, D. (Eds.). \emph{Recent Methodological Developments in Social Science Statistics} (pp. 1-36). Hoboken, NJ: Wiley. 
+Bentler, P.M., & Savalei, V. (2010). Analysis of correlation structures: current status and open problems. In Kolenikov, S., Thombs, L., & Steinley, D. (Eds.). \emph{Recent Methodological Developments in Social Science Statistics} (pp. 1-36). Hoboken, NJ: Wiley. 
   
 Cheung, M. W. L., & Chan, W. (2005). Meta-analytic structural equation modeling: A two-stage approach. \emph{Psychological Methods}, \bold{10}, 40-64.
 
@@ -72,10 +72,9 @@ Joreskog, K. G., Sorbom, D., Du Toit, S., & Du Toit, M. (1999). \emph{LISREL 8: 
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{ \code{\link[metaSEM]{indepwlsChisq}}, \code{\link[metaSEM]{tssem1}}
+\seealso{ \code{\link[metaSEM]{tssem1}}
 }
 \examples{
-\dontrun{
 #### Analysis of correlation structure
 R1 <- matrix(c(1.00, 0.22, 0.24, 0.18,
                0.22, 1.00, 0.30, 0.22,
@@ -144,7 +143,7 @@ summary(wls.fit3)
 
 
 ##### Example of tssem2
-digman1 <- tssem1(Digman97, Digman97.n)
+digman1 <- tssem1(Digman97$data, Digman97$n)
 
 P4 <- mxMatrix("Stand", ncol=2, nrow=2, value=.2, free=TRUE, name="P4")
 L4 <- mxMatrix("Full", ncol=2, nrow=5, value=c(0,.3,.3,.3,0,.3,0,0,0,.3),
@@ -154,14 +153,14 @@ impliedR4 <- mxAlgebra(L4 \%&\% P4, name="impliedR4")
 digman2 <- tssem2(digman1, impliedS=impliedR4, matrices=c(P4, L4))
 summary(digman2)
 
-
+\dontrun{
 ##### Example of tssem2 with several clusters
-data.cluster <- tapply(Digman97, Digman97.cluster, function(x) {x})
-n.cluster <- tapply(Digman97.n, Digman97.cluster, function(x) {x})
+data.cluster <- tapply(Digman97$data, Digman97$cluster, function(x) {x})
+n.cluster <- tapply(Digman97$n, Digman97$cluster, function(x) {x})
 digman1.cluster <- mapply(tssem1, my.df=data.cluster, n=n.cluster, SIMPLIFY=FALSE)
 lapply(digman1.cluster, summary)
 
-digman2.cluster <- lapply(digman1.cluster, tssem2, impliedS=impliedR3, matrices=c(P3, L3))
+digman2.cluster <- lapply(digman1.cluster, tssem2, impliedS=impliedR4, matrices=c(P4, L4))
 lapply(digman2.cluster, summary)
 }
 }

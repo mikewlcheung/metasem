@@ -13,7 +13,11 @@
 \format{
 }
 \details{
-%%  ~~ If necessary, more details than the __description__ above ~~
+A list of data with the following structure:
+\describe{
+  \item{data}{A list of 4 studies of correlation matrices }
+  \item{n}{A vector of sample sizes}
+}
 }
 \source{Cheung, M. W. L. (2009). TSSEM: A LISREL syntax generator for two-stage structural equation modeling (Version 1.11) [Computer software]. Retrieved from \url{http://courses.nus.edu.sg/course/psycwlm/internet/tssem.zip}.
 }

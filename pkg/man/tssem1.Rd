@@ -13,7 +13,7 @@ tssem1(my.df, n, start.values, cor.analysis = TRUE, ...)
 }
   \item{n}{A vector of sample sizes
 }
- \item{start.values}{A vector of starting values for the pooled correlation/covariance matrix based on column major. If it is missing, \code{\link[metaSEM]{startValues}} will be used to generate the starting values.
+ \item{start.values}{A vector of starting values for the pooled correlation/covariance matrix based on column major. If it is missing, \code{.startValues} will be used to generate the starting values.
 }
   \item{cor.analysis}{Logical. The output is either a pooled correlation or a covariance matrix.
 }
@@ -31,9 +31,9 @@ tssem1(my.df, n, start.values, cor.analysis = TRUE, ...)
   \item{total.n}{Total sample size of all studies}
   \item{modelMinus2LL}{-2LogLikelihood of the model}
   \item{independentMinus2LL}{-2LogLikelihood of the independent model
-	returned by \code{\link[metaSEM]{minus2LL}}}
+	returned by \code{.minus2LL}}
   \item{saturatedMinus2LL}{-2LogLikelihood of the saturated model
-	returned by \code{\link[metaSEM]{minus2LL}}}
+	returned by \code{.minus2LL}}
   \item{tssem1.fit}{A fitted object returned from \code{\link[OpenMx]{mxRun}}}
 }
 \references{
@@ -49,11 +49,10 @@ Cheung, M. W. L., & Chan, W. (2009). A two-stage approach to synthesizing covari
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{ \code{\link[metaSEM]{tssem2}}, \code{\link[metaSEM]{minus2LL}} 
+\seealso{ \code{\link[metaSEM]{tssem2}}
 }
 \examples{
-digman1 <- tssem1(Digman97, Digman97.n)
-digman1
+digman1 <- tssem1(Digman97$data, Digman97$n)
 summary(digman1)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

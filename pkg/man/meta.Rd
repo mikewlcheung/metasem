@@ -14,12 +14,12 @@ RE.startvalues=0.1, RE.lbound = 1e-10, intervals.type = c("z", "LB"), ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{y}{An effect size for univariate meta-analysis or a \eqn{k}{k} x
+  \item{y}{A vector of effect size for univariate meta-analysis or a \eqn{k}{k} x
 	\eqn{p}{p} matrix of effect sizes for multivariate meta-analysis
 	where \eqn{k}{k} is the number of studies and \eqn{p}{p} is the
 	number of effect sizes. 
 }
-  \item{v}{The sampling variance of the effect size for univarite
+  \item{v}{A vector of the sampling variance of the effect size for univarite
 	meta-analysis or a \eqn{k}{k} x \eqn{p*}{p*} matrix of the sampling
 	covariance matrix of the effect sizes for multivariate meta-analysis
 	where \eqn{p* = p(p+1)/2 }{p* = p(p+1)/2}. It is arranged by column

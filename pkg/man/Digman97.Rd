@@ -11,16 +11,14 @@ Fourteen studies of the factor correlation matrices of the Big Five Model of per
 \format{
 }
 \details{
-The five factors are:
+A list of data with the following structure:
 \describe{
-  \item{E}{Extraversion}
-  \item{A}{Agreeableness}
-  \item{C}{Conscientiousness}
-  \item{ES}{Emotional Stability}
-  \item{I}{Intellect or Openness to Experience}
+  \item{data}{A list of 14 studies of correlation matrices. The
+	variables are Extraversion (E), Agreeableness (A), Conscientiousness
+	(C), Emotional Stability (ES) and Intellect (I)}
+  \item{n}{A vector of sample sizes}
+  \item{cluster}{Types of participants of the studies}
 }
-  Digman97.n and Digman97.cluster store the sample sizes and the types
-  of participants of the studies, respectively.
 }
 \source{
 Digman, J.M. (1997). Higher-order factors of the Big Five. \emph{Journal of Personality and Social Psychology}, \bold{73}, 1246-1256.
