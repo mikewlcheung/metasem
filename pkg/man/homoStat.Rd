@@ -19,7 +19,10 @@ homoStat(y, v)
 	meta-analysis or a \eqn{k}{k} x \eqn{p*}{p*} matrix of the sampling
 	covariance matrix of the effect sizes for multivariate meta-analysis
 	where \eqn{p* = p(p+1)/2 }{p* = p(p+1)/2}. It is arranged by column
-	major as used by \code{\link[OpenMx]{vech}}.
+	major as used by \code{\link[OpenMx]{vech}}. It is assumed that
+	there is no missing value on \code{v}. If there are missing values on \code{v}
+	due to the missing values on \code{y}, the missing values on
+	\code{v} can be replaced by \code{v[is.na(v)] <- NA}.
 }
 }
 \details{

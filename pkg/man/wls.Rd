@@ -9,8 +9,10 @@
   analysis of the two-stage strutural equation modeling (TSSEM). \code{tssem2} is a wrapper of \code{wls}.
 }
 \usage{
-wls(S, acovS, n, impliedS, matrices, cor.analysis = TRUE, intervals.type = c("z", "LB"), ...)
-tssem2(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB"), ...) 
+wls(S, acovS, n, impliedS, matrices, cor.analysis = TRUE, intervals.type
+= c("z", "LB"), suppressWarnings = TRUE, ...)
+tssem2(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB"),
+suppressWarnings = TRUE, ...) 
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -37,7 +39,9 @@ tssem2(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB"), ...)
 	parameter estimates. Please note that the z values and their
 	associated p values are based on the z statistic. They are not
 	related to the likelihood-based CIs.
-}
+  }
+  \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
+	suppressed. Argument to be passed to \code{\link[OpenMx]{mxRun}}.}
   \item{\dots}{Futher arguments to be passed to \code{\link[OpenMx]{mxRun}}
 }
 }
@@ -153,15 +157,15 @@ impliedR4 <- mxAlgebra(L4 \%&\% P4, name="impliedR4")
 digman2 <- tssem2(digman1, impliedS=impliedR4, matrices=c(P4, L4))
 summary(digman2)
 
-\dontrun{
-##### Example of tssem2 with several clusters
-data.cluster <- tapply(Digman97$data, Digman97$cluster, function(x) {x})
-n.cluster <- tapply(Digman97$n, Digman97$cluster, function(x) {x})
-digman1.cluster <- mapply(tssem1, my.df=data.cluster, n=n.cluster, SIMPLIFY=FALSE)
-lapply(digman1.cluster, summary)
+% \dontrun{
+% ##### Example of tssem2 with several clusters
+% data.cluster <- tapply(Digman97$data, Digman97$cluster, function(x) {x})
+% n.cluster <- tapply(Digman97$n, Digman97$cluster, function(x) {x})
+% digman1.cluster <- mapply(tssem1, my.df=data.cluster, n=n.cluster, SIMPLIFY=FALSE)
+% lapply(digman1.cluster, summary)
 
-digman2.cluster <- lapply(digman1.cluster, tssem2, impliedS=impliedR4, matrices=c(P4, L4))
-lapply(digman2.cluster, summary)
-}
+% digman2.cluster <- lapply(digman1.cluster, tssem2, impliedS=impliedR4, matrices=c(P4, L4))
+% lapply(digman2.cluster, summary)
+% }
 }
 \keyword{ tssem }

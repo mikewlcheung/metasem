@@ -1,6 +1,6 @@
 meta <- function(y, v, x, intercept.constraints, coeff.constraints,
                  RE.constraints, RE.startvalues=0.1, RE.lbound=1e-10,
-                 intervals.type=c("z", "LB"), ...) {
+                 intervals.type=c("z", "LB"), suppressWarnings = TRUE, ...) {
   if (is.vector(y)) no.y <- 1 else no.y <- ncol(y)  
   if (is.vector(v)) no.v <- 1 else no.v <- ncol(v)
   if (missing(x)) no.x <- 0 else {
@@ -147,8 +147,10 @@ meta <- function(y, v, x, intercept.constraints, coeff.constraints,
   intervals.type <- match.arg(intervals.type)
   # Default is z
   switch(intervals.type,
-    z = meta.fit <- tryCatch( mxRun(meta, intervals=FALSE, ...), error = function(e) e ),
-    LB = meta.fit <- tryCatch( mxRun(meta, intervals=TRUE, ...), error = function(e) e ) )
+    z = meta.fit <- tryCatch( mxRun(meta, intervals=FALSE,
+                                    suppressWarnings = suppressWarnings, ...), error = function(e) e ),
+    LB = meta.fit <- tryCatch( mxRun(meta, intervals=TRUE,
+                                     suppressWarnings = suppressWarnings, ...), error = function(e) e ) )
  
   if (inherits(meta.fit, "error")) {
     cat("Error in running the mxModel:\n")

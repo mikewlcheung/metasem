@@ -16,7 +16,7 @@ matrix2bdiag(x, ...)
 }
 }
 \details{Each row of \code{x} is converted into a symmetric matrix via
-  \code{\link[metaSEM]{vec2symMat}}. Then the list of the symetric matrices is
+  \code{\link[metaSEM]{vec2symMat}}. Then the list of the symmetric matrices is
   converted into a block diagonal matrix via \code{\link[Matrix]{bdiag}}.
 %%  ~~ If necessary, more details than the description above ~~
 }

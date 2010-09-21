@@ -7,15 +7,15 @@
 \description{The metaSEM package conducts univariate and multivariate
              meta-analyses using a structural equation modeling (SEM) approach
              via the OpenMx package. It also implements the two-stage SEM approach
-             to conducting meta-analytic structural equation modeling on a pool of
+             to conducting meta-analytic structural equation modeling on 
              correlation/covariance matrices.    
 }
 \details{
 \tabular{ll}{
 Package: \tab metaSEM\cr
 Type: \tab Package\cr
-Version: \tab 0.3.7\cr
-Date: \tab 2010-09-19\cr
+Version: \tab 0.3.8\cr
+Date: \tab 2010-09-21\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }
@@ -28,6 +28,8 @@ Maintainer: Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
 \references{
 Cheung, M. W. L. (2008). A model for integrating fixed-, random-, and mixed-effects meta-analyses into structural equation modeling. \emph{Psychological Methods}, \bold{13}, 182-202. 
+
+Cheung, M. W. L. (2009). Constructing approximate confidence intervals for parameters with structural equation models. \emph{Structural Equation Modeling}, \bold{16}, 267-294.
 
 Cheung, M. W. L. (2010). Modeling multivariate effect sizes with structural equation models. \emph{Manuscript submitted for publication.}
   

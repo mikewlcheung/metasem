@@ -3,8 +3,8 @@
 %- Also NEED an '\alias' for EACH other topic documented here.
 \title{Variance-Covariance Matrix of Parameter Estimates for meta Objects
 }
-\description{It calculates the variance-covariance matrix of the
-  parameter estimates (fixed-effects and variance components) for meta objects.
+\description{It returns the variance-covariance matrix of the
+  parameter estimates (both fixed-effects and variance components) for meta objects.
 }
 \usage{
 vcov.meta(object, ...)
@@ -35,7 +35,6 @@ vcov.meta(object, ...)
 }
 \examples{
 ## Random-effects meta-analysis
-attach(Hox02)
 model1 <- with( Hox02, meta(y=yi, v=vi) )
 vcov(model1)
 }

@@ -1,3 +1,8 @@
+Release 0.3.8 (September 20, 2010)
+====================================
+* Added suppressWarnings = TRUE in meta(), tssem1(), tssem2(), and wls()
+* Added OpenMx.status[[1]] into summary method
+
 Release 0.3.7 (September 19, 2010)
 ====================================
 * Added vec2symMat(), matrix2bdiag() and homoStat()

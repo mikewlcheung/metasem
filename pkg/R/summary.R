@@ -64,9 +64,11 @@ summary.wls <- function(object, ...) {
     coefficients$"z value" <- coefficients$Estimate/coefficients$Std.Error
     coefficients$"Pr(>|z|)" <- 2*(1-pnorm(abs(coefficients$"z value")))
 
+    Mx.status1 <- object$wls.fit@output$status[[1]]    
     libMatrix <- installed.packages()
     out <- list(call=object$call, coefficients=coefficients, stat=stat, intervals.type=intervals.type,
-                R.version=as.character(getRversion()), OpenMx.version=libMatrix["OpenMx", "Version"],
+                Mx.status1=Mx.status1, R.version=as.character(getRversion()),
+                OpenMx.version=libMatrix["OpenMx", "Version"],
                 metaSEM.version=libMatrix["metaSEM", "Version"], date=date())
     class(out) <- "summary.wls"
     out
@@ -81,7 +83,7 @@ print.summary.wls <- function(x, ...) {
         cat(call.text[i], "\n")
     }	
 
-    cat("\n\n95% confidence intervals: ")
+    cat("\n95% confidence intervals: ")
     switch(x$intervals.type,
            z = cat("z statistic approximation"),
            LB = cat("Likelihood-based statistic") )
@@ -91,11 +93,13 @@ print.summary.wls <- function(x, ...) {
 
     cat("\nGoodness-of-fit indices:\n")
     printCoefmat(x$stat, ...)
-
+    
     cat("\nR version:", x$R.version)
     cat("\nOpenMx version:", x$OpenMx.version)
     cat("\nmetaSEM version:", x$metaSEM.version)
-    cat("\nDate of analysis:", x$date,"\n\n")
+    cat("\nDate of analysis:", x$date)
+    cat("\nOpenMx status1:", x$Mx.status1, "(0 or 1 are considered fine.)")
+    cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")
 }
 
 summary.tssem1 <- function(object, ...) {
@@ -103,12 +107,18 @@ summary.tssem1 <- function(object, ...) {
     stop("\"object\" must be an object of class \"tssem1\".")
     
     # it relies on the model name
-    if (!is.na(match("TSSEM1 Analysis of Correlation Matrix", object$tssem1.fit@name))) {
-       cor.analysis <- TRUE
+    ## if (!is.na(match("TSSEM1 Analysis of Correlation Matrix", object$tssem1.fit@name))) {
+    ##    cor.analysis <- TRUE
+    ## } else {
+    ##    cor.analysis <- FALSE
+    ## }   
+
+    if ("Correlation" %in% unlist(strsplit(object$tssem1.fit@name, " "))) {
+      cor.analysis <- TRUE
     } else {
-       cor.analysis <- FALSE
-    }   
- 
+      cor.analysis <- FALSE
+    }
+    
     # Calculate the no. of variables based on the implied S
     mx.fit <- summary(object$tssem1.fit)
     # FIXME: what if there are incomplete data in S1
@@ -166,15 +176,15 @@ summary.tssem1 <- function(object, ...) {
     coefficients <- my.para[, c(5,6)]
     coefficients$"z value" <- coefficients$Estimate/coefficients$Std.Error
     coefficients$"Pr(>|z|)" <- 2*(1-pnorm(abs(coefficients$"z value")))
-
+    
+    Mx.status1 <- object$tssem1.fit@output$status[[1]]   
     libMatrix <- installed.packages()    
-    out <- list(call=object$call, coefficients=coefficients, stat=stat, R.version=as.character(getRversion()),
-                OpenMx.version=libMatrix["OpenMx", "Version"], metaSEM.version=libMatrix["metaSEM", "Version"],
-                date=date())
+    out <- list(call=object$call, coefficients=coefficients, stat=stat, Mx.status1=Mx.status1,
+                R.version=as.character(getRversion()), OpenMx.version=libMatrix["OpenMx", "Version"],
+                metaSEM.version=libMatrix["metaSEM", "Version"], date=date())
     class(out) <- "summary.tssem1"
     out
 }
-
    
 print.summary.tssem1 <- function(x, ...) {
     if (!is.element("summary.tssem1", class(x)))
@@ -191,7 +201,7 @@ print.summary.tssem1 <- function(x, ...) {
         }	
     }
 
-    cat("\n\nCoefficients:\n")
+    cat("\nCoefficients:\n")
     printCoefmat(x$coefficients, P.values=TRUE, ...)
 
     cat("\nGoodness-of-fit indices:\n")
@@ -200,7 +210,9 @@ print.summary.tssem1 <- function(x, ...) {
     cat("\nR version:", x$R.version)
     cat("\nOpenMx version:", x$OpenMx.version)
     cat("\nmetaSEM version:", x$metaSEM.version)
-    cat("\nDate of analysis:", x$date, "\n\n")    
+    cat("\nDate of analysis:", x$date)
+    cat("\nOpenMx status1:", x$Mx.status1, "(0 or 1 are considered fine.)")
+    cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")    
 }
 
 print.tssem1 <- function(x, ...) {
@@ -286,12 +298,13 @@ summary.meta <- function(object, ...) {
     no.y <- object$no.y
     no.v <- no.y*(no.y+1)/2
     Q.stat <- homoStat(y=object$data[, 1:no.y], v=object$data[, (no.y+1):(no.y+no.v)])
-    
+
+    Mx.status1 <- object$meta.fit@output$status[[1]]   
     libMatrix <- installed.packages()    
     out <- list(call=object$call, Q.stat=Q.stat, intervals.type=intervals.type, no.studies=my.mx$numObs,
                 obsStat=my.mx$observedStatistics, estPara=my.mx$estimatedParameters,
                 df=my.mx$degreesOfFreedom, Minus2LL=my.mx$Minus2LogLikelihood,
-                coefficients=coefficients, R.version=as.character(getRversion()),
+                coefficients=coefficients, Mx.status1=Mx.status1, R.version=as.character(getRversion()),
                 OpenMx.version=libMatrix["OpenMx", "Version"], metaSEM.version=libMatrix["metaSEM", "Version"],
                 date=date())                
     class(out) <- "summary.meta"
@@ -305,7 +318,7 @@ print.summary.meta <- function(x, ...) {
     cat("Call:\n")
     cat(deparse(x$call))
     
-    cat("\n\nCoefficients:\n")
+    cat("\nCoefficients:\n")
     printCoefmat(x$coefficients, P.values=TRUE, ...)
 
     cat("\nQ statistic on homogeneity of effect sizes:", x$Q.stat[["Q"]])
@@ -324,7 +337,9 @@ print.summary.meta <- function(x, ...) {
     cat("\n\nR version:", x$R.version)
     cat("\nOpenMx version:", x$OpenMx.version)
     cat("\nmetaSEM version:", x$metaSEM.version)
-    cat("\nDate of analysis:", x$date, "\n\n")    
+    cat("\nDate of analysis:", x$date)
+    cat("\nOpenMx status1:", x$Mx.status1, "(0 or 1 are considered fine.)")
+    cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")    
 }
 
 vcov.meta <- function(object, ...) {

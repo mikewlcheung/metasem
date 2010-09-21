@@ -6,7 +6,7 @@
   correlation/covariance matrices with a fixed-effets model. The function expects that there is no missing data in the first group. 
 }
 \usage{
-tssem1(my.df, n, start.values, cor.analysis = TRUE, ...)
+tssem1(my.df, n, start.values, cor.analysis = TRUE, suppressWarnings = TRUE, ...)
 }
 \arguments{
   \item{my.df}{A list of correlation/covariance matrices
@@ -16,7 +16,9 @@ tssem1(my.df, n, start.values, cor.analysis = TRUE, ...)
  \item{start.values}{A vector of starting values for the pooled correlation/covariance matrix based on column major. If it is missing, \code{.startValues} will be used to generate the starting values.
 }
   \item{cor.analysis}{Logical. The output is either a pooled correlation or a covariance matrix.
-}
+  }
+  \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
+	suppressed. Argument to be passed to \code{\link[OpenMx]{mxRun}}.}
   \item{\dots}{Further arguments to be passed to \code{\link[OpenMx]{mxRun}}
 }
 }
@@ -49,7 +51,7 @@ Cheung, M. W. L., & Chan, W. (2009). A two-stage approach to synthesizing covari
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{ \code{\link[metaSEM]{tssem2}}
+\seealso{ \code{\link[metaSEM]{wls}}
 }
 \examples{
 digman1 <- tssem1(Digman97$data, Digman97$n)

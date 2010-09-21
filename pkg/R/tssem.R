@@ -1,4 +1,5 @@
-tssem1 <- function(my.df, n, start.values, cor.analysis = TRUE, ...) {
+tssem1 <- function(my.df, n, start.values, cor.analysis = TRUE,
+                   suppressWarnings = TRUE, ...) {
     no.groups <- length(my.df)
     no.var <- max(sapply(my.df, ncol))
     var.names <- paste("x", 1:no.var, sep = "")
@@ -90,7 +91,8 @@ tssem1 <- function(my.df, n, start.values, cor.analysis = TRUE, ...) {
     eval(parse(text = tssem1.model))
     
     # try to run it with error message as output
-    tssem1.fit <- tryCatch(mxRun(tssem1, ...), error = function(e) e)
+    tssem1.fit <- tryCatch(mxRun(tssem1, suppressWarnings = suppressWarnings, ...),
+                           error = function(e) e)
     if (inherits(tssem1.fit, "error")) 
         stop(print(tssem1.fit))
     
@@ -143,7 +145,7 @@ tssem1 <- function(my.df, n, start.values, cor.analysis = TRUE, ...) {
 
 
 wls <- function(S, acovS, n, impliedS, matrices, cor.analysis = TRUE,
-                intervals.type =c("z", "LB"), ...) {
+                intervals.type =c("z", "LB"), suppressWarnings = TRUE, ...) {
     impliedS@name <- "impliedS"
     no.var <- ncol(S)
     sampleS <- mxMatrix("Full", ncol = no.var, nrow = no.var, values = c(S), free = FALSE, 
@@ -182,7 +184,7 @@ wls <- function(S, acovS, n, impliedS, matrices, cor.analysis = TRUE,
     if (missing(matrices)) {
         text1 <- paste("mxRun(mxModel(model=\"", model.name, "\", ", "impliedS", 
             ", sampleS, vecS, invAcov, obj, objective, mxCI(\"impliedS\")), intervals=", 
-            intervals, ",...)", sep = "")
+            intervals, ", suppressWarnings = ", suppressWarnings, ", ...)", sep = "")
     } else {
         matName1 <- sapply(matrices, function(x) {
             x@name
@@ -194,7 +196,7 @@ wls <- function(S, acovS, n, impliedS, matrices, cor.analysis = TRUE,
         text1 <- paste("mxRun(mxModel(model=\"", model.name, "\", ", "impliedS", 
             ", sampleS, vecS, invAcov, obj, objective, ", paste(matName1, collapse = ", "), 
             ", mxCI(c(", paste(matName2, collapse = ", "), "))", "), intervals=", 
-            intervals, ",... )", sep = "")
+            intervals, ", suppressWarnings = ", suppressWarnings, ", ... )", sep = "")
     }
     
     wls.fit <- tryCatch(eval(parse(text = text1)), error = function(e) e)
@@ -213,7 +215,8 @@ wls <- function(S, acovS, n, impliedS, matrices, cor.analysis = TRUE,
 }
 
 
-tssem2 <- function(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB"), ...) {
+tssem2 <- function(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB"),
+                   suppressWarnings = TRUE, ...) {
   if (!is.element("tssem1", class(tssem1.obj)))
     stop("\"tssem1.obj\" must be an object of class \"tssem1\".")
   # check the call to determine whether it is a correlation or covariance analysis
@@ -226,5 +229,6 @@ tssem2 <- function(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB")
      cor.analysis <- as.logical(as.character(cor.analysis))
   }
   wls(S=tssem1.obj$pooledS, acovS=tssem1.obj$acovS, n=tssem1.obj$total.n, impliedS=impliedS,
-      matrices=matrices, cor.analysis = cor.analysis, intervals.type = intervals.type, ...)
+      matrices=matrices, cor.analysis = cor.analysis, intervals.type = intervals.type,
+      suppressWarnings = suppressWarnings, ...)
 }

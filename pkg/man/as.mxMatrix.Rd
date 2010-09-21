@@ -27,7 +27,8 @@ as.mxMatrix(x, ...)
   value and "5*beta" for a free parameter with "5" as the starting value
   and "beta" as the label. If it is a matrix of numeric values, there is no free parameters in the output matrix.
 }
-\value{A \code{\link[OpenMx]{MxMatrix-class}} object 
+\value{A \code{\link[OpenMx]{MxMatrix-class}} object with the same
+  dimensions as \code{x}
 }
 \references{
 }

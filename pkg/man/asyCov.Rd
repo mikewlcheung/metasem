@@ -16,7 +16,7 @@ TRUE,  ...)
 	values defined in \code{na.strings} will be removed before the
 	analysis. Note that it only checks the diagonal elements of
 	the matrices. If there are missing values, make sure that the
-	diagonals are coded with \code{NA} or other values as defined in \code{na.string}.
+	diagonals are coded with \code{NA} or values defined in \code{na.string}.
 }
   \item{n}{Sample size or a vector of sample sizes}
   \item{cor.analysis}{Logical. The output is either a correlation or
@@ -33,8 +33,9 @@ TRUE,  ...)
 	\code{FALSE} automatically. This option is useful when passing the
 	asymptotic covariance matrices to \code{\link[metaSEM]{meta}} }  
   \item{silent}{Logical. Argument to be passed to \code{\link[OpenMx]{mxRun}}}
-  \item{suppressWarnings}{Logical. Argument to be passed to
-	\code{\link[OpenMx]{mxRun}}}
+  \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
+	suppressed. Argument to be passed to \code{\link[OpenMx]{mxRun}}.}
+
   \item{\dots}{Futher arguments to be passed to \code{\link[OpenMx]{mxRun}}}
 }
 \details{
