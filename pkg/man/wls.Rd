@@ -90,7 +90,8 @@ acovR1 <- asyCov(R1, n)
 P1 <- mxMatrix("Full", ncol=1, nrow=1, value=1, free=FALSE, name="P1")
 L1 <- mxMatrix("Full", ncol=1, nrow=4, free=TRUE, name="L1")
 impliedR1 <- mxAlgebra(L1 \%&\% P1, name="impliedR1")
-wls.fit1 <- wls(S=R1, acovS=acovR1, n=n, impliedS=impliedR1, matrices=c(P1, L1), cor.analysis=TRUE)
+wls.fit1 <- wls(S=R1, acovS=acovR1, n=n, impliedS=impliedR1,
+                matrices=c(P1, L1), cor.analysis=TRUE)
 summary(wls.fit1)
 
 
@@ -125,7 +126,8 @@ Id <- mxMatrix("Iden", ncol=3, nrow=3, name="Id")
 ## Model implied correlation matrix: (Id-A2)^-1 \%*\% S2 \%*\% ((Id-A2)^-1)'
 impliedR2 <- mxAlgebra( solve(Id-A2) \%&\% S2, name="impliedR2")
 
-wls.fit2 <- wls(S=R2, acovS=acovR2, n=n, impliedS=impliedR2, matrices=c(A2, S2, Id), cor.analysis=TRUE)
+wls.fit2 <- wls(S=R2, acovS=acovR2, n=n, impliedS=impliedR2,
+                matrices=c(A2, S2, Id), cor.analysis=TRUE)
 summary(wls.fit2)
 
 
@@ -137,12 +139,15 @@ S3 <- matrix(c(1.50, 0.22, 0.24, 0.18,
 n <- 1000
 acovS3 <- asyCov(S3, n, cor.analysis=FALSE)
 P3 <- mxMatrix("Full", ncol=1, nrow=1, value=1, free=FALSE, name="P3")
-L3 <- mxMatrix("Full", ncol=1, nrow=4, value=c(0.3, 0.4, 0.5, 0.4), free=TRUE, name="L3")
+L3 <- mxMatrix("Full", ncol=1, nrow=4, value=c(0.3, 0.4, 0.5, 0.4),
+               free=TRUE, name="L3")
 E3 <- mxMatrix("Diag", ncol=4, nrow=4, value=0.2, free=TRUE, name="E3") 
 impliedS3 <- mxAlgebra(L3 \%&\% P3 + E3, name="impliedS3")
 
 ## Use likelihood-based CI
-wls.fit3 <- wls(S=S3, acovS=acovS3, n=n, impliedS=impliedS3, matrices=c(P3, L3, E3), cor.analysis=FALSE, intervals.type="LB")
+wls.fit3 <- wls(S=S3, acovS=acovS3, n=n, impliedS=impliedS3,
+                matrices=c(P3, L3, E3), cor.analysis=FALSE,
+                intervals.type="LB")
 summary(wls.fit3)
 
 

@@ -78,7 +78,8 @@ my.full
 #1.0
 #NA NA 
 #0.4 NA 1.0
-cat("1.0\n0.3 1.0\n0.4 0.5 1.0\n1.0\nNA NA\n0.4 NA 1.0", file="lowertriangle.dat", sep="")
+cat("1.0\n0.3 1.0\n0.4 0.5 1.0\n1.0\nNA NA\n0.4 NA 1.0",
+    file="lowertriangle.dat", sep="")
 
 # Read the lower triangle correlation matrices
 my.lowertri <- readLowTriMat(file = "lowertriangle.dat", no.var = 3)
@@ -96,12 +97,14 @@ my.lowertri
 #x2  NA NA  NA
 #x3 0.4 NA 1.0
 
-# Write two vectors of correlation coefficients based on column major into a file named "stackvec.dat".
+# Write two vectors of correlation coefficients based on
+#  column major into a file named "stackvec.dat".
 # x2 is missing in the second matrix.
 # The content of "stackvec.dat" is
 #1.0 0.3 0.4 1.0 0.5 1.0
 #1.0 NA 0.4 NA NA 1.0
-cat("1.0 0.3 0.4 1.0 0.5 1.0\n1.0 NA 0.4 NA NA 1.0", file="stackvec.dat", sep="")
+cat("1.0 0.3 0.4 1.0 0.5 1.0\n1.0 NA 0.4 NA NA 1.0",
+    file="stackvec.dat", sep="")
 
 my.vec <- readStackVec("stackvec.dat")
 

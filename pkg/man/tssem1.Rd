@@ -6,7 +6,8 @@
   correlation/covariance matrices with a fixed-effets model. The function expects that there is no missing data in the first group. 
 }
 \usage{
-tssem1(my.df, n, start.values, cor.analysis = TRUE, suppressWarnings = TRUE, ...)
+tssem1(my.df, n, start.values, cor.analysis = TRUE,
+       suppressWarnings = TRUE, ...)
 }
 \arguments{
   \item{my.df}{A list of correlation/covariance matrices

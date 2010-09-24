@@ -6,8 +6,8 @@
   correlation/covariance matrix by assuming multivariate normality. 
 }
 \usage{
-asyCov(x, n, cor.analysis = TRUE, dropNA = TRUE, as.matrix = TRUE, silent = TRUE, suppressWarnings =
-TRUE,  ...)
+asyCov(x, n, cor.analysis = TRUE, dropNA = TRUE, as.matrix = TRUE,
+       silent = TRUE, suppressWarnings = TRUE,  ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
