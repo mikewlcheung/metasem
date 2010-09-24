@@ -98,7 +98,7 @@ print.summary.wls <- function(x, ...) {
     cat("\nOpenMx version:", x$OpenMx.version)
     cat("\nmetaSEM version:", x$metaSEM.version)
     cat("\nDate of analysis:", x$date)
-    cat("\nOpenMx status1:", x$Mx.status1, "(0 or 1 are considered fine.)")
+    cat("\nOpenMx status1:", x$Mx.status1, "(\"0\" and \"1\": considered fine; other values indicate problems)")
     cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")
 }
 
@@ -211,7 +211,7 @@ print.summary.tssem1 <- function(x, ...) {
     cat("\nOpenMx version:", x$OpenMx.version)
     cat("\nmetaSEM version:", x$metaSEM.version)
     cat("\nDate of analysis:", x$date)
-    cat("\nOpenMx status1:", x$Mx.status1, "(0 or 1 are considered fine.)")
+    cat("\nOpenMx status1:", x$Mx.status1, "(\"0\" and \"1\": considered fine; other values indicate problems)")
     cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")    
 }
 
@@ -317,7 +317,12 @@ print.summary.meta <- function(x, ...) {
     
     cat("Call:\n")
     cat(deparse(x$call))
-    
+
+    cat("\n\n95% confidence intervals: ")
+    switch(x$intervals.type,
+           z = cat("z statistic approximation"),
+           LB = cat("Likelihood-based statistic") )
+
     cat("\nCoefficients:\n")
     printCoefmat(x$coefficients, P.values=TRUE, ...)
 
@@ -329,16 +334,12 @@ print.summary.meta <- function(x, ...) {
     cat("\nNumber of parameter estimated:", x$estPara)
     cat("\nDegrees of freedom:", x$df)
     cat("\n-2 log likelihood:", x$Minus2LL)        
-    cat("\n95% confidence intervals: ")
-    switch(x$intervals.type,
-           z = cat("z statistic approximation."),
-           LB = cat("Likelihood-based statistic.") )
 
     cat("\n\nR version:", x$R.version)
     cat("\nOpenMx version:", x$OpenMx.version)
     cat("\nmetaSEM version:", x$metaSEM.version)
     cat("\nDate of analysis:", x$date)
-    cat("\nOpenMx status1:", x$Mx.status1, "(0 or 1 are considered fine.)")
+    cat("\nOpenMx status1:", x$Mx.status1, "(\"0\" and \"1\": considered fine; other values indicate problems)")
     cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")    
 }
 

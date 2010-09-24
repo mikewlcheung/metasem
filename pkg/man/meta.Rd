@@ -3,10 +3,11 @@
 \title{Univariate and Multivariate Meta-Analysis
 }
 \description{
-It conducts univariate and multivariate meta-analysis based on maximum
-likelihood estimation method. Mixed-effects meta-analysis is possible by
-adding study characteristics as predictors. Equality constraints on
-intercepts, regression coefficients and variance components are possible.
+It conducts univariate and multivariate meta-analysis with maximum
+likelihood estimation method. Mixed-effects meta-analysis can be conducted by
+including study characteristics as predictors. Equality constraints on
+intercepts, regression coefficients and variance components can be
+easily imposed.
 }
 \usage{
 meta(y, v, x, intercept.constraints, coeff.constraints, RE.constraints,

@@ -1,0 +1,172 @@
+\documentclass{article}
+\usepackage[utf8]{inputenc} % for UTF-8/single quotes from sQuote()
+\usepackage{graphicx}
+\usepackage[authoryear,round]{natbib}
+\usepackage{array}
+%\usepackage{a4wide}
+\usepackage{color}
+\usepackage[colorlinks=true,urlcolor=blue,bookmarks=true]{hyperref}
+\usepackage{url}
+\title{\code{metaSEM}: Meta-Analysis using\\Structural Equation Modeling}
+\author{\href{http://courses.nus.edu.sg/course/psycwlm/Internet/}{Mike W.-L. Cheung}\\National University of Singapore}
+\newcommand{\code}[1]{{\tt #1}}
+\SweaveOpts{echo=TRUE, keep.source=TRUE}
+
+\begin{document}
+\bibliographystyle{plainnat}
+\maketitle
+
+\section{Introduction} \label{sec:intro}
+\code{metaSEM} is an \code{R} package that conducts univariate and multivariate meta-analysis using structural equation modeling (SEM) approach \citep{Cheung:2008} via the \href{http://openmx.psyc.virginia.edu/}{OpenMx} package. It also implements the two-stage structural equation modeling (TSSEM) approach to conducting meta-analytic structural equation modeling (MASEM) on correlation/covariance matrices \citep{Cheung+Chan:2005, Cheung+Chan:2009}. The main functions are:
+
+\begin{itemize}
+\item \code{tssem1()}: It conducts the first stage analysis of TSSEM by pooling correlation/covariance matrices with a fixed-effets model.\item \code{tssem2()}: It conducts the second stage analysis of TSSEM by calling \code{wls()}.
+\item \code{wls()}: It fits a correlation or covariance structure analysis with weighted least squares.
+\item \code{meta()}: It conducts univariate and multivariate meta-analysis with maximum likelihood estimation method. Mixed-effects meta-analysis can be conducted by including study characteristics as predictors. Equality constraints on intercepts, regression coefficients and variance components can be easily imposed. 
+\end{itemize}
+
+Besides reporting approximate confidence intervals (CIs) based on z statistic, it is also possible to request likelihood-based CIs \citep{Cheung:2009a, Neale+Miller:1997} on the parameter estimates. 
+
+The current version is \Sexpr{installed.packages()["metaSEM","Version"]} which is still a beta release. Please send any bugs and comments to me at <mikewlcheung (at) nus.edu.sg>. 
+
+\section{Installation} \label{sec:install}
+First of all, you need \code{R} to run it. Since \code{metaSEM} uses \code{OpenMx} as the workhorse, \code{OpenMx} has also to be installed. To install \code{OpenMx}, run the following command inside an \code{R} session: 
+\begin{Sinput}
+source('http://openmx.psyc.virginia.edu/getOpenMx.R') 
+\end{Sinput}
+See \url{http://openmx.psyc.virginia.edu/installing-openmx} for the details on how to install \code{OpenMx}. 
+
+\subsection{Windows platform} 
+Download the \href{http://courses.nus.edu.sg/course/psycwlm/Internet/metaSEM/metaSEM\_\Sexpr{installed.packages()["metaSEM","Version"]}.zip}{Windows binary} of \code{metaSEM}. If the file is saved at d:\textbackslash. Run the following command inside an R session: 
+\begin{Sinput}
+install.packages(pkgs="d:/metaSEM_\Sexpr{installed.packages()["metaSEM","Version"]}.zip", repos=NULL) 
+\end{Sinput}
+
+Please note that d:\textbackslash{} in Windows is represented by either d:/ or d:\textbackslash\textbackslash{} in \code{R}. 
+
+\subsection{Linux platform} 
+
+Download the \href{http://courses.nus.edu.sg/course/psycwlm/Internet/metaSEM/metaSEM\_\Sexpr{installed.packages()["metaSEM","Version"]}.tar.gz}{source package} of \code{metaSEM}. Run the following command as Root in a terminal: 
+\begin{Sinput}
+R CMD INSTALL metaSEM_\Sexpr{installed.packages()["metaSEM","Version"]}.tar.gz
+\end{Sinput}
+
+\section{Examples} \label{sec:examples}
+\subsection{Two-stage SEM} 
+An example on two-stage structural equation modeling (TSSEM) from \cite{Cheung:2009b}:
+<<Cheung2009, echo=TRUE>>=
+## Load the metaSEM library 
+library(metaSEM)
+
+## Sample correlation matrices with missing values
+Cheung09$data
+
+## Sample sizes
+Cheung09$n
+
+## Stage 1: Analysis of correlation matrices
+## A pooled correlation matrix will be estimated.
+## tssem1() is the function for stage 1 analysis.
+cor1 <- tssem1(Cheung09$data, Cheung09$n)
+summary(cor1)
+
+## Stage 2: Fit a three-factor CFA model on the pooled correlation matrix
+## See http://openmx.psyc.virginia.edu/documentation on the OpenMx syntax
+P4 <- mxMatrix("Stand", ncol=3, nrow=3, value=.2, free=TRUE, name="P4")
+L4 <- mxMatrix("Full", ncol=3, nrow=9, value=c( rep(c(0.3,0,0),3), 
+                rep(c(0, 0.3,0),4), rep(c(0,0,0.3),2)),
+                free=c( rep(c(T,F,F),3), rep(c(F,T,F),4), 
+                rep(c(F,F,T),2)), byrow=TRUE, name="L4")
+
+## impliedR = L4 %*% P4 %*% t(L4)
+impliedR4 <- mxAlgebra(L4 %&% P4, name="impliedR4")
+## tssem2() is the function for stage 2 analysis.
+cor2 <- tssem2(cor1, impliedS=impliedR4, matrices=c(P4, L4))
+summary(cor2)
+@
+\subsection{Reading External Data Files}
+Data sets are most likely stored externally. \code{metaSEM} reads three types of formats. The first type is full correlation/covariance matrices, for example, \href{http://courses.nus.edu.sg/course/psycwlm/Internet/metaSEM/fullmat.dat}{fullmat.dat} is the same as the built-in data set Cheung09. Missing values are represented by \code{NA} (the default option). Suppose you save it at d:\textbackslash fullmat.dat, you may read it by using the following command in \code{R}:
+
+\begin{Sinput}
+my.df <- readFullMat(file="d:/fullmat.dat")
+\end{Sinput}
+
+The second type is lower triangle correlation/covariance matrices, for example, \href{http://courses.nus.edu.sg/course/psycwlm/Internet/metaSEM/lowertriangle.dat}{lowertriangle.dat}. Missing values are represented by the strings 1.00000 and 0.00000. Suppose you save it at d:\textbackslash lowertriangle.dat, you may read it by using the following command in \code{R}:
+
+\begin{Sinput}
+my.df <- readLowTriMat(file = "d:/lowertriangle.dat", no.var = 9, 
+                       na.strings=c("1.00000", "0.00000"))
+\end{Sinput}
+
+The third type is vectors of correlation/covariance elements based on column vectorization. One row is for one study, for example, \href{http://courses.nus.edu.sg/course/psycwlm/Internet/metaSEM/stackvec.dat}{stackvec.dat}. Suppose you save it at d:\textbackslash stackvec.dat, you may read it by using the following \code{R} command:
+
+\begin{Sinput}
+my2 <- readStackVec(file="d:/stackvec.dat")
+\end{Sinput}
+
+Besides fitting a TSSEM, metaSEM may be used to fit a correlation/covariance structure with weighted least squares as the estimation method. Likelihood-based confidence intervals may also be calculated. The following is an example.
+<<WLS, echo=TRUE>>=
+## Sample correlation matrix
+R1 <- matrix(c(1.00, 0.22, 0.24, 0.18,
+               0.22, 1.00, 0.30, 0.22,
+               0.24, 0.30, 1.00, 0.24,
+               0.18, 0.22, 0.24, 1.00), ncol=4, nrow=4)
+
+## Sample size
+n <- 1000
+
+## Calculate the asymptotic covariance matrix of the sample correlation matrix
+acovR <- asyCov(R1, n)
+
+## P1: Factor variance
+P1 <- mxMatrix("Full", ncol=1, nrow=1, value=1, free=FALSE, name="P1")
+
+## L1: Factor loadings
+L1 <- mxMatrix("Full", ncol=1, nrow=4, value=c(0.3, 0.4, 0.5, 0.4), 
+               free=TRUE, name="L1")
+
+## Model implied correlation matrix
+## Please note that error variances are not involved in correlation structure analysis
+impliedR1 <- mxAlgebra(L1 %&% P1, name="impliedR1")
+
+## wls() is the function to fitting correlation/covariance structure with WLS
+wls.fit1 <- wls(S=R1, acovS=acovR, n=n, impliedS=impliedR1, 
+                matrices=c(P1, L1), cor.analysis=TRUE, intervals.type="LB")
+summary(wls.fit1)
+@
+\subsection{General Meta-Analysis} 
+Another useful function is \code{meta}. It conducts fixed-, random-, and mixed-effects univariate and multivariate meta-analysis. The followings are some examples.
+
+<<meta_analysis, echo=TRUE>>=
+## Random-effects meta-analysis
+attach(Hox02) 
+summary( meta(y=yi, v=vi) ) 
+
+## Fixed-effects meta-analysis
+summary( meta(y=yi, v=vi, RE.constraints=matrix(0, ncol=1, nrow=1)) ) 
+
+## Mixed-effects meta-analysis with "weeks" as the predictor 
+## Use likelihood-based CI 
+summary( meta(y=yi, v=vi, x=weeks, intervals.type="LB") ) 
+detach(Hox02) 
+
+## Multivariate meta-analysis
+attach(Berkey98) 
+summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL)) ) 
+
+## Multivariate meta-analysis with "publication year-1979" as the predictor 
+summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL), 
+              x=scale(pub_year, center=1979)) ) 
+
+## Multivariate meta-analysis with an equality constraint on the slopes 
+summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL), 
+              x=scale(pub_year, center=1979), 
+              coeff.constraints=
+              matrix(c("0.3*Eq_slope", "0.3*Eq_slope"), nrow=2)) ) 
+
+detach(Berkey98)
+@
+
+
+\bibliography{metaSEM}
+\end{document}

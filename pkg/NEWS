@@ -1,3 +1,7 @@
+Release 0.3.9 (September 24, 2010)
+====================================
+* Added a vignette
+
 Release 0.3.8 (September 20, 2010)
 ====================================
 * Added suppressWarnings = TRUE in meta(), tssem1(), tssem2(), and wls()
