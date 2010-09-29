@@ -297,7 +297,8 @@ summary.meta <- function(object, ...) {
     # Homogeneity statistic
     no.y <- object$no.y
     no.v <- no.y*(no.y+1)/2
-    Q.stat <- homoStat(y=object$data[, 1:no.y], v=object$data[, (no.y+1):(no.y+no.v)])
+	# Remove studies that have missing x. Make sure that studies are the same in calculating Q.stat and meta()
+    Q.stat <- homoStat(y=object$data[!object$miss.x, 1:no.y], v=object$data[!object$miss.x, (no.y+1):(no.y+no.v)])
 
     Mx.status1 <- object$meta.fit@output$status[[1]]   
     libMatrix <- installed.packages()    

@@ -5,7 +5,7 @@
 \usepackage{array}
 %\usepackage{a4wide}
 \usepackage{color}
-\usepackage[colorlinks=true,urlcolor=blue,bookmarks=true]{hyperref}
+\usepackage[colorlinks=true,urlcolor=blue,citecolor=red,bookmarks=true]{hyperref}
 \usepackage{url}
 \title{\code{metaSEM}: Meta-Analysis using\\Structural Equation Modeling}
 \author{\href{http://courses.nus.edu.sg/course/psycwlm/Internet/}{Mike W.-L. Cheung}\\National University of Singapore}
@@ -17,17 +17,17 @@
 \maketitle
 
 \section{Introduction} \label{sec:intro}
-\code{metaSEM} is an \code{R} package that conducts univariate and multivariate meta-analysis using structural equation modeling (SEM) approach \citep{Cheung:2008} via the \href{http://openmx.psyc.virginia.edu/}{OpenMx} package. It also implements the two-stage structural equation modeling (TSSEM) approach to conducting meta-analytic structural equation modeling (MASEM) on correlation/covariance matrices \citep{Cheung+Chan:2005, Cheung+Chan:2009}. The main functions are:
+\code{metaSEM} is an \code{R} package that conducts univariate and multivariate meta-analysis using structural equation modeling (SEM) approach \citep{Cheung:2008} via the \href{http://openmx.psyc.virginia.edu/}{OpenMx} package. It also implements the two-stage structural equation modeling (TSSEM) approach \citep{Cheung+Chan:2005, Cheung+Chan:2009} to conducting meta-analytic structural equation modeling (MASEM) on correlation/covariance matrices. The main functions in this package are:
 
 \begin{itemize}
 \item \code{tssem1()}: It conducts the first stage analysis of TSSEM by pooling correlation/covariance matrices with a fixed-effets model.\item \code{tssem2()}: It conducts the second stage analysis of TSSEM by calling \code{wls()}.
-\item \code{wls()}: It fits a correlation or covariance structure analysis with weighted least squares.
+\item \code{wls()}: It fits a correlation/covariance structure analysis with weighted least squares.
 \item \code{meta()}: It conducts univariate and multivariate meta-analysis with maximum likelihood estimation method. Mixed-effects meta-analysis can be conducted by including study characteristics as predictors. Equality constraints on intercepts, regression coefficients and variance components can be easily imposed. 
 \end{itemize}
 
-Besides reporting approximate confidence intervals (CIs) based on z statistic, it is also possible to request likelihood-based CIs \citep{Cheung:2009a, Neale+Miller:1997} on the parameter estimates. 
+Besides reporting approximate confidence intervals (CIs) based on z statistic, it is also possible to request likelihood-based CIs on the parameter estimates \citep{Cheung:2009a, Neale+Miller:1997}. 
 
-The current version is \Sexpr{installed.packages()["metaSEM","Version"]} which is still a beta release. Please send any bugs and comments to me at <mikewlcheung (at) nus.edu.sg>. 
+The current version is \Sexpr{installed.packages()["metaSEM","Version"]}. Please send any bugs and comments to me at <mikewlcheung (at) nus.edu.sg>. 
 
 \section{Installation} \label{sec:install}
 First of all, you need \code{R} to run it. Since \code{metaSEM} uses \code{OpenMx} as the workhorse, \code{OpenMx} has also to be installed. To install \code{OpenMx}, run the following command inside an \code{R} session: 
@@ -85,7 +85,7 @@ cor2 <- tssem2(cor1, impliedS=impliedR4, matrices=c(P4, L4))
 summary(cor2)
 @
 \subsection{Reading External Data Files}
-Data sets are most likely stored externally. \code{metaSEM} reads three types of formats. The first type is full correlation/covariance matrices, for example, \href{http://courses.nus.edu.sg/course/psycwlm/Internet/metaSEM/fullmat.dat}{fullmat.dat} is the same as the built-in data set Cheung09. Missing values are represented by \code{NA} (the default option). Suppose you save it at d:\textbackslash fullmat.dat, you may read it by using the following command in \code{R}:
+Data sets are most likely stored externally. \code{metaSEM} reads three types of formats. The first type is full correlation/covariance matrices, for example, \href{http://courses.nus.edu.sg/course/psycwlm/Internet/metaSEM/fullmat.dat}{fullmat.dat} is the same as the built-in data set \code{Cheung09}. Missing values are represented by \code{NA} (the default option). Suppose you save it at d:\textbackslash fullmat.dat, you may read it by using the following command in \code{R}:
 
 \begin{Sinput}
 my.df <- readFullMat(file="d:/fullmat.dat")
@@ -104,7 +104,8 @@ The third type is vectors of correlation/covariance elements based on column vec
 my2 <- readStackVec(file="d:/stackvec.dat")
 \end{Sinput}
 
-Besides fitting a TSSEM, metaSEM may be used to fit a correlation/covariance structure with weighted least squares as the estimation method. Likelihood-based confidence intervals may also be calculated. The following is an example.
+\subsection{Analysis of Correlation/Covariance Structure with Weighted Least Squares}
+Besides fitting a TSSEM, \code{wls()} may be used to fit a correlation/covariance structure with weighted least squares as the estimation method. Likelihood-based CIs may also be calculated. The following is an example.
 <<WLS, echo=TRUE>>=
 ## Sample correlation matrix
 R1 <- matrix(c(1.00, 0.22, 0.24, 0.18,
@@ -134,8 +135,8 @@ wls.fit1 <- wls(S=R1, acovS=acovR, n=n, impliedS=impliedR1,
                 matrices=c(P1, L1), cor.analysis=TRUE, intervals.type="LB")
 summary(wls.fit1)
 @
-\subsection{General Meta-Analysis} 
-Another useful function is \code{meta}. It conducts fixed-, random-, and mixed-effects univariate and multivariate meta-analysis. The followings are some examples.
+\subsection{Univariate and Multivariate Meta-Analysis} 
+Another useful function is \code{meta()}. It conducts fixed-, random-, and mixed-effects univariate and multivariate meta-analysis. The followings are some examples.
 
 <<meta_analysis, echo=TRUE>>=
 ## Random-effects meta-analysis
@@ -166,7 +167,8 @@ summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
 
 detach(Berkey98)
 @
-
+\section{Acknowledgements} \label{sec:acknowledge}
+This package cannot be written without \code{R} and \code{OpenMx}. Contributions by the R Development Core Team and the OpenMx Core Development Tearm are highly appreciated.
 
 \bibliography{metaSEM}
 \end{document}

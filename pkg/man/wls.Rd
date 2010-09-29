@@ -9,10 +9,10 @@
   analysis of the two-stage strutural equation modeling (TSSEM). \code{tssem2} is a wrapper of \code{wls}.
 }
 \usage{
-wls(S, acovS, n, impliedS, matrices, cor.analysis = TRUE, intervals.type
-= c("z", "LB"), suppressWarnings = TRUE, ...)
+wls(S, acovS, n, impliedS, matrices, cor.analysis = TRUE,
+    intervals.type = c("z", "LB"), suppressWarnings = TRUE, ...)
 tssem2(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB"),
-suppressWarnings = TRUE, ...) 
+       suppressWarnings = TRUE, ...) 
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
