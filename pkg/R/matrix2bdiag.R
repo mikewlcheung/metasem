@@ -1,5 +1,6 @@
 matrix2bdiag <- function(x, ...) {
   tmp <- split(as.matrix(x), row(x))
-  out <- bdiag(lapply(tmp, vec2symMat, ...))
+  # Use .bdiag() as it handles string matrices
+  out <- .bdiag(lapply(tmp, vec2symMat, ...))
   as.matrix(out)
 }

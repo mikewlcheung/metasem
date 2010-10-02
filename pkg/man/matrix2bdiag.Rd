@@ -9,7 +9,7 @@ matrix2bdiag(x, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{A \eqn{k}{k} x \eqn{p}{p} matrix. 
+  \item{x}{A \eqn{k}{k} x \eqn{p}{p} matrix of numerics or characters. 
 }
   \item{\dots}{Further arguments to be passed to \code{\link[metaSEM]{vec2symMat}}
 %%     ~~Describe \code{\dots} here~~
@@ -17,7 +17,8 @@ matrix2bdiag(x, ...)
 }
 \details{Each row of \code{x} is converted into a symmetric matrix via
   \code{\link[metaSEM]{vec2symMat}}. Then the list of the symmetric matrices is
-  converted into a block diagonal matrix via \code{\link[Matrix]{bdiag}}.
+  converted into a block diagonal matrix via a function written by Scott
+  Chasalow posted at \url{http://www.math.yorku.ca/Who/Faculty/Monette/pub/stmp/0827.html}.
 %%  ~~ If necessary, more details than the description above ~~
 }
 \value{
@@ -39,11 +40,13 @@ matrix2bdiag(x, ...)
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{ \code{\link[metaSEM]{vec2symMat}}, \code{\link[Matrix]{bdiag}}
+\seealso{ \code{\link[metaSEM]{vec2symMat}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
 matrix2bdiag( matrix(1:18, ncol=6, byrow=TRUE) )
+
+matrix2bdiag( matrix(letters[1:18], ncol=6, byrow=TRUE) )
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

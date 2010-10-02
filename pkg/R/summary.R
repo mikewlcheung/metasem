@@ -360,3 +360,42 @@ vcov.meta <- function(object, ...) {
       return(acov)
     }
 }
+
+vcov.tssem1 <- function(object, ...) {
+    if (!is.element("tssem1", class(object)))
+    stop("\"object\" must be an object of class \"tssem1\".")
+    object$acovS
+}
+  
+vcov.wls <- function(object, ...) {
+    if (!is.element("wls", class(object)))
+    stop("\"object\" must be an object of class \"wls\".")
+    acovS <- tryCatch( 2*solve(object$wls.fit@output$calculatedHessian), error = function(e) e ) 
+    # Issue a warning instead of error message
+    if (inherits(acovS, "error")) {
+      cat("Error in solving the Hessian matrix.\n")
+      warning(print(acovS))
+    }
+    acovS
+}
+  
+coef.meta <- function(object, ...) {
+    if (!is.element("meta", class(object)))
+    stop("\"object\" must be an object of class \"meta\".")
+    # labels of the parameters    
+    my.name <- summary(object$meta.fit)$parameters$name
+    my.name <- my.name[!is.na(my.name)]
+    object$meta.fit@output$estimate[my.name]
+}
+
+coef.tssem1 <- function(object, ...) {
+    if (!is.element("tssem1", class(object)))
+    stop("\"object\" must be an object of class \"tssem1\".")
+    object$pooledS
+}
+  
+coef.wls <- function(object, ...) {
+    if (!is.element("wls", class(object)))
+    stop("\"object\" must be an object of class \"wls\".")
+    object$wls.fit@output$estimate
+}

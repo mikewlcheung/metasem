@@ -4,6 +4,11 @@
 \usepackage[authoryear,round]{natbib}
 \usepackage{array}
 %\usepackage{a4wide}
+
+% \VignetteIndexEntry{metaSEM: Meta-Analysis using Structural Equation Modeling}
+% \VignettePackage{metaSEM}
+% \VignetteDepends{OpenMx}
+
 \usepackage{color}
 \usepackage[colorlinks=true,urlcolor=blue,citecolor=red,bookmarks=true]{hyperref}
 \usepackage{url}
@@ -34,7 +39,7 @@ First of all, you need \code{R} to run it. Since \code{metaSEM} uses \code{OpenM
 \begin{Sinput}
 source('http://openmx.psyc.virginia.edu/getOpenMx.R') 
 \end{Sinput}
-See \url{http://openmx.psyc.virginia.edu/installing-openmx} for the details on how to install \code{OpenMx}. 
+See \url{http://openmx.psyc.virginia.edu/installing-openmx} for the details on how to install \code{OpenMx}. If you are using Fedora and have problems in installing \code{OpenMx}, you may refer to the following \href{http://openmx.psyc.virginia.edu/thread/671}{post}.
 
 \subsection{Windows platform} 
 Download the \href{http://courses.nus.edu.sg/course/psycwlm/Internet/metaSEM/metaSEM\_\Sexpr{installed.packages()["metaSEM","Version"]}.zip}{Windows binary} of \code{metaSEM}. If the file is saved at d:\textbackslash. Run the following command inside an R session: 
@@ -160,15 +165,15 @@ summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
               x=scale(pub_year, center=1979)) ) 
 
 ## Multivariate meta-analysis with an equality constraint on the slopes 
-summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL), 
-              x=scale(pub_year, center=1979), 
+summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
+              x=scale(pub_year, center=1979),
               coeff.constraints=
               matrix(c("0.3*Eq_slope", "0.3*Eq_slope"), nrow=2)) ) 
 
 detach(Berkey98)
 @
 \section{Acknowledgements} \label{sec:acknowledge}
-This package cannot be written without \code{R} and \code{OpenMx}. Contributions by the R Development Core Team and the OpenMx Core Development Tearm are highly appreciated.
+This package cannot be written without \code{R} and \code{OpenMx}. Contributions by the R Development Core Team and the OpenMx Core Development Team are highly appreciated.
 
 \bibliography{metaSEM}
 \end{document}

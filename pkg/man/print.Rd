@@ -1,17 +1,23 @@
-\name{print.wls}
+\name{print}
+\alias{print.tssem1}
 \alias{print.wls}
-\title{Print Methods for wls Objects 
+\alias{print.meta}
+\title{Print Methods for tssem1, wls and meta Objects 
 }
-\description{Print methods for wls objects 
+\description{Print methods for either \code{tssem1}, \code{wls} or \code{meta} objects.
 }
 \usage{
-print.wls(x, ...)
+\method{print}{tssem1}(x, \dots)
+\method{print}{wls}(x, \dots)
+\method{print}{meta}(x, \dots)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{An object returned from \code{\link[metaSEM]{wls}}
+  \item{x}{An object returned from either class
+	\code{\link[metaSEM]{tssem1}}, class \code{\link[metaSEM]{wls}} or
+	class \code{\link[metaSEM]{meta}}
 }
-  \item{\dots}{Further arguments to be passed to print
+  \item{\dots}{Further arguments to be passed to \code{summary.default}
 }
 }
 \details{
@@ -35,7 +41,7 @@ print.wls(x, ...)
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{
+\seealso{ \code{\link[metaSEM]{tssem1}}, \code{\link[metaSEM]{wls}}, \code{\link[metaSEM]{meta}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{

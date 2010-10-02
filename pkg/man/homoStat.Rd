@@ -22,7 +22,7 @@ homoStat(y, v)
 	major as used by \code{\link[OpenMx]{vech}}. It is assumed that
 	there is no missing value on \code{v}. If there are missing values on \code{v}
 	due to the missing values on \code{y}, the missing values on
-	\code{v} can be replaced by \code{v[is.na(v)] <- NA}.
+	\code{v} will be removed automatically.
 }
 }
 \details{
@@ -30,7 +30,8 @@ homoStat(y, v)
 }
 \value{A list of
   \item{Q}{Q statistic on the null hypothesis of homogeneity of effect
-	sizes. It has a chi-square distribution under the null hypothesis.}
+	sizes. It has an approximate chi-square distribution under the null
+	hypothesis. If fact, it is a badness-of-fit index.}
   \item{Q.df}{Degrees of freedom of the Q statistic}
   \item{pval}{p value on the test of homogeneity of effect sizes}
 }
@@ -53,14 +54,13 @@ Cochran, W. G. (1954). The combination of estimates from different experiments. 
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
+\seealso{  \code{\link[metaSEM]{meta}}
 }
 \examples{
 with( Hox02, homoStat(yi, vi) )
 
-with( HedgesOlkin85, homoStat(cbind(d_att, d_ach),
-      cbind(var_att, cov_att_ach, var_ach)) )
+with( HedgesOlkin85, homoStat(y=cbind(d_att, d_ach),
+      v=cbind(var_att, cov_att_ach, var_ach)) )
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

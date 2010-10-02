@@ -5,21 +5,21 @@
 \description{It converts a vector into a symmetric matrix. 
 }
 \usage{
-vec2symMat(x, diag = TRUE, byrow = FALSE)
+vec2symMat(x, diag = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{A vector
+  \item{x}{A vector of numerics or characters
 }
   \item{diag}{Logical. If it is \code{TRUE} (the default), the diagonals of the created matrix are replaced by elements of \code{x}; otherwise, the diagonals of the created matrix are replaced by "1".
 }
-  \item{byrow}{Logical. If it is \code{FALSE} (the default), the created matrix is filled by columns; otherwise, the matrix is filled by rows.
-}
+%   \item{byrow}{Logical. If it is \code{FALSE} (the default), the created matrix is filled by columns; otherwise, the matrix is filled by rows.
+% }
 }
 \details{
 %%  ~~ If necessary, more details than the description above ~~
 }
-\value{A symmetric square matrix
+\value{A symmetric square matrix based on column major
 %%  ~Describe the value returned
 %%  If it is a LIST, use
 %%  \item{comp1 }{Description of 'comp1'}
@@ -43,9 +43,9 @@ vec2symMat(x, diag = TRUE, byrow = FALSE)
 \examples{
 vec2symMat(1:6)
 
-vec2symMat(1:6, diag=FALSE)
+vec2symMat(letters[1:6])
 
-vec2symMat(1:6, byrow=TRUE)
+vec2symMat(1:6, diag=FALSE)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

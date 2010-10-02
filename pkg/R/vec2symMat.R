@@ -1,4 +1,4 @@
-vec2symMat <- function (x, diag=TRUE, byrow=FALSE) {
+vec2symMat <- function (x, diag=TRUE) {
   m <- length(x)
   d <- if (diag) 1 else -1
   n <- floor((sqrt(1 + 8*m) - d)/2)
@@ -6,10 +6,8 @@ vec2symMat <- function (x, diag=TRUE, byrow=FALSE) {
     stop("Cannot make a square matrix as the length of \"x\" is incorrect.")
   mat <- diag(n)
 
-  if (byrow) {
-    mat[upper.tri(mat, diag=diag)] <- x
-  } else {
-    mat[lower.tri(mat, diag=diag)] <- x
-  }
-  mat+t(mat)-diag(diag(mat))
+  mat[lower.tri(mat, diag=diag)] <- x
+  # Just mirroring the matrix, exclude the diagonals
+  mat[upper.tri(mat, diag=FALSE)] <- mat[lower.tri(mat, diag=FALSE)]
+  mat
 }
