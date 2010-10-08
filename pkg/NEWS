@@ -1,3 +1,8 @@
+Release 0.5.1 (October 8, 2010)
+====================================
+* Fixed a bug in meta() in which RE.lbound was not applied when RE.constraints was used
+* Fixed a bug in readFullMat() that converted data into data.frames rather than matrices
+
 Release 0.5.0 (October 2, 2010)
 ====================================
 * Added vcov methods for tssem1, wls objects

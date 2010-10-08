@@ -4,8 +4,7 @@ readFullMat <- function(file, ...) {
     no.var <- ncol(my.df)
     if (no.lines%%no.var == 0) {
         no.groups <- no.lines/no.var
-    }
-    else {
+    } else {
         stop("No. of lines read is not divided by the no. of variables.")
     }
     var.names <- paste("x", 1:no.var, sep = "")
@@ -17,6 +16,7 @@ readFullMat <- function(file, ...) {
         x
     }, var.names)
     out
+    lapply(out, function(x) {as.matrix(x)} )
 }
 
 

@@ -62,7 +62,20 @@ meta <- function(y, v, x, intercept.constraints, coeff.constraints,
                 matrix(0, nrow=no.x, ncol=(no.x+no.y)))
     A <- as.mxMatrix(A, name="A")
   }
-    
+
+  ## Fixed a bug in 0.5-0 that lbound is not added into Tau
+  ## when RE.constraints is used.
+  ## lbound in variance component of the random effects
+  if (is.matrix(RE.lbound)) {
+    if (!all(dim(RE.lbound)==c(no.y, no.y)))
+      warning("The dimensions of \"RE.lbound\" are incorrect.")
+      # FIXME: need to handle unequal dimensions better
+      lbound <- vech(RE.lbound)
+    } else {
+      lbound <- matrix(NA, nrow=no.y, ncol=no.y)
+      diag(lbound) <- RE.lbound
+      lbound <- vech(lbound)
+  }  
   
   ## Preparing the S matrix for covariance elements
   #  No predictor
@@ -76,15 +89,6 @@ meta <- function(y, v, x, intercept.constraints, coeff.constraints,
       values <- vech(diag(x=RE.startvalues, nrow=no.y, ncol=no.y))
     }
 
-    if (is.matrix(RE.lbound)) {
-      if (!all(dim(RE.lbound)==c(no.y, no.y)))
-        warning("The dimensions of \"RE.lbound\" are incorrect.")
-      lbound <- vech(RE.lbound)
-    } else {
-      lbound <- matrix(NA, nrow=no.y, ncol=no.y)
-      diag(lbound) <- RE.lbound
-      lbound <- vech(lbound)
-    }
     Tau.labels <- vech(outer(1:no.y, 1:no.y, function(x,y) { paste("Tau",x,"_",y,sep="")}))
     Tau <- mxMatrix("Symm", ncol=no.y, nrow=no.y, free=TRUE, labels=Tau.labels,
                     lbound=lbound, values=values, name="Tau")      
@@ -92,7 +96,7 @@ meta <- function(y, v, x, intercept.constraints, coeff.constraints,
     if (!all(dim(RE.constraints)==c(no.y, no.y)))
       stop("The dimensions of \"RE.constraints\" are incorrect.")
     
-    Tau <- as.mxMatrix(RE.constraints, name="Tau")
+    Tau <- as.mxMatrix(RE.constraints, lbound=lbound, name="Tau")
   }
   V <- mxMatrix("Symm", ncol=no.y, nrow=no.y, free=FALSE,
                  labels=paste("data.", v.labels, sep=""), name="V")
