@@ -70,11 +70,13 @@ meta <- function(y, v, x, intercept.constraints, coeff.constraints,
     if (!all(dim(RE.lbound)==c(no.y, no.y)))
       warning("The dimensions of \"RE.lbound\" are incorrect.")
       # FIXME: need to handle unequal dimensions better
-      lbound <- vech(RE.lbound)
+      # lbound is a matrix
+      ## lbound <- vech(RE.lbound)
     } else {
       lbound <- matrix(NA, nrow=no.y, ncol=no.y)
       diag(lbound) <- RE.lbound
-      lbound <- vech(lbound)
+      # lbound is a matrix      
+      ## lbound <- vech(lbound)
   }  
   
   ## Preparing the S matrix for covariance elements
@@ -91,7 +93,7 @@ meta <- function(y, v, x, intercept.constraints, coeff.constraints,
 
     Tau.labels <- vech(outer(1:no.y, 1:no.y, function(x,y) { paste("Tau",x,"_",y,sep="")}))
     Tau <- mxMatrix("Symm", ncol=no.y, nrow=no.y, free=TRUE, labels=Tau.labels,
-                    lbound=lbound, values=values, name="Tau")      
+                    lbound=vech(lbound), values=values, name="Tau")      
   } else {
     if (!all(dim(RE.constraints)==c(no.y, no.y)))
       stop("The dimensions of \"RE.constraints\" are incorrect.")
