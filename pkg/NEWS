@@ -1,12 +1,13 @@
-Release 0.5.1 (October 8, 2010)
+Release 0.5.1 (October 10, 2010)
 ====================================
+* Added bdiagMat() and bdiagRep() functions to create block diagonal matrix
 * Fixed a bug in meta() in which RE.lbound was not applied when RE.constraints was used
 * Fixed a bug in readFullMat() that converted data into data.frames rather than matrices
 
 Release 0.5.0 (October 2, 2010)
 ====================================
-* Added vcov methods for tssem1, wls objects
-* Added coef methods for tssem1, wls and meta objects
+* Added vcov() methods for tssem1, wls objects
+* Added coef() methods for tssem1, wls and meta objects
 
 Release 0.3.9 (September 24, 2010)
 ====================================
@@ -19,18 +20,18 @@ Release 0.3.8 (September 20, 2010)
 
 Release 0.3.7 (September 19, 2010)
 ====================================
-* Added vec2symMat(), matrix2bdiag() and homoStat()
+* Added vec2symMat(), matrix2bdiag() and homoStat() functions
 * Moved startValues(), minus2LL() and indepwlsChisq() to hidden functions
 * Updated data sets on Cheung09 and Digman97
 
 Release 0.3.6 (September 16, 2010)
 ====================================
 * Renamed the package to "Meta-Analysis using Structural Equation Modeling"
-* Added vcov method for meta object
+* Added vcov() method for meta object
 
 Release 0.3.5 (September 14, 2010)
 ====================================
-* Mainly bug fixes
+* Fixed a few bugs
 
 Release 0.3.4 (September 12, 2010)
 ====================================
@@ -52,4 +53,4 @@ Release 0.3.2 (August 29, 2010)
 Release 0.3.1 (August 09, 2010)
 ====================================
 * First alpha release to R-forge
-* Basic functions for TSSEM
+* Added basic functions for TSSEM
