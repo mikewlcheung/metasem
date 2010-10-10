@@ -15,7 +15,7 @@ as.mxMatrix(x, ...)
 	\code{\link[OpenMx]{mxMatrix}}. Please note that \code{type},
 	  \code{nrow}, \code{ncol}, \code{values}, \code{free} and possibly
 	  \code{labels} will be created automatically. Thus, these arguments
-	  should not be passed through \dots 
+	  should not be avoided in \dots 
 %%     ~~Describe \code{\dots} here~~
 }
 }
@@ -40,23 +40,23 @@ as.mxMatrix(x, ...)
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{
+\seealso{ \code{\link[OpenMx]{mxMatrix}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-# a and b are free parameters with both starting values and labels
+# a and b are free parameters with starting values and labels
 a1 <- matrix(c(1:4, "5*a", 6, "7*b", 8, 9), ncol=3, nrow=3)
 a1 <- as.mxMatrix(a1, name="a1")
 
-# fixed parameters without any labels
+# Fixed parameters without any labels
 a2 <- matrix(1:9, ncol=3, nrow=3)
 a2 <- as.mxMatrix(a2, name="a2")
 
-# free parameters without starting values
+# Free parameters without starting values
 a3 <- matrix(c(1:4, "a", 6, "b", 8, 9), ncol=3, nrow=3)
 a3 <- as.mxMatrix(a3, name="a3")
 
-# a free parameter without label
+# A free parameter without label
 a4 <- matrix(c(1:4, "5*", 6, "7*b", 8, 9), ncol=3, nrow=3)
 a4 <- as.mxMatrix(a4, name="a4")
 }

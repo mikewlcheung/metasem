@@ -38,7 +38,7 @@ bdiagRep(x, times)
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{ \code{\link[metaSEM]{bdiagMat}}
+\seealso{ \code{\link[metaSEM]{bdiagMat}}, \code{\link[metaSEM]{matrix2bdiag}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{

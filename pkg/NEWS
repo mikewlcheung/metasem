@@ -1,8 +1,8 @@
 Release 0.5.1 (October 10, 2010)
 ====================================
 * Added bdiagMat() and bdiagRep() functions to create block diagonal matrix
-* Fixed a bug in meta() in which RE.lbound was not applied when RE.constraints was used
-* Fixed a bug in readFullMat() that converted data into data.frames rather than matrices
+* Fixed a bug in meta() that ignored RE.lbound when RE.constraints was used
+* Fixed a bug in readFullMat() that converts data into data.frames rather than matrices
 
 Release 0.5.0 (October 2, 2010)
 ====================================
