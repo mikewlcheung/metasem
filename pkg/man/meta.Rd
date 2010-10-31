@@ -57,9 +57,9 @@ suppressWarnings = TRUE, ...)
 }
   \item{RE.lbound}{A vector of \eqn{p}{p} lower bounds on the
 	diagonals of the variance component of the random effects. If only one
-	scalar is given, it will be duplicated across the diagonals. Lower bounds for the off-diagonals of the variance component are set
-	at \code{NA}. A \eqn{p}{p} x
-	\eqn{p}{p} symmetric matrix of the lower bounds is also acceptable
+	scalar is given, it will be duplicated across the diagonals. Lower
+	bounds for the off-diagonals of the variance component are set at \code{NA}. A \eqn{p}{p} x
+	\eqn{p}{p} symmetric matrix of the lower bounds is also acceptable.
 }
   \item{intervals.type}{Either \code{z} (default if missing) or
 	\code{LB}. If it is \code{z}, it calculates 95\% Wald confidence

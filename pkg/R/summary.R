@@ -37,13 +37,14 @@ summary.wls <- function(object, ...) {
                         "DF of independent model", "RMSEA", "SRMR", "TLI", "CFI", "AIC", "BIC")
     colnames(stat) <- "Value"
   
-    # calculate coefficients    
-    my.para <- summary(object$wls.fit)$parameters
+    # calculate coefficients
+    my.mx <- summary(object$wls.fit)
+    my.para <- my.mx$parameters
     # For example, P[1,2], L[1,2], ...
     my.para$name <- with(my.para, paste(matrix,"[",row,",",col,"]",sep=""))
     dimnames(my.para)[[1]] <- my.para$name
 
-    my.ci <- summary(object$wls.fit)$CI
+    my.ci <- my.mx$CI
     # Determine if CIs on parameter estimates are present
     if (is.null(dimnames(my.ci))) {
       my.para$lbound <- my.para$Estimate - qnorm(.975)*my.para$Std.Error
@@ -265,7 +266,7 @@ summary.meta <- function(object, ...) {
     my.para$label <- my.para$name
     my.para$name <- with(my.para, paste(matrix,"[",row,",",col,"]",sep=""))
     
-    my.ci <- summary(object$meta.fit)$CI
+    my.ci <- my.mx$CI
     # Determine if CIs on parameter estimates are present
     if (is.null(dimnames(my.ci))) {
       my.para$lbound <- my.para$Estimate - qnorm(.975)*my.para$Std.Error

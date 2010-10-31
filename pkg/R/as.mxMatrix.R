@@ -1,4 +1,4 @@
-as.mxMatrix <- function(x, ...) {
+as.mxMatrix <- function(x, name, ...) {
   if (!is.matrix(x))
     stop("\"x\" must be a matrix.")
   # suppress warnings
@@ -6,6 +6,12 @@ as.mxMatrix <- function(x, ...) {
   options(warn=-1)
   nRow <- nrow(x)
   nCol <- ncol(x)
+
+  # check if "name" was give
+  # if not, use the matrix name
+  if (missing(name))
+    name <- as.character(match.call())[2]
+  
   values <- as.numeric(x)  # They are NA for characters 
   free <- is.na(values)    # They are TRUE for parameters with labels 
   freePara1 <- x[free]     # Extract free parameters
@@ -17,9 +23,10 @@ as.mxMatrix <- function(x, ...) {
     labels <- matrix(NA, ncol=nCol, nrow=nRow)
     labels[free] <- sapply(freePara2, function(x){ x[2]})
     out <- mxMatrix(type = "Full", nrow=nRow, ncol=nCol, values=values, free=free,
-                    labels=labels, ...)
+                    name=name, labels=labels, ...)
   } else {
-    out <- mxMatrix(type = "Full", nrow=nRow, ncol=nCol, values=values, free=free, ...)    
+    out <- mxMatrix(type = "Full", nrow=nRow, ncol=nCol, values=values, free=free,
+                    name=name, ...)    
   }
   options(warn=warn)
   out

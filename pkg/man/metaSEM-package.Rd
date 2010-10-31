@@ -14,13 +14,11 @@
 \tabular{ll}{
 Package: \tab metaSEM\cr
 Type: \tab Package\cr
-Version: \tab 0.5-1\cr
-Date: \tab 2010-10-10\cr
+Version: \tab 0.5-2\cr
+Date: \tab 2010-10-31\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }
-%~~ An overview of how to use the package, including the most important ~~
-%~~ functions ~~
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 
