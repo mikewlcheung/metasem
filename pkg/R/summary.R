@@ -400,3 +400,121 @@ coef.wls <- function(object, ...) {
     stop("\"object\" must be an object of class \"wls\".")
     object$wls.fit@output$estimate
 }
+
+summary.reml <- function(object, ...) {
+    if (!is.element("reml", class(object)))
+    stop("\"object\" must be an object of class \"reml\".")
+
+    # calculate coefficients    
+    my.mx <- summary(object$reml.fit)
+    my.para <- my.mx$parameters
+    # For example, P[1,2], L[1,2], ...
+    my.para$label <- my.para$name
+    my.para$name <- with(my.para, paste(matrix,"[",row,",",col,"]",sep=""))
+    
+    my.ci <- my.mx$CI
+    # Determine if CIs on parameter estimates are present
+    if (is.null(dimnames(my.ci))) {
+      my.para$lbound <- my.para$Estimate - qnorm(.975)*my.para$Std.Error
+      my.para$ubound <- my.para$Estimate + qnorm(.975)*my.para$Std.Error
+      my.para <- my.para[order(my.para$matrix, my.para$row, my.para$col), ]
+      # remove rows with missing labels
+      my.para <- my.para[!is.na(my.para$label), ]
+      coefficients <- my.para[, -c(1:4,7)]
+      dimnames(coefficients)[[1]] <- my.para$label 
+    } else {
+      name <- sapply(unlist(dimnames(my.ci)[1]), function(x)
+                       {strsplit(x, "REML.", fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
+      # remove duplicate elements in my.ci from my.para$name
+      name.sel <- name %in% my.para$name
+      my.ci <- data.frame(name=my.para$name, my.ci[name.sel, ,drop=FALSE])
+      my.para <- merge(my.para, my.ci, by=c("name"))
+      my.para <- my.para[order(my.para$matrix, my.para$row, my.para$col), ]
+      # remove rows with missing labels
+      my.para <- my.para[!is.na(my.para$label), ]
+      coefficients <- my.para[, -c(1:4,7,9)]
+      dimnames(coefficients)[[1]] <- my.para$label 
+    }
+    coefficients$"z value" <- coefficients$Estimate/coefficients$Std.Error
+    coefficients$"Pr(>|z|)" <- 2*(1-pnorm(abs(coefficients$"z value")))
+
+    intervals.type <- object$call[[match("intervals.type", names(object$call))]]
+    # default
+    if (is.null(intervals.type))
+      intervals.type <- "z"
+
+    Mx.status1 <- object$reml.fit@output$status[[1]]   
+    libMatrix <- installed.packages()    
+    out <- list(call=object$call, intervals.type=intervals.type, no.studies=my.mx$numObs,
+                obsStat=my.mx$observedStatistics, estPara=my.mx$estimatedParameters,
+                df=my.mx$degreesOfFreedom, Minus2LL=my.mx$Minus2LogLikelihood,
+                coefficients=coefficients, Mx.status1=Mx.status1, R.version=as.character(getRversion()),
+                OpenMx.version=libMatrix["OpenMx", "Version"], metaSEM.version=libMatrix["metaSEM", "Version"],
+                date=date())                
+    class(out) <- "summary.reml"
+    out
+}
+
+print.summary.reml <- function(x, ...) {
+    if (!is.element("summary.reml", class(x)))
+    stop("\"x\" must be an object of class \"summary.reml\".")
+    
+    cat("Call:\n")
+    cat(deparse(x$call))
+
+    cat("\n\n95% confidence intervals: ")
+    switch(x$intervals.type,
+           z = cat("z statistic approximation"),
+           LB = cat("Likelihood-based statistic") )
+
+    cat("\nCoefficients:\n")
+    printCoefmat(x$coefficients, P.values=TRUE, ...)
+
+    cat("\nNumber of studies:", x$no.studies)
+    cat("\nNumber of observed statistics:", x$obsStat)
+    cat("\nNumber of parameter estimated:", x$estPara)
+    cat("\nDegrees of freedom:", x$df)
+    cat("\n-2 log likelihood:", x$Minus2LL)        
+
+    cat("\n\nR version:", x$R.version)
+    cat("\nOpenMx version:", x$OpenMx.version)
+    cat("\nmetaSEM version:", x$metaSEM.version)
+    cat("\nDate of analysis:", x$date)
+    cat("\nOpenMx status1:", x$Mx.status1, "(\"0\" and \"1\": considered fine; other values indicate problems)")
+    cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")    
+}
+
+print.reml <- function(x, ...) {
+    if (!is.element("reml", class(x)))
+      stop("\"x\" must be an object of class \"reml\".")
+    cat("Call:\n")
+    cat(deparse(x$call))
+    cat("\n\nStructure:\n")
+    print(summary.default(x), ...)
+}
+
+vcov.reml <- function(object, ...) {
+    if (!is.element("reml", class(object)))
+    stop("\"object\" must be an object of class \"reml\".")
+
+    # labels of the parameters    
+    my.name <- summary(object$reml.fit)$parameters$name
+    my.name <- my.name[!is.na(my.name)]
+    acov <- tryCatch( 2*solve(object$reml@output$calculatedHessian[my.name, my.name]), error = function(e) e) 
+    
+    if (inherits(acov, "error")) {
+      cat("Error in solving the Hessian matrix.\n")
+      stop(print(acov))
+    } else {
+      return(acov)
+    }
+}
+
+coef.reml <- function(object, ...) {
+    if (!is.element("reml", class(object)))
+    stop("\"object\" must be an object of class \"reml\".")
+    # labels of the parameters    
+    my.name <- summary(object$reml.fit)$parameters$name
+    my.name <- my.name[!is.na(my.name)]
+    object$reml.fit@output$estimate[my.name]
+}

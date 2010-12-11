@@ -2,6 +2,7 @@
 \alias{coef.tssem1}
 \alias{coef.wls}
 \alias{coef.meta}
+\alias{coef.reml}
 \title{Extract Parameter Estimates from tssem1, wls and meta Objects
 }
 \description{It extracts the parameter estimates from either \code{tssem1}, \code{wls} or \code{meta} objects.

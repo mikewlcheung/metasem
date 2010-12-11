@@ -1,6 +1,7 @@
-Release 0.5.2 (October 31, 2010)
+Release 0.5.2 (December 11, 2010)
 ====================================
 * Added name argument in as.mxMatrix()
+* Added reml() to estimate variance components with REML
 
 Release 0.5.1 (October 10, 2010)
 ====================================

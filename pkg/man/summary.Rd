@@ -2,9 +2,11 @@
 \alias{summary.tssem1}
 \alias{summary.wls}
 \alias{summary.meta}
+\alias{summary.reml}
 \alias{print.summary.tssem1}
 \alias{print.summary.wls}
 \alias{print.summary.meta}
+\alias{print.summary.reml}
 \title{Summary Method for tssem1, wls and meta Objects
 }
 \description{It summaries results for either \code{tssem1}, \code{wls} or \code{meta} objects.

@@ -12,6 +12,7 @@
 \usepackage{color}
 \usepackage[colorlinks=true,urlcolor=blue,citecolor=red,bookmarks=true]{hyperref}
 \usepackage{url}
+\usepackage{fullpage}
 \title{\code{metaSEM}: Meta-Analysis using\\Structural Equation Modeling}
 \author{\href{http://courses.nus.edu.sg/course/psycwlm/Internet/}{Mike W.-L. Cheung}\\National University of Singapore}
 \newcommand{\code}[1]{{\tt #1}}

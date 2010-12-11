@@ -2,6 +2,7 @@
 \alias{print.tssem1}
 \alias{print.wls}
 \alias{print.meta}
+\alias{print.reml}
 \title{Print Methods for tssem1, wls and meta Objects 
 }
 \description{Print methods for either \code{tssem1}, \code{wls} or \code{meta} objects.
