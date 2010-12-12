@@ -28,7 +28,7 @@
 \begin{itemize}
 \item \code{tssem1()}: It conducts the first stage analysis of TSSEM by pooling correlation/covariance matrices with a fixed-effets model.\item \code{tssem2()}: It conducts the second stage analysis of TSSEM by calling \code{wls()}.
 \item \code{wls()}: It fits a correlation/covariance structure analysis with weighted least squares.
-\item \code{meta()}: It conducts univariate and multivariate meta-analysis with maximum likelihood estimation method. Mixed-effects meta-analysis can be conducted by including study characteristics as predictors. Equality constraints on intercepts, regression coefficients and variance components can be easily imposed. 
+\item \code{meta()} and \code{reml()}: \code{meta()} conducts univariate and multivariate meta-analysis with maximum likelihood estimation method while \code{reml()} estimates the variance components of the random-effects with restricted (residual) maximum likelihood estimation method. Mixed-effects meta-analysis can be conducted by including study characteristics as predictors. Equality constraints on intercepts, regression coefficients and variance components can be easily imposed. 
 \end{itemize}
 
 Besides reporting approximate confidence intervals (CIs) based on z statistic, it is also possible to request likelihood-based CIs on the parameter estimates \citep{Cheung:2009a, Neale+Miller:1997}. 
@@ -142,12 +142,14 @@ wls.fit1 <- wls(S=R1, acovS=acovR, n=n, impliedS=impliedR1,
 summary(wls.fit1)
 @
 \subsection{Univariate and Multivariate Meta-Analysis} 
-Another useful function is \code{meta()}. It conducts fixed-, random-, and mixed-effects univariate and multivariate meta-analysis. The followings are some examples.
+Another useful functions are \code{meta()} and \code{reml()}. They conduct fixed-, random-, and mixed-effects univariate and multivariate meta-analysis. The followings are some examples.
 
 <<meta_analysis, echo=TRUE>>=
 ## Random-effects meta-analysis
 attach(Hox02) 
 summary( meta(y=yi, v=vi) ) 
+## Estimate variance components with REML
+summary( reml(y=yi, v=vi) ) 
 
 ## Fixed-effects meta-analysis
 summary( meta(y=yi, v=vi, RE.constraints=matrix(0, ncol=1, nrow=1)) ) 
@@ -155,15 +157,22 @@ summary( meta(y=yi, v=vi, RE.constraints=matrix(0, ncol=1, nrow=1)) )
 ## Mixed-effects meta-analysis with "weeks" as the predictor 
 ## Use likelihood-based CI 
 summary( meta(y=yi, v=vi, x=weeks, intervals.type="LB") ) 
+## Estimate variance components with REML
+summary( reml(y=yi, v=vi, x=weeks, intervals.type="LB") ) 
 detach(Hox02) 
 
 ## Multivariate meta-analysis
 attach(Berkey98) 
 summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL)) ) 
+## Estimate variance components with REML
+summary( reml(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL)) ) 
 
 ## Multivariate meta-analysis with "publication year-1979" as the predictor 
 summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL), 
               x=scale(pub_year, center=1979)) ) 
+## Estimate variance components with REML
+summary( reml(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL), 
+              x=scale(pub_year, center=1979)) )
 
 ## Multivariate meta-analysis with an equality constraint on the slopes 
 summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),

@@ -4,7 +4,7 @@
 }
 \description{
 It estimates the variance components of random-effects of univariate and
-multivariate meta-analysis with Restricted (Residual) Maximum Likelihood
+multivariate meta-analysis with restricted (residual) maximum likelihood
 (REML) estimation method.
 }
 \usage{
@@ -61,12 +61,9 @@ intervals.type = c("z", "LB"), suppressWarnings = TRUE, ...)
 }
 }
 \details{
-  Restricted (residual) maximum likelihood obtains the parameter
-  estimates by first removing the fixed-effects parameters. A transformation matrix \eqn{M=I-X(X'X)^{-1}X}{M=I-X(X'X)^{-1}X}
-  is created based on a design matrix \eqn{X}{X} which is just a column vector when there is no predictor in \code{x}. The last \eqn{N}{N}
-  redundant rows of \eqn{M}{M} is removed where \eqn{N}{N} is the rank of \eqn{X}{X}. After pre-multiplying by \eqn{M} on \code{y}, the parameters of fixed-effects are not removed from the model. Thus, only the parameters of random-effects are estimated.
+  Restricted (residual) maximum likelihood obtains the parameter estimates on the transformed data that do not include the fixed-effects parameters. A transformation matrix \eqn{M=I-X(X'X)^{-1}X}{M=I-X(X'X)^{-1}X} is created based on a design matrix \eqn{X}{X} which is just a column vector when there is no predictor in \code{x}. The last \eqn{N}{N} redundant rows of \eqn{M}{M} is removed where \eqn{N}{N} is the rank of \eqn{X}{X}. After pre-multiplying by \eqn{M} on \code{y}, the parameters of fixed-effects are not removed from the model. Thus, only the parameters of random-effects are estimated.
 
-  An alternative but equivalent approach is to maximize the
+  An alternative but equivalent approach is to minimize the
   -2*log-likelihood function: \deqn{
 	\log(\det|V+T^2|)+\log(\det|X'(V+T^2)^{-1}X|)+(y-X\hat{\alpha})'(V+T^2)^{-1}(y-X\hat{\alpha})}{
 	log(det|V+T^2|)+log(det|X'(V+T^2)^{-1}X|)+(y-X\alpha)'(V+T^2)^{-1}(y-X*\alpha)}
@@ -74,7 +71,7 @@ intervals.type = c("z", "LB"), suppressWarnings = TRUE, ...)
   of \eqn{y}{y}, \eqn{T^2}{T^2} is the variance component of the random
   effects, and \eqn{\hat{\alpha}=(X'(V+T^2)^{-1}X)^{-1}
   X'(V+T^2)^{-1}y}{\hat{\alpha}=(t(X)(V+T^2)^{-1}X)^{-1}t(X)(V+T^2)^{-1}y}. \code{reml}
-  uses the likelihood function to obtain the parameter estimates.
+  minimizes the above likelihood function to obtain the parameter estimates.
 
 }
 \value{An object of class \code{reml} with a list of
@@ -104,7 +101,7 @@ intervals.type = c("z", "LB"), suppressWarnings = TRUE, ...)
 %%  ~~who you are~~
 }
 \note{ \code{reml} is more computional intensive than \code{meta}. Moreover, \code{reml} is more
-  likely than \code{meta} to encourter errors during optimization.
+  likely than \code{meta} to encounter errors during optimization.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
