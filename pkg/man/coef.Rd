@@ -11,7 +11,7 @@
 \method{coef}{tssem1}(object, \dots)
 \method{coef}{wls}(object, \dots)
 \method{coef}{meta}(object, \dots)
-\method{coef}{reml}{object, \dots)
+\method{coef}{reml}(object, \dots)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
