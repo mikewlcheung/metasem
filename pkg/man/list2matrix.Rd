@@ -41,7 +41,6 @@ list2matrix(x, diag = FALSE)
 }
 \examples{
 C1 <- matrix(c(1,0.5,0.4,0.5,1,0.2,0.4,0.2,1), ncol=3)  
-asyCov(C1, n=100)
 C2 <- matrix(c(1,0.4,NA,0.4,1,NA,NA,NA,NA), ncol=3)  
 list2matrix(list(C1, C2))
 

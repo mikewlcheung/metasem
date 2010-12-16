@@ -7,18 +7,18 @@
   and meta Objects
 }
 \description{It extracts the variance-covariance matrix of the
-  parameter estimates from either \code{tssem1}, \code{wls} or \code{meta} objects.
+  parameter estimates from either \code{tssem1}, \code{wls}, \code{meta}
+  or \code{reml}objects.
 }
 \usage{
 \method{vcov}{tssem1}(object, \dots)
 \method{vcov}{wls}(object, \dots)
 \method{vcov}{meta}(object, \dots)
+\method{vcov}{reml}(object, \dots)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{object}{An object returned from either class
-	\code{\link[metaSEM]{tssem1}}, class \code{\link[metaSEM]{wls}} or
-	class \code{\link[metaSEM]{meta}}
+  \item{object}{An object returned from either class \code{\link[metaSEM]{tssem1}}, class \code{\link[metaSEM]{wls}}, class \code{\link[metaSEM]{meta}} or class \code{\link[metaSEM]{reml}}
 }
   \item{\dots}{Further arguments; currently none is used}
 }
@@ -38,7 +38,8 @@
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
-\seealso{ \code{\link[metaSEM]{tssem1}}, \code{\link[metaSEM]{wls}}, \code{\link[metaSEM]{meta}}
+\seealso{ \code{\link[metaSEM]{tssem1}}, \code{\link[metaSEM]{wls}},
+  \code{\link[metaSEM]{meta}}, \code{\link[metaSEM]{reml}}
 }
 \examples{
 ## Random-effects meta-analysis

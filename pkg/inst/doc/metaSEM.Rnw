@@ -23,12 +23,12 @@
 \maketitle
 
 \section{Introduction} \label{sec:intro}
-\code{metaSEM} is an \code{R} package that conducts univariate and multivariate meta-analysis using structural equation modeling (SEM) approach \citep{Cheung:2008} via the \href{http://openmx.psyc.virginia.edu/}{OpenMx} package. It also implements the two-stage structural equation modeling (TSSEM) approach \citep{Cheung+Chan:2005, Cheung+Chan:2009} to conducting meta-analytic structural equation modeling (MASEM) on correlation/covariance matrices. The main functions in this package are:
+\code{metaSEM} is an \code{R} package that conducts univariate and multivariate meta-analysis using structural equation modeling (SEM) approach \citep{Cheung:2008} via the \href{http://openmx.psyc.virginia.edu/}{OpenMx} package. It also implements the two-stage structural equation modeling (TSSEM) approach \citep{Cheung+Chan:2005, Cheung+Chan:2009} to conducting a meta-analytic structural equation modeling (MASEM) on correlation/covariance matrices. The main functions in this package are:
 
 \begin{itemize}
 \item \code{tssem1()}: It conducts the first stage analysis of TSSEM by pooling correlation/covariance matrices with a fixed-effets model.\item \code{tssem2()}: It conducts the second stage analysis of TSSEM by calling \code{wls()}.
 \item \code{wls()}: It fits a correlation/covariance structure analysis with weighted least squares.
-\item \code{meta()} and \code{reml()}: \code{meta()} conducts univariate and multivariate meta-analysis with maximum likelihood estimation method while \code{reml()} estimates the variance components of the random-effects with restricted (residual) maximum likelihood estimation method. Mixed-effects meta-analysis can be conducted by including study characteristics as predictors. Equality constraints on intercepts, regression coefficients and variance components can be easily imposed. 
+\item \code{meta()} and \code{reml()}: \code{meta()} conducts univariate and multivariate meta-analysis with maximum likelihood estimation method while \code{reml()} estimates the variance components of the random-effects with restricted (residual) maximum likelihood estimation method. Mixed-effects meta-analysis can be conducted by including study characteristics as predictors. Equality constraints on intercepts, regression coefficients and variance components can be imposed and tested. 
 \end{itemize}
 
 Besides reporting approximate confidence intervals (CIs) based on z statistic, it is also possible to request likelihood-based CIs on the parameter estimates \citep{Cheung:2009a, Neale+Miller:1997}. 
@@ -59,8 +59,9 @@ R CMD INSTALL metaSEM_\Sexpr{installed.packages()["metaSEM","Version"]}.tar.gz
 
 \section{Examples} \label{sec:examples}
 \subsection{Two-stage SEM} 
-An example on two-stage structural equation modeling (TSSEM) from \cite{Cheung:2009b}:
+An example from \cite{Cheung:2009b} was used to illustrate the two-stage structural equation modeling (TSSEM) procedure. \code{tssem1()} is used to pool the correlation matrices in the first stage. \code{tssem2()} is then used to fit a structural model on the pooled correlation matrix with its asymptotic covariance matrix.
 <<Cheung2009, echo=TRUE>>=
+
 ## Load the metaSEM library 
 library(metaSEM)
 
@@ -91,7 +92,7 @@ cor2 <- tssem2(cor1, impliedS=impliedR4, matrices=c(P4, L4))
 summary(cor2)
 @
 \subsection{Reading External Data Files}
-Data sets are most likely stored externally. \code{metaSEM} reads three types of formats. The first type is full correlation/covariance matrices, for example, \href{http://courses.nus.edu.sg/course/psycwlm/Internet/metaSEM/fullmat.dat}{fullmat.dat} is the same as the built-in data set \code{Cheung09}. Missing values are represented by \code{NA} (the default option). Suppose you save it at d:\textbackslash fullmat.dat, you may read it by using the following command in \code{R}:
+Data sets are most likely stored externally. \code{metaSEM} reads three types of data formats. The first type is full correlation/covariance matrices, for example, \href{http://courses.nus.edu.sg/course/psycwlm/Internet/metaSEM/fullmat.dat}{fullmat.dat} is the same as the built-in data set \code{Cheung09}. Missing values are represented by \code{NA} (the default option). Suppose you save it at d:\textbackslash fullmat.dat, you may read it by using the following command in \code{R}:
 
 \begin{Sinput}
 my.df <- readFullMat(file="d:/fullmat.dat")
@@ -104,15 +105,16 @@ my.df <- readLowTriMat(file = "d:/lowertriangle.dat", no.var = 9,
                        na.strings=c("1.00000", "0.00000"))
 \end{Sinput}
 
-The third type is vectors of correlation/covariance elements based on column vectorization. One row is for one study, for example, \href{http://courses.nus.edu.sg/course/psycwlm/Internet/metaSEM/stackvec.dat}{stackvec.dat}. Suppose you save it at d:\textbackslash stackvec.dat, you may read it by using the following \code{R} command:
+The third type is vectors of correlation/covariance elements based on column vectorization. One row represents one study, for example, \href{http://courses.nus.edu.sg/course/psycwlm/Internet/metaSEM/stackvec.dat}{stackvec.dat}. Suppose you save it at d:\textbackslash stackvec.dat, you may read it by using the following \code{R} command:
 
 \begin{Sinput}
-my2 <- readStackVec(file="d:/stackvec.dat")
+my.df <- readStackVec(file="d:/stackvec.dat")
 \end{Sinput}
 
 \subsection{Analysis of Correlation/Covariance Structure with Weighted Least Squares}
 Besides fitting a TSSEM, \code{wls()} may be used to fit a correlation/covariance structure with weighted least squares as the estimation method. Likelihood-based CIs may also be calculated. The following is an example.
 <<WLS, echo=TRUE>>=
+
 ## Sample correlation matrix
 R1 <- matrix(c(1.00, 0.22, 0.24, 0.18,
                0.22, 1.00, 0.30, 0.22,
@@ -142,45 +144,41 @@ wls.fit1 <- wls(S=R1, acovS=acovR, n=n, impliedS=impliedR1,
 summary(wls.fit1)
 @
 \subsection{Univariate and Multivariate Meta-Analysis} 
-Another useful functions are \code{meta()} and \code{reml()}. They conduct fixed-, random-, and mixed-effects univariate and multivariate meta-analysis. The followings are some examples.
+Other useful functions are \code{meta()} and \code{reml()}. They conduct fixed-, random-, and mixed-effects univariate and multivariate meta-analysis. Please note that there is no estimate on the fixed-effects when \code{reml()} is used. The followings are some examples.
 
 <<meta_analysis, echo=TRUE>>=
+
 ## Random-effects meta-analysis
-attach(Hox02) 
-summary( meta(y=yi, v=vi) ) 
+summary( with(Hox02, meta(y=yi, v=vi)) ) 
 ## Estimate variance components with REML
-summary( reml(y=yi, v=vi) ) 
+summary( with(Hox02, reml(y=yi, v=vi)) ) 
 
 ## Fixed-effects meta-analysis
-summary( meta(y=yi, v=vi, RE.constraints=matrix(0, ncol=1, nrow=1)) ) 
+summary( with(Hox02, meta(y=yi, v=vi, RE.constraints=matrix(0, ncol=1, nrow=1))) ) 
 
-## Mixed-effects meta-analysis with "weeks" as the predictor 
-## Use likelihood-based CI 
-summary( meta(y=yi, v=vi, x=weeks, intervals.type="LB") ) 
+## Mixed-effects meta-analysis with "weeks" as a predictor 
+## Request likelihood-based CI 
+summary( with(Hox02, meta(y=yi, v=vi, x=weeks, intervals.type="LB")) ) 
 ## Estimate variance components with REML
-summary( reml(y=yi, v=vi, x=weeks, intervals.type="LB") ) 
-detach(Hox02) 
+summary( with(Hox02, reml(y=yi, v=vi, x=weeks, intervals.type="LB")) ) 
 
 ## Multivariate meta-analysis
-attach(Berkey98) 
-summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL)) ) 
+summary( with(Berkey98, meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL))) ) 
 ## Estimate variance components with REML
-summary( reml(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL)) ) 
+summary( with(Berkey98, reml(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL))) ) 
 
-## Multivariate meta-analysis with "publication year-1979" as the predictor 
-summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL), 
-              x=scale(pub_year, center=1979)) ) 
+## Multivariate meta-analysis with "publication year-1979" as a predictor 
+summary( with(Berkey98, meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
+                             x=scale(pub_year, center=1979))) ) 
 ## Estimate variance components with REML
-summary( reml(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL), 
-              x=scale(pub_year, center=1979)) )
+summary( with(Berkey98, reml(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
+                             x=scale(pub_year, center=1979))) )
 
 ## Multivariate meta-analysis with an equality constraint on the slopes 
-summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
-              x=scale(pub_year, center=1979),
-              coeff.constraints=
-              matrix(c("0.3*Eq_slope", "0.3*Eq_slope"), nrow=2)) ) 
-
-detach(Berkey98)
+summary( with(Berkey98, meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
+                             x=scale(pub_year, center=1979),
+                             coeff.constraints=
+                             matrix(c("0.3*Eq_slope", "0.3*Eq_slope"), nrow=2))) ) 
 @
 \section{Acknowledgements} \label{sec:acknowledge}
 This package cannot be written without \code{R} and \code{OpenMx}. Contributions by the R Development Core Team and the OpenMx Core Development Team are highly appreciated.

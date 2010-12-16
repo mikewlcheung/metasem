@@ -11,24 +11,22 @@ as.mxMatrix(x, name, ...)
 \arguments{
   \item{x}{A character or numeric matrix 
   }
-  \item{name}{An optional character string indicating the name of the
-	MxMatrix object created by the mxModel function. If \code{name} is missing,
-  the variable name of the input matrix in \code{x} will be used.}
+  \item{name}{An optional character string as the name of the
+	MxMatrix object created by mxModel function. If \code{name} is missing,
+  the name of \code{x} will be used.}
   \item{\dots}{Further arguments to be passed to
 	\code{\link[OpenMx]{mxMatrix}}. Please note that \code{type},
-	  \code{nrow}, \code{ncol}, \code{values}, \code{free} and possibly
+	  \code{nrow}, \code{ncol}, \code{values}, \code{free}, \code{name} and possibly
 	  \code{labels} will be created automatically. Thus, these arguments
 	  excepts labels should be avoided in \dots 
 %%     ~~Describe \code{\dots} here~~
 }
 }
-\details{The dimensions are the same as \code{x}. If there are
-  non-numeric values, it will be treated as a free parameter. If an "*" is
+\details{If there are in non-numeric values in \code{x}, these values will be treated as free parameters. If an "*" is
   present, the numeric value on the left hand side will be treated as
-  either a fixed value for a fixed parameter or a starting value for a
-  free parameter. For example, "1" for a fixed parameter with "1" as the
-  value and "5*beta" for a free parameter with "5" as the starting value
-  and "beta" as the label. If it is a matrix of numeric values, there is
+  the starting value for a free parameter. For example, "1" for a fixed
+  parameter with "1" as the value and "5*beta" for a free parameter with
+  "5" as the starting value and "beta" as the label. If it is a matrix of numeric values, there is
   no free parameters in the output matrix. 
 }
 \value{A \code{\link[OpenMx]{MxMatrix-class}} object with the same

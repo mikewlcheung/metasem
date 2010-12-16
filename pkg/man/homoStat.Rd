@@ -20,8 +20,8 @@ homoStat(y, v)
 	covariance matrix of the effect sizes for multivariate meta-analysis
 	where \eqn{p* = p(p+1)/2 }{p* = p(p+1)/2}. It is arranged by column
 	major as used by \code{\link[OpenMx]{vech}}. It is assumed that
-	there is no missing value on \code{v}. If there are missing values on \code{v}
-	due to the missing values on \code{y}, the missing values on
+	there is no missing value in \code{v} if \code{y} is complete. If there are missing values in \code{v}
+	due to the missingness on \code{y}, the missing values in
 	\code{v} will be removed automatically.
 }
 }
@@ -31,7 +31,7 @@ homoStat(y, v)
 \value{A list of
   \item{Q}{Q statistic on the null hypothesis of homogeneity of effect
 	sizes. It has an approximate chi-square distribution under the null
-	hypothesis. If fact, it is a badness-of-fit index.}
+	hypothesis.}
   \item{Q.df}{Degrees of freedom of the Q statistic}
   \item{pval}{p value on the test of homogeneity of effect sizes}
 }
@@ -48,7 +48,7 @@ Cochran, W. G. (1954). The combination of estimates from different experiments. 
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
-\note{
+\note{It is usually called internally by \code{\link[metaSEM]{meta}}.
 %%  ~~further notes~~
 }
 

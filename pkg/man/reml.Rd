@@ -1,6 +1,6 @@
 \name{reml}
 \alias{reml}
-\title{Variance Components with Restricted (Residual) Maximum Likelihood
+\title{Estimate Variance Components with Restricted (Residual) Maximum Likelihood
 }
 \description{
 It estimates the variance components of random-effects of univariate and
@@ -112,22 +112,18 @@ intervals.type = c("z", "LB"), suppressWarnings = TRUE, ...)
 \examples{
 
 ## Random-effects meta-analysis
-attach(Hox02)
-summary( reml(y=yi, v=vi) )
+summary( with(Hox02, reml(y=yi, v=vi)) )
 
 ## Mixed-effects meta-analysis with "weeks" as a predictor
-summary( reml(y=yi, v=vi, x=weeks, intervals.type="LB") )
-detach(Hox02)
+## Request likelihood-based CI
+summary( with(Hox02, reml(y=yi, v=vi, x=weeks, intervals.type="LB")) )
 
 ## Multivariate meta-analysis
-attach(Berkey98)
-summary( reml(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL)) )
+summary( with(Berkey98, reml(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL))) )
 
 ## Multivariate meta-analysis with "publication year-1979" as the predictor
-summary( reml(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
-         x=scale(pub_year, center=1979)) )
-detach(Berkey98)
-
+summary( with(Berkey98, reml(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
+                             x=scale(pub_year, center=1979))) )
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

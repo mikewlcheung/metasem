@@ -113,38 +113,33 @@ Genetics}, \bold{27}, 113-120.
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{
+\seealso{\code{\link[metaSEM]{reml}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
 
 ## Random-effects meta-analysis
-attach(Hox02)
-summary( meta(y=yi, v=vi) )
+summary( with(Hox02, meta(y=yi, v=vi)) )
 
 ## Fixed-effects meta-analysis
-summary( meta(y=yi, v=vi, RE.constraints=matrix(0, ncol=1, nrow=1)) )
+summary( with(Hox02, meta(y=yi, v=vi, RE.constraints=matrix(0, ncol=1, nrow=1))) )
 
 ## Mixed-effects meta-analysis with "weeks" as a predictor
-## Use likelihood-based CI
-summary( meta(y=yi, v=vi, x=weeks, intervals.type="LB") )
-detach(Hox02)
+## Request likelihood-based CI
+summary( with(Hox02, meta(y=yi, v=vi, x=weeks, intervals.type="LB")) )
 
 
 ## Multivariate meta-analysis
-attach(Berkey98)
-summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL)) )
+summary( with(Berkey98, meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL))) )
 
 ## Multivariate meta-analysis with "publication year-1979" as the predictor
-summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
-         x=scale(pub_year, center=1979)) )
+summary( with(Berkey98, meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
+                             x=scale(pub_year, center=1979))) )
 
 ## Multivariate meta-analysis with an equality constraint on regression coefficients
-summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
-         x=scale(pub_year, center=1979),
-         coeff.constraints=matrix(c("0.3*Eq_slope", "0.3*Eq_slope"), nrow=2)) )
-detach(Berkey98)
-
+summary( with(Berkey98, meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
+                             x=scale(pub_year, center=1979), coeff.constraints=
+                             matrix(c("0.3*Eq_slope", "0.3*Eq_slope"), nrow=2))) )
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

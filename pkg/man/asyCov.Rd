@@ -2,8 +2,7 @@
 \alias{asyCov}
 \title{Asymptotic Covariance Matrix of a Correlation/Covariance Matrix
 }
-\description{It estimates asymptotic covariance matrices of the
-  correlation/covariance matrix by assuming multivariate normality. 
+\description{It estimates the asymptotic covariance matrices of a correlation/covariance matrix by assuming multivariate normality. 
 }
 \usage{
 asyCov(x, n, cor.analysis = TRUE, dropNA = TRUE, as.matrix = TRUE,
