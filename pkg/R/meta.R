@@ -1,6 +1,7 @@
 meta <- function(y, v, x, intercept.constraints, coeff.constraints,
                  RE.constraints, RE.startvalues=0.1, RE.lbound=1e-10,
-                 intervals.type=c("z", "LB"), suppressWarnings = TRUE, ...) {
+                 intervals.type=c("z", "LB"), model.name="Meta analysis with ML",
+                 suppressWarnings = TRUE, ...) {
   if (is.vector(y)) no.y <- 1 else no.y <- ncol(y)  
   if (is.vector(v)) no.v <- 1 else no.v <- ncol(v)
   if (missing(x)) no.x <- 0 else {
@@ -91,7 +92,7 @@ meta <- function(y, v, x, intercept.constraints, coeff.constraints,
       values <- vech(diag(x=RE.startvalues, nrow=no.y, ncol=no.y))
     }
 
-    Tau.labels <- vech(outer(1:no.y, 1:no.y, function(x,y) { paste("Tau",x,"_",y,sep="")}))
+    Tau.labels <- vech(outer(1:no.y, 1:no.y, function(x,y) { paste("Tau2_",x,"_",y,sep="")}))
     Tau <- mxMatrix("Symm", ncol=no.y, nrow=no.y, free=TRUE, labels=Tau.labels,
                     lbound=vech(lbound), values=values, name="Tau")      
   } else {
@@ -141,11 +142,11 @@ meta <- function(y, v, x, intercept.constraints, coeff.constraints,
   }
   
   if (no.x==0) {
-    meta <- mxModel("Meta analysis", mxData(observed=my.df, type="raw"),
+    meta <- mxModel(model=model.name, mxData(observed=my.df, type="raw"),
                     mxRAMObjective("A", "S", "F", "M"), A, S, F, M, Tau, V, 
                     mxCI(c("Tau","M")))
   } else {
-    meta <- mxModel("Meta analysis", mxData(observed=my.df, type="raw"),
+    meta <- mxModel(model=model.name, mxData(observed=my.df, type="raw"),
                     mxRAMObjective("A", "S", "F", "M"), A, S, F, M, Tau, V, 
                     S1, S2, S3, S4, mxCI(c("Tau","M", "A")))
   }

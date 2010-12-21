@@ -1,7 +1,7 @@
 \name{wls}
 \alias{wls}
 \alias{tssem2}
-\title{Conduct a Correlation/Covariance Structure Analysis with Weighted Least Squares
+\title{Conduct a Correlation/Covariance Structure Analysis with WLS
 }
 \description{It fits a correlation or covariance structure with
   weighted least squares (WLS) where the inverse of the asymptotic covariance matrix is
@@ -10,9 +10,9 @@
 }
 \usage{
 wls(S, acovS, n, impliedS, matrices, cor.analysis = TRUE,
-    intervals.type = c("z", "LB"), suppressWarnings = TRUE, ...)
+    intervals.type = c("z", "LB"), model.name, suppressWarnings = TRUE, ...)
 tssem2(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB"),
-       suppressWarnings = TRUE, ...) 
+       model.name, suppressWarnings = TRUE, ...) 
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -40,6 +40,11 @@ tssem2(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB"),
 	associated p values are based on the z statistic. They are not
 	related to the likelihood-based CIs.
   }
+  \item{model.name}{A string for the model name in
+	\code{\link[OpenMx]{mxModel}}. If it is missing, the default is
+	"TSSEM2 (or WLS) Analysis of Correlation Structure" for \code{cor.analysis=TRUE} and
+	"TSSEM2 (or WLS) Analysis of Covariance Structure" for \code{cor.analysis=FALSE}
+	}
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
 	suppressed. Argument to be passed to \code{\link[OpenMx]{mxRun}}.}
   \item{\dots}{Futher arguments to be passed to \code{\link[OpenMx]{mxRun}}
@@ -86,6 +91,7 @@ R1 <- matrix(c(1.00, 0.22, 0.24, 0.18,
                0.18, 0.22, 0.24, 1.00), ncol=4, nrow=4)
 n <- 1000
 acovR1 <- asyCov(R1, n)
+
 ## One-factor CFA model- P1: Factor variance; L1: Factor loadings 
 P1 <- mxMatrix("Full", ncol=1, nrow=1, value=1, free=FALSE, name="P1")
 L1 <- mxMatrix("Full", ncol=1, nrow=4, free=TRUE, name="L1")
@@ -94,7 +100,6 @@ wls.fit1 <- wls(S=R1, acovS=acovR1, n=n, impliedS=impliedR1,
                 matrices=c(P1, L1), cor.analysis=TRUE)
 summary(wls.fit1)
 
-
 #### Multiple regression analysis with RAM specification
 ## Variables in R2: y, x1, x2
 R2 <- matrix(c(1.00, 0.22, 0.24, 
@@ -102,6 +107,7 @@ R2 <- matrix(c(1.00, 0.22, 0.24,
                0.24, 0.30, 1.00, 
                0.18, 0.22, 0.24), ncol=3, nrow=3)
 acovR2 <- asyCov(R2, n)
+
 
 ## A2: Regression coefficents
 #   y x1 x2
@@ -127,7 +133,8 @@ Id <- mxMatrix("Iden", ncol=3, nrow=3, name="Id")
 impliedR2 <- mxAlgebra( solve(Id-A2) \%&\% S2, name="impliedR2")
 
 wls.fit2 <- wls(S=R2, acovS=acovR2, n=n, impliedS=impliedR2,
-                matrices=c(A2, S2, Id), cor.analysis=TRUE)
+                matrices=c(A2, S2, Id), cor.analysis=TRUE,
+                model.name="Regression analysis")
 summary(wls.fit2)
 
 
@@ -147,19 +154,21 @@ impliedS3 <- mxAlgebra(L3 \%&\% P3 + E3, name="impliedS3")
 ## Use likelihood-based CI
 wls.fit3 <- wls(S=S3, acovS=acovS3, n=n, impliedS=impliedS3,
                 matrices=c(P3, L3, E3), cor.analysis=FALSE,
-                intervals.type="LB")
+                intervals.type="LB",
+                model.name="Covariance structure with LB CI")
 summary(wls.fit3)
 
 
 ##### Example of tssem2
-digman1 <- tssem1(Digman97$data, Digman97$n)
+digman1 <- tssem1(Digman97$data, Digman97$n, model.name="TSSEM1 Digman97")
 
 P4 <- mxMatrix("Stand", ncol=2, nrow=2, value=.2, free=TRUE, name="P4")
 L4 <- mxMatrix("Full", ncol=2, nrow=5, value=c(0,.3,.3,.3,0,.3,0,0,0,.3),
 free=c(FALSE,TRUE,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,FALSE,TRUE), name="L4")
 impliedR4 <- mxAlgebra(L4 \%&\% P4, name="impliedR4")
 
-digman2 <- tssem2(digman1, impliedS=impliedR4, matrices=c(P4, L4))
+digman2 <- tssem2(digman1, impliedS=impliedR4, matrices=c(P4, L4),
+                  model.name="TSSEM2 Digman97")
 summary(digman2)
 
 % \dontrun{

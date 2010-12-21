@@ -3,8 +3,7 @@
 \alias{vcov.wls}
 \alias{vcov.meta}
 \alias{vcov.reml}
-\title{Extract Variance-Covariance Matrix of Parameter Estimates from tssem1, wls
-  and meta Objects
+\title{Extract Covariance Matrix Parameter Estimates from Various Objects
 }
 \description{It extracts the variance-covariance matrix of the
   parameter estimates from either \code{tssem1}, \code{wls}, \code{meta}

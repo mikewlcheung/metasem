@@ -12,7 +12,7 @@ easily imposed.
 \usage{
 meta(y, v, x, intercept.constraints, coeff.constraints, RE.constraints,
 RE.startvalues=0.1, RE.lbound = 1e-10, intervals.type = c("z", "LB"),
-suppressWarnings = TRUE, ...)
+model.name="Meta analysis with ML", suppressWarnings = TRUE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -69,6 +69,8 @@ suppressWarnings = TRUE, ...)
 	associated p values are based on the z statistic. They are not
 	related to the likelihood-based CIs.
   }
+  \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. 
+	}
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
 	suppressed. Argument to be passed to \code{\link[OpenMx]{mxRun}}.}
   \item{\dots}{Futher arguments to be passed to \code{\link[OpenMx]{mxRun}}
@@ -122,15 +124,17 @@ Genetics}, \bold{27}, 113-120.
 summary( with(Hox02, meta(y=yi, v=vi)) )
 
 ## Fixed-effects meta-analysis
-summary( with(Hox02, meta(y=yi, v=vi, RE.constraints=matrix(0, ncol=1, nrow=1))) )
+summary( with(Hox02, meta(y=yi, v=vi, RE.constraints=matrix(0, ncol=1, nrow=1),
+                          model.name="Fixed effects model")) )
 
 ## Mixed-effects meta-analysis with "weeks" as a predictor
 ## Request likelihood-based CI
-summary( with(Hox02, meta(y=yi, v=vi, x=weeks, intervals.type="LB")) )
-
+summary( with(Hox02, meta(y=yi, v=vi, x=weeks, intervals.type="LB",
+                          model.name="Mixed effects meta analysis with LB CI")) )
 
 ## Multivariate meta-analysis
-summary( with(Berkey98, meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL))) )
+summary( with(Berkey98, meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
+                             model.name="Multivariate meta analysis")) )
 
 ## Multivariate meta-analysis with "publication year-1979" as the predictor
 summary( with(Berkey98, meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),

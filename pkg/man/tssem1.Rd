@@ -6,7 +6,7 @@
   correlation/covariance matrices with a fixed-effets model. The function expects that there is no missing data in the first group. 
 }
 \usage{
-tssem1(my.df, n, start.values, cor.analysis = TRUE,
+tssem1(my.df, n, start.values, cor.analysis = TRUE, model.name,
        suppressWarnings = TRUE, ...)
 }
 \arguments{
@@ -18,6 +18,10 @@ tssem1(my.df, n, start.values, cor.analysis = TRUE,
 }
   \item{cor.analysis}{Logical. The output is either a pooled correlation or a covariance matrix.
   }
+  \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. If it is missing, the default is "TSSEM1
+	Analysis of Correlation Matrix" for \code{cor.analysis=TRUE} and
+	"TSSEM1 Analysis of Covariance Matrix" for \code{cor.analysis=FALSE}
+	}
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
 	suppressed. Argument to be passed to \code{\link[OpenMx]{mxRun}}.}
   \item{\dots}{Further arguments to be passed to \code{\link[OpenMx]{mxRun}}

@@ -1,4 +1,4 @@
-tssem1 <- function(my.df, n, start.values, cor.analysis = TRUE,
+tssem1 <- function(my.df, n, start.values, cor.analysis = TRUE, model.name,
                    suppressWarnings = TRUE, ...) {
     no.groups <- length(my.df)
     no.var <- max(sapply(my.df, ncol))
@@ -35,7 +35,7 @@ tssem1 <- function(my.df, n, start.values, cor.analysis = TRUE,
         
         # Prepare matrices for calculations
         if (cor.analysis) {
-            model.name <- "TSSEM1 Analysis of Correlation Matrix"
+            if (missing(model.name)) model.name <- "TSSEM1 Analysis of Correlation Matrix"
             S.matrix <- paste("S", i, " <- mxMatrix('Stand', nrow=", no.var.i, ", ncol=", 
                 no.var.i, ", free=TRUE, values=vechs(sv[!miss.index[[", i, "]],!miss.index[[", 
                 i, "]]]), name=\"S", i, "\", labels=vechs(ps.labels[!miss.index[[", 
@@ -59,7 +59,7 @@ tssem1 <- function(my.df, n, start.values, cor.analysis = TRUE,
             eval(parse(text = expC.algebra))
             eval(parse(text = g.model))
         } else {
-            model.name <- "TSSEM1 Analysis of Covariance Matrix"
+            if (missing(model.name)) model.name <- "TSSEM1 Analysis of Covariance Matrix"
             S.matrix <- paste("S", i, " <- mxMatrix('Symm', nrow=", no.var.i, ", ncol=", 
                 no.var.i, ", free=TRUE, values=vech(sv[!miss.index[[", i, "]],!miss.index[[", 
                 i, "]]]), name=\"S", i, "\", labels=vech(ps.labels[!miss.index[[", 
@@ -145,7 +145,7 @@ tssem1 <- function(my.df, n, start.values, cor.analysis = TRUE,
 
 
 wls <- function(S, acovS, n, impliedS, matrices, cor.analysis = TRUE,
-                intervals.type =c("z", "LB"), suppressWarnings = TRUE, ...) {
+                intervals.type =c("z", "LB"), model.name, suppressWarnings = TRUE, ...) {
     impliedS@name <- "impliedS"
     no.var <- ncol(S)
     sampleS <- mxMatrix("Full", ncol = no.var, nrow = no.var, values = c(S), free = FALSE, 
@@ -158,11 +158,11 @@ wls <- function(S, acovS, n, impliedS, matrices, cor.analysis = TRUE,
            LB = intervals <- TRUE)
     
     if (cor.analysis) {
-        model.name <- "Correlation structure"
+        if (missing(model.name)) model.name <- "WLS Analysis of Correlation Structure"
         ps <- no.var * (no.var - 1)/2
         vecS <- mxAlgebra(vechs(sampleS - impliedS), name = "vecS")
     } else {
-        model.name <- "Covariance structure"
+        if (missing(model.name)) model.name <- "WLS Analysis of Covariance Structure"
         ps <- no.var * (no.var + 1)/2
         vecS <- mxAlgebra(vech(sampleS - impliedS), name = "vecS")
     }
@@ -215,7 +215,7 @@ wls <- function(S, acovS, n, impliedS, matrices, cor.analysis = TRUE,
 }
 
 
-tssem2 <- function(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB"),
+tssem2 <- function(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB"), model.name,
                    suppressWarnings = TRUE, ...) {
   if (!is.element("tssem1", class(tssem1.obj)))
     stop("\"tssem1.obj\" must be an object of class \"tssem1\".")
@@ -223,12 +223,14 @@ tssem2 <- function(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB")
   cor.analysis <- tssem1.obj$call[[match("cor.analysis", names(tssem1.obj$call))]]
   # if not specified, the default in tssem1() is cor.analysis=TRUE
   if (is.null(cor.analysis)) {
+     if (missing(model.name)) model.name <- "TSSEM2 Analysis of Correlation Structure"
      cor.analysis <- TRUE
   } else {
+     if (missing(model.name)) model.name <- "TSSEM2 Analysis of Covariance Structure"
      # to handle symbolic F(T) vs. logical FALSE(TRUE)
      cor.analysis <- as.logical(as.character(cor.analysis))
   }
   wls(S=tssem1.obj$pooledS, acovS=tssem1.obj$acovS, n=tssem1.obj$total.n, impliedS=impliedS,
       matrices=matrices, cor.analysis = cor.analysis, intervals.type = intervals.type,
-      suppressWarnings = suppressWarnings, ...)
+      model.name=model.name, suppressWarnings = suppressWarnings, ...)
 }

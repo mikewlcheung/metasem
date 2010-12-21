@@ -1,5 +1,6 @@
 reml <- function(y, v, x, RE.constraints, RE.startvalues=0.1, RE.lbound=1e-10,
-                 intervals.type=c("z", "LB"), suppressWarnings = TRUE, ...) {
+                 intervals.type=c("z", "LB"), model.name="Variance component with REML",
+                 suppressWarnings = TRUE, ...) {
   if (is.vector(y)) {
     no.y <- 1
     no.studies <- length(y)
@@ -127,7 +128,7 @@ reml <- function(y, v, x, RE.constraints, RE.startvalues=0.1, RE.lbound=1e-10,
     values <- bdiagRep(values, no.studies)
     values <- values[!miss.vec, !miss.vec]
     
-    Tau.labels <- vech(outer(1:no.y, 1:no.y, function(x,y) { paste("Tau",x,"_",y,sep="")}))
+    Tau.labels <- vech(outer(1:no.y, 1:no.y, function(x,y) { paste("Tau2_",x,"_",y,sep="")}))
     # Large matrix
     Tau.labels <- bdiagRep(vec2symMat(Tau.labels), no.studies)
     Tau.labels <- Tau.labels[!miss.vec, !miss.vec]
@@ -163,7 +164,7 @@ reml <- function(y, v, x, RE.constraints, RE.startvalues=0.1, RE.lbound=1e-10,
                        t(Y-X%*%alpha)%*%W%*%(Y-X%*%alpha) ), name="obj")
 
   # Creat model for REML
-  reml.model <- mxModel("REML", X, Y, V, W, Tau, alpha, obj,
+  reml.model <- mxModel(model=model.name, X, Y, V, W, Tau, alpha, obj,
                    #mxData(observed=y_star, type="raw"),
                    mxAlgebraObjective("obj"), mxCI("Tau")   
                    )

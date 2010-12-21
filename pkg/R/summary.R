@@ -53,8 +53,16 @@ summary.wls <- function(object, ...) {
       coefficients <- my.para[, -c(1:4)]
 	  intervals.type="z"
     } else {
+      # model.name: may vary in diff models
+      model.name <- object$call[[match("model.name", names(object$call))]]
+      # if not specified, the default is "Structure" as it can be either "Correlation Structure" or "Covariance Structure" 
+      if (is.null(model.name)) {
+        model.name <- "Structure."
+      } else {
+        model.name <- paste(model.name, ".", sep="")
+      }          
       name <- sapply(unlist(dimnames(my.ci)[1]), function(x)
-                       {strsplit(x, "structure.", fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
+                       {strsplit(x, model.name, fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
       my.ci <- data.frame(name, my.ci)
       coefficients <- merge(my.para, my.ci, by=c("name"))
       dimnames(coefficients)[[1]] <- coefficients$name
@@ -277,8 +285,16 @@ summary.meta <- function(object, ...) {
       coefficients <- my.para[, -c(1:4,7)]
       dimnames(coefficients)[[1]] <- my.para$label 
     } else {
+      # model.name: may vary in diff models
+      model.name <- object$call[[match("model.name", names(object$call))]]
+      # if not specified, the default in meta() is "Meta analysis with ML"
+      if (is.null(model.name)) {
+        model.name <- "Meta analysis with ML."
+      } else {
+        model.name <- paste(model.name, ".", sep="")
+      }
       name <- sapply(unlist(dimnames(my.ci)[1]), function(x)
-                       {strsplit(x, "Meta analysis.", fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
+                       {strsplit(x, model.name, fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
       my.ci <- data.frame(name, my.ci)
       my.para <- merge(my.para, my.ci, by=c("name"))
       my.para <- my.para[order(my.para$matrix, my.para$row, my.para$col), ]
@@ -423,8 +439,16 @@ summary.reml <- function(object, ...) {
       coefficients <- my.para[, -c(1:4,7)]
       dimnames(coefficients)[[1]] <- my.para$label 
     } else {
+      # model.name: may vary in diff models
+      model.name <- object$call[[match("model.name", names(object$call))]]
+      # if not specified, the default in meta() is "Variance component with REML"
+      if (is.null(model.name)) {
+        model.name <- "Variance component with REML."
+      } else {
+        model.name <- paste(model.name, ".", sep="")
+      }      
       name <- sapply(unlist(dimnames(my.ci)[1]), function(x)
-                       {strsplit(x, "REML.", fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
+                       {strsplit(x, model.name, fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
       # remove duplicate elements in my.ci from my.para$name
       name.sel <- name %in% my.para$name
       my.ci <- data.frame(name=my.para$name, my.ci[name.sel, ,drop=FALSE])

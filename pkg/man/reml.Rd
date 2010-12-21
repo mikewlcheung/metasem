@@ -1,6 +1,6 @@
 \name{reml}
 \alias{reml}
-\title{Estimate Variance Components with Restricted (Residual) Maximum Likelihood
+\title{Extract Variance Components with REML
 }
 \description{
 It estimates the variance components of random-effects of univariate and
@@ -9,7 +9,8 @@ multivariate meta-analysis with restricted (residual) maximum likelihood
 }
 \usage{
 reml(y, v, x, RE.constraints, RE.startvalues = 0.1, RE.lbound = 1e-10,
-intervals.type = c("z", "LB"), suppressWarnings = TRUE, ...)
+intervals.type = c("z", "LB"), model.name="Variance component with REML",
+suppressWarnings = TRUE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -53,7 +54,9 @@ intervals.type = c("z", "LB"), suppressWarnings = TRUE, ...)
 	parameter estimates. Note that the z values and their
 	associated p values are based on the z statistic. They are not
 	related to the likelihood-based CIs.
-}
+  }
+  \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. 
+	}  
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
 	suppressed. Argument to be passed to \code{\link[OpenMx]{mxRun}}.
 }
@@ -116,10 +119,13 @@ summary( with(Hox02, reml(y=yi, v=vi)) )
 
 ## Mixed-effects meta-analysis with "weeks" as a predictor
 ## Request likelihood-based CI
-summary( with(Hox02, reml(y=yi, v=vi, x=weeks, intervals.type="LB")) )
+summary( with(Hox02, reml(y=yi, v=vi, x=weeks, intervals.type="LB",
+                          model.name="REML with LB CI")) )
 
 ## Multivariate meta-analysis
-summary( with(Berkey98, reml(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL))) )
+summary( with(Berkey98, reml(y=cbind(PD, AL),
+                             v=cbind(var_PD, cov_PD_AL,var_AL),
+                             model.name="Multivariate meta analysis")) )
 
 ## Multivariate meta-analysis with "publication year-1979" as the predictor
 summary( with(Berkey98, reml(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
