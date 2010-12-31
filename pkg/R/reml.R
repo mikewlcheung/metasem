@@ -60,6 +60,8 @@ reml <- function(y, v, x, RE.constraints, RE.startvalues=0.1, RE.lbound=1e-10,
   Y <- matrix(Y, ncol=1)
   # No. of total effect sizes after removing missing data
   no.es <- length(Y)
+  # Ad-hoc: no. of observed statistics after removing the fixed-effects (p)
+  numStats <- no.es-p
   Y <- as.mxMatrix(Y)
   
   # Function to create design matrix for a study, e.g., x_1=1,2,3, no.y=2
@@ -181,6 +183,11 @@ reml <- function(y, v, x, RE.constraints, RE.startvalues=0.1, RE.lbound=1e-10,
     cat("Error in running the mxModel:\n")
     stop(print(reml.fit))
   }
+
+  ## Ad-hoc: Add no. of studies and no. of observed statistics
+  reml.fit@runstate$objectives[[1]]@numObs <- no.studies
+  reml.fit@runstate$objectives[[1]]@numStats <- numStats
+  
   out <- list(call = match.call(), data=input.df, no.y=no.y, no.x=no.x, miss.vec=miss.vec,
               reml.fit=reml.fit)
   class(out) <- "reml"

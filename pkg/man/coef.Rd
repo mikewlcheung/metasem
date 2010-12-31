@@ -5,7 +5,8 @@
 \alias{coef.reml}
 \title{Extract Parameter Estimates from tssem1, wls, meta and reml Objects
 }
-\description{It extracts the parameter estimates from either \code{tssem1}, \code{wls} or \code{meta} objects.
+\description{It extracts the parameter estimates from either
+  \code{tssem1}, \code{wls}, \code{meta} or \code{reml} objects.
 }
 \usage{
 \method{coef}{tssem1}(object, \dots)

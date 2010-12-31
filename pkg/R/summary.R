@@ -542,3 +542,21 @@ coef.reml <- function(object, ...) {
     my.name <- my.name[!is.na(my.name)]
     object$reml.fit@output$estimate[my.name]
 }
+
+anova.meta <- function(object, ..., all=FALSE) {
+  base <- lapply(list(object), function(x) x$meta.fit)
+  comparison <- lapply(list(...), function(x) x$meta.fit)
+  mxCompare(base=base, comparison=comparison, all=all)
+}
+
+anova.wls <- function(object, ..., all=FALSE) {
+  base <- lapply(list(object), function(x) x$wls.fit)
+  comparison <- lapply(list(...), function(x) x$wls.fit)
+  mxCompare(base=base, comparison=comparison, all=all)
+}
+
+anova.reml <- function(object, ..., all=FALSE) {
+  base <- lapply(list(object), function(x) x$reml.fit)
+  comparison <- lapply(list(...), function(x) x$reml.fit)
+  mxCompare(base=base, comparison=comparison, all=all)
+}

@@ -73,7 +73,7 @@ suppressWarnings = TRUE, ...)
   where \eqn{V}{V} is the known conditional sampling covariance matrix
   of \eqn{y}{y}, \eqn{T^2}{T^2} is the variance component of the random
   effects, and \eqn{\hat{\alpha}=(X'(V+T^2)^{-1}X)^{-1}
-  X'(V+T^2)^{-1}y}{\hat{\alpha}=(t(X)(V+T^2)^{-1}X)^{-1}t(X)(V+T^2)^{-1}y}. \code{reml}
+  X'(V+T^2)^{-1}y}{\hat{\alpha}=(t(X)(V+T^2)^{-1}X)^{-1}t(X)(V+T^2)^{-1}y}. \code{reml()}
   minimizes the above likelihood function to obtain the parameter estimates.
 
 }
@@ -104,7 +104,11 @@ suppressWarnings = TRUE, ...)
 %%  ~~who you are~~
 }
 \note{ \code{reml} is more computional intensive than \code{meta}. Moreover, \code{reml} is more
-  likely than \code{meta} to encounter errors during optimization.
+  likely than \code{meta} to encounter errors during optimization. Since
+  a likelihood function is directly employed to obtain the parameter
+  estimates, there is no no. of studies and no. of observed statistics
+  returned by \code{\link[OpenMx]{mxRun}}. Ad-hoc calculations are used
+  to modify \code{reml.fit@runstate$objectives[[1]]@numObs} and \code{reml.fit@runstate$objectives[[1]]@numStats}.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

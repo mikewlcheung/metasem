@@ -1,6 +1,8 @@
-Release 0.5.3 (December 21, 2010)
+Release 0.5.3 (December 28, 2010)
 ====================================
 * Added model.name argument in tssem1(), tssem2(), wls(), meta() and reml()
+* Added anova() method for wls, meta and reml objects
+* Added no. of studies and no. of observed statistics in reml object (Ad-hoc) 
 * Used Tau2 to represent variance component in both meta() and reml()
 
 Release 0.5.2 (December 11, 2010)
