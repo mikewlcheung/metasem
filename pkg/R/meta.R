@@ -15,6 +15,7 @@ meta <- function(y, v, x, intercept.constraints, coeff.constraints,
   y.labels <- paste("y", 1:no.y, sep="")
   x.labels <- paste("x", 1:no.x, sep="")
 
+  ## miss.x: any one in x is missing
   if (no.x==0) {
     x <- NULL
     input.df <- as.matrix(cbind(y, v))
@@ -26,7 +27,8 @@ meta <- function(y, v, x, intercept.constraints, coeff.constraints,
     dimnames(input.df) <- list(NULL, c(y.labels, v.labels, x.labels))
     if (no.x==1) miss.x <- is.na(x) else miss.x <- apply(is.na(x), 1, any)
   }
-  # Remove missing data; my.df is used in the actual data analysis
+  ## Remove missing data; my.df is used in the actual data analysis
+  ## Missing y is automatically handled by OpenMx
   my.df <- input.df[!miss.x, ]
     
   if (no.x==0) {
@@ -51,7 +53,7 @@ meta <- function(y, v, x, intercept.constraints, coeff.constraints,
     } else {
       coeff.dim <- dim(coeff.constraints)
       if (!coeff.dim[1]==no.y | !(coeff.dim[2] %in% c(no.x, no.x+no.y)))
-          stop("The dimensions of \"coeff.constraints\" are incorrect.")
+          stop("Dimensions of \"coeff.constraints\" are incorrect.")
       # Regression among ys have not been defined yet
       if (no.x==ncol(coeff.constraints)) {
         A1 <- cbind( matrix(0, nrow=no.y, ncol=no.y), coeff.constraints)
@@ -69,7 +71,7 @@ meta <- function(y, v, x, intercept.constraints, coeff.constraints,
   ## lbound in variance component of the random effects
   if (is.matrix(RE.lbound)) {
     if (!all(dim(RE.lbound)==c(no.y, no.y)))
-      warning("The dimensions of \"RE.lbound\" are incorrect.")
+      warning("Dimensions of \"RE.lbound\" are incorrect.")
       # FIXME: need to handle unequal dimensions better
       # lbound is a matrix
       ## lbound <- vech(RE.lbound)
@@ -86,7 +88,7 @@ meta <- function(y, v, x, intercept.constraints, coeff.constraints,
     # Better to use starting values based on diagonal matrix rather than the UMM
     if (is.matrix(RE.startvalues)) {
       if (!all(dim(RE.startvalues)==c(no.y, no.y)))
-        warning("The dimensions of \"RE.startvalues\" are incorrect.")
+        warning("Dimensions of \"RE.startvalues\" are incorrect.")
       values <- vech(RE.startvalues)
     } else {
       values <- vech(diag(x=RE.startvalues, nrow=no.y, ncol=no.y))
@@ -97,7 +99,7 @@ meta <- function(y, v, x, intercept.constraints, coeff.constraints,
                     lbound=vech(lbound), values=values, name="Tau")      
   } else {
     if (!all(dim(RE.constraints)==c(no.y, no.y)))
-      stop("The dimensions of \"RE.constraints\" are incorrect.")
+      stop("Dimensions of \"RE.constraints\" are incorrect.")
     
     Tau <- as.mxMatrix(RE.constraints, lbound=lbound, name="Tau")
   }
@@ -122,14 +124,15 @@ meta <- function(y, v, x, intercept.constraints, coeff.constraints,
     #M <- matrix("0*", nrow=1, ncol=no.y)
   } else {
     if (!all(dim(intercept.constraints)==c(1, no.y)))
-      stop("The dimensions of \"intercept.constraints\" are incorrect.")
+      stop("Dimensions of \"intercept.constraints\" are incorrect.")
     M <- intercept.constraints
   }
   
   if (no.x==0) {
     M <- as.mxMatrix(M, name="M")
   } else {
-    M <- cbind(M, matrix(paste(round(colMeans(matrix(x, ncol=no.x), na.rm=TRUE),2),"*", sep="")))
+    # t() is required to fix a bug when no.x>1
+    M <- cbind(M, t(matrix(paste(round(colMeans(matrix(x, ncol=no.x), na.rm=TRUE),2),"*", sep=""))))
     M <- as.mxMatrix(M, name="M")
   }
  

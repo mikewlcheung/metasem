@@ -98,7 +98,7 @@ reml <- function(y, v, x, RE.constraints, RE.startvalues=0.1, RE.lbound=1e-10,
   if (is.matrix(RE.lbound)) {
     
     if (!all(dim(RE.lbound)==c(no.y, no.y)))
-      stop("The dimensions of \"RE.lbound\" are incorrect.")    
+      stop("Dimensions of \"RE.lbound\" are incorrect.")    
     } else {
 
       lbound <- matrix(NA, nrow=no.y, ncol=no.y)
@@ -121,7 +121,7 @@ reml <- function(y, v, x, RE.constraints, RE.startvalues=0.1, RE.lbound=1e-10,
       # FIXME: test symmetry
       if (!all(dim(RE.startvalues)==c(no.y, no.y)))
         # stop instead of warning here
-        stop("The dimensions of \"RE.startvalues\" are incorrect.")                    
+        stop("Dimensions of \"RE.startvalues\" are incorrect.")                    
       #values <- matrix(c(RE.startvalues), nrow=no.y, ncol=no.y)
     } else {      
       values <- diag(x=RE.startvalues, nrow=no.y, ncol=no.y)
@@ -142,7 +142,7 @@ reml <- function(y, v, x, RE.constraints, RE.startvalues=0.1, RE.lbound=1e-10,
   } else {
     
     if (!all(dim(RE.constraints)==c(no.y, no.y)))
-      stop("The dimensions of \"RE.constraints\" are incorrect.")
+      stop("Dimensions of \"RE.constraints\" are incorrect.")
 
     Tau <- bdiagRep(RE.constraints, no.studies)
     Tau <- Tau[!miss.vec, !miss.vec]
@@ -168,8 +168,7 @@ reml <- function(y, v, x, RE.constraints, RE.startvalues=0.1, RE.lbound=1e-10,
   # Creat model for REML
   reml.model <- mxModel(model=model.name, X, Y, V, W, Tau, alpha, obj,
                    #mxData(observed=y_star, type="raw"),
-                   mxAlgebraObjective("obj"), mxCI("Tau")   
-                   )
+                   mxAlgebraObjective("obj"), mxCI("Tau"))
   
   intervals.type <- match.arg(intervals.type)
   # Default is z
