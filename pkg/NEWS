@@ -1,4 +1,8 @@
-Release 0.5.3 (December 28, 2010)
+Release 0.6.0 (February 22, 2011)
+====================================
+* Added plot() method for multivariate effect sizes (incomplete) 
+
+Release 0.5.3 (February 20, 2011)
 ====================================
 * Added model.name argument in tssem1(), tssem2(), wls(), meta() and reml()
 * Added anova() method for wls, meta and reml objects
