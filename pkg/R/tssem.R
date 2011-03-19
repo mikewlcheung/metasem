@@ -32,6 +32,8 @@ tssem1 <- function(my.df, n, start.values, cor.analysis = TRUE, model.name,
     
     for (i in 1:no.groups) {
         no.var.i <- sum(!miss.index[[i]], na.rm = TRUE)
+        my.df.i <- my.df[[i]][!miss.index[[i]], !miss.index[[i]]]
+        dimnames(my.df.i) <- list(var.names[!miss.index[[i]]], var.names[!miss.index[[i]]])
         
         # Prepare matrices for calculations
         if (cor.analysis) {
@@ -50,9 +52,9 @@ tssem1 <- function(my.df, n, start.values, cor.analysis = TRUE, model.name,
                 i, "]]]))", sep = "")
             # Create mxModel
             g.model <- paste("g", i, " <- mxModel(\"g", i, "\", S", i, ", D", i, 
-                ", expC", i, ", mxData(observed=my.df[[", i, "]][!miss.index[[", 
-                i, "]],!miss.index[[", i, "]]], type=\"cov\", numObs=n[", i, "]), mxMLObjective(\"expC", 
-                i, "\", dimnames=var.names[!miss.index[[", i, "]]]))", sep = "")
+                ", expC", i, ", mxData(observed=my.df.i, type=\"cov\", numObs=n[", i,
+                "]), mxMLObjective(\"expC", i,
+                "\", dimnames=var.names[!miss.index[[", i, "]]]))", sep = "")
             
             eval(parse(text = S.matrix))
             eval(parse(text = D.matrix))
@@ -64,9 +66,9 @@ tssem1 <- function(my.df, n, start.values, cor.analysis = TRUE, model.name,
                 no.var.i, ", free=TRUE, values=vech(sv[!miss.index[[", i, "]],!miss.index[[", 
                 i, "]]]), name=\"S", i, "\", labels=vech(ps.labels[!miss.index[[", 
                 i, "]],!miss.index[[", i, "]]]))", sep = "")
-            g.model <- paste("g", i, " <- mxModel(\"g", i, "\", S", i, ", mxData(observed=my.df[[", 
-                i, "]][!miss.index[[", i, "]],!miss.index[[", i, "]]], type=\"cov\", numObs=n[", 
-                i, "]), mxMLObjective(\"S", i, "\", dimnames=var.names[!miss.index[[", 
+            g.model <- paste("g", i, " <- mxModel(\"g", i, "\", S", i, ", mxData(observed=my.df.i, 
+                type=\"cov\", numObs=n[", i,
+                "]), mxMLObjective(\"S", i, "\", dimnames=var.names[!miss.index[[", 
                 i, "]]]))", sep = "")
             
             eval(parse(text = S.matrix))

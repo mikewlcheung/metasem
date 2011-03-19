@@ -1,5 +1,6 @@
-Release 0.6.0 (February 22, 2011)
+Release 0.5.4 (March 19, 2011)
 ====================================
+* Fixed a bug in tssem1() when OpenMx 1.0.6 is used
 * Added plot() method for multivariate effect sizes (incomplete) 
 
 Release 0.5.3 (February 20, 2011)
