@@ -14,7 +14,7 @@ tssem1(my.df, n, start.values, cor.analysis = TRUE, model.name,
 }
   \item{n}{A vector of sample sizes
 }
- \item{start.values}{A vector of starting values for the pooled correlation/covariance matrix based on column major. If it is missing, \code{.startValues} will be used to generate the starting values.
+ \item{start.values}{A symmetric matrix of starting values for the pooled correlation/covariance matrix. If it is missing, \code{.startValues} will be used to generate the starting values.
 }
   \item{cor.analysis}{Logical. The output is either a pooled correlation or a covariance matrix.
   }

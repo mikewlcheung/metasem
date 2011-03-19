@@ -13,8 +13,11 @@ tssem1 <- function(my.df, n, start.values, cor.analysis = TRUE, model.name,
         stop(paste("Group(s) ", (1:no.groups)[isPD], " are not positive definite."), sep = "")
     
     ## Prepare starting values
-    if (missing(start.values)) 
+    if (missing(start.values)) {
         sv <- .startValues(my.df, cor.analysis = cor.analysis)
+    } else {
+        sv <- start.values
+    }
     
     ## Index for missing variables: only check the diagonals only!!!
     miss.index <- lapply(my.df, function(x) { is.na(diag(x)) })
