@@ -39,7 +39,8 @@ summary.wls <- function(object, ...) {
   
     # calculate coefficients
     my.mx <- summary(object$wls.fit)
-    my.para <- my.mx$parameters
+    ## my.para <- my.mx$parameters       # Worked up to OpenMx1.0.6
+    my.para <- my.mx$parameters[, 1:6]   # Fixed for OpenMx1.1 
     # For example, P[1,2], L[1,2], ...
     my.para$name <- with(my.para, paste(matrix,"[",row,",",col,"]",sep=""))
     dimnames(my.para)[[1]] <- my.para$name
@@ -175,7 +176,7 @@ summary.tssem1 <- function(object, ...) {
     colnames(stat) <- "Value"
 
     # calculate coefficients    
-    my.para <- summary(object$tssem1.fit)$parameters
+    my.para <- summary(object$tssem1.fit)$parameters    
     my.para <- my.para[my.para$matrix=="S1", ]
     #Sel <- grep("^S", my.para$matrix, value=TRUE)
     #my.para <- subset(my.para, my.para$matrix==Sel)
@@ -269,7 +270,8 @@ summary.meta <- function(object, ...) {
 
     # calculate coefficients    
     my.mx <- summary(object$meta.fit)
-    my.para <- my.mx$parameters
+    ## my.para <- my.mx$parameters       # Worked up to OpenMx1.0.6
+    my.para <- my.mx$parameters[, 1:6]   # Fixed for OpenMx1.1    
     # For example, P[1,2], L[1,2], ...
     my.para$label <- my.para$name
     my.para$name <- with(my.para, paste(matrix,"[",row,",",col,"]",sep=""))
@@ -423,7 +425,8 @@ summary.reml <- function(object, ...) {
 
     # calculate coefficients    
     my.mx <- summary(object$reml.fit)
-    my.para <- my.mx$parameters
+    ## my.para <- my.mx$parameters       # Worked up to OpenMx1.0.6
+    my.para <- my.mx$parameters[, 1:6]   # Fixed for OpenMx1.1 
     # For example, P[1,2], L[1,2], ...
     my.para$label <- my.para$name
     my.para$name <- with(my.para, paste(matrix,"[",row,",",col,"]",sep=""))

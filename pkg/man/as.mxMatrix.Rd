@@ -22,7 +22,7 @@ as.mxMatrix(x, name, ...)
 %%     ~~Describe \code{\dots} here~~
 }
 }
-\details{If there are in non-numeric values in \code{x}, these values will be treated as free parameters. If an "*" is
+\details{If there are non-numeric values in \code{x}, these values will be treated as free parameters. If an "*" is
   present, the numeric value on the left hand side will be treated as
   the starting value for a free parameter. For example, "1" for a fixed
   parameter with "1" as the value and "5*beta" for a free parameter with

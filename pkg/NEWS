@@ -1,9 +1,13 @@
-Release 0.5.4 (March 19, 2011)
+Release 0.5-5 (April 10, 2011)
+====================================
+* Fixed a bug in summary.meta(), summary.reml() and summary.wls() when OpenMx 1.1 is used
+
+Release 0.5-4 (March 19, 2011)
 ====================================
 * Fixed a bug in tssem1() when OpenMx 1.0.6 is used
 * Fixed a bug in tssem1() which ignores start.values argument
 
-Release 0.5.3 (February 20, 2011)
+Release 0.5-3 (February 20, 2011)
 ====================================
 * Added model.name argument in tssem1(), tssem2(), wls(), meta() and reml()
 * Added anova() method for wls, meta and reml objects
@@ -11,64 +15,64 @@ Release 0.5.3 (February 20, 2011)
 * Used Tau2 to represent variance component in both meta() and reml()
 * Fixed a bug in meta() that exists when no. of predictors is larger than 1
 
-Release 0.5.2 (December 11, 2010)
+Release 0.5-2 (December 11, 2010)
 ====================================
 * Added name argument in as.mxMatrix()
 * Added reml() to estimate variance components with REML
 
-Release 0.5.1 (October 10, 2010)
+Release 0.5-1 (October 10, 2010)
 ====================================
 * Added bdiagMat() and bdiagRep() functions to create block diagonal matrix
 * Fixed a bug in meta() that ignored RE.lbound when RE.constraints was used
 * Fixed a bug in readFullMat() that converts data into data.frames rather than matrices
 
-Release 0.5.0 (October 2, 2010)
+Release 0.5-0 (October 2, 2010)
 ====================================
 * Added vcov() methods for tssem1, wls objects
 * Added coef() methods for tssem1, wls and meta objects
 
-Release 0.3.9 (September 24, 2010)
+Release 0.3-9 (September 24, 2010)
 ====================================
 * Added a vignette
 
-Release 0.3.8 (September 20, 2010)
+Release 0.3-8 (September 20, 2010)
 ====================================
 * Added suppressWarnings = TRUE in meta(), tssem1(), tssem2(), and wls()
 * Added OpenMx.status[[1]] into summary method
 
-Release 0.3.7 (September 19, 2010)
+Release 0.3-7 (September 19, 2010)
 ====================================
 * Added vec2symMat(), matrix2bdiag() and homoStat() functions
 * Moved startValues(), minus2LL() and indepwlsChisq() to hidden functions
 * Updated data sets on Cheung09 and Digman97
 
-Release 0.3.6 (September 16, 2010)
+Release 0.3-6 (September 16, 2010)
 ====================================
 * Renamed the package to "Meta-Analysis using Structural Equation Modeling"
 * Added vcov() method for meta object
 
-Release 0.3.5 (September 14, 2010)
+Release 0.3-5 (September 14, 2010)
 ====================================
 * Fixed a few bugs
 
-Release 0.3.4 (September 12, 2010)
+Release 0.3-4 (September 12, 2010)
 ====================================
 * Added summary.meta() for meta objects
 
-Release 0.3.3 (September 8, 2010)
+Release 0.3-3 (September 8, 2010)
 ====================================
 * Added new arguments in asyCov()
 * Added meta() for univariate and multivariate meta-analysis
 * Added as.mxMatrix() to convert matrices to mxMatrices
 
-Release 0.3.2 (August 29, 2010)
+Release 0.3-2 (August 29, 2010)
 ====================================
 * Added indepWLSChisq() to calculate the chi-square statistic for an independent model based on WLS
 * Added minus2LL() to calculate the chi-square statistic for independent and saturated models based on ML
 * Added summary.wls() and print.summary.wls() for wls objects
 * Added summary.tssem1() and print.summary.tssem1() for tssem1 objects
 
-Release 0.3.1 (August 09, 2010)
+Release 0.3-1 (August 09, 2010)
 ====================================
 * First alpha release to R-forge
 * Added basic functions for TSSEM

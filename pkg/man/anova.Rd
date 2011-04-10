@@ -38,13 +38,13 @@
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
-\note{Special care should be taken to make sure that the models between
-  \code{base} and \code{comparison} are nested. One common mistake is
+\note{Special care have to be taken to make sure that the models beiing
+  compared in \code{base} and \code{comparison} are nested. One common mistake is
   comparing a model without predictor and a model with predictor. Since
-  the predictors are also involved in the estimation in \code{metaSEM},
+  the parameters in the predictors, e.g., mean and variances, are also estimated in \code{metaSEM},
   these two models are not nested. The correct way to compare them is to
-  fix the regression coefficient of one model at zero while the
-  coefficient in the other model is free.
+  fix the regression coefficients of one model at zero while the
+  coefficients in the other model are free.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

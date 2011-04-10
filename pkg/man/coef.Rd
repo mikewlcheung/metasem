@@ -19,7 +19,7 @@
   \item{object}{An object returned from either class
 	\code{\link[metaSEM]{tssem1}}, class \code{\link[metaSEM]{wls}}, class \code{\link[metaSEM]{meta}} or class \code{\link[metaSEM]{reml}}
 }
-  \item{\dots}{Further arguments; currently none is used)}
+  \item{\dots}{Further arguments; currently none is used}
 }
 \details{
 %%  ~~ If necessary, more details than the description above ~~
