@@ -14,8 +14,8 @@
 \tabular{ll}{
 Package: \tab metaSEM\cr
 Type: \tab Package\cr
-Version: \tab 0.5-5\cr
-Date: \tab 2010-04-10\cr
+Version: \tab 0.6-0\cr
+Date: \tab 2010-04-22\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }

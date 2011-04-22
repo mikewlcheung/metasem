@@ -173,6 +173,8 @@ summary( with(Hox02, reml(y=yi, v=vi, x=weeks, intervals.type="LB")) )
 
 ## Multivariate meta-analysis
 summary( with(Berkey98, meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL))) ) 
+
+
 ## Estimate variance components with REML
 summary( with(Berkey98, reml(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL))) ) 
 
@@ -189,6 +191,24 @@ summary( with(Berkey98, meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL)
                              coeff.constraints=
                              matrix(c("0.3*Eq_slope", "0.3*Eq_slope"), nrow=2))) ) 
 @
+
+If multivariate meta-analysis is conducted, pairwise plots on the pooled effect sizes and their confidence ellipses may be requested. For example,
+\begin{center}
+<<plot_figure1, echo=TRUE, fig=TRUE>>=
+Berkey98.ma <- with(Berkey98, meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL))) 
+plot(Berkey98.ma, main="Multivariate meta-analysis", axis.label=c("PD", "AL"))
+@ 
+\end{center}
+By combining with the forest plots based on the \code{metafor} package, more information can be displayed.
+<<plot_figure2, echo=TRUE, fig=TRUE>>=
+library(metafor)
+plot(Berkey98.ma, diag.panel=TRUE, main="Multivariate meta-analysis", axis.label=c("PD", "AL"))
+forest( rma(yi=PD, vi=var_PD, data=Berkey98) )
+title("Forest plot for PD")
+forest( rma(yi=AL, vi=var_AL, data=Berkey98) )
+title("Forest plot for AL")
+@ 
+
 \section{Acknowledgements} \label{sec:acknowledge}
 This package cannot be written without \code{R} and \code{OpenMx}. Contributions by the R Development Core Team and the OpenMx Core Development Team are highly appreciated.
 
