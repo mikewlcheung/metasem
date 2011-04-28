@@ -5,15 +5,15 @@ plot.meta <- function(x, effect.sizes, add.margin=0.1, interval=0.95,
                       study.col="black", study.pch=19, study.min.cex=0.8, study.weight.plot=FALSE,
                       study.ellipse.plot=TRUE, study.ellipse.col="black", study.ellipse.lty=2,
                       study.ellipse.lwd=0.5,
-                      estimate.col="black", estimate.pch=18, estimate.cex=2,
-                      estimate.ellipse.plot=TRUE, estimate.ellipse.col="black",
+                      estimate.col="blue", estimate.pch=18, estimate.cex=2,
+                      estimate.ellipse.plot=TRUE, estimate.ellipse.col="red",
                       estimate.ellipse.lty=1, estimate.ellipse.lwd=2,
-                      randeff.ellipse.plot=TRUE, randeff.ellipse.col="black",
+                      randeff.ellipse.plot=TRUE, randeff.ellipse.col="green",
                       randeff.ellipse.lty=1, randeff.ellipse.lwd=2,
                       univariate.plot=TRUE, univariate.lines.col="gray",
                       univariate.lines.lty=3, univariate.lines.lwd=1,
-                      univariate.polygon.width=0.02, univariate.polygon.col="gray",
-                      univariate.arrows.col="black", univariate.arrows.lwd=2, diag.panel=FALSE, ...) {
+                      univariate.polygon.width=0.02, univariate.polygon.col="red",
+                      univariate.arrows.col="green", univariate.arrows.lwd=2, diag.panel=FALSE, ...) {
 
   if (!is.element("meta", class(x)))
     stop("\"x\" must be a class of \"meta\".")
@@ -123,7 +123,7 @@ plot.meta <- function(x, effect.sizes, add.margin=0.1, interval=0.95,
         }
     }
   
-    points(x=ES[1], y=ES[2], pch=estimate.pch, cex=estimate.cex)
+    points(x=ES[1], y=ES[2], col=estimate.col, pch=estimate.pch, cex=estimate.cex)
     if (estimate.ellipse.plot==TRUE) {
       points(ellipse(ACov, centre=ES), type="l", col=estimate.ellipse.col,
              lty=estimate.ellipse.lty, lwd=estimate.ellipse.lwd)
