@@ -151,6 +151,7 @@ x <- with(Berkey98, meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL)))
 plot(x)
 
 ## Include forest plot from the metafor package
+library(metafor)
 plot(x, diag.panel=TRUE, main="Multivariate meta-analysis",
 axis.label=c("PD", "AL"))
 forest( rma(yi=PD, vi=var_PD, data=Berkey98) )
