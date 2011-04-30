@@ -8,20 +8,22 @@
   their confidence ellipses for \code{meta} objects.
 }
 \usage{
-plot.meta(x, effect.sizes, add.margin = 0.1, interval = 0.95, main, axis.label,
+plot.meta(x, effect.sizes, add.margin = 0.1, interval = 0.95,
+main= paste("Effect Sizes and their Confidence Ellipses"),
+axis.label= paste("Effect size ", effect.sizes, sep = ""),
 study.col = "black", study.pch = 19, study.min.cex = 0.8,
 study.weight.plot = FALSE, study.ellipse.plot = TRUE,
 study.ellipse.col = "black", study.ellipse.lty = 2,
 study.ellipse.lwd = 0.5,
-estimate.col = "black", estimate.pch = 18, estimate.cex = 2,
-estimate.ellipse.plot = TRUE, estimate.ellipse.col = "black",
+estimate.col = "blue", estimate.pch = 18, estimate.cex = 2,
+estimate.ellipse.plot = TRUE, estimate.ellipse.col = "red",
 estimate.ellipse.lty = 1, estimate.ellipse.lwd = 2,
-randeff.ellipse.plot = TRUE, randeff.ellipse.col = "black",
+randeff.ellipse.plot = TRUE, randeff.ellipse.col = "green",
 randeff.ellipse.lty = 1, randeff.ellipse.lwd = 2,
 univariate.plot = TRUE, univariate.lines.col = "gray",
 univariate.lines.lty = 3,
 univariate.lines.lwd = 1, univariate.polygon.width = 0.02,
-univariate.polygon.col = "gray", univariate.arrows.col = "black",
+univariate.polygon.col = "red", univariate.arrows.col = "green",
 univariate.arrows.lwd = 2,
 diag.panel = FALSE, ...)
 }
