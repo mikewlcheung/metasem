@@ -131,8 +131,13 @@ summary.tssem1 <- function(object, ...) {
     
     # Calculate the no. of variables based on the implied S
     mx.fit <- summary(object$tssem1.fit)
+
+    ## Fixed a warning in R CMD check
+    ## summary.tssem1: no visible binding for global variable ‘S1’
+    no.var <- ncol(object$pooledS)
+
     # FIXME: what if there are incomplete data in S1
-    no.var <- ncol(mxEval(S1, object$tssem1.fit))
+    ## no.var <- ncol(mxEval(S1, object$tssem1.fit))
     if (cor.analysis)
       ps <- no.var*(no.var-1)/2
     else ps <- no.var*(no.var+1)/2
