@@ -10,7 +10,7 @@ intercepts, regression coefficients and variance components can be
 easily imposed.
 }
 \usage{
-meta(y, v, x, intercept.constraints, coeff.constraints, RE.constraints,
+meta(y, v, x, data, intercept.constraints, coeff.constraints, RE.constraints,
 RE.startvalues=0.1, RE.lbound = 1e-10, intervals.type = c("z", "LB"),
 model.name="Meta analysis with ML", suppressWarnings = TRUE, ...)
 }
@@ -30,6 +30,8 @@ model.name="Meta analysis with ML", suppressWarnings = TRUE, ...)
   \item{x}{A predictor or a \eqn{k}{k} x \eqn{m}{m} matrix of predictors
 	where \eqn{m}{m} is the number of predictors. 
 }
+  \item{data}{An optional data frame containing the variables in the model.
+}  
   \item{intercept.constraints}{A \eqn{1}{1} x \eqn{p}{p} matrix
 	specifying whether the intercepts of the effect sizes are fixed or
 	free. The default is that the intercepts are free. When there is no predictor, these intercepts are the same as
@@ -122,29 +124,29 @@ Genetics}, \bold{27}, 113-120.
 \examples{
 
 ## Random-effects meta-analysis
-summary( with(Hox02, meta(y=yi, v=vi)) )
+summary( meta(y=yi, v=vi, data=Hox02) ) 
 
 ## Fixed-effects meta-analysis
-summary( with(Hox02, meta(y=yi, v=vi, RE.constraints=matrix(0, ncol=1, nrow=1),
-                          model.name="Fixed effects model")) )
+summary( meta(y=yi, v=vi, data=Hox02, RE.constraints=matrix(0, ncol=1, nrow=1),
+              model.name="Fixed effects model") )
 
 ## Mixed-effects meta-analysis with "weeks" as a predictor
 ## Request likelihood-based CI
-summary( with(Hox02, meta(y=yi, v=vi, x=weeks, intervals.type="LB",
-                          model.name="Mixed effects meta analysis with LB CI")) )
+summary( meta(y=yi, v=vi, x=weeks, data=Hox02, intervals.type="LB",
+              model.name="Mixed effects meta analysis with LB CI") )
 
 ## Multivariate meta-analysis
-summary( with(Berkey98, meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
-                             model.name="Multivariate meta analysis")) )
+summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
+              data=Berkey98, model.name="Multivariate meta analysis") )
 
 ## Multivariate meta-analysis with "publication year-1979" as the predictor
-summary( with(Berkey98, meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
-                             x=scale(pub_year, center=1979))) )
+summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
+              x=scale(pub_year, center=1979), data=Berkey98) )
 
 ## Multivariate meta-analysis with an equality constraint on regression coefficients
-summary( with(Berkey98, meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
-                             x=scale(pub_year, center=1979), coeff.constraints=
-                             matrix(c("0.3*Eq_slope", "0.3*Eq_slope"), nrow=2))) )
+summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
+              x=scale(pub_year, center=1979), data=Berkey98,
+              coeff.constraints=matrix(c("0.3*Eq_slope", "0.3*Eq_slope"), nrow=2)) ) 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

@@ -1,5 +1,6 @@
-Release 0.6-0 (April 22, 2011)
+Release 0.6-0 (May 17, 2011)
 ====================================
+* Added data argument in meta() and reml()
 * Fixed a bug in summary.meta(), summary.reml() and summary.wls() when OpenMx 1.1 is used
 * Added plot() method for multivariate meta-analysis
 * Added the ellipse package on "Imports" in the DESCRIPTION

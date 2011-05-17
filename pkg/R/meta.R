@@ -1,10 +1,25 @@
-meta <- function(y, v, x, intercept.constraints, coeff.constraints,
+meta <- function(y, v, x, data, intercept.constraints, coeff.constraints,
                  RE.constraints, RE.startvalues=0.1, RE.lbound=1e-10,
                  intervals.type=c("z", "LB"), model.name="Meta analysis with ML",
                  suppressWarnings = TRUE, ...) {
+  mf <- match.call()
+  if (missing(data)) {
+    data <- sys.frame(sys.parent())
+  } else {
+    if (!is.data.frame(data)) {
+      data <- data.frame(data)
+    }
+  }
+  my.y <- mf[[match("y", names(mf))]]
+  my.v <- mf[[match("v", names(mf))]]    
+  y <- eval(my.y, data, enclos = sys.frame(sys.parent()))
+  v <- eval(my.v, data, enclos = sys.frame(sys.parent()))
+
   if (is.vector(y)) no.y <- 1 else no.y <- ncol(y)  
   if (is.vector(v)) no.v <- 1 else no.v <- ncol(v)
   if (missing(x)) no.x <- 0 else {
+    my.x <- mf[[match("x", names(mf))]]
+    x <- eval(my.x, data, enclos = sys.frame(sys.parent()))
     if (is.vector(x)) no.x <- 1 else no.x <- ncol(x)
   }
   
@@ -167,7 +182,7 @@ meta <- function(y, v, x, intercept.constraints, coeff.constraints,
     stop(print(meta.fit))
   }
   
-  out <- list(call = match.call(), data=input.df, no.y=no.y, no.x=no.x,
+  out <- list(call = mf, data=input.df, no.y=no.y, no.x=no.x,
               miss.x=miss.x, meta.fit=meta.fit)
   class(out) <- "meta"
   return(out)

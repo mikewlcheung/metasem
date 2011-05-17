@@ -163,52 +163,53 @@ Other useful functions are \code{meta()} and \code{reml()}. They conduct fixed-,
 <<meta_analysis, echo=TRUE>>=
 
 ## Random-effects meta-analysis with ML
-summary( with(Hox02, meta(y=yi, v=vi)) ) 
+summary( meta(y=yi, v=vi, data=Hox02) ) 
 
 ## Random-effects meta-analysis with REML
-summary( VarComp <- with(Hox02, reml(y=yi, v=vi)) ) 
+summary( VarComp <- reml(y=yi, v=vi, data=Hox02) ) 
 
 ## Extract the variance component
 VarComp_REML <- matrix( coef(VarComp), ncol=1, nrow=1 )
 
 ## Meta-analysis by treating the variance component as fixed
-summary( with(Hox02, meta(y=yi, v=vi, RE.constraints=VarComp_REML)) )
+summary( meta(y=yi, v=vi, data=Hox02, RE.constraints=VarComp_REML) )
 
 ## Fixed-effects meta-analysis
-summary( with(Hox02, meta(y=yi, v=vi, RE.constraints=matrix(0, ncol=1, nrow=1))) ) 
+summary( meta(y=yi, v=vi, data=Hox02, RE.constraints=matrix(0, ncol=1, nrow=1),
+              model.name="Fixed effects model") )
 
 ## Mixed-effects meta-analysis with "weeks" as a predictor 
 ## Request likelihood-based CI 
-summary( with(Hox02, meta(y=yi, v=vi, x=weeks, intervals.type="LB")) ) 
+summary( meta(y=yi, v=vi, x=weeks, data=Hox02, intervals.type="LB") ) 
 
 ## Estimate variance components with REML
-summary( with(Hox02, reml(y=yi, v=vi, x=weeks, intervals.type="LB")) ) 
+summary( reml(y=yi, v=vi, x=weeks, data=Hox02, intervals.type="LB") ) 
 
 ## Multivariate meta-analysis
-summary( with(Berkey98, meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL))) ) 
+summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL), data=Berkey98) ) 
 
 
 ## Estimate variance components with REML
-summary( with(Berkey98, reml(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL))) ) 
+summary( reml(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL), data=Berkey98) ) 
 
 ## Multivariate meta-analysis with "publication year-1979" as a predictor 
-summary( with(Berkey98, meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
-                             x=scale(pub_year, center=1979))) ) 
+summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
+              x=scale(pub_year, center=1979), data=Berkey98) ) 
+
 ## Estimate variance components with REML
-summary( with(Berkey98, reml(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
-                             x=scale(pub_year, center=1979))) )
+summary( reml(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
+              x=scale(pub_year, center=1979), data=Berkey98) )
 
 ## Multivariate meta-analysis with an equality constraint on the slopes 
-summary( with(Berkey98, meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
-                             x=scale(pub_year, center=1979),
-                             coeff.constraints=
-                             matrix(c("0.3*Eq_slope", "0.3*Eq_slope"), nrow=2))) ) 
+summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
+              x=scale(pub_year, center=1979), data=Berkey98,
+              coeff.constraints=matrix(c("0.3*Eq_slope", "0.3*Eq_slope"), nrow=2)) ) 
 @
 
 If multivariate meta-analysis is conducted, pairwise plots on the pooled effect sizes and their confidence ellipses may be requested. For example,
 \begin{center}
 <<plot_figure1, echo=TRUE, fig=TRUE>>=
-Berkey98.ma <- with(Berkey98, meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL))) 
+Berkey98.ma <- meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL), data=Berkey98) 
 plot(Berkey98.ma, main="Multivariate meta-analysis", axis.label=c("PD", "AL"))
 @ 
 \end{center}

@@ -1,6 +1,19 @@
-reml <- function(y, v, x, RE.constraints, RE.startvalues=0.1, RE.lbound=1e-10,
+reml <- function(y, v, x, data, RE.constraints, RE.startvalues=0.1, RE.lbound=1e-10,
                  intervals.type=c("z", "LB"), model.name="Variance component with REML",
                  suppressWarnings = TRUE, ...) {
+  mf <- match.call()
+  if (missing(data)) {
+    data <- sys.frame(sys.parent())
+  } else {
+    if (!is.data.frame(data)) {
+      data <- data.frame(data)
+    }
+  }
+  my.y <- mf[[match("y", names(mf))]]
+  my.v <- mf[[match("v", names(mf))]]    
+  y <- eval(my.y, data, enclos = sys.frame(sys.parent()))
+  v <- eval(my.v, data, enclos = sys.frame(sys.parent()))
+  
   if (is.vector(y)) {
     no.y <- 1
     no.studies <- length(y)
@@ -16,6 +29,8 @@ reml <- function(y, v, x, RE.constraints, RE.startvalues=0.1, RE.lbound=1e-10,
   if (missing(x)) {
     no.x <- 0
   } else {
+    my.x <- mf[[match("x", names(mf))]]
+    x <- eval(my.x, data, enclos = sys.frame(sys.parent()))
     if (is.vector(x)) {
       no.x <- 1
     } else {
@@ -187,7 +202,7 @@ reml <- function(y, v, x, RE.constraints, RE.startvalues=0.1, RE.lbound=1e-10,
   reml.fit@runstate$objectives[[1]]@numObs <- no.studies
   reml.fit@runstate$objectives[[1]]@numStats <- numStats
   
-  out <- list(call = match.call(), data=input.df, no.y=no.y, no.x=no.x, miss.vec=miss.vec,
+  out <- list(call = mf, data=input.df, no.y=no.y, no.x=no.x, miss.vec=miss.vec,
               reml.fit=reml.fit)
   class(out) <- "reml"
   return(out)
