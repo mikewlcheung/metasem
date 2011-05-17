@@ -27,22 +27,25 @@ options(prompt="R> ", continue="  ", width=70)
 \maketitle
 
 \section{Introduction} \label{sec:intro}
-\code{metaSEM} is an \code{R} package that conducts univariate and multivariate meta-analysis using structural equation modeling (SEM) approach \citep{Cheung:2008} via the \href{http://openmx.psyc.virginia.edu/}{OpenMx} package \citep{OpenMx:2011}. It also implements the two-stage structural equation modeling (TSSEM) approach \citep{Cheung+Chan:2005, Cheung+Chan:2009} to conducting a meta-analytic structural equation modeling (MASEM) on correlation/covariance matrices. The main functions in this package are:
+\code{metaSEM} is an \code{R} package that conducts univariate and multivariate meta-analysis using a structural equation modeling (SEM) approach \citep{Cheung:2008, Cheung:2011} via the \href{http://openmx.psyc.virginia.edu/}{OpenMx} package \citep{OpenMx:2011}. It also implements the two-stage structural equation modeling (TSSEM) approach \citep{Cheung+Chan:2005, Cheung+Chan:2009} to conducting a meta-analytic structural equation modeling (MASEM) on correlation/covariance matrices. Main functions in this package are:
 
 \begin{itemize}
 \item \code{tssem1()}: It conducts the first stage analysis of TSSEM by pooling correlation/covariance matrices with a fixed-effets model.\item \code{tssem2()}: It conducts the second stage analysis of TSSEM by calling \code{wls()}.
 \item \code{wls()}: It fits a correlation/covariance structure analysis with weighted least squares.
-\item \code{meta()} and \code{reml()}: \code{meta()} conducts univariate and multivariate meta-analysis with maximum likelihood estimation method while \code{reml()} estimates the variance components of the random-effects with restricted (residual) maximum likelihood estimation method. Mixed-effects meta-analysis can be conducted by including study characteristics as predictors. Equality constraints on intercepts, regression coefficients and variance components can be imposed and tested. 
+\item \code{meta()} and \code{reml()}: \code{meta()} conducts univariate and multivariate meta-analysis with maximum likelihood estimation method while \code{reml()} estimates the variance components of the random-effects with restricted (residual) maximum likelihood estimation method. Mixed-effects meta-analysis can be conducted by including study characteristics as predictors. Equality constraints on intercepts, regression coefficients and variance components can be imposed. 
 \end{itemize}
 
-Besides reporting approximate confidence intervals (CIs) based on z statistic, likelihood-based CIs on the parameter estimates may also be requested \citep{Cheung:2009a, Neale+Miller:1997}. Several generic functions such as, \code{anova}, \code{coef}, \code{summary} and \code{vcov}, have also been implemented. The current version is \Sexpr{installed.packages()["metaSEM","Version"]}. Please send any bugs and comments to me at <mikewlcheung (at) nus.edu.sg>. 
+Besides using Wald confidence intervals (CIs) based on z statistic, likelihood-based CIs on the parameter estimates may also be requested \citep{Cheung:2009a, Neale+Miller:1997}. Several generic functions such as, \code{anova()}, \code{coef()}, \code{vcov()}, \code{print()}, \code{summary()} and \code{plot()}, have also been implemented. The current version is \Sexpr{installed.packages()["metaSEM","Version"]}. Please send any bugs and comments to me at <mikewlcheung (at) nus.edu.sg>. 
 
 \section{Installation} \label{sec:install}
-First of all, you need \code{R} to run it. Since \code{metaSEM} uses \code{OpenMx} as the workhorse, \code{OpenMx} has also to be installed. To install \code{OpenMx}, run the following command inside an \code{R} session: 
+First of all, you need \code{R} to run it. Since \code{metaSEM} uses \code{OpenMx} as the workhorse, \code{OpenMx} has to be installed first. To install \code{OpenMx}, run the following command inside an \code{R} session: 
 \begin{Sinput}
 source('http://openmx.psyc.virginia.edu/getOpenMx.R') 
 \end{Sinput}
-See \url{http://openmx.psyc.virginia.edu/installing-openmx} for the details on how to install \code{OpenMx}. 
+See \url{http://openmx.psyc.virginia.edu/installing-openmx} for the details on how to install \code{OpenMx}. Moreover, \code{metaSEM} also depends on the \code{ellipse} package that can be installed by the following command inside an \code{R} session:
+\begin{Sinput}
+install.packages('ellipse')
+\end{Sinput}
 
 \subsection{Windows platform} 
 Download the \href{http://courses.nus.edu.sg/course/psycwlm/Internet/metaSEM/metaSEM\_\Sexpr{installed.packages()["metaSEM","Version"]}.zip}{Windows binary} of \code{metaSEM}. If the file is saved at d:\textbackslash. Run the following command inside an R session: 
@@ -53,15 +56,17 @@ install.packages(pkgs="d:/metaSEM_\Sexpr{installed.packages()["metaSEM","Version
 Please note that d:\textbackslash{} in Windows is represented by either d:/ or d:\textbackslash\textbackslash{} in \code{R}. 
 
 \subsection{Linux platform} 
-
 Download the \href{http://courses.nus.edu.sg/course/psycwlm/Internet/metaSEM/metaSEM\_\Sexpr{installed.packages()["metaSEM","Version"]}.tar.gz}{source package} of \code{metaSEM}. Run the following command as Root inside a terminal: 
 \begin{Sinput}
 R CMD INSTALL metaSEM_\Sexpr{installed.packages()["metaSEM","Version"]}.tar.gz
 \end{Sinput}
 
+\subsection{Mac OS X platform} 
+The current version does not contain binaries for Mac OS X. Mac OS X users may need to build from the \href{http://courses.nus.edu.sg/course/psycwlm/Internet/metaSEM/metaSEM\_\Sexpr{installed.packages()["metaSEM","Version"]}.tar.gz}{source}.
+
 \section{Examples} \label{sec:examples}
 \subsection{Two-stage SEM} 
-An example from \cite{Cheung:2009b} was used to illustrate the two-stage structural equation modeling (TSSEM) procedure. \code{tssem1()} is used to pool the correlation matrices in the first stage. \code{tssem2()} is then used to fit a structural model on the pooled correlation matrix with its asymptotic covariance matrix.
+An example from \cite{Cheung:2009b} was used to illustrate the two-stage structural equation modeling (TSSEM) procedure. \code{tssem1()} is used to pool the correlation matrices with a fixed-effects model in the first stage. \code{tssem2()} is then used to fit a structural model on the pooled correlation matrix with the inverse of its asymptotic covariance matrix as the weight matrix (see \citet{Cheung+Chan:2005, Cheung+Chan:2009} for the details).
 <<Cheung2009, echo=TRUE>>=
 ## Load the metaSEM library 
 library(metaSEM)
@@ -90,7 +95,8 @@ P4 <- as.mxMatrix(P4)
 
 ## Create a matrix for factor loadings
 L4 <- matrix(c(rep(c("0.3*",0,0),3), 
-                rep(c(0, "0.3*",0),4), rep(c(0,0,"0.3*"),2)), ncol=3, nrow=9, byrow=TRUE)
+               rep(c(0, "0.3*",0),4), 
+               rep(c(0,0,"0.3*"),2)), ncol=3, nrow=9, byrow=TRUE)
 ## Convert it into a mxMatrix class
 L4 <- as.mxMatrix(L4)
 
@@ -108,11 +114,10 @@ Data sets are most likely stored externally. \code{metaSEM} reads three types of
 my.df <- readFullMat(file="d:/fullmat.dat")
 \end{Sinput}
 
-The second type is lower triangle correlation/covariance matrices, for example, \href{http://courses.nus.edu.sg/course/psycwlm/Internet/metaSEM/lowertriangle.dat}{lowertriangle.dat}. Missing values are represented by the strings 1.00000 and 0.00000. Suppose you have saved it at d:\textbackslash lowertriangle.dat, you may read it by using the following command in \code{R}:
+The second type is lower triangle correlation/covariance matrices, for example, \href{http://courses.nus.edu.sg/course/psycwlm/Internet/metaSEM/lowertriangle.dat}{lowertriangle.dat}. Missing values are represented by the strings NA. Suppose you have saved it at d:\textbackslash lowertriangle.dat, you may read it by using the following command in \code{R}:
 
 \begin{Sinput}
-my.df <- readLowTriMat(file = "d:/lowertriangle.dat", no.var = 9, 
-                       na.strings=c("1.00000", "0.00000"))
+my.df <- readLowTriMat(file = "d:/lowertriangle.dat", no.var = 9, na.strings="NA")
 \end{Sinput}
 
 The third type is vectors of correlation/covariance elements based on column vectorization. One row represents one study, for example, \href{http://courses.nus.edu.sg/course/psycwlm/Internet/metaSEM/stackvec.dat}{stackvec.dat}. Suppose you have saved it at d:\textbackslash stackvec.dat, you may read it by using the following \code{R} command:
@@ -153,14 +158,21 @@ wls.fit1 <- wls(S=R1, acovS=acovR, n=n, impliedS=impliedR1,
 summary(wls.fit1)
 @
 \subsection{Univariate and Multivariate Meta-Analysis} 
-Other useful functions are \code{meta()} and \code{reml()}. They conduct fixed-, random-, and mixed-effects univariate and multivariate meta-analysis. Please note that there is no estimate on the fixed-effects when \code{reml()} is used. The followings are some examples.
+Other useful functions are \code{meta()} and \code{reml()}. They conduct fixed-, random-, and mixed-effects meta-analysis. Please note that there is no estimate on the fixed-effects when \code{reml()} is used. The followings are some examples.
 
 <<meta_analysis, echo=TRUE>>=
 
-## Random-effects meta-analysis
+## Random-effects meta-analysis with ML
 summary( with(Hox02, meta(y=yi, v=vi)) ) 
-## Estimate variance components with REML
-summary( with(Hox02, reml(y=yi, v=vi)) ) 
+
+## Random-effects meta-analysis with REML
+summary( VarComp <- with(Hox02, reml(y=yi, v=vi)) ) 
+
+## Extract the variance component
+VarComp_REML <- matrix( coef(VarComp), ncol=1, nrow=1 )
+
+## Meta-analysis by treating the variance component as fixed
+summary( with(Hox02, meta(y=yi, v=vi, RE.constraints=VarComp_REML)) )
 
 ## Fixed-effects meta-analysis
 summary( with(Hox02, meta(y=yi, v=vi, RE.constraints=matrix(0, ncol=1, nrow=1))) ) 
@@ -168,6 +180,7 @@ summary( with(Hox02, meta(y=yi, v=vi, RE.constraints=matrix(0, ncol=1, nrow=1)))
 ## Mixed-effects meta-analysis with "weeks" as a predictor 
 ## Request likelihood-based CI 
 summary( with(Hox02, meta(y=yi, v=vi, x=weeks, intervals.type="LB")) ) 
+
 ## Estimate variance components with REML
 summary( with(Hox02, reml(y=yi, v=vi, x=weeks, intervals.type="LB")) ) 
 

@@ -95,9 +95,10 @@ model.name="Meta analysis with ML", suppressWarnings = TRUE, ...)
   modeling. \emph{Psychological Methods}, \bold{13}, 182-202.
 
   Cheung, M. W. L. (2009). Constructing approximate confidence intervals
-  for parameters with structural equation models. \emph{Structural Equation Modeling}, \bold{16}, 267-294.
-
-  Cheung, M. W. L. (2010). Modeling multivariate effect sizes with structural equation models. \emph{Manuscript submitted for publication.}
+  for parameters with structural equation models. \emph{Structural
+	Equation Modeling}, \bold{16}, 267-294.
+  
+  Cheung, M. W. L. (2011). Multivariate meta-analaysis as structural equation models. \emph{Manuscript submitted for publication.}
   
   Hardy, R. J., & Thompson, S. G. (1996). A likelihood approach to
   meta-analysis with random effects. \emph{Statistics in Medicine},

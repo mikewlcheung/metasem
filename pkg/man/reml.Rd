@@ -118,8 +118,15 @@ suppressWarnings = TRUE, ...)
 }
 \examples{
 
-## Random-effects meta-analysis
-summary( with(Hox02, reml(y=yi, v=vi)) )
+## Random-effects meta-analysis with REML
+summary( VarComp <- with(Hox02, reml(y=yi, v=vi)) )
+
+## Extract the variance component
+VarComp_REML <- matrix( coef(VarComp), ncol=1, nrow=1 )
+
+## Meta-analysis by treating the variance component as fixed
+summary( with(Hox02, meta(y=yi, v=vi, RE.constraints=VarComp_REML)) )
+
 
 ## Mixed-effects meta-analysis with "weeks" as a predictor
 ## Request likelihood-based CI

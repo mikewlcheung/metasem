@@ -29,7 +29,7 @@ Cheung, M. W. L. (2008). A model for integrating fixed-, random-, and mixed-effe
 
 Cheung, M. W. L. (2009). Constructing approximate confidence intervals for parameters with structural equation models. \emph{Structural Equation Modeling}, \bold{16}, 267-294.
 
-Cheung, M. W. L. (2010). Modeling multivariate effect sizes with structural equation models. \emph{Manuscript submitted for publication.}
+Cheung, M. W. L. (2011). Multivariate meta-analaysis as structural equation models. \emph{Manuscript submitted for publication.}
   
 Cheung, M. W. L., & Chan, W. (2004). Testing dependent correlation coefficients via structural equation modeling. \emph{Organizational Research Methods}, \bold{7}, 206-223.
 

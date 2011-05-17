@@ -48,11 +48,11 @@ diag.panel = FALSE, ...)
 }
   \item{study.pch}{Plotting character of individual studies. See \code{pch} in \code{\link[graphics]{points}} 
 }
-  \item{study.min.cex}{Minimum amount of plotting for individual
+  \item{study.min.cex}{Minimum value of cex for individual
 	studies. See \code{cex} in \code{\link[graphics]{par}}
 }
-  \item{study.weight.plot}{Logical. If \code{TRUE}, the sizes of the individual
-	studies will be proportional to one over the square root of the
+  \item{study.weight.plot}{Logical. If \code{TRUE}, the ploting size of individual
+	studies (cex) will be proportional to one over the square root of the
 	determinant of the sampling covariance matrix of the study
 }
   \item{study.ellipse.plot}{Logical. If \code{TRUE}, the confidence

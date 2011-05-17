@@ -87,7 +87,7 @@ plot.meta <- function(x, effect.sizes, add.margin=0.1, interval=0.95,
     if (all(!is.na(diag(RE))) & is.na(RE[2,1]) ) RE[2,1] <- RE[1,2] <- 0.0
     dimnames(RE) <- list(my.effects, my.effects)
 
-  # y, x, var(y), cov(x,y), var(x)
+    ## y, x, var(y), cov(x,y), var(x)
     ## Index for positions of the conditional sampling variances
     rand.ind <- vec2symMat(seq(1, no.y*(no.y+1)/2))+ no.y
     ellipse.pt <- lapply(split(x$data, 1:nrow(x$data)),
@@ -96,6 +96,9 @@ plot.meta <- function(x, effect.sizes, add.margin=0.1, interval=0.95,
                                                     x[rand.ind[effect.sizes[2],effect.sizes[2]]])
                                       ellipse( vec2symMat(rand.val),
                                                centre=c(x[effect.sizes[1]],x[effect.sizes[2]]))})
+    
+    ## study.cex is proportional to sqrt(1/det(ACOV)).
+    ## Thus, the plot area (cex) is proportional to 1/det(ACOV).
     if (study.weight.plot==TRUE) {
       weigh <- sapply(split(x$data, 1:nrow(x$data)),                   
                       function(x) {rand.val <- c(x[rand.ind[effect.sizes[1],effect.sizes[1]]],

@@ -87,13 +87,15 @@ summary.wls <- function(object, ...) {
 print.summary.wls <- function(x, ...) {
     if (!is.element("summary.wls", class(x)))
     stop("\"x\" must be an object of class \"summary.wls\".")
-    call.text <- deparse(x$call)
-    cat("Call:\n")
-    for (i in 1:length(call.text)) {
-        cat(call.text[i], "\n")
-    }	
+    ## call.text <- deparse(x$call)
+    ## cat("Call:\n")
+    ## for (i in 1:length(call.text)) {
+    ##     cat(call.text[i], "\n")
+    ## }	
 
-    cat("\n95% confidence intervals: ")
+    cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"), 
+        "\n\n", sep = "")    
+    cat("95% confidence intervals: ")
     switch(x$intervals.type,
            z = cat("z statistic approximation"),
            LB = cat("Likelihood-based statistic") )
@@ -204,19 +206,21 @@ summary.tssem1 <- function(object, ...) {
 print.summary.tssem1 <- function(x, ...) {
     if (!is.element("summary.tssem1", class(x)))
     stop("\"x\" must be an object of class \"summary.tssem1\".")
-    call.text <- deparse(x$call)
+    ## call.text <- deparse(x$call)
     
-    cat("Call:\n")
-    # Ad-hoc solution to remove very long call text
-	if ( length(call.text)>30 ) {
-        cat(call.text[1], "\n")
-    } else { 		
-        for (i in 1:length(call.text)) {
-            cat(call.text[i], "\n")
-        }	
-    }
-
-    cat("\nCoefficients:\n")
+    ## cat("Call:\n")
+    ## # Ad-hoc solution to remove very long call text
+	## if ( length(call.text)>30 ) {
+    ##     cat(call.text[1], "\n")
+    ## } else { 		
+    ##     for (i in 1:length(call.text)) {
+    ##         cat(call.text[i], "\n")
+    ##     }	
+    ## }
+    
+    cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"), 
+        "\n\n", sep = "")    
+    cat("Coefficients:\n")
     printCoefmat(x$coefficients, P.values=TRUE, ...)
 
     cat("\nGoodness-of-fit indices:\n")
@@ -233,39 +237,45 @@ print.summary.tssem1 <- function(x, ...) {
 print.tssem1 <- function(x, ...) {
     if (!is.element("tssem1", class(x)))
       stop("\"x\" must be an object of class \"tssem1\".")
-    call.text <- deparse(x$call)
+    ## call.text <- deparse(x$call)
 
-    cat("Call:\n")
-    # Ad-hoc solution to remove very long call text
-	if ( length(call.text)>30 ) {
-        cat(call.text[1], "\n")
-    } else { 	
-        for (i in 1:length(call.text)) {
-            cat(call.text[i], "\n")
-        }	
-    }
-    cat("\n\nStructure:\n")
+    ## cat("Call:\n")
+    ## # Ad-hoc solution to remove very long call text
+	## if ( length(call.text)>30 ) {
+    ##     cat(call.text[1], "\n")
+    ## } else { 	
+    ##     for (i in 1:length(call.text)) {
+    ##         cat(call.text[i], "\n")
+    ##     }	
+    ## }
+    cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"), 
+        "\n\n", sep = "")    
+    cat("Structure:\n")
     print(summary.default(x), ...)
 }
 
 print.wls <- function(x, ...) {
     if (!is.element("wls", class(x)))
       stop("\"x\" must be an object of class \"wls\".")
-    call.text <- deparse(x$call)
-    cat("Call:\n")
-    for (i in 1:length(call.text)) {
-        cat(call.text[i], "\n")
-    }	
-    cat("\n\nStructure:\n")
+    ## call.text <- deparse(x$call)
+    ## cat("Call:\n")
+    ## for (i in 1:length(call.text)) {
+    ##     cat(call.text[i], "\n")
+    ## }
+    cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"), 
+        "\n\n", sep = "")    
+    cat("Structure:\n")	
     print(summary.default(x), ...)
 }
 
 print.meta <- function(x, ...) {
     if (!is.element("meta", class(x)))
       stop("\"x\" must be an object of class \"meta\".")
-    cat("Call:\n")
-    cat(deparse(x$call))
-    cat("\n\nStructure:\n")
+    ## cat("Call:\n")
+    ## cat(deparse(x$call))
+    cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"), 
+        "\n\n", sep = "")     
+    cat("Structure:\n")
     print(summary.default(x), ...)
 }
 
@@ -339,11 +349,13 @@ summary.meta <- function(object, ...) {
 print.summary.meta <- function(x, ...) {
     if (!is.element("summary.meta", class(x)))
     stop("\"x\" must be an object of class \"summary.meta\".")
-    
-    cat("Call:\n")
-    cat(deparse(x$call))
 
-    cat("\n\n95% confidence intervals: ")
+    ## cat("Call:\n")
+    ## cat(deparse(x$call))
+    cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"), 
+        "\n\n", sep = "")
+    
+    cat("95% confidence intervals: ")
     switch(x$intervals.type,
            z = cat("z statistic approximation"),
            LB = cat("Likelihood-based statistic") )
@@ -366,62 +378,6 @@ print.summary.meta <- function(x, ...) {
     cat("\nDate of analysis:", x$date)
     cat("\nOpenMx status1:", x$Mx.status1, "(\"0\" and \"1\": considered fine; other values indicate problems)")
     cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")    
-}
-
-vcov.meta <- function(object, ...) {
-    if (!is.element("meta", class(object)))
-    stop("\"object\" must be an object of class \"meta\".")
-
-    # labels of the parameters    
-    my.name <- summary(object$meta.fit)$parameters$name
-    my.name <- my.name[!is.na(my.name)]
-    acov <- tryCatch( 2*solve(object$meta@output$calculatedHessian[my.name, my.name]), error = function(e) e) 
-    
-    if (inherits(acov, "error")) {
-      cat("Error in solving the Hessian matrix.\n")
-      stop(print(acov))
-    } else {
-      return(acov)
-    }
-}
-
-vcov.tssem1 <- function(object, ...) {
-    if (!is.element("tssem1", class(object)))
-    stop("\"object\" must be an object of class \"tssem1\".")
-    object$acovS
-}
-  
-vcov.wls <- function(object, ...) {
-    if (!is.element("wls", class(object)))
-    stop("\"object\" must be an object of class \"wls\".")
-    acovS <- tryCatch( 2*solve(object$wls.fit@output$calculatedHessian), error = function(e) e ) 
-    # Issue a warning instead of error message
-    if (inherits(acovS, "error")) {
-      cat("Error in solving the Hessian matrix.\n")
-      warning(print(acovS))
-    }
-    acovS
-}
-  
-coef.meta <- function(object, ...) {
-    if (!is.element("meta", class(object)))
-    stop("\"object\" must be an object of class \"meta\".")
-    # labels of the parameters    
-    my.name <- summary(object$meta.fit)$parameters$name
-    my.name <- my.name[!is.na(my.name)]
-    object$meta.fit@output$estimate[my.name]
-}
-
-coef.tssem1 <- function(object, ...) {
-    if (!is.element("tssem1", class(object)))
-    stop("\"object\" must be an object of class \"tssem1\".")
-    object$pooledS
-}
-  
-coef.wls <- function(object, ...) {
-    if (!is.element("wls", class(object)))
-    stop("\"object\" must be an object of class \"wls\".")
-    object$wls.fit@output$estimate
 }
 
 summary.reml <- function(object, ...) {
@@ -491,10 +447,11 @@ print.summary.reml <- function(x, ...) {
     if (!is.element("summary.reml", class(x)))
     stop("\"x\" must be an object of class \"summary.reml\".")
     
-    cat("Call:\n")
-    cat(deparse(x$call))
-
-    cat("\n\n95% confidence intervals: ")
+    ## cat("Call:\n")
+    ## cat(deparse(x$call))
+    cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"), 
+        "\n\n", sep = "")
+    cat("95% confidence intervals: ")
     switch(x$intervals.type,
            z = cat("z statistic approximation"),
            LB = cat("Likelihood-based statistic") )
@@ -519,10 +476,48 @@ print.summary.reml <- function(x, ...) {
 print.reml <- function(x, ...) {
     if (!is.element("reml", class(x)))
       stop("\"x\" must be an object of class \"reml\".")
-    cat("Call:\n")
-    cat(deparse(x$call))
-    cat("\n\nStructure:\n")
+    ## cat("Call:\n")
+    ## cat(deparse(x$call))
+
+    cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"), 
+        "\n\n", sep = "")     
+    cat("Structure:\n")
     print(summary.default(x), ...)
+}
+
+vcov.meta <- function(object, ...) {
+    if (!is.element("meta", class(object)))
+    stop("\"object\" must be an object of class \"meta\".")
+
+    # labels of the parameters    
+    my.name <- summary(object$meta.fit)$parameters$name
+    my.name <- my.name[!is.na(my.name)]
+    acov <- tryCatch( 2*solve(object$meta@output$calculatedHessian[my.name, my.name]), error = function(e) e) 
+    
+    if (inherits(acov, "error")) {
+      cat("Error in solving the Hessian matrix.\n")
+      stop(print(acov))
+    } else {
+      return(acov)
+    }
+}
+
+vcov.tssem1 <- function(object, ...) {
+    if (!is.element("tssem1", class(object)))
+    stop("\"object\" must be an object of class \"tssem1\".")
+    object$acovS
+}
+  
+vcov.wls <- function(object, ...) {
+    if (!is.element("wls", class(object)))
+    stop("\"object\" must be an object of class \"wls\".")
+    acovS <- tryCatch( 2*solve(object$wls.fit@output$calculatedHessian), error = function(e) e ) 
+    # Issue a warning instead of error message
+    if (inherits(acovS, "error")) {
+      cat("Error in solving the Hessian matrix.\n")
+      warning(print(acovS))
+    }
+    acovS
 }
 
 vcov.reml <- function(object, ...) {
@@ -540,6 +535,27 @@ vcov.reml <- function(object, ...) {
     } else {
       return(acov)
     }
+}
+  
+coef.meta <- function(object, ...) {
+    if (!is.element("meta", class(object)))
+    stop("\"object\" must be an object of class \"meta\".")
+    # labels of the parameters    
+    my.name <- summary(object$meta.fit)$parameters$name
+    my.name <- my.name[!is.na(my.name)]
+    object$meta.fit@output$estimate[my.name]
+}
+
+coef.tssem1 <- function(object, ...) {
+    if (!is.element("tssem1", class(object)))
+    stop("\"object\" must be an object of class \"tssem1\".")
+    object$pooledS
+}
+  
+coef.wls <- function(object, ...) {
+    if (!is.element("wls", class(object)))
+    stop("\"object\" must be an object of class \"wls\".")
+    object$wls.fit@output$estimate
 }
 
 coef.reml <- function(object, ...) {

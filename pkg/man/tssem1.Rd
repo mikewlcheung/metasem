@@ -50,8 +50,8 @@ Cheung, M. W. L., & Chan, W. (2009). A two-stage approach to synthesizing covari
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
-\note{
-%%  ~~further notes~~
+\note{It is assumed that there is no missing values in the first
+  study.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
