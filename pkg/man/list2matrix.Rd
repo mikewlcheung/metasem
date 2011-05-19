@@ -5,7 +5,7 @@
 \description{It converts a list of symmetric matrices into
   a stacked matrix. Dimensions of the symmetric matrices have to be the
   same. It tries to preserve the dimension names if possible. Dimension names will
-  be created if there is no dimension names in the first symmetric matrices. 
+  be created if there is no dimension names in the first symmetric matrix. 
 }
 \usage{
 list2matrix(x, diag = FALSE)
@@ -14,8 +14,8 @@ list2matrix(x, diag = FALSE)
   \item{x}{A list of \eqn{k}{k} \eqn{p}{p} x \eqn{p}{p} symmetric matrices.
 }
   \item{diag}{Logical. If it is \code{TRUE}, \code{\link[OpenMx]{vech}}
-	is used to vectorize the matrices. If it is \code{FALSE}, \code{\link[OpenMx]{vechs}}
-	is used to vectorize the matrices.
+	is used to vectorize the (covariance) matrices. If it is \code{FALSE}, \code{\link[OpenMx]{vechs}}
+	is used to vectorize the (correlation) matrices.
 }
 }
 \details{
@@ -42,11 +42,21 @@ list2matrix(x, diag = FALSE)
 \examples{
 C1 <- matrix(c(1,0.5,0.4,0.5,1,0.2,0.4,0.2,1), ncol=3)  
 C2 <- matrix(c(1,0.4,NA,0.4,1,NA,NA,NA,NA), ncol=3)  
+
+## A list without dimension names 
 list2matrix(list(C1, C2))
+#      x2_x1 x3_x1 x3_x2
+# [1,]   0.5   0.4   0.2
+# [2,]   0.4    NA    NA
 
 dimnames(C1) <- list( c("x","y","z"), c("x","y","z") )
 dimnames(C2) <- list( c("x","y","z"), c("x","y","z") )
+
+## A list with dimension names
 list2matrix(list(C1, C2))
+#      y_x z_x z_y
+# [1,] 0.5 0.4 0.2
+# [2,] 0.4  NA  NA
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

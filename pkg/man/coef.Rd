@@ -42,7 +42,7 @@
 }
 \examples{
 ## Random-effects meta-analysis
-model1 <- with( Hox02, meta(y=yi, v=vi) )
+model1 <- meta(y=yi, v=vi, data=Hox02)
 coef(model1)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

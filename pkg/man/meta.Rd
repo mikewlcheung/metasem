@@ -36,37 +36,39 @@ model.name="Meta analysis with ML", suppressWarnings = TRUE, ...)
 	specifying whether the intercepts of the effect sizes are fixed or
 	free. The default is that the intercepts are free. When there is no predictor, these intercepts are the same as
 	the pooled effect sizes. The format of this matrix follows
-	\code{\link[metaSEM]{as.mxMatrix}}. The parameter estimates will be
-	constrained equally if the labels are the same.
+	\code{\link[metaSEM]{as.mxMatrix}}. The intercepts can be
+	constrained equally by using the same labels.
 }
   \item{coeff.constraints}{A \eqn{p}{p} x \eqn{m}{m} matrix
 	specifying how the predictors predict the effect sizes. The default
 	is that all \eqn{m}{m} predictors predict all \eqn{p}{p} effect sizes. The
-	format of this matrix follows \code{\link[metaSEM]{as.mxMatrix}}. The parameter estimates will be
-	constrained equally if the labels are the same.
+	format of this matrix follows
+	\code{\link[metaSEM]{as.mxMatrix}}. The regression coefficients can be
+	constrained equally by using the same labels.
 }
   \item{RE.constraints}{A \eqn{p}{p} x \eqn{p}{p} matrix
 	specifying the variance componets of the random effects. The default is that all
-	covariance/variance components are free. The format of this matrix follows \code{\link[metaSEM]{as.mxMatrix}}. The parameter estimates will be
-	constrained equally if the labels are the same. If a zero matrix is
+	covariance/variance components are free. The format of this matrix
+	follows \code{\link[metaSEM]{as.mxMatrix}}. Elements of the variance
+	components can be constrained equally by using the same labels. If a zero matrix is
 	specified, it becomes a fixed-effects meta-analysis.
   }
   \item{RE.startvalues}{A vector of \eqn{p}{p} starting values on the
 	diagonals of the variance component of the random effects. If only one
-	scalar is given, it will be duplicated across the diagonals. Starting values for the
+	scalar is given, it will be repeated across the diagonals. Starting values for the
 	off-diagonals of the variance component are all 0. A \eqn{p}{p} x
-	\eqn{p}{p} symmetric matrix of starting values is also acceptable. 
+	\eqn{p}{p} symmetric matrix of starting values is also accepted. 
 }
   \item{RE.lbound}{A vector of \eqn{p}{p} lower bounds on the
 	diagonals of the variance component of the random effects. If only one
-	scalar is given, it will be duplicated across the diagonals. Lower
+	scalar is given, it will be repeated across the diagonals. Lower
 	bounds for the off-diagonals of the variance component are set at \code{NA}. A \eqn{p}{p} x
-	\eqn{p}{p} symmetric matrix of the lower bounds is also acceptable.
+	\eqn{p}{p} symmetric matrix of the lower bounds is also accepted.
 }
   \item{intervals.type}{Either \code{z} (default if missing) or
-	\code{LB}. If it is \code{z}, it calculates 95\% Wald confidence
+	\code{LB}. If it is \code{z}, it calculates the 95\% Wald confidence
 	intervals (CIs) based on the z statistic. If it is \code{LB}, it
-	calculates 95\% likelihood-based CIs on the
+	calculates the 95\% likelihood-based CIs on the
 	parameter estimates. Note that the z values and their
 	associated p values are based on the z statistic. They are not
 	related to the likelihood-based CIs.
@@ -143,7 +145,7 @@ summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
 summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
               x=scale(pub_year, center=1979), data=Berkey98) )
 
-## Multivariate meta-analysis with an equality constraint on regression coefficients
+## Multivariate meta-analysis with equality constraint on regression coefficients
 summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
               x=scale(pub_year, center=1979), data=Berkey98,
               coeff.constraints=matrix(c("0.3*Eq_slope", "0.3*Eq_slope"), nrow=2)) ) 

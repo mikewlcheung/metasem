@@ -5,7 +5,7 @@
 \docType{data}
 \title{Factor Correlation Matrices of Big Five Model from Digman (1997)}
 \description{
-Fourteen studies of the factor correlation matrices of the Big Five Model of personality reported by Digman (1997). 
+Fourteen studies of the factor correlation matrices of the Five-Factor Model of personality reported by Digman (1997). 
 }
 \usage{data(Digman97)}
 \format{

@@ -1,7 +1,7 @@
 ## effect.sizes=x,y
 plot.meta <- function(x, effect.sizes, add.margin=0.1, interval=0.95,
                       main=paste("Effect Sizes and their Confidence Ellipses"),
-                      axis.label=paste("Effect size ", effect.sizes, sep=""),                      
+                      axis.labels=paste("Effect size ", effect.sizes, sep=""),                      
                       study.col="black", study.pch=19, study.min.cex=0.8, study.weight.plot=FALSE,
                       study.ellipse.plot=TRUE, study.ellipse.col="black", study.ellipse.lty=2,
                       study.ellipse.lwd=0.5,
@@ -46,7 +46,7 @@ plot.meta <- function(x, effect.sizes, add.margin=0.1, interval=0.95,
         my.effects <- effect.sizes[c(i,j)]
         ## Pass everything except effect.sizes=my.effects and main=main[n.plots]
         plot.meta(x, effect.sizes=my.effects,
-                  add.margin=add.margin, interval=interval, main=main[n.plots], axis.label=axis.label[c(i,j)],
+                  add.margin=add.margin, interval=interval, main=main[n.plots], axis.labels=axis.labels[c(i,j)],
                   study.col=study.col, study.pch=study.pch, study.min.cex=study.min.cex,
                   study.weight.plot=study.weight.plot, study.ellipse.plot=study.ellipse.plot,
                   study.ellipse.col=study.ellipse.col, study.ellipse.lty=study.ellipse.lty,
@@ -118,7 +118,7 @@ plot.meta <- function(x, effect.sizes, add.margin=0.1, interval=0.95,
     my.x <- x$data[complete, effect.sizes[1]]
     my.y <- x$data[complete, effect.sizes[2]]
     plot(my.y~my.x, xlim=xlim, ylim=ylim, col=study.col, pch=study.pch, cex=study.cex,
-         xlab=axis.label[1], ylab=axis.label[2], main=main, ...)
+         xlab=axis.labels[1], ylab=axis.labels[2], main=main, ...)
     if (study.ellipse.plot==TRUE) {
       for (i in 1:length(ellipse.pt)) {
         points(ellipse.pt[[i]], type="l", col=study.ellipse.col, lty=study.ellipse.lty,

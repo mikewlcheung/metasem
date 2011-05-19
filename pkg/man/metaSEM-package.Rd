@@ -15,7 +15,7 @@
 Package: \tab metaSEM\cr
 Type: \tab Package\cr
 Version: \tab 0.6-0\cr
-Date: \tab 2010-05-17\cr
+Date: \tab 2010-05-19\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }

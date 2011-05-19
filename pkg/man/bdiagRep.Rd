@@ -42,11 +42,21 @@ bdiagRep(x, times)
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-# Block diagonal matrix of numerics
+## Block diagonal matrix of numerics
 bdiagRep( matrix(1:4,nrow=2,ncol=2), 2 )
+#      [,1] [,2] [,3] [,4]
+# [1,]    1    3    0    0
+# [2,]    2    4    0    0
+# [3,]    0    0    1    3
+# [4,]    0    0    2    4
 
-# Block diagonal matrix of characters
+## Block diagonal matrix of characters
 bdiagRep( matrix(letters[1:4],nrow=2,ncol=2), 2 )
+#      [,1] [,2] [,3] [,4]
+# [1,] "a"  "c"  "0"  "0" 
+# [2,] "b"  "d"  "0"  "0" 
+# [3,] "0"  "0"  "a"  "c" 
+# [4,] "0"  "0"  "b"  "d" 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

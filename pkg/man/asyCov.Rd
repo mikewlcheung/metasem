@@ -2,10 +2,11 @@
 \alias{asyCov}
 \title{Asymptotic Covariance Matrix of a Correlation/Covariance Matrix
 }
-\description{It estimates the asymptotic covariance matrices of a correlation/covariance matrix by assuming multivariate normality. 
+\description{It estimates the asymptotic covariance matrices of a
+  correlation/covariance matrix under the assumption of multivariate normality. 
 }
 \usage{
-asyCov(x, n, cor.analysis = TRUE, dropNA = TRUE, as.matrix = TRUE,
+asyCov(x, n, cor.analysis = TRUE, dropNA = FALSE, as.matrix = TRUE,
        silent = TRUE, suppressWarnings = TRUE,  ...)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -62,14 +63,14 @@ Cheung, M. W. L., & Chan, W. (2004). Testing dependent correlation coefficients 
 C1 <- matrix(c(1,0.5,0.4,0.5,1,0.2,0.4,0.2,1), ncol=3)  
 asyCov(C1, n=100)
 
-# Data with missing values
+## Data with missing values
 C2 <- matrix(c(1,0.4,NA,0.4,1,NA,NA,NA,NA), ncol=3)  
 C3 <- matrix(c(1,0.2,0.2,1), ncol=2)
 
-# Output is a list of asymptotic covariance matrices
-asyCov(list(C1,C2,C3), n=c(100,50,50), as.matrix=FALSE)
+## Output is a list of asymptotic covariance matrices
+asyCov(list(C1,C2,C3), n=c(100,50,50), dropNA=TRUE, as.matrix=FALSE)
 
-# Output is a stacked matrix of asymptotic covariance matrices
+## Output is a stacked matrix of asymptotic covariance matrices
 asyCov(list(C1,C2), n=c(100,50), as.matrix=TRUE)
 
 }

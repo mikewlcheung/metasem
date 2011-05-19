@@ -9,23 +9,26 @@
 \alias{print.summary.reml}
 \title{Summary Method for tssem1, wls and meta Objects
 }
-\description{It summaries results for either \code{tssem1}, \code{wls} or \code{meta} objects.
+\description{It summaries results for either \code{tssem1}, \code{wls},
+  \code{meta} or \code{reml} objects.
 }
 \usage{
 \method{summary}{tssem1}(object, \dots)
 \method{summary}{wls}(object, \dots)
 \method{summary}{meta}(object, \dots)
+\method{summary}{reml}(object, \dots)
 \method{print.summary}{tssem1}(x, \dots)
 \method{print.summary}{wls}(x, \dots)
 \method{print.summary}{meta}(x, \dots)
+\method{print.summary}{reml}(x, \dots)
 }
 \arguments{
   \item{object}{An object returned from either class
-	\code{\link[metaSEM]{tssem1}}, class \code{\link[metaSEM]{wls}} or
-	class \code{\link[metaSEM]{meta}}
+	\code{\link[metaSEM]{tssem1}}, class \code{\link[metaSEM]{wls}}, 
+	class \code{\link[metaSEM]{meta}} or class \code{\link[metaSEM]{reml}}.
 }
-  \item{x}{An object returned from either class \code{summary.tssem1}, class \code{summary.wls} or
-	class \code{summary.meta}
+  \item{x}{An object returned from either class \code{summary.tssem1},
+	class \code{summary.wls}, class \code{summary.meta} or class \code{summary.reml}.
 }
   \item{\dots}{Further arguments to be passed to \code{\link[stats]{printCoefmat}}
 }
@@ -52,7 +55,8 @@
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{ \code{\link[metaSEM]{tssem1}}, \code{\link[metaSEM]{wls}}, \code{\link[metaSEM]{meta}}
+\seealso{ \code{\link[metaSEM]{tssem1}}, \code{\link[metaSEM]{wls}},
+  \code{\link[metaSEM]{meta}}, \code{\link[metaSEM]{reml}}
 }
 \examples{
 }

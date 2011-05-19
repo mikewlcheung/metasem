@@ -37,13 +37,21 @@ bdiagMat(x)
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-# Block diagonal matrix of numerics
+## Block diagonal matrix of numerics
 bdiagMat( list(matrix(1:4,nrow=2,ncol=2),
                matrix(5:6,nrow=1,ncol=2)) )
+#      [,1] [,2] [,3] [,4]
+# [1,]    1    3    0    0
+# [2,]    2    4    0    0
+# [3,]    0    0    5    6
 
-# Block diagonal matrix of characters
+## Block diagonal matrix of characters
 bdiagMat( list(matrix(letters[1:4],nrow=2,ncol=2),
                matrix(letters[5:6],nrow=1,ncol=2)) )
+#      [,1] [,2] [,3] [,4]
+# [1,] "a"  "c"  "0"  "0" 
+# [2,] "b"  "d"  "0"  "0" 
+# [3,] "0"  "0"  "e"  "f" 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

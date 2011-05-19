@@ -16,26 +16,26 @@ tssem2(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB"),
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{tssem1.obj}{An object returned from \code{\link[metaSEM]{tssem1}}}
+  \item{tssem1.obj}{An object returned from \code{\link[metaSEM]{tssem1}}}.
   \item{S}{A \eqn{p}{p} x \eqn{p}{p} sample correlation/covariance matrix
-	where \eqn{p}{p} is the number of variables
+	where \eqn{p}{p} is the number of variables.
 }
   \item{acovS}{A \eqn{p*}{p*} x \eqn{p*}{p*} asymptotic sampling covariance
-	matrix of either \code{\link[OpenMx]{vechs}} \code{(S)} or \code{\link[OpenMx]{vech}} \code{(S)} where \eqn{p* = p(p-1)/2 }{p* = p(p-1)/2} for correlation matrix and \eqn{p* = p(p+1)/2 }{p* = p(p+1)/2} for covariance matrix
+	matrix of either \code{\link[OpenMx]{vechs}} \code{(S)} or \code{\link[OpenMx]{vech}} \code{(S)} where \eqn{p* = p(p-1)/2 }{p* = p(p-1)/2} for correlation matrix and \eqn{p* = p(p+1)/2 }{p* = p(p+1)/2} for covariance matrix.
 }
-  \item{n}{Sample size
+  \item{n}{Sample size.
 }
-  \item{impliedS}{Model implied correlation/covariance matrix of an object of either \code{\link[OpenMx]{MxMatrix-class}} or \code{\link[OpenMx]{MxAlgebra-class}} 
+  \item{impliedS}{Model implied correlation/covariance matrix of an object of either \code{\link[OpenMx]{MxMatrix-class}} or \code{\link[OpenMx]{MxAlgebra-class}}. 
 }
   \item{matrices}{A list of matrices used to calculate
-	\code{impliedS}. They are objects of either \code{\link[OpenMx]{MxMatrix-class}} or \code{\link[OpenMx]{MxAlgebra-class}} 
+	\code{impliedS}. They are objects of either \code{\link[OpenMx]{MxMatrix-class}} or \code{\link[OpenMx]{MxAlgebra-class}}. 
 }
   \item{cor.analysis}{Logical. Analysis of correlation or covariance structure. If \code{cor.analysis=TRUE}, \code{\link[OpenMx]{vechs}} is used to vectorize \code{S}; otherwise, \code{\link[OpenMx]{vech}} is used to vectorize \code{S}.
 }
   \item{intervals.type}{Either \code{z} (default if missing) or
-	\code{LB}. If it is \code{z}, it calculates 95\% Wald confidence
+	\code{LB}. If it is \code{z}, it calculates the 95\% Wald confidence
 	intervals (CIs) based on the z statistic. If it is \code{LB}, it
-	calculates 95\% likelihood-based CIs on the
+	calculates the 95\% likelihood-based CIs on the
 	parameter estimates. Please note that the z values and their
 	associated p values are based on the z statistic. They are not
 	related to the likelihood-based CIs.
@@ -43,11 +43,11 @@ tssem2(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB"),
   \item{model.name}{A string for the model name in
 	\code{\link[OpenMx]{mxModel}}. If it is missing, the default is
 	"TSSEM2 (or WLS) Analysis of Correlation Structure" for \code{cor.analysis=TRUE} and
-	"TSSEM2 (or WLS) Analysis of Covariance Structure" for \code{cor.analysis=FALSE}
+	"TSSEM2 (or WLS) Analysis of Covariance Structure" for \code{cor.analysis=FALSE}.
 	}
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
 	suppressed. Argument to be passed to \code{\link[OpenMx]{mxRun}}.}
-  \item{\dots}{Futher arguments to be passed to \code{\link[OpenMx]{mxRun}}
+  \item{\dots}{Futher arguments to be passed to \code{\link[OpenMx]{mxRun}}.
 }
 }
 \details{
@@ -95,6 +95,8 @@ acovR1 <- asyCov(R1, n)
 ## One-factor CFA model- P1: Factor variance; L1: Factor loadings 
 P1 <- mxMatrix("Full", ncol=1, nrow=1, value=1, free=FALSE, name="P1")
 L1 <- mxMatrix("Full", ncol=1, nrow=4, free=TRUE, name="L1")
+
+## Model to be fitted
 impliedR1 <- mxAlgebra(L1 \%&\% P1, name="impliedR1")
 wls.fit1 <- wls(S=R1, acovS=acovR1, n=n, impliedS=impliedR1,
                 matrices=c(P1, L1), cor.analysis=TRUE)
@@ -110,20 +112,20 @@ acovR2 <- asyCov(R2, n)
 
 
 ## A2: Regression coefficents
-#   y x1 x2
-#y  F T  T 
-#x1 F F  F 
-#x2 F F  F 
+#    y x1 x2
+# y  F T  T 
+# x1 F F  F 
+# x2 F F  F 
 A2 <- mxMatrix("Full", ncol=3, nrow=3, byrow=TRUE,
                free=c(FALSE, rep(TRUE, 2), rep(FALSE, 6)), name="A2")
 
 ## S2: Covariance matrix of free parameters
 ## Note that the diagonal elements are not involved in
 ## the analysis of correlation structure
-#   y x1 x2
-#y  F F  F 
-#x1 F F  F 
-#x2 F T  F
+#    y x1 x2
+# y  F F  F 
+# x1 F F  F 
+# x2 F T  F
 S2 <- mxMatrix("Stand", ncol=3, nrow=3, free=c(FALSE, FALSE, TRUE),name="S2")
 
 ## Identity matrix
@@ -164,7 +166,10 @@ digman1 <- tssem1(Digman97$data, Digman97$n, model.name="TSSEM1 Digman97")
 
 P4 <- mxMatrix("Stand", ncol=2, nrow=2, value=.2, free=TRUE, name="P4")
 L4 <- mxMatrix("Full", ncol=2, nrow=5, value=c(0,.3,.3,.3,0,.3,0,0,0,.3),
-free=c(FALSE,TRUE,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,FALSE,TRUE), name="L4")
+free=c(FALSE,TRUE,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,FALSE,TRUE),
+name="L4")
+
+## Model to be fitted
 impliedR4 <- mxAlgebra(L4 \%&\% P4, name="impliedR4")
 
 digman2 <- tssem2(digman1, impliedS=impliedR4, matrices=c(P4, L4),

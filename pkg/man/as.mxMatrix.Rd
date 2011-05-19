@@ -22,11 +22,10 @@ as.mxMatrix(x, name, ...)
 %%     ~~Describe \code{\dots} here~~
 }
 }
-\details{If there are non-numeric values in \code{x}, these values will be treated as free parameters. If an "*" is
+\details{If there are non-numeric values in \code{x}, they are treated
+  as the labels of the free parameters. If an "*" is
   present, the numeric value on the left hand side will be treated as
-  the starting value for a free parameter. For example, "1" for a fixed
-  parameter with "1" as the value and "5*beta" for a free parameter with
-  "5" as the starting value and "beta" as the label. If it is a matrix of numeric values, there is
+  the starting value for a free parameter or a fixed value for a fixed parameter. If it is a matrix of numeric values, there is
   no free parameters in the output matrix. 
 }
 \value{A \code{\link[OpenMx]{MxMatrix-class}} object with the same
@@ -46,20 +45,40 @@ as.mxMatrix(x, name, ...)
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-# a and b are free parameters with starting values and labels
-a1 <- matrix(c(1:4, "5*a", 6, "7*b", 8, 9), ncol=3, nrow=3)
+## a and b are free parameters with starting values and labels
+(a1 <- matrix(c(1:4, "5*a", 6, "7*b", 8, 9), ncol=3, nrow=3))
+#      [,1] [,2]  [,3] 
+# [1,] "1"  "4"   "7*b"
+# [2,] "2"  "5*a" "8"  
+# [3,] "3"  "6"   "9"  
+
 a1 <- as.mxMatrix(a1)
 
-# Fixed parameters without any labels, name="new2"
-a2 <- matrix(1:9, ncol=3, nrow=3)
+## a and b are fixed parameters without any labels, name="new2"
+(a2 <- matrix(1:9, ncol=3, nrow=3))
+#      [,1] [,2] [,3]
+# [1,]    1    4    7
+# [2,]    2    5    8
+# [3,]    3    6    9
+
 new2 <- as.mxMatrix(a2, name="new2")
 
-# Free parameters without starting values
-a3 <- matrix(c(1:4, "*a", 6, "*b", 8, 9), ncol=3, nrow=3)
+## Free parameters without starting values
+(a3 <- matrix(c(1:4, "*a", 6, "*b", 8, 9), ncol=3, nrow=3))
+#      [,1] [,2] [,3]
+# [1,] "1"  "4"  "*b"
+# [2,] "2"  "*a" "8" 
+# [3,] "3"  "6"  "9" 
+
 a3 <- as.mxMatrix(a3, lbound=0)
 
-# A free parameter without label
-a4 <- matrix(c(1:4, "5*", 6, "7*b", 8, 9), ncol=3, nrow=3)
+## A free parameter without label
+(a4 <- matrix(c(1:4, "5*", 6, "7*b", 8, 9), ncol=3, nrow=3))
+#      [,1] [,2] [,3] 
+# [1,] "1"  "4"  "7*b"
+# [2,] "2"  "5*" "8"  
+# [3,] "3"  "6"  "9"  
+
 a4 <- as.mxMatrix(a4)
 }
 \keyword{utilities}

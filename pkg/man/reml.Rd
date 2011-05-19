@@ -3,8 +3,8 @@
 \title{Extract Variance Components with REML
 }
 \description{
-It estimates the variance components of random-effects of univariate and
-multivariate meta-analysis with restricted (residual) maximum likelihood
+It estimates the variance components of random-effects in univariate and
+multivariate meta-analysis with the restricted (residual) maximum likelihood
 (REML) estimation method.
 }
 \usage{
@@ -33,26 +33,26 @@ suppressWarnings = TRUE, ...)
   \item{RE.constraints}{A \eqn{p}{p} x \eqn{p}{p} matrix
 	specifying the variance componets of the random effects. The default is that all
 	covariance/variance components are free. The format of this matrix
-	follows \code{\link[metaSEM]{as.mxMatrix}}. The parameter estimates
-	will be constrained equally if the labels are the same. If a zero matrix is
+	follows \code{\link[metaSEM]{as.mxMatrix}}. Elements of the variance
+	components can be constrained equally by using the same labels. If a zero matrix is
 	specified, it becomes a fixed-effects meta-analysis.
 }
   \item{RE.startvalues}{A vector of \eqn{p}{p} starting values on the
 	diagonals of the variance component of the random effects. If only one
-	scalar is given, it will be duplicated across the diagonals. Starting values for the
+	scalar is given, it will be repeated across the diagonals. Starting values for the
 	off-diagonals of the variance component are all 0. A \eqn{p}{p} x
-	\eqn{p}{p} symmetric matrix of starting values is also acceptable. 
+	\eqn{p}{p} symmetric matrix of starting values is also accepted. 
 }
   \item{RE.lbound}{A vector of \eqn{p}{p} lower bounds on the
 	diagonals of the variance component of the random effects. If only one
-	scalar is given, it will be duplicated across the diagonals. Lower
+	scalar is given, it will be repeated across the diagonals. Lower
 	bounds for the off-diagonals of the variance component are set at \code{NA}. A \eqn{p}{p} x
-	\eqn{p}{p} symmetric matrix of the lower bounds is also acceptable.
+	\eqn{p}{p} symmetric matrix of the lower bounds is also accepted.
 }
   \item{intervals.type}{Either \code{z} (default if missing) or
-	\code{LB}. If it is \code{z}, it calculates 95\% Wald confidence
+	\code{LB}. If it is \code{z}, it calculates the 95\% Wald confidence
 	intervals (CIs) based on the z statistic. If it is \code{LB}, it
-	calculates 95\% likelihood-based CIs on the
+	calculates the 95\% likelihood-based CIs on the
 	parameter estimates. Note that the z values and their
 	associated p values are based on the z statistic. They are not
 	related to the likelihood-based CIs.
@@ -66,7 +66,7 @@ suppressWarnings = TRUE, ...)
 }
 }
 \details{
-  Restricted (residual) maximum likelihood obtains the parameter estimates on the transformed data that do not include the fixed-effects parameters. A transformation matrix \eqn{M=I-X(X'X)^{-1}X}{M=I-X(X'X)^{-1}X'} is created based on a design matrix \eqn{X}{X} which is just a column vector when there is no predictor in \code{x}. The last \eqn{N}{N} redundant rows of \eqn{M}{M} is removed where \eqn{N}{N} is the rank of \eqn{X}{X}. After pre-multiplying by \eqn{M} on \code{y}, the parameters of fixed-effects are not removed from the model. Thus, only the parameters of random-effects are estimated.
+  Restricted (residual) maximum likelihood obtains the parameter estimates on the transformed data that do not include the fixed-effects parameters. A transformation matrix \eqn{M=I-X(X'X)^{-1}X}{M=I-X(X'X)^{-1}X'} is created based on a design matrix \eqn{X}{X} which is just a column vector when there is no predictor in \code{x}. The last \eqn{N}{N} redundant rows of \eqn{M}{M} is removed where \eqn{N}{N} is the rank of \eqn{X}{X}. After pre-multiplying by \eqn{M} on \code{y}, the parameters of fixed-effects are removed from the model. Thus, only the parameters of random-effects are estimated.
 
   An alternative but equivalent approach is to minimize the
   -2*log-likelihood function: \deqn{
@@ -88,13 +88,8 @@ suppressWarnings = TRUE, ...)
   \item{reml.fit}{A fitted object returned from	\code{\link[OpenMx]{mxRun}}}
 }
 \references{
-  % Cheung, M. W. L. (2008). A model for integrating fixed-, random-, and
-  % mixed-effects meta-analyses into structural equation
-  % modeling. \emph{Psychological Methods}, \bold{13}, 182-202.
-
-  % Mehta, P. D., & Neale, M. C. (2005). People Are Variables Too:
-  % Multilevel Structural Equations Modeling. \emph{Psychological
-  % 	Methods}, \bold{10(3)}, 259-284.
+  Mehta, P. D., & Neale, M. C. (2005). People Are Variables Too: Multilevel Structural Equations Modeling. \emph{Psychological
+  	Methods}, \bold{10(3)}, 259-284.
 
   Searle, S. R., Casella, G., & McCulloch, C. E. (1992). \emph{Variance
 	components}. New York: Wiley.
@@ -108,7 +103,7 @@ suppressWarnings = TRUE, ...)
 \note{ \code{reml} is more computional intensive than \code{meta}. Moreover, \code{reml} is more
   likely than \code{meta} to encounter errors during optimization. Since
   a likelihood function is directly employed to obtain the parameter
-  estimates, there is no no. of studies and no. of observed statistics
+  estimates, there is no number of studies and number of observed statistics
   returned by \code{\link[OpenMx]{mxRun}}. Ad-hoc calculations are used
   to modify \code{reml.fit@runstate$objectives[[1]]@numObs} and \code{reml.fit@runstate$objectives[[1]]@numStats}.
 }

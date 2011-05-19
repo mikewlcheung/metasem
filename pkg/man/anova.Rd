@@ -2,10 +2,10 @@
 \alias{anova.wls}
 \alias{anova.meta}
 \alias{anova.reml}
-\title{Compare Models with Likelihood Ratio Statitics
+\title{Compare Nested Models with Likelihood Ratio Statitics
 }
-\description{It compares models with likelihood ratio statistic from either \code{wls}, \code{meta} or
-  \code{reml} objects via \code{\link[OpenMx]{mxCompare}}.
+\description{It compares nested models with the likelihood ratio statistic from either \code{wls}, \code{meta} or
+  \code{reml} objects. It is a wrapper of \code{\link[OpenMx]{mxCompare}}.
 }
 \usage{
 \method{anova}{wls}(object, \dots, all=FALSE)
@@ -28,7 +28,15 @@
 	comparisons. It will be passed to the \code{all} argument in
 	\code{\link[OpenMx]{mxCompare}}.}
 }
-\details{
+\details{Special care has to be taken to make sure that the models being
+  compared in \code{base} and \code{comparison} are nested. One common mistake is
+  comparing a model without predictor and a model with predictor in \code{\link[metaSEM]{meta}}. Since
+  the parameters in the predictors, e.g., means and variances, are also estimated in \code{\link[metaSEM]{meta}},
+  these two models are not nested. The correct way to compare them is to
+  fix the regression coefficients of one model at zero while the
+  coefficients in the other model are free (see the example). If only one parameter is tested, an alternative (and easier) approach
+  is to request the likelihood-based CI directly with the
+  \code{intervals.type="LB"} argument in \code{\link[metaSEM]{meta}}.
 %%  ~~ If necessary, more details than the description above ~~
 }
 \value{A table of comparisons between the models in base and comparison.
@@ -38,13 +46,7 @@
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
-\note{Special care have to be taken to make sure that the models beiing
-  compared in \code{base} and \code{comparison} are nested. One common mistake is
-  comparing a model without predictor and a model with predictor. Since
-  the parameters in the predictors, e.g., mean and variances, are also estimated in \code{metaSEM},
-  these two models are not nested. The correct way to compare them is to
-  fix the regression coefficients of one model at zero while the
-  coefficients in the other model are free.
+\note{
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
@@ -52,12 +54,14 @@
 \examples{
 ## Test the significance of a predictor with likelihood ratio test
 ## Model0: Regression coefficient is fixed at 0
-model0 <- with( Hox02, meta(y=yi, v=vi, x=weeks, coeff.constraints=matrix(0),
-                            model.name="No predictor") )
+model0 <- meta(y=yi, v=vi, x=weeks, coeff.constraints=matrix(0), data=Hox02,
+               model.name="No predictor")
 
 ## Model1: Regression coefficient is free
-model1 <- with( Hox02, meta(y=yi, v=vi, x=weeks,
-                            model.name="One predictor") )
+model1 <- meta(y=yi, v=vi, x=weeks, data=Hox02,
+               model.name="One predictor")
+
+## Compare these two models
 anova(model1, model0) 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

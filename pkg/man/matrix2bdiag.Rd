@@ -44,9 +44,19 @@ matrix2bdiag(x, ...)
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-matrix2bdiag( matrix(1:18, ncol=6, byrow=TRUE) )
+(m1 <- matrix(1:12, ncol=6, byrow=TRUE))
+#      [,1] [,2] [,3] [,4] [,5] [,6]
+# [1,]    1    2    3    4    5    6
+# [2,]    7    8    9   10   11   12
 
-matrix2bdiag( matrix(letters[1:18], ncol=6, byrow=TRUE) )
+matrix2bdiag(m1)
+#      [,1] [,2] [,3] [,4] [,5] [,6]
+# [1,]    1    2    3    0    0    0
+# [2,]    2    4    5    0    0    0
+# [3,]    3    5    6    0    0    0
+# [4,]    0    0    0    7    8    9
+# [5,]    0    0    0    8   10   11
+# [6,]    0    0    0    9   11   12
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

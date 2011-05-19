@@ -5,7 +5,7 @@
 \description{It tests the positive definiteness of a square matrix or a
   list of square matrices. It returns \code{FALSE} if the matrix is not
   symmetric. Variables with NA in the diagonals will be removed
-  before the test.
+  before testing.
 }
 \usage{
 is.pd(x, tol = 1e-06)

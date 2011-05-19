@@ -3,7 +3,7 @@
 \title{First Stage of the Two-Stage Structural Equation Modeling (TSSEM)
 }
 \description{It conducts the first stage analysis of TSSEM by pooling
-  correlation/covariance matrices with a fixed-effets model. The function expects that there is no missing data in the first group. 
+  correlation/covariance matrices with a fixed-effects model. . 
 }
 \usage{
 tssem1(my.df, n, start.values, cor.analysis = TRUE, model.name,
@@ -50,7 +50,7 @@ Cheung, M. W. L., & Chan, W. (2009). A two-stage approach to synthesizing covari
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
-\note{It is assumed that there is no missing values in the first
+\note{It assumes that there is no missing values in the first
   study.
 }
 

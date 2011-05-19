@@ -1,5 +1,5 @@
 #### Generate asymptotic covariance matrix of correlation/covariance matrix by *column major*
-asyCov <- function(x, n, cor.analysis = TRUE, dropNA = TRUE, as.matrix = TRUE,
+asyCov <- function(x, n, cor.analysis = TRUE, dropNA = FALSE, as.matrix = TRUE,
                    silent = TRUE, suppressWarnings = TRUE, ...) {
     if (is.list(x)) {
       

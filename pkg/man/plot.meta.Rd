@@ -10,7 +10,7 @@
 \usage{
 plot.meta(x, effect.sizes, add.margin = 0.1, interval = 0.95,
 main= paste("Effect Sizes and their Confidence Ellipses"),
-axis.label= paste("Effect size ", effect.sizes, sep = ""),
+axis.labels= paste("Effect size ", effect.sizes, sep = ""),
 study.col = "black", study.pch = 19, study.min.cex = 0.8,
 study.weight.plot = FALSE, study.ellipse.plot = TRUE,
 study.ellipse.col = "black", study.ellipse.lty = 2,
@@ -29,102 +29,103 @@ diag.panel = FALSE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{An object of class \code{\link[metaSEM]{meta}}
+  \item{x}{An object of class \code{\link[metaSEM]{meta}}.
 }
   \item{effect.sizes}{Numeric values indicating which effect sizes to
-	be plotted. If it is missing, all effect sizes will be plotted in a
+	be plotted. At least two effect sizes are required. To plot the effect sizes of \eqn{y_1}{y1} and
+	\eqn{y_2}{y2}, one may use \code{effect.sizes=c(1,2)}. If it is missing, all effect sizes will be plotted in a
 	pairwise way.
 }
-  \item{add.margin}{Value for additional margins
+  \item{add.margin}{Value for additional margins on the left and bottom margins.
 }
-  \item{interval}{Interval for the confidence ellipses
+  \item{interval}{Interval for the confidence ellipses.
 }
   \item{main}{Main title of each plot. If there are multiple plots, a
-	vector of character titles may be used
+	vector of character titles may be used.
 }
-  \item{axis.label}{Labels for the effect sizes
+  \item{axis.labels}{Labels for the effect sizes.
 }
-\item{study.col}{Color of individual studies. See \code{col} in \code{\link[graphics]{par}}  
+\item{study.col}{Color of individual studies. See \code{col} in \code{\link[graphics]{par}}.  
 }
-  \item{study.pch}{Plotting character of individual studies. See \code{pch} in \code{\link[graphics]{points}} 
+  \item{study.pch}{Plotting character of individual studies. See \code{pch} in \code{\link[graphics]{points}}. 
 }
   \item{study.min.cex}{Minimum value of cex for individual
-	studies. See \code{cex} in \code{\link[graphics]{par}}
+	studies. See \code{cex} in \code{\link[graphics]{par}}.
 }
   \item{study.weight.plot}{Logical. If \code{TRUE}, the ploting size of individual
 	studies (cex) will be proportional to one over the square root of the
-	determinant of the sampling covariance matrix of the study
+	determinant of the sampling covariance matrix of the study.
 }
   \item{study.ellipse.plot}{Logical. If \code{TRUE}, the confidence
-	ellipses of individual studies are plotted
+	ellipses of individual studies are plotted.
 }
   \item{study.ellipse.col}{Color of the confidence ellipses of
-	individual studies. See \code{col} in \code{\link[graphics]{par}} 
+	individual studies. See \code{col} in \code{\link[graphics]{par}}. 
 }
   \item{study.ellipse.lty}{Line type of the confidence ellipse of
-	individual studies. See \code{lty} in \code{\link[graphics]{par}} 
+	individual studies. See \code{lty} in \code{\link[graphics]{par}}. 
 }
   \item{study.ellipse.lwd}{Line width of the confidence ellipse of
-	individual studies. See \code{lwd} in \code{\link[graphics]{par}} 
+	individual studies. See \code{lwd} in \code{\link[graphics]{par}}. 
 }
-  \item{estimate.col}{Color of the estimated effect size. See \code{col} in \code{\link[graphics]{par}} 
+  \item{estimate.col}{Color of the estimated effect size. See \code{col} in \code{\link[graphics]{par}}. 
 }
-  \item{estimate.pch}{Plotting character of the estimated effect sizes. See \code{pch} in \code{\link[graphics]{points}}
+  \item{estimate.pch}{Plotting character of the estimated effect sizes. See \code{pch} in \code{\link[graphics]{points}}.
 }
-  \item{estimate.cex}{Minimum amount of plotting of the estimated effect sizes. See \code{cex} in \code{\link[graphics]{par}}
+  \item{estimate.cex}{Amount of plotting of the estimated effect sizes. See \code{cex} in \code{\link[graphics]{par}}.
 }
   \item{estimate.ellipse.plot}{Logical. If \code{TRUE}, the confidence
-	ellipse of the estiamted effect sizes will be plotted
+	ellipse of the estimated effect sizes will be plotted.
 }
   \item{estimate.ellipse.col}{Color of the confidence
-	ellipse of the estiamted effect sizes. See \code{col} in \code{\link[graphics]{par}} 
+	ellipse of the estimated effect sizes. See \code{col} in \code{\link[graphics]{par}}. 
 }
   \item{estimate.ellipse.lty}{Line type of the confidence
-	ellipse of the estiamted effect sizes. See \code{lty} in \code{\link[graphics]{par}} 
+	ellipse of the estimated effect sizes. See \code{lty} in \code{\link[graphics]{par}}. 
 }
   \item{estimate.ellipse.lwd}{Line width of the confidence
-	ellipse of the estiamted effect sizes. See \code{lwd} in \code{\link[graphics]{par}} 
+	ellipse of the estimated effect sizes. See \code{lwd} in \code{\link[graphics]{par}}. 
 }
   \item{randeff.ellipse.plot}{Logical. If \code{TRUE}, the confidence
-	ellipses of the random effects will be plotted
+	ellipses of the random effects will be plotted.
 }
   \item{randeff.ellipse.col}{Color of the confidence
-	ellipses of the random effects. See \code{col} in \code{\link[graphics]{par}} 
+	ellipses of the random effects. See \code{col} in \code{\link[graphics]{par}}. 
 }
   \item{randeff.ellipse.lty}{Line type of the confidence
-	ellipses of the random effects. See \code{lty} in \code{\link[graphics]{par}} 
+	ellipses of the random effects. See \code{lty} in \code{\link[graphics]{par}}. 
 }
   \item{randeff.ellipse.lwd}{Line width of the confidence
-	ellipses of the random effects. See \code{lwd} in \code{\link[graphics]{par}} 
+	ellipses of the random effects. See \code{lwd} in \code{\link[graphics]{par}}. 
 }
   \item{univariate.plot}{Logical. If \code{TRUE}, the estimated univariate effect
-	sizes will be plotted
+	sizes will be plotted.
 }
   \item{univariate.lines.col}{Color of the estimated univariate effect
-	sizes. See \code{col} in \code{\link[graphics]{par}} 
+	sizes. See \code{col} in \code{\link[graphics]{par}}. 
 }
   \item{univariate.lines.lty}{Line type of the estimated univariate effect
-	sizes. See \code{lty} in \code{\link[graphics]{par}} 
+	sizes. See \code{lty} in \code{\link[graphics]{par}}. 
 }
   \item{univariate.lines.lwd}{Line width of the estimated univariate effect
-	sizes. See \code{lwd} in \code{\link[graphics]{par}} 
+	sizes. See \code{lwd} in \code{\link[graphics]{par}}. 
 }
   \item{univariate.polygon.width}{Width of the polygon of the estimated univariate effect
-	sizes
+	sizes.
 }
   \item{univariate.polygon.col}{Color of the polygon of the estimated univariate effect
-	sizes
+	sizes.
 }
   \item{univariate.arrows.col}{Color of the arrows of the estimated univariate effect
-	sizes
+	sizes.
 }
   \item{univariate.arrows.lwd}{Line width of the arrows of the estimated univariate effect
-	sizes
+	sizes.
 }
   \item{diag.panel}{Logical. If \code{TRUE}, diagonal panels will be
 	created. They can then be used for forrest plots for univariate meta-analysis.
 }
-  \item{\dots}{Further arguments to be passed to the plot function
+  \item{\dots}{Further arguments to be passed to the plot function.
 }
 }
 \details{
@@ -137,8 +138,7 @@ diag.panel = FALSE, ...)
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
 \note{The estimated effect sizes and random effects are based on the
-  labels Intercept1, Intercept2, ... and Tau2_1_1, Tau2_2_1, Tau2_2_2,
-  ..., respectively. At least two effect sizes are required for this function.
+  labels Intercept1, Intercept2, ... and Tau2_1_1, Tau2_2_1, Tau2_2_2, etc. At least two effect sizes are required for this function.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
@@ -149,8 +149,11 @@ diag.panel = FALSE, ...)
 \examples{
 \dontrun{
 ## Multivariate meta-analysis
-x <- with(Berkey98, meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL)))
+x <- meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL), data=Berkey98)
 plot(x)
+
+## Plot individual studies proportional to the weights
+plot(x, study.weight.plot=TRUE)
 
 ## Include forest plot from the metafor package
 library(metafor)
@@ -164,5 +167,4 @@ title("Forest plot of AL")
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
-\keyword{ meta-analysis }
 \keyword{ methods }% __ONLY ONE__ keyword per line

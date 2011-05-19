@@ -7,7 +7,7 @@
 }
 \description{It extracts the variance-covariance matrix of the
   parameter estimates from either \code{tssem1}, \code{wls}, \code{meta}
-  or \code{reml}objects.
+  or \code{reml} objects.
 }
 \usage{
 \method{vcov}{tssem1}(object, \dots)
@@ -24,8 +24,7 @@
 \details{
 %%  ~~ If necessary, more details than the description above ~~
 }
-\value{A variance-covariance matrix of the parameter estimates for both
-  fixed- and random-effects (if any)
+\value{A variance-covariance matrix of the parameter estimates.
 }
 \references{
 %% ~put references to the literature/web site here ~
@@ -42,7 +41,7 @@
 }
 \examples{
 ## Random-effects meta-analysis
-model1 <- with( Hox02, meta(y=yi, v=vi) )
+model1 <- meta(y=yi, v=vi, data=Hox02)
 vcov(model1)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
