@@ -145,10 +145,14 @@ meta <- function(y, v, x, data, intercept.constraints, coeff.constraints,
   
   if (no.x==0) {
     M <- as.mxMatrix(M, name="M")
+    ## Fixed a bug in OpenMx 1.1 that requires dimnames for M
+    dimnames(M) <- list(NULL, y.labels)
   } else {
     # t() is required to fix a bug when no.x>1
     M <- cbind(M, t(matrix(paste(round(colMeans(matrix(x, ncol=no.x), na.rm=TRUE),2),"*", sep=""))))
     M <- as.mxMatrix(M, name="M")
+    ## Fixed a bug in OpenMx 1.1 that requires dimnames for M
+    dimnames(M) <- list(NULL, c(y.labels, x.labels))    
   }
  
   if (no.x==0) {

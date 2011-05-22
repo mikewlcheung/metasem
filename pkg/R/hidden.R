@@ -4,46 +4,47 @@
 # a <- array(unlist(X), c(9,9,11))
 # apply(a, c(1,2),mean, na.rm=TRUE)
 .startValues <- function(x, cor.analysis = TRUE) {
-    no.var <- max(sapply(x, ncol))
-    my.start <- matrix(rowMeans(sapply(x, as.vector), na.rm = TRUE), nrow = no.var)
-    out <- as.matrix(nearPD(my.start, corr = cor.analysis)$mat)
-    dimnames(out) <- dimnames(x[[1]])
-    out
+  no.var <- max(sapply(x, ncol))
+  my.start <- matrix(rowMeans(sapply(x, as.vector), na.rm = TRUE), nrow = no.var)
+  out <- as.matrix(nearPD(my.start, corr = cor.analysis)$mat)
+  dimnames(out) <- dimnames(x[[1]])
+  out
 }
 
 .indepwlsChisq <- function(S, acovS, cor.analysis = TRUE) {
-    no.var <- ncol(S)
-    sampleS <- mxMatrix("Full", ncol = no.var, nrow = no.var, values = c(S), free = FALSE, 
-        name = "sampleS")
-    if (cor.analysis) {
-        impliedS <- mxMatrix("Iden", ncol = no.var, nrow = no.var, free = FALSE, 
-            name = "impliedS")          # a bit redundant, but it simplies the later codes
-        ps <- no.var * (no.var - 1)/2
-        vecS <- mxAlgebra(vechs(sampleS - impliedS), name = "vecS")        
-    } else {
-        impliedS <- mxMatrix("Diag", ncol = no.var, nrow = no.var, values = diag(S), 
-            free = TRUE, name = "impliedS")
-        ps <- no.var * (no.var + 1)/2
-        vecS <- mxAlgebra(vech(sampleS - impliedS), name = "vecS")        
-    }
-    if (ncol(acovS) != ps) 
-        stop("No. of dimension of \"S\" does not match the dimension of \"acovS\"\n")
+  no.var <- ncol(S)
+  sampleS <- mxMatrix("Full", ncol = no.var, nrow = no.var, values = c(S),
+                      free = FALSE, name = "sampleS")
+  if (cor.analysis) {
+    impliedS <- mxMatrix("Iden", ncol = no.var, nrow = no.var, free = FALSE,
+                         name = "impliedS")     # a bit redundant, but it simplies the codes later
+    ps <- no.var * (no.var - 1)/2
+    vecS <- mxAlgebra(vechs(sampleS - impliedS), name = "vecS")
+  } else {
+      impliedS <- mxMatrix("Diag", ncol = no.var, nrow = no.var, values = diag(S),
+                           free = TRUE, name = "impliedS")
+      ps <- no.var * (no.var + 1)/2
+      vecS <- mxAlgebra(vech(sampleS - impliedS), name = "vecS")
+  }
+  if (ncol(acovS) != ps)
+    stop("No. of dimension of \"S\" does not match the dimension of \"acovS\"\n")
     
-    # Inverse of asymptotic covariance matrix
-    invacovS <- tryCatch(solve(acovS), error = function(e) e)
-    if (inherits(invacovS, "error")) 
-        stop(print(invacovS))    
-    invAcov <- mxMatrix("Full", ncol = ps, nrow = ps, values = c(invacovS), free = FALSE, 
-        name = "invAcov")
-    obj <- mxAlgebra(t(vecS) %&% invAcov, name = "obj")
-    objective <- mxAlgebraObjective("obj")
+  # Inverse of asymptotic covariance matrix
+  invacovS <- tryCatch(solve(acovS), error = function(e) e)
+  if (inherits(invacovS, "error"))
+    stop(print(invacovS))    
+  invAcov <- mxMatrix("Full", ncol = ps, nrow = ps, values = c(invacovS),
+                      free = FALSE, name = "invAcov")
+  obj <- mxAlgebra(t(vecS) %&% invAcov, name = "obj")
+  objective <- mxAlgebraObjective("obj")
     
-    indep.out <- tryCatch(mxRun(mxModel(model = "Independent model", impliedS, sampleS, 
-        vecS, invAcov, obj, objective), silent=TRUE, suppressWarnings=TRUE), error = function(e) e)
+  indep.out <- tryCatch(mxRun(mxModel(model = "Independent model", impliedS, sampleS,
+                                      vecS, invAcov, obj, objective), silent=TRUE,
+                              suppressWarnings=TRUE), error = function(e) e)
     
-    if (inherits(indep.out, "error")) 
-        stop(print(indep.out))
-    else return(indep.out@output$Minus2LogLikelihood)
+  if (inherits(indep.out, "error"))
+    stop(print(indep.out))
+  else return(indep.out@output$Minus2LogLikelihood)
 }
 
 .minus2LL <- function(x, n, model=c("saturated", "independent")) {
