@@ -1,5 +1,6 @@
-Release 0.6-0 (May 22, 2011)
+Release 0.6-0 (May 24, 2011)
 ====================================
+* Added a data set WVS94
 * Changed dropNA argument from TRUE to FALSE in asyCov()
 * Added data argument in meta() and reml()
 * Fixed a bug by addinng dimnames in M matrix in meta() when OpenMx 1.1 is used
