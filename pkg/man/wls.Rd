@@ -75,8 +75,8 @@ Joreskog, K. G., Sorbom, D., Du Toit, S., & Du Toit, M. (1999). \emph{LISREL 8: 
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
-\note{
-%%  ~~further notes~~
+\note{If the input is a list of \code{tssem1.obj}, it returns a list of
+  results for each cluster.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

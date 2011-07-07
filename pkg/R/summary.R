@@ -20,6 +20,8 @@ summary.wls <- function(object, ...) {
     RMSEA <- sqrt(max((tT-dfT)/(n-1),0)/dfT)
     TLI <- (tB/dfB - tT/dfT)/(tB/dfB-1)
     CFI <- 1 - max((tT-dfT),0)/max((tT-dfT),(tB-dfB),0)
+	## FIXME: better to use -2LL+2r where r is the no. of free parameters (Mplus, p. 22; R ?AIC)
+	## This will be more consistent with logLik(). However, it seems that df not npar is used in logLik().
     AIC <- tT-2*dfT
     BIC <- tT-log(n)*dfT
     if (cor.analysis) {
@@ -286,7 +288,9 @@ summary.meta <- function(object, ...) {
     # calculate coefficients    
     my.mx <- summary(object$meta.fit)
     ## my.para <- my.mx$parameters       # Worked up to OpenMx1.0.6
-    my.para <- my.mx$parameters[, 1:6]   # Fixed for OpenMx1.1    
+    my.para <- my.mx$parameters[, 1:6]   # Fixed for OpenMx1.1
+    ## OpenMx1.1: y1, y2 and x1 appear in col
+    my.para$col <- sub("[a-z]", "", my.para$col)  # Fixed for OpenMx1.1
     # For example, P[1,2], L[1,2], ...
     my.para$label <- my.para$name
     my.para$name <- with(my.para, paste(matrix,"[",row,",",col,"]",sep=""))
@@ -507,7 +511,13 @@ vcov.tssem1 <- function(object, ...) {
     stop("\"object\" must be an object of class \"tssem1\".")
     object$acovS
 }
-  
+
+vcov.tssem1.cluster <- function(object, ...) {
+    if (!is.element("tssem1.cluster", class(object)))
+    stop("\"object\" must be an object of class \"tssem1.cluster\".")
+    lapply(object, vcov.tssem1)
+}  
+
 vcov.wls <- function(object, ...) {
     if (!is.element("wls", class(object)))
     stop("\"object\" must be an object of class \"wls\".")
@@ -519,7 +529,12 @@ vcov.wls <- function(object, ...) {
     }
     acovS
 }
-
+vcov.wls.cluster <- function(object, ...) {
+    if (!is.element("wls.cluster", class(object)))
+    stop("\"object\" must be an object of class \"wls.cluster\".")
+    lapply(object, vcov.wls)
+}
+  
 vcov.reml <- function(object, ...) {
     if (!is.element("reml", class(object)))
     stop("\"object\" must be an object of class \"reml\".")
@@ -551,11 +566,23 @@ coef.tssem1 <- function(object, ...) {
     stop("\"object\" must be an object of class \"tssem1\".")
     object$pooledS
 }
+
+coef.tssem1.cluster <- function(object, ...) {
+    if (!is.element("tssem1.cluster", class(object)))
+    stop("\"object\" must be an object of class \"tssem1.cluster\".")
+    lapply(object, coef.tssem1)
+}
   
 coef.wls <- function(object, ...) {
     if (!is.element("wls", class(object)))
     stop("\"object\" must be an object of class \"wls\".")
     object$wls.fit@output$estimate
+}
+
+coef.wls.cluster <- function(object, ...) {
+    if (!is.element("wls.cluster", class(object)))
+    stop("\"object\" must be an object of class \"wls.cluster\".")
+    lapply(object, coef.wls)
 }
 
 coef.reml <- function(object, ...) {
@@ -583,4 +610,16 @@ anova.reml <- function(object, ..., all=FALSE) {
   base <- lapply(list(object), function(x) x$reml.fit)
   comparison <- lapply(list(...), function(x) x$reml.fit)
   mxCompare(base=base, comparison=comparison, all=all)
+}
+
+summary.tssem1.cluster <- function(object, ...) {
+    if (!is.element("tssem1.cluster", class(object)))
+    stop("\"object\" must be an object of class \"tssem1.cluster\".")
+    lapply(object, summary.tssem1)
+}
+
+summary.wls.cluster <- function(object, ...) {
+    if (!is.element("wls.cluster", class(object)))
+    stop("\"object\" must be an object of class \"wls.cluster\".")
+    lapply(object, summary.wls)
 }

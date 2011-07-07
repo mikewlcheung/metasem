@@ -1,3 +1,8 @@
+Release 0.6-1 (Jul 2, 2011)
+====================================
+* Fixed a bug by removing the characters in matrix column when OpenMx 1.1 is used 
+* Added cluster argument in tssem1() and summary.tssem1.cluster(), summary.wls.cluster(), vcov.tssem1.cluster(), vcov.wls.cluster(), coef.tssem1.cluster(), coef.wls.cluster()
+
 Release 0.6-0 (May 24, 2011)
 ====================================
 * Added a data set WVS94

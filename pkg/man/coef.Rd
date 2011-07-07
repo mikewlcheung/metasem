@@ -1,23 +1,33 @@
 \name{coef}
 \alias{coef.tssem1}
+\alias{coef.tssem1.cluster}
 \alias{coef.wls}
+\alias{coef.wls.cluster}
 \alias{coef.meta}
 \alias{coef.reml}
-\title{Extract Parameter Estimates from tssem1, wls, meta and reml Objects
+
+\title{Extract Parameter Estimates from tssem1, tssem1.cluster, wls,
+  wls.cluster, meta and reml Objects
 }
 \description{It extracts the parameter estimates from either
-  \code{tssem1}, \code{wls}, \code{meta} or \code{reml} objects.
+  \code{tssem1}, \code{tssem1.cluster}, \code{wls}, \code{wls.cluster},
+  \code{meta} or \code{reml} objects.
 }
 \usage{
 \method{coef}{tssem1}(object, \dots)
+\method{coef}{tssem1.cluster}(object, \dots)
 \method{coef}{wls}(object, \dots)
+\method{coef}{wls.cluster}(object, \dots)
 \method{coef}{meta}(object, \dots)
 \method{coef}{reml}(object, \dots)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{object}{An object returned from either class
-	\code{\link[metaSEM]{tssem1}}, class \code{\link[metaSEM]{wls}}, class \code{\link[metaSEM]{meta}} or class \code{\link[metaSEM]{reml}}
+	\code{\link[metaSEM]{tssem1}}, class
+	\code{tssem1.cluster},
+	class \code{\link[metaSEM]{wls}}, class \code{wls.cluster},
+	class \code{\link[metaSEM]{meta}} or class \code{\link[metaSEM]{reml}}
 }
   \item{\dots}{Further arguments; currently none is used}
 }

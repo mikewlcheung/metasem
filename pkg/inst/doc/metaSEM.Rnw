@@ -87,25 +87,43 @@ summary(cor1)
 
 ## Create a matrix for factor correlations
 ## Values with "*" are free parameters
-P4 <-  matrix(c(1,"0.2*p21*","0.2*p31",
+P1 <-  matrix(c(1,"0.2*p21*","0.2*p31",
                 "0.2*p21",1,"0.2*p32",
                 "0.2*p31","0.2*p32",1), ncol=3, nrow=3, byrow=TRUE)
 ## Convert it into a mxMatrix class
-P4 <- as.mxMatrix(P4)
+P1 <- as.mxMatrix(P1)
 
 ## Create a matrix for factor loadings
-L4 <- matrix(c(rep(c("0.3*",0,0),3), 
+L1 <- matrix(c(rep(c("0.3*",0,0),3), 
                rep(c(0, "0.3*",0),4), 
                rep(c(0,0,"0.3*"),2)), ncol=3, nrow=9, byrow=TRUE)
 ## Convert it into a mxMatrix class
-L4 <- as.mxMatrix(L4)
+L1 <- as.mxMatrix(L1)
 
-## impliedR = L4 %*% P4 %*% t(L4)
-impliedR4 <- mxAlgebra(L4 %&% P4, name="impliedR4")
+## impliedR1 = L1 %*% P1 %*% t(L1)
+impliedR1 <- mxAlgebra(L1 %&% P1, name="impliedR1")
 
 ## tssem2() is the function for stage 2 analysis.
-cor2 <- tssem2(cor1, impliedS=impliedR4, matrices=c(P4, L4))
+cor2 <- tssem2(cor1, impliedS=impliedR1, matrices=c(P1, L1))
 summary(cor2)
+
+## TSSEM by clusters
+## Stage 1 analysis
+digman1 <- tssem1(Digman97$data, Digman97$n, cluster=Digman97$cluster)
+summary(digman1)
+
+## Stage 2 analysis
+P2 <- mxMatrix("Stand", ncol=2, nrow=2, value=.2, free=TRUE, name="P2")
+L2 <- mxMatrix("Full", ncol=2, nrow=5, value=c(0,.3,.3,.3,0,.3,0,0,0,.3),
+               free=c(FALSE,TRUE,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,FALSE,TRUE),
+               name="L2")
+## Model implied correlation matrix
+impliedR2 <- mxAlgebra(L2 %&% P2, name="impliedR2")
+
+digman2 <- tssem2(digman1, impliedS=impliedR2, matrices=c(P2, L2),
+                  model.name="TSSEM2 Digman97")
+summary(digman2)
+
 @
 \subsection{Reading External Data Files}
 Data sets are most likely stored externally. \code{metaSEM} reads three types of data formats. The first type is full correlation/covariance matrices, for example, \href{http://courses.nus.edu.sg/course/psycwlm/Internet/metaSEM/fullmat.dat}{fullmat.dat} is the same as the built-in data set \code{Cheung09}. Missing values are represented by \code{NA} (the default option). Suppose you have saved it at d:\textbackslash fullmat.dat, you may read it by using the following command in \code{R}:
@@ -131,7 +149,7 @@ Besides fitting a TSSEM, \code{wls()} may be used to fit a correlation/covarianc
 <<WLS, echo=TRUE>>=
 
 ## Sample correlation matrix
-R1 <- matrix(c(1.00, 0.22, 0.24, 0.18,
+R3 <- matrix(c(1.00, 0.22, 0.24, 0.18,
                0.22, 1.00, 0.30, 0.22,
                0.24, 0.30, 1.00, 0.24,
                0.18, 0.22, 0.24, 1.00), ncol=4, nrow=4)
@@ -140,23 +158,24 @@ R1 <- matrix(c(1.00, 0.22, 0.24, 0.18,
 n <- 1000
 
 ## Estimate the asymptotic covariance matrix of the sample correlation matrix
-acovR <- asyCov(R1, n)
+acovR3 <- asyCov(R3, n)
 
-## P1: Factor variance is fixed at 1.0
-P1 <- as.mxMatrix( matrix(1), name="P1")
+## P3: Factor variance is fixed at 1.0
+P3 <- as.mxMatrix( matrix(1), name="P3")
 
-## L1: Factor loadings
-L1 <- as.mxMatrix( matrix( rep("0.3*", 4), nrow=4, ncol=1), name="L1" ) 
+## L3: Factor loadings
+L3 <- as.mxMatrix( matrix( rep("0.3*", 4), nrow=4, ncol=1), name="L3" ) 
 
 ## Model implied correlation matrix
 ## Please note that error variances are not involved in correlation structure analysis
-impliedR1 <- mxAlgebra(L1 %&% P1, name="impliedR1")
+impliedR3 <- mxAlgebra(L3 %&% P3, name="impliedR3")
 
 ## wls() is the function to fitting correlation/covariance structure with WLS
-wls.fit1 <- wls(S=R1, acovS=acovR, n=n, impliedS=impliedR1, 
-                matrices=c(P1, L1), cor.analysis=TRUE, intervals.type="LB")
+wls.fit1 <- wls(S=R3, acovS=acovR3, n=n, impliedS=impliedR3, 
+                matrices=c(P3, L3), cor.analysis=TRUE, intervals.type="LB")
 summary(wls.fit1)
 @
+
 \subsection{Univariate and Multivariate Meta-Analysis} 
 Other useful functions are \code{meta()} and \code{reml()}. They conduct fixed-, random-, and mixed-effects meta-analysis. Please note that there is no estimate on the fixed-effects when \code{reml()} is used. The followings are some examples.
 

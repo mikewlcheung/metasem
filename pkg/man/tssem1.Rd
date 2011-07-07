@@ -7,7 +7,7 @@
 }
 \usage{
 tssem1(my.df, n, start.values, cor.analysis = TRUE, model.name,
-       suppressWarnings = TRUE, ...)
+       cluster=NULL, suppressWarnings = TRUE, ...)
 }
 \arguments{
   \item{my.df}{A list of correlation/covariance matrices
@@ -21,7 +21,10 @@ tssem1(my.df, n, start.values, cor.analysis = TRUE, model.name,
   \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. If it is missing, the default is "TSSEM1
 	Analysis of Correlation Matrix" for \code{cor.analysis=TRUE} and
 	"TSSEM1 Analysis of Covariance Matrix" for \code{cor.analysis=FALSE}
-	}
+  }
+  \item{cluster}{A vector of characters or numbers indicating the
+	clusters. Analyses will be conducted for each cluster.
+  }
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
 	suppressed. Argument to be passed to \code{\link[OpenMx]{mxRun}}.}
   \item{\dots}{Further arguments to be passed to \code{\link[OpenMx]{mxRun}}
@@ -31,6 +34,8 @@ tssem1(my.df, n, start.values, cor.analysis = TRUE, model.name,
 }
 \value{
   \item{call}{The matched call}
+  \item{cor.analysis}{Logical. Whether it is analysis of correlation or
+	analysis of covariance matrices}
   \item{data}{A list of correlation/covariance matrices from input}
   \item{pooledS}{The pooled correlation/covariance matrix}
   \item{acovS }{The asymptotic sampling covariance matrix of the pooled
@@ -51,7 +56,8 @@ Cheung, M. W. L., & Chan, W. (2009). A two-stage approach to synthesizing covari
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
 \note{It assumes that there is no missing values in the first
-  study.
+  study. If the \code{cluster} argument is used, it returns a list of
+  results based for each cluster.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

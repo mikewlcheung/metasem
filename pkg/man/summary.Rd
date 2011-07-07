@@ -1,6 +1,8 @@
 \name{summary}
 \alias{summary.tssem1}
+\alias{summary.tssem1.cluster}
 \alias{summary.wls}
+\alias{summary.wls.cluster}
 \alias{summary.meta}
 \alias{summary.reml}
 \alias{print.summary.tssem1}
@@ -9,12 +11,15 @@
 \alias{print.summary.reml}
 \title{Summary Method for tssem1, wls and meta Objects
 }
-\description{It summaries results for either \code{tssem1}, \code{wls},
+\description{It summaries results for either \code{tssem1},
+  \code{tssem1.cluster}, \code{wls}, \code{wls.cluster},
   \code{meta} or \code{reml} objects.
 }
 \usage{
 \method{summary}{tssem1}(object, \dots)
+\method{summary}{tssem1.cluster}(object, \dots)
 \method{summary}{wls}(object, \dots)
+\method{summary}{wls.cluster}(object, \dots)
 \method{summary}{meta}(object, \dots)
 \method{summary}{reml}(object, \dots)
 \method{print.summary}{tssem1}(x, \dots)
@@ -24,7 +29,10 @@
 }
 \arguments{
   \item{object}{An object returned from either class
-	\code{\link[metaSEM]{tssem1}}, class \code{\link[metaSEM]{wls}}, 
+	\code{\link[metaSEM]{tssem1}},
+	\code{tssem1.cluster}, class
+	\code{\link[metaSEM]{wls}}, 
+	class \code{wls.cluster}, 
 	class \code{\link[metaSEM]{meta}} or class \code{\link[metaSEM]{reml}}.
 }
   \item{x}{An object returned from either class \code{summary.tssem1},

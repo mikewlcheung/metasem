@@ -1,5 +1,18 @@
-tssem1 <- function(my.df, n, start.values, cor.analysis = TRUE, model.name,
-                   suppressWarnings = TRUE, ...) {
+tssem1 <- function(my.df, n, start.values=NULL, cor.analysis=TRUE, model.name=NULL,
+                   cluster=NULL, suppressWarnings=TRUE, ...) {
+  if (!is.null(cluster)) {
+    data.cluster <- tapply(my.df, cluster, function(x) {x})
+    n.cluster <- tapply(n, cluster, function(x) {x})
+    out <- list()
+    for (i in 1:length(data.cluster)) {
+      ## Need to correct it to tssem1()
+      out[[i]] <- tssem1(data.cluster[[i]], n.cluster[[i]], start.values=start.values,
+                          cor.analysis=cor.analysis, model.name=model.name, ...)
+    }
+    names(out) <- names(data.cluster) 
+    class(out) <- "tssem1.cluster"
+    out
+  } else {  
     no.groups <- length(my.df)
     no.var <- max(sapply(my.df, ncol))
     var.names <- paste("x", 1:no.var, sep = "")
@@ -13,7 +26,7 @@ tssem1 <- function(my.df, n, start.values, cor.analysis = TRUE, model.name,
         stop(paste("Group(s) ", (1:no.groups)[isPD], " are not positive definite."), sep = "")
     
     ## Prepare starting values
-    if (missing(start.values)) {
+    if (is.null(start.values)) {
         sv <- .startValues(my.df, cor.analysis = cor.analysis)
     } else {
         sv <- start.values
@@ -40,7 +53,7 @@ tssem1 <- function(my.df, n, start.values, cor.analysis = TRUE, model.name,
         
         # Prepare matrices for calculations
         if (cor.analysis) {
-            if (missing(model.name)) model.name <- "TSSEM1 Analysis of Correlation Matrix"
+            if (is.null(model.name)) model.name <- "TSSEM1 Analysis of Correlation Matrix"
             S.matrix <- paste("S", i, " <- mxMatrix('Stand', nrow=", no.var.i, ", ncol=", 
                 no.var.i, ", free=TRUE, values=vechs(sv[!miss.index[[", i, "]],!miss.index[[", 
                 i, "]]]), name=\"S", i, "\", labels=vechs(ps.labels[!miss.index[[", 
@@ -64,7 +77,7 @@ tssem1 <- function(my.df, n, start.values, cor.analysis = TRUE, model.name,
             eval(parse(text = expC.algebra))
             eval(parse(text = g.model))
         } else {
-            if (missing(model.name)) model.name <- "TSSEM1 Analysis of Covariance Matrix"
+            if (is.null(model.name)) model.name <- "TSSEM1 Analysis of Covariance Matrix"
             S.matrix <- paste("S", i, " <- mxMatrix('Symm', nrow=", no.var.i, ", ncol=", 
                 no.var.i, ", free=TRUE, values=vech(sv[!miss.index[[", i, "]],!miss.index[[", 
                 i, "]]]), name=\"S", i, "\", labels=vech(ps.labels[!miss.index[[", 
@@ -139,12 +152,14 @@ tssem1 <- function(my.df, n, start.values, cor.analysis = TRUE, model.name,
     independentMinus2LL <- tryCatch(sum(.minus2LL(x=my.df, n=n, model="independent")), error = function(e) e)
     saturatedMinus2LL <- tryCatch(sum(.minus2LL(x=my.df, n=n, model="saturated")), error = function(e) e)
     
-    out <- list(call = match.call(), data=my.df, pooledS = pooledS, acovS = acovS, total.n = total.n, 
+    out <- list(call = match.call(), cor.analysis=cor.analysis, data=my.df, pooledS = pooledS,
+                acovS = acovS, total.n = total.n, 
                 modelMinus2LL = tssem1.fit@output$Minus2LogLikelihood,
                 independentMinus2LL = independentMinus2LL, saturatedMinus2LL = saturatedMinus2LL,
                 tssem1.fit = tssem1.fit)
     class(out) <- "tssem1"
     return(out)
+  }
 }
 
 
@@ -220,22 +235,33 @@ wls <- function(S, acovS, n, impliedS, matrices, cor.analysis = TRUE,
 }
 
 
-tssem2 <- function(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB"), model.name,
-                   suppressWarnings = TRUE, ...) {
-  if (!is.element("tssem1", class(tssem1.obj)))
-    stop("\"tssem1.obj\" must be an object of class \"tssem1\".")
-  # check the call to determine whether it is a correlation or covariance analysis
-  cor.analysis <- tssem1.obj$call[[match("cor.analysis", names(tssem1.obj$call))]]
-  # if not specified, the default in tssem1() is cor.analysis=TRUE
-  if (is.null(cor.analysis)) {
-     if (missing(model.name)) model.name <- "TSSEM2 Analysis of Correlation Structure"
-     cor.analysis <- TRUE
+tssem2 <- function(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB"),
+                   model.name=NULL, suppressWarnings = TRUE, ...) {
+  if (is.element("tssem1.cluster", class(tssem1.obj))) {
+    ## need to correct it to tssem2()
+    out <- lapply(tssem1.obj, tssem2, impliedS=impliedS, matrices=matrices,
+                  intervals.type=intervals.type, model.name=model.name,
+                  suppressWarnings=suppressWarnings, ...)
+    class(out) <- "wls.cluster"
+    out
   } else {
-     if (missing(model.name)) model.name <- "TSSEM2 Analysis of Covariance Structure"
-     # to handle symbolic F(T) vs. logical FALSE(TRUE)
-     cor.analysis <- as.logical(as.character(cor.analysis))
+    if (!is.element("tssem1", class(tssem1.obj)))
+      stop("\"tssem1.obj\" must be an object of class \"tssem1\".")
+    
+    # check the call to determine whether it is a correlation or covariance analysis
+    ## cor.analysis <- tssem1.obj$call[[match("cor.analysis", names(tssem1.obj$call))]]
+    ## # if not specified, the default in tssem1() is cor.analysis=TRUE
+    cor.analysis <- tssem1.obj$cor.analysis
+    if (cor.analysis==TRUE) {
+       if (is.null(model.name)) model.name <- "TSSEM2 Analysis of Correlation Structure"
+       ## cor.analysis <- TRUE
+    } else {
+       if (is.null(model.name)) model.name <- "TSSEM2 Analysis of Covariance Structure"
+       # to handle symbolic F(T) vs. logical FALSE(TRUE)
+       ## cor.analysis <- as.logical(as.character(cor.analysis))
+    }
+    wls(S=tssem1.obj$pooledS, acovS=tssem1.obj$acovS, n=tssem1.obj$total.n, impliedS=impliedS,
+        matrices=matrices, cor.analysis = cor.analysis, intervals.type = intervals.type,
+        model.name=model.name, suppressWarnings = suppressWarnings, ...)
   }
-  wls(S=tssem1.obj$pooledS, acovS=tssem1.obj$acovS, n=tssem1.obj$total.n, impliedS=impliedS,
-      matrices=matrices, cor.analysis = cor.analysis, intervals.type = intervals.type,
-      model.name=model.name, suppressWarnings = suppressWarnings, ...)
 }
