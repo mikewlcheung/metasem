@@ -489,15 +489,46 @@ print.reml <- function(x, ...) {
     print(summary.default(x), ...)
 }
 
-vcov.meta <- function(object, ...) {
+## vcov.meta <- function(object, ...) {
+##     if (!is.element("meta", class(object)))
+##     stop("\"object\" must be an object of class \"meta\".")
+
+##     # labels of the parameters    
+##     my.name <- summary(object$meta.fit)$parameters$name
+##     my.name <- my.name[!is.na(my.name)]
+##     acov <- tryCatch( 2*solve(object$meta@output$calculatedHessian[my.name, my.name]), error = function(e) e) 
+    
+##     if (inherits(acov, "error")) {
+##       cat("Error in solving the Hessian matrix.\n")
+##       stop(print(acov))
+##     } else {
+##       return(acov)
+##     }
+## }
+
+vcov.meta <- function(object, select=c("all", "fixed", "random"), ...) {
     if (!is.element("meta", class(object)))
     stop("\"object\" must be an object of class \"meta\".")
 
+    no.y <- object$no.y
+    no.x <- object$no.x
     # labels of the parameters    
     my.name <- summary(object$meta.fit)$parameters$name
     my.name <- my.name[!is.na(my.name)]
-    acov <- tryCatch( 2*solve(object$meta@output$calculatedHessian[my.name, my.name]), error = function(e) e) 
     
+    select <- match.arg(select)
+    switch( select,
+           ## all = my.name <- my.name,
+           fixed = if (no.x==0) {
+             my.name <- paste("Intercept", 1:no.y, sep="")
+           } else {
+             my.name <- c( paste("Intercept", 1:no.y, sep=""),
+                           outer(1:no.y, 1:no.x, function(y, x) paste("Slope", y,"_", x, sep = "")) )
+           },
+           random = my.name <- vech(outer(1:no.y, 1:no.y, function(x,y) { paste("Tau2_",x,"_",y,sep="")}))
+           )
+
+    acov <- tryCatch( 2*solve(object$meta@output$calculatedHessian[my.name, my.name]), error = function(e) e)
     if (inherits(acov, "error")) {
       cat("Error in solving the Hessian matrix.\n")
       stop(print(acov))
@@ -505,6 +536,7 @@ vcov.meta <- function(object, ...) {
       return(acov)
     }
 }
+
 
 vcov.tssem1 <- function(object, ...) {
     if (!is.element("tssem1", class(object)))
@@ -552,13 +584,36 @@ vcov.reml <- function(object, ...) {
     }
 }
   
-coef.meta <- function(object, ...) {
-    if (!is.element("meta", class(object)))
+## coef.meta <- function(object, ...) {
+##     if (!is.element("meta", class(object)))
+##     stop("\"object\" must be an object of class \"meta\".")
+##     # labels of the parameters    
+##     my.name <- summary(object$meta.fit)$parameters$name
+##     my.name <- my.name[!is.na(my.name)]
+##     object$meta.fit@output$estimate[my.name]
+## }
+
+coef.meta <- function(object, select=c("all", "fixed", "random"), ...) {
+  if (!is.element("meta", class(object)))
     stop("\"object\" must be an object of class \"meta\".")
-    # labels of the parameters    
-    my.name <- summary(object$meta.fit)$parameters$name
-    my.name <- my.name[!is.na(my.name)]
-    object$meta.fit@output$estimate[my.name]
+  no.y <- object$no.y
+  no.x <- object$no.x
+  # labels of the parameters    
+  my.name <- summary(object$meta.fit)$parameters$name
+  my.name <- my.name[!is.na(my.name)]
+
+  select <- match.arg(select)
+  switch( select,
+         ## all = my.name <- my.name,
+         fixed = if (no.x==0) {
+           my.name <- paste("Intercept", 1:no.y, sep="")
+         } else {
+           my.name <- c( paste("Intercept", 1:no.y, sep=""),
+                         outer(1:no.y, 1:no.x, function(y, x) paste("Slope", y,"_", x, sep = "")) )
+         },
+         random = my.name <- vech(outer(1:no.y, 1:no.y, function(x,y) { paste("Tau2_",x,"_",y,sep="")}))
+         )  
+  object$meta.fit@output$estimate[my.name]
 }
 
 coef.tssem1 <- function(object, ...) {

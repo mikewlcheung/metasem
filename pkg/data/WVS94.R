@@ -4,7 +4,7 @@ country=c("France","Britain","W Germany","Italy","Netherlands","Denmark",
   "S Korea","Poland","Switzerland","Brazil","Nigeria","Chile","Belarus",
   "India","Czech","E Germany","Slovenia","Bulgaria","Romania","China",
   "Portugal","Austria","Turkey","Lithuania","Latvia","Estonia","Russia")
-WVS94 <- matrix(
+wvs94 <- matrix(
 c(-0.037603022,-0.030487011,0.004041305,0.001757647,0.004118119,19490,
 0.02004794,0.044454991,0.00272378,0.001185755,0.002746361,16100,
 0.008104576,0.077451409,0.001921298,0.001021114,0.001943832,22320,
@@ -48,9 +48,9 @@ c(-0.037603022,-0.030487011,0.004041305,0.001757647,0.004118119,19490,
 0.101282579,0.182666714,0.004058874,0.001233074,0.004152001,3830,
 -0.006700282,0.193170718,0.002140248,0.000635116,0.002228264,3220),
 ncol=6, byrow=TRUE)
-dimnames(WVS94) <- list(NULL, c("lifesat","lifecon","lifesat.var","inter.cov","lifecon.var","gnp"))
-WVS94 <- data.frame(country, WVS94)
-WVS94 <- WVS94[order(WVS94$country), ]
-rownames(WVS94) <- NULL
+dimnames(wvs94) <- list(NULL, c("lifesat","lifecon","lifesat.var","inter.cov","lifecon.var","gnp"))
+wvs94 <- data.frame(country, wvs94)
+wvs94 <- wvs94[order(wvs94$country), ]
+rownames(wvs94) <- NULL
 rm(country)
 

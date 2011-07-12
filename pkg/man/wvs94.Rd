@@ -1,5 +1,5 @@
-\name{WVS94}
-\alias{WVS94}
+\name{wvs94}
+\alias{wvs94}
 \docType{data}
 \title{Forty-four Studies from Cheung (2011)}
 \description{
@@ -10,7 +10,7 @@ Standardized mean difference (SMD) between males and females on life
 satisfaction and on life control in each country were calculated as the effect sizes. Positive values indicate that males have higher scores than females do.
 %%  ~~ A concise (1-5 lines) description of the dataset. ~~
 }
-\usage{data(WVS94)}
+\usage{data(wvs94)}
 \format{
 }
 \details{
@@ -37,7 +37,7 @@ satisfaction and on life control in each country were calculated as the effect s
   equation models. \emph{Manuscript submitted for publication.}
 }
 \examples{
-data(WVS94)
-## maybe str(WVS94) ; plot(WVS94) ...
+data(wvs94)
+## maybe str(wvs94) ; plot(wvs94) ...
 }
 \keyword{datasets}

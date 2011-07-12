@@ -18,7 +18,7 @@
 \method{coef}{tssem1.cluster}(object, \dots)
 \method{coef}{wls}(object, \dots)
 \method{coef}{wls.cluster}(object, \dots)
-\method{coef}{meta}(object, \dots)
+\method{coef}{meta}(object, select = c("all", "fixed", "random"), \dots)
 \method{coef}{reml}(object, \dots)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -28,7 +28,11 @@
 	\code{tssem1.cluster},
 	class \code{\link[metaSEM]{wls}}, class \code{wls.cluster},
 	class \code{\link[metaSEM]{meta}} or class \code{\link[metaSEM]{reml}}
-}
+  }
+  \item{select}{Select "all" for all parameters, "fixed" for the
+  fixed-effects parameters or "random" for the random-effects
+  parameters. 
+}  
   \item{\dots}{Further arguments; currently none is used}
 }
 \details{
@@ -54,6 +58,9 @@
 ## Random-effects meta-analysis
 model1 <- meta(y=yi, v=vi, data=Hox02)
 coef(model1)
+
+## Fixed-effects only
+coef(model1, select="fixed")
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

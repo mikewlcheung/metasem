@@ -17,7 +17,7 @@
 \method{vcov}{tssem1.cluster}(object, \dots)
 \method{vcov}{wls}(object, \dots)
 \method{vcov}{wls.cluster}(object, \dots)
-\method{vcov}{meta}(object, \dots)
+\method{vcov}{meta}(object, select = c("all", "fixed", "random"), \dots)
 \method{vcov}{reml}(object, \dots)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -25,7 +25,11 @@
   \item{object}{An object returned from either class
 	\code{\link[metaSEM]{tssem1}}, class \code{tssem1.cluster},
 	class \code{\link[metaSEM]{wls}}, class \code{wls.cluster}, class \code{\link[metaSEM]{meta}} or class \code{\link[metaSEM]{reml}}
-}
+  }
+  \item{select}{Select "all" for all parameters, "fixed" for the
+  fixed-effects parameters or "random" for the random-effects
+  parameters. 
+}  
   \item{\dots}{Further arguments; currently none is used}
 }
 \details{
@@ -50,6 +54,9 @@
 ## Random-effects meta-analysis
 model1 <- meta(y=yi, v=vi, data=Hox02)
 vcov(model1)
+
+## Fixed-effects only
+vcov(model1, select="fixed")
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
