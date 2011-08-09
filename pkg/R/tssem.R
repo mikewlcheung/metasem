@@ -1,16 +1,16 @@
-tssem1 <- function(my.df, n, start.values=NULL, cor.analysis=TRUE, model.name=NULL,
-                   cluster=NULL, suppressWarnings=TRUE, ...) {
+.tssemFE1 <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
+                      cluster=NULL, suppressWarnings=TRUE, ...) {
   if (!is.null(cluster)) {
     data.cluster <- tapply(my.df, cluster, function(x) {x})
     n.cluster <- tapply(n, cluster, function(x) {x})
     out <- list()
     for (i in 1:length(data.cluster)) {
       ## Need to correct it to tssem1()
-      out[[i]] <- tssem1(data.cluster[[i]], n.cluster[[i]], start.values=start.values,
-                          cor.analysis=cor.analysis, model.name=model.name, ...)
+      out[[i]] <- tssem1(data.cluster[[i]], n.cluster[[i]], 
+                         cor.analysis=cor.analysis, model.name=model.name, ...)
     }
     names(out) <- names(data.cluster) 
-    class(out) <- "tssem1.cluster"
+    class(out) <- "tssemFE1.cluster"
     out
   } else {  
     no.groups <- length(my.df)
@@ -26,12 +26,8 @@ tssem1 <- function(my.df, n, start.values=NULL, cor.analysis=TRUE, model.name=NU
         stop(paste("Group(s) ", (1:no.groups)[isPD], " are not positive definite."), sep = "")
     
     ## Prepare starting values
-    if (is.null(start.values)) {
-        sv <- .startValues(my.df, cor.analysis = cor.analysis)
-    } else {
-        sv <- start.values
-    }
-    
+    sv <- .startValues(my.df, cor.analysis = cor.analysis)
+
     ## Index for missing variables: only check the diagonals only!!!
     miss.index <- lapply(my.df, function(x) { is.na(diag(x)) })
     
@@ -157,13 +153,56 @@ tssem1 <- function(my.df, n, start.values=NULL, cor.analysis=TRUE, model.name=NU
                 modelMinus2LL = tssem1.fit@output$Minus2LogLikelihood,
                 independentMinus2LL = independentMinus2LL, saturatedMinus2LL = saturatedMinus2LL,
                 tssem1.fit = tssem1.fit)
-    class(out) <- "tssem1"
+    class(out) <- "tssemFE1"
     return(out)
   }
 }
 
+.tssemRE1 <- function(my.df, n, cor.analysis=TRUE, RE_diag=TRUE, RE.startvalues=0.1, RE.lbound = 1e-10,
+                      model.name=NULL, suppressWarnings=TRUE, ...) {
+  ## Calculate the asymptotic sampling covariance matrix of the correlation matrix
+  acovR <- asyCov(x=my.df, n=n, cor.analysis=cor.analysis)
+  ## Convert the correlation matrices into effect sizes; default of diag=FALSE for cor matrix
+  ES <- list2matrix(x=my.df, diag=!cor.analysis)
+  ## no. of effect sizes
+  no.es <- ncol(ES)
 
+  if (is.null(model.name)) {
+    if (cor.analysis) {
+      model.name <- "TSSEM1 (Random Effects Model) Analysis of Correlation Matrix"
+    } else {
+      model.name <- "TSSEM1 (Random Effects Model) Analysis of Covariance Matrix"
+    }
+  }
+  
+  if (RE_diag==TRUE) {
+    ## No covariance between random effects
+    meta.fit <- meta(y=ES, v=acovR, model.name=model.name,
+                     RE.constraints=diag(x=paste(RE.startvalues, "*Tau2_", 1:no.es, "_", 1:no.es, sep=""),
+                                         nrow=no.es, ncol=no.es))    
+  } else {
+    meta.fit <- meta(y=ES, v=acovR, model.name=model.name, RE.startvalues=RE.startvalues, RE.lbound = RE.lbound)
+  }
 
+  out <- list(call = match.call(), total.n=sum(n), cor.analysis=cor.analysis, RE_diag=RE_diag, no.es=no.es,
+              meta.fit=meta.fit)
+  class(out) <- "tssemRE1"
+  return(out)
+}
+
+tssem1 <- function(my.df, n, method=c("FE", "RE"), cor.analysis=TRUE, cluster=NULL,
+                   RE_diag=TRUE, RE.startvalues=0.1, RE.lbound = 1e-10,
+                   model.name=NULL, suppressWarnings=TRUE, ...) {
+  method <- match.arg(method)
+  switch(method,
+    FE = out <- .tssemFE1(my.df=my.df, n=n, cor.analysis=cor.analysis, model.name=model.name,
+                          cluster=cluster, suppressWarnings=suppressWarnings, ...),
+    RE = out <- .tssemRE1(my.df=my.df, n=n, cor.analysis=cor.analysis, RE_diag=RE_diag,
+                          RE.startvalues=RE.startvalues, RE.lbound=RE.lbound,
+                          model.name=model.name, suppressWarnings=suppressWarnings, ...) )
+  out  
+}
+  
 wls <- function(S, acovS, n, impliedS, matrices, cor.analysis = TRUE,
                 intervals.type =c("z", "LB"), model.name, suppressWarnings = TRUE, ...) {
     impliedS@name <- "impliedS"
@@ -237,31 +276,43 @@ wls <- function(S, acovS, n, impliedS, matrices, cor.analysis = TRUE,
 
 tssem2 <- function(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB"),
                    model.name=NULL, suppressWarnings = TRUE, ...) {
-  if (is.element("tssem1.cluster", class(tssem1.obj))) {
-    ## need to correct it to tssem2()
-    out <- lapply(tssem1.obj, tssem2, impliedS=impliedS, matrices=matrices,
-                  intervals.type=intervals.type, model.name=model.name,
-                  suppressWarnings=suppressWarnings, ...)
-    class(out) <- "wls.cluster"
-    out
-  } else {
-    if (!is.element("tssem1", class(tssem1.obj)))
-      stop("\"tssem1.obj\" must be an object of class \"tssem1\".")
-    
-    # check the call to determine whether it is a correlation or covariance analysis
-    ## cor.analysis <- tssem1.obj$call[[match("cor.analysis", names(tssem1.obj$call))]]
-    ## # if not specified, the default in tssem1() is cor.analysis=TRUE
-    cor.analysis <- tssem1.obj$cor.analysis
-    if (cor.analysis==TRUE) {
-       if (is.null(model.name)) model.name <- "TSSEM2 Analysis of Correlation Structure"
-       ## cor.analysis <- TRUE
-    } else {
-       if (is.null(model.name)) model.name <- "TSSEM2 Analysis of Covariance Structure"
-       # to handle symbolic F(T) vs. logical FALSE(TRUE)
-       ## cor.analysis <- as.logical(as.character(cor.analysis))
-    }
-    wls(S=tssem1.obj$pooledS, acovS=tssem1.obj$acovS, n=tssem1.obj$total.n, impliedS=impliedS,
-        matrices=matrices, cor.analysis = cor.analysis, intervals.type = intervals.type,
-        model.name=model.name, suppressWarnings = suppressWarnings, ...)
-  }
+  if ( !is.element( class(tssem1.obj), c("tssemFE1.cluster", "tssemFE1", "tssemRE1")) )
+      stop("\"tssem1.obj\" must be of neither class \"tssemFE1.cluster\", class \"tssemFE1\" or \"tssemRE1\".")
+      
+  switch(class(tssem1.obj),
+         tssemFE1.cluster = { out <- lapply(tssem1.obj, tssem2, impliedS=impliedS, matrices=matrices,
+                                            intervals.type=intervals.type, model.name=model.name,
+                                            suppressWarnings=suppressWarnings, ...)
+                              class(out) <- "wls.cluster" },
+         tssemFE1 = { cor.analysis <- tssem1.obj$cor.analysis
+                      # check the call to determine whether it is a correlation or covariance analysis
+                      ## cor.analysis <- tssem1.obj$call[[match("cor.analysis", names(tssem1.obj$call))]]
+                      ## # if not specified, the default in tssem1() is cor.analysis=TRUE
+                      if (cor.analysis==TRUE) {
+                        if (is.null(model.name)) model.name <- "TSSEM2 (Fixed Effects Model) Analysis of Correlation Structure"
+                      } else {
+                        if (is.null(model.name)) model.name <- "TSSEM2 (Fixed Effects Model) Analysis of Covariance Structure"
+                      # to handle symbolic F(T) vs. logical FALSE(TRUE)
+                      ## cor.analysis <- as.logical(as.character(cor.analysis))
+                      }
+                      out <- wls(S=tssem1.obj$pooledS, acovS=tssem1.obj$acovS, n=tssem1.obj$total.n,
+                                 impliedS=impliedS, matrices=matrices, cor.analysis=cor.analysis,
+                                 intervals.type=intervals.type, model.name=model.name,
+                                 suppressWarnings = suppressWarnings, ...) },
+         tssemRE1 = { cor.analysis <- tssem1.obj$cor.analysis
+                     ## Extract the pooled correlation matrix
+                      pooledS <- vec2symMat( coef(tssem1.obj$meta.fit, select="fixed"), diag=!cor.analysis)
+                     ## Extract the asymptotic covariance matrix of the pooled correlations
+                      acovS <- vcov(tssem1.obj$meta.fit, select="fixed")
+                      
+                      if (cor.analysis==TRUE) {
+                        if (is.null(model.name)) model.name <- "TSSEM2 (Random Effects Model) Analysis of Correlation Structure"
+                      } else {
+                        if (is.null(model.name)) model.name <- "TSSEM2 (Random Effects Model) Analysis of Covariance Structure"
+                      }
+                      out <- wls(S=pooledS, acovS=acovS, n=tssem1.obj$total.n, impliedS=impliedS,
+                                 matrices=matrices, cor.analysis=cor.analysis, intervals.type=intervals.type,
+                                 model.name=model.name, suppressWarnings = suppressWarnings, ...) })
+  out
 }
+    

@@ -23,16 +23,22 @@ asyCov <- function(x, n, cor.analysis = TRUE, dropNA = FALSE, as.matrix = TRUE,
           # cov/var of psOldNames
           psCovNames <- paste("cov(", outer(psOldNames, psOldNames, paste, sep = "_"), ")", sep="")
           psCovNames <- vech(matrix(psCovNames, nrow=length(psOldNames), ncol=length(psOldNames)))
-          out.list <- lapply(x, asyCov, n = n, cor.analysis = cor.analysis, silent = silent,
-                             suppressWarnings = suppressWarnings, dropNA = FALSE, ...)
+
+          ## Fixed a bug before v.0.7-0 that uses only the first n 
+          ## out.list <- lapply(x, asyCov, n = n, cor.analysis = cor.analysis, silent = silent,
+          ##                    suppressWarnings = suppressWarnings, dropNA = FALSE, ...)
+          out.list <- mapply(asyCov, x, n = n, cor.analysis = cor.analysis, silent = silent,
+                             suppressWarnings = suppressWarnings, dropNA = FALSE, ..., SIMPLIFY=FALSE)          
           #output
           out <- t(sapply(out.list, function(x) {(vech(x))}))
           dimnames(out)[[2]] <- psCovNames
           out
         } else {
           #output
-          lapply(x, asyCov, n = n, cor.analysis = cor.analysis, silent = silent,
-                             suppressWarnings = suppressWarnings, dropNA = dropNA, ...)
+          ## lapply(x, asyCov, n = n, cor.analysis = cor.analysis, silent = silent,
+          ##                    suppressWarnings = suppressWarnings, dropNA = dropNA, ...)
+          mapply(asyCov, x, n = n, cor.analysis = cor.analysis, silent = silent,
+                             suppressWarnings = suppressWarnings, dropNA = dropNA, ..., SIMPLIFY=FALSE)          
         }
         
     } else {

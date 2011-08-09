@@ -1,21 +1,23 @@
 \name{coef}
-\alias{coef.tssem1}
-\alias{coef.tssem1.cluster}
+\alias{coef.tssemFE1}
+\alias{coef.tssemFE1.cluster}
+\alias{coef.tssemRE1}
 \alias{coef.wls}
 \alias{coef.wls.cluster}
 \alias{coef.meta}
 \alias{coef.reml}
 
-\title{Extract Parameter Estimates from tssem1, tssem1.cluster, wls,
-  wls.cluster, meta and reml Objects
+\title{Extract Parameter Estimates from tssemFE1, tssemFE1.cluster,
+  tssemRE1, wls, wls.cluster, meta and reml Objects
 }
 \description{It extracts the parameter estimates from either
-  \code{tssem1}, \code{tssem1.cluster}, \code{wls}, \code{wls.cluster},
+  \code{tssemFE1}, \code{tssemFE1.cluster}, \code{tssemRE1}, \code{wls}, \code{wls.cluster},
   \code{meta} or \code{reml} objects.
 }
 \usage{
-\method{coef}{tssem1}(object, \dots)
-\method{coef}{tssem1.cluster}(object, \dots)
+\method{coef}{tssemFE1}(object, \dots)
+\method{coef}{tssemFE1.cluster}(object, \dots)
+\method{coef}{tssemRE1}(object, select = c("all", "fixed", "random"), \dots)
 \method{coef}{wls}(object, \dots)
 \method{coef}{wls.cluster}(object, \dots)
 \method{coef}{meta}(object, select = c("all", "fixed", "random"), \dots)
@@ -24,10 +26,8 @@
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{object}{An object returned from either class
-	\code{\link[metaSEM]{tssem1}}, class
-	\code{tssem1.cluster},
-	class \code{\link[metaSEM]{wls}}, class \code{wls.cluster},
-	class \code{\link[metaSEM]{meta}} or class \code{\link[metaSEM]{reml}}
+	\code{tssemFE1}, class \code{tssemFE1.cluster}, class \code{tssemRE1}, 
+	class \code{wls}, class \code{wls.cluster}, class \code{meta} or class \code{reml}
   }
   \item{select}{Select "all" for all parameters, "fixed" for the
   fixed-effects parameters or "random" for the random-effects

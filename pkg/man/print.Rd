@@ -1,15 +1,20 @@
 \name{print}
-\alias{print.tssem1}
+\alias{print.tssemFE1}
+\alias{print.tssemFE1.cluster}
+\alias{print.tssemRE1}
 \alias{print.wls}
 \alias{print.meta}
 \alias{print.reml}
-\title{Print Methods for tssem1, wls, meta and reml Objects 
+\title{Print Methods for \code{tssemFE1}, \code{tssemFE1.cluster}, \code{tssemRE1}, \code{wls}, \code{meta} and \code{reml} Objects 
 }
-\description{Print methods for either \code{tssem1}, \code{wls},
+\description{Print methods for either \code{tssemFE1},
+  \code{tssemFE1.cluster}, \code{tssemRE1}, \code{wls},
   \code{meta} or \code{reml} objects.
 }
 \usage{
-\method{print}{tssem1}(x, \dots)
+\method{print}{tssemFE1}(x, \dots)
+\method{print}{tssemFE1.cluster}(x, \dots)
+\method{print}{tssemRE1}(x, \dots)
 \method{print}{wls}(x, \dots)
 \method{print}{meta}(x, \dots)
 \method{print}{reml}(x, \dots)
@@ -17,8 +22,8 @@
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{An object returned from either class
-	\code{\link[metaSEM]{tssem1}}, class \code{\link[metaSEM]{wls}}, 
-	class \code{\link[metaSEM]{meta}} or class \code{\link[metaSEM]{reml}}
+	\code{tssemFE1}, class \code{tssemFE1.cluster}, class \code{tssemRE1},
+	class \code{wls}, class \code{meta} or class \code{reml}
 }
   \item{\dots}{Further arguments to be passed to \code{summary.default}
 }

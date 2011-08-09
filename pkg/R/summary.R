@@ -116,9 +116,9 @@ print.summary.wls <- function(x, ...) {
     cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")
 }
 
-summary.tssem1 <- function(object, ...) {
-    if (!is.element("tssem1", class(object)))
-    stop("\"object\" must be an object of class \"tssem1\".")
+summary.tssemFE1 <- function(object, ...) {
+    if (!is.element("tssemFE1", class(object)))
+    stop("\"object\" must be an object of class \"tssemFE1\".")
     
     # it relies on the model name
     ## if (!is.na(match("TSSEM1 Analysis of Correlation Matrix", object$tssem1.fit@name))) {
@@ -201,13 +201,13 @@ summary.tssem1 <- function(object, ...) {
     out <- list(call=object$call, coefficients=coefficients, stat=stat, Mx.status1=Mx.status1,
                 R.version=as.character(getRversion()), OpenMx.version=libMatrix["OpenMx", "Version"],
                 metaSEM.version=libMatrix["metaSEM", "Version"], date=date())
-    class(out) <- "summary.tssem1"
+    class(out) <- "summary.tssemFE1"
     out
 }
    
-print.summary.tssem1 <- function(x, ...) {
-    if (!is.element("summary.tssem1", class(x)))
-    stop("\"x\" must be an object of class \"summary.tssem1\".")
+print.summary.tssemFE1 <- function(x, ...) {
+    if (!is.element("summary.tssemFE1", class(x)))
+    stop("\"x\" must be an object of class \"summary.tssemFE1\".")
     ## call.text <- deparse(x$call)
     
     ## cat("Call:\n")
@@ -236,9 +236,9 @@ print.summary.tssem1 <- function(x, ...) {
     cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")    
 }
 
-print.tssem1 <- function(x, ...) {
-    if (!is.element("tssem1", class(x)))
-      stop("\"x\" must be an object of class \"tssem1\".")
+print.tssemFE1 <- function(x, ...) {
+    if (!is.element("tssemFE1", class(x)))
+      stop("\"x\" must be an object of class \"tssem1FE\".")
     ## call.text <- deparse(x$call)
 
     ## cat("Call:\n")
@@ -256,6 +256,33 @@ print.tssem1 <- function(x, ...) {
     print(summary.default(x), ...)
 }
 
+print.tssemFE1.cluster <- function(x, ...) {
+    if (!is.element("tssemFE1.cluster", class(x)))
+      stop("\"x\" must be an object of class \"tssem1FE.cluster\".")
+
+    cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"), 
+        "\n\n", sep = "")    
+    cat("Structure:\n")
+    print(summary.default(x), ...)
+}
+
+print.tssemRE1 <- function(x, ...) {
+    if (!is.element("tssemRE1", class(x)))
+      stop("\"x\" must be an object of class \"tssem1RE\".")
+    ## call.text <- deparse(x$call)
+
+    cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"), 
+        "\n\n", sep = "")    
+    cat("Structure:\n")
+    print(summary.default(x), ...)
+}
+
+summary.tssemRE1 <- function(object, ...) {
+    if (!is.element("tssemRE1", class(object)))
+    stop("\"object\" must be an object of class \"tssemRE1\".")
+    summary.meta(object$meta.fit)
+}
+   
 print.wls <- function(x, ...) {
     if (!is.element("wls", class(x)))
       stop("\"x\" must be an object of class \"wls\".")
@@ -538,17 +565,23 @@ vcov.meta <- function(object, select=c("all", "fixed", "random"), ...) {
 }
 
 
-vcov.tssem1 <- function(object, ...) {
-    if (!is.element("tssem1", class(object)))
-    stop("\"object\" must be an object of class \"tssem1\".")
+vcov.tssemFE1 <- function(object, ...) {
+    if (!is.element("tssemFE1", class(object)))
+    stop("\"object\" must be an object of class \"tssemFE1\".")
     object$acovS
 }
 
-vcov.tssem1.cluster <- function(object, ...) {
-    if (!is.element("tssem1.cluster", class(object)))
-    stop("\"object\" must be an object of class \"tssem1.cluster\".")
-    lapply(object, vcov.tssem1)
+vcov.tssemFE1.cluster <- function(object, ...) {
+    if (!is.element("tssemFE1.cluster", class(object)))
+    stop("\"object\" must be an object of class \"tssemFE1.cluster\".")
+    lapply(object, vcov.tssemFE1)
 }  
+
+vcov.tssemRE1 <- function(object, select=c("all", "fixed", "random"), ...) {
+  if (!is.element("tssemRE1", class(object)))
+    stop("\"object\" must be an object of class \"tssemRE1\".")
+  vcov.meta(object$meta.fit, select, ...)
+}
 
 vcov.wls <- function(object, ...) {
     if (!is.element("wls", class(object)))
@@ -561,6 +594,7 @@ vcov.wls <- function(object, ...) {
     }
     acovS
 }
+
 vcov.wls.cluster <- function(object, ...) {
     if (!is.element("wls.cluster", class(object)))
     stop("\"object\" must be an object of class \"wls.cluster\".")
@@ -616,16 +650,22 @@ coef.meta <- function(object, select=c("all", "fixed", "random"), ...) {
   object$meta.fit@output$estimate[my.name]
 }
 
-coef.tssem1 <- function(object, ...) {
-    if (!is.element("tssem1", class(object)))
-    stop("\"object\" must be an object of class \"tssem1\".")
+coef.tssemFE1 <- function(object, ...) {  
+    if (!is.element("tssemFE1", class(object)))
+    stop("\"object\" must be an object of class \"tssemFE1\".")
     object$pooledS
 }
 
-coef.tssem1.cluster <- function(object, ...) {
-    if (!is.element("tssem1.cluster", class(object)))
-    stop("\"object\" must be an object of class \"tssem1.cluster\".")
-    lapply(object, coef.tssem1)
+coef.tssemRE1 <- function(object, select=c("all", "fixed", "random"), ...) {
+  if (!is.element("tssemRE1", class(object)))
+    stop("\"object\" must be an object of class \"tssemRE1\".")
+  coef.meta(object$meta.fit, select, ...)
+}
+
+coef.tssemFE1.cluster <- function(object, ...) {
+    if (!is.element("tssemFE1.cluster", class(object)))
+    stop("\"object\" must be an object of class \"tssemFE1.cluster\".")
+    lapply(object, coef.tssemFE1)
 }
   
 coef.wls <- function(object, ...) {
@@ -667,10 +707,10 @@ anova.reml <- function(object, ..., all=FALSE) {
   mxCompare(base=base, comparison=comparison, all=all)
 }
 
-summary.tssem1.cluster <- function(object, ...) {
-    if (!is.element("tssem1.cluster", class(object)))
-    stop("\"object\" must be an object of class \"tssem1.cluster\".")
-    lapply(object, summary.tssem1)
+summary.tssemFE1.cluster <- function(object, ...) {
+    if (!is.element("tssemFE1.cluster", class(object)))
+    stop("\"object\" must be an object of class \"tssemFE1.cluster\".")
+    lapply(object, summary.tssemFE1)
 }
 
 summary.wls.cluster <- function(object, ...) {

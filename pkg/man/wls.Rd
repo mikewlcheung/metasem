@@ -4,7 +4,7 @@
 \title{Conduct a Correlation/Covariance Structure Analysis with WLS
 }
 \description{It fits a correlation or covariance structure with
-  weighted least squares (WLS) where the inverse of the asymptotic covariance matrix is
+  weighted least squares (WLS) estimation method where the inverse of the asymptotic covariance matrix is
   used as the weight matrix. \code{tssem2} conducts the second stage
   analysis of the two-stage strutural equation modeling (TSSEM). \code{tssem2} is a wrapper of \code{wls}.
 }
@@ -16,7 +16,8 @@ tssem2(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB"),
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{tssem1.obj}{An object returned from \code{\link[metaSEM]{tssem1}}}.
+  \item{tssem1.obj}{An object of either class
+	\code{tssemFE1}, class \code{tssemFE1.cluster} or class \code{tssemRE1}}
   \item{S}{A \eqn{p}{p} x \eqn{p}{p} sample correlation/covariance matrix
 	where \eqn{p}{p} is the number of variables.
 }
@@ -66,7 +67,10 @@ by \code{.indepwlsChisq}}
 }
 \references{
 Bentler, P.M., & Savalei, V. (2010). Analysis of correlation structures: current status and open problems. In Kolenikov, S., Thombs, L., & Steinley, D. (Eds.). \emph{Recent Methodological Developments in Social Science Statistics} (pp. 1-36). Hoboken, NJ: Wiley. 
-  
+
+  Cheung, M. W. L. (2011). Applications of meta-analytic structural
+  equation modeling. \emph{Manuscript in preparation.}
+
 Cheung, M. W. L., & Chan, W. (2005). Meta-analytic structural equation modeling: A two-stage approach. \emph{Psychological Methods}, \bold{10}, 40-64.
 
 Cheung, M. W. L., & Chan, W. (2009). A two-stage approach to synthesizing covariance matrices in meta-analytic structural equation modeling. \emph{Structural Equation Modeling}, \bold{16}, 28-53.
@@ -161,8 +165,9 @@ wls.fit3 <- wls(S=S3, acovS=acovS3, n=n, impliedS=impliedS3,
 summary(wls.fit3)
 
 
-##### Example of tssem2
-digman1 <- tssem1(Digman97$data, Digman97$n, model.name="TSSEM1 Digman97")
+##### Example of Fixed-effects TSSEM
+fixed1 <- tssem1(Digman97$data, Digman97$n)
+summary(fixed1)
 
 P4 <- mxMatrix("Stand", ncol=2, nrow=2, value=.2, free=TRUE, name="P4")
 L4 <- mxMatrix("Full", ncol=2, nrow=5, value=c(0,.3,.3,.3,0,.3,0,0,0,.3),
@@ -172,19 +177,25 @@ name="L4")
 ## Model to be fitted
 impliedR4 <- mxAlgebra(L4 \%&\% P4, name="impliedR4")
 
-digman2 <- tssem2(digman1, impliedS=impliedR4, matrices=c(P4, L4),
+fixed2 <- tssem2(fixed1, impliedS=impliedR4, matrices=c(P4, L4),
                   model.name="TSSEM2 Digman97")
-summary(digman2)
+summary(fixed2)
 
-% \dontrun{
-% ##### Example of tssem2 with several clusters
-% data.cluster <- tapply(Digman97$data, Digman97$cluster, function(x) {x})
-% n.cluster <- tapply(Digman97$n, Digman97$cluster, function(x) {x})
-% digman1.cluster <- mapply(tssem1, my.df=data.cluster, n=n.cluster, SIMPLIFY=FALSE)
-% lapply(digman1.cluster, summary)
+##### Example of Fixed-effects TSSEM with several clusters
+data.cluster <- tapply(Digman97$data, Digman97$cluster, function(x) {x})
+n.cluster <- tapply(Digman97$n, Digman97$cluster, function(x) {x})
 
-% digman2.cluster <- lapply(digman1.cluster, tssem2, impliedS=impliedR4, matrices=c(P4, L4))
-% lapply(digman2.cluster, summary)
-% }
+fixed1.cluster <- tssem1(Digman97$data, Digman97$n, cluster=Digman97$cluster)
+summary(fixed1.cluster)
+
+fixed2.cluster <- tssem2(fixed1.cluster, impliedS=impliedR4, matrices=c(P4, L4))
+summary(fixed2.cluster)
+
+##### Example of Random-effects TSSEM
+random1 <- tssem1(Digman97$data, Digman97$n, method="RE")
+summary(random1)
+
+random2 <- tssem2(random1, impliedS=impliedR4, matrices=c(P4, L4))
+summary(random2)
 }
 \keyword{ tssem }

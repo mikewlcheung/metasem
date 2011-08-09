@@ -3,28 +3,39 @@
 \title{First Stage of the Two-Stage Structural Equation Modeling (TSSEM)
 }
 \description{It conducts the first stage analysis of TSSEM by pooling
-  correlation/covariance matrices with a fixed-effects model. . 
+  correlation/covariance matrices with a fixed- or random-effects model. 
 }
 \usage{
-tssem1(my.df, n, start.values, cor.analysis = TRUE, model.name,
-       cluster=NULL, suppressWarnings = TRUE, ...)
+tssem1(my.df, n, method=c("FE","RE"), cor.analysis = TRUE, cluster=NULL,
+       RE_diag=TRUE, RE.startvalues=0.1, RE.lbound = 1e-10,
+       model.name=NULL, suppressWarnings=TRUE, ...) 
 }
 \arguments{
   \item{my.df}{A list of correlation/covariance matrices
 }
   \item{n}{A vector of sample sizes
 }
- \item{start.values}{A symmetric matrix of starting values for the pooled correlation/covariance matrix. If it is missing, \code{.startValues} will be used to generate the starting values.
+\item{method}{Either \code{"FE"} (default if missing) or \code{"RE"}.
+  If it is "FE", fixed-effects meta-analysis will be applied. If it is "FE",
+   random-effects meta-analysis will be applied.
 }
   \item{cor.analysis}{Logical. The output is either a pooled correlation or a covariance matrix.
   }
-  \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. If it is missing, the default is "TSSEM1
-	Analysis of Correlation Matrix" for \code{cor.analysis=TRUE} and
-	"TSSEM1 Analysis of Covariance Matrix" for \code{cor.analysis=FALSE}
-  }
   \item{cluster}{A vector of characters or numbers indicating the
-	clusters. Analyses will be conducted for each cluster.
+	clusters. Analyses will be conducted for each cluster. It will be
+	ignored when \code{method="RE"}.
   }
+  \item{RE_diag}{Logical. If it is \code{TRUE} (default if missing),
+	there are only random effects on the specific correlation/covariance elements
+	while the correlation/covariance elments are assumed independent. If
+	it is \code{FALSE}, there are random effects on the covariances
+	among the correlation/covariance elements. It will be ignored when \code{method="FE"}.}
+  \item{RE.startvalues}{Starting values on the
+	diagonals of the variance component of the random effects. It will be ignored when \code{method="FE"}.}
+  \item{RE.lbound}{Lower bounds on the diagonals of the variance
+	component of the random effects. It will be ignored when \code{method="FE"}.}
+  \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. 
+  }  
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
 	suppressed. Argument to be passed to \code{\link[OpenMx]{mxRun}}.}
   \item{\dots}{Further arguments to be passed to \code{\link[OpenMx]{mxRun}}
@@ -32,24 +43,18 @@ tssem1(my.df, n, start.values, cor.analysis = TRUE, model.name,
 }
 \details{
 }
-\value{
-  \item{call}{The matched call}
-  \item{cor.analysis}{Logical. Whether it is analysis of correlation or
-	analysis of covariance matrices}
-  \item{data}{A list of correlation/covariance matrices from input}
-  \item{pooledS}{The pooled correlation/covariance matrix}
-  \item{acovS }{The asymptotic sampling covariance matrix of the pooled
-	correlation/covariance matrix}
-  \item{total.n}{Total sample size of all studies}
-  \item{modelMinus2LL}{-2LogLikelihood of the model}
-  \item{independentMinus2LL}{-2LogLikelihood of the independent model
-	returned by \code{.minus2LL}}
-  \item{saturatedMinus2LL}{-2LogLikelihood of the saturated model
-	returned by \code{.minus2LL}}
-  \item{tssem1.fit}{A fitted object returned from \code{\link[OpenMx]{mxRun}}}
+\value{Either an object of class \code{tssemFE1} for fixed-effects TSSEM,
+  an object of class \code{tssemFE1.cluster} for fixed-effects TSSEM
+  with \code{cluster} argument, or an object of class \code{tssemRE1}
+  for random-effects TSSEM. 
 }
 \references{
-Cheung, M. W. L., & Chan, W. (2005). Meta-analytic structural equation modeling: A two-stage approach. \emph{Psychological Methods}, \bold{10}, 40-64.
+  Cheung, M. W. L. (2011). Applications of meta-analytic structural
+  equation modeling. \emph{Manuscript in preparation.}
+
+  Cheung, M. W. L. (2011). Multivariate meta-analaysis as structural equation models. \emph{Manuscript submitted for publication.}
+
+  Cheung, M. W. L., & Chan, W. (2005). Meta-analytic structural equation modeling: A two-stage approach. \emph{Psychological Methods}, \bold{10}, 40-64.
 
 Cheung, M. W. L., & Chan, W. (2009). A two-stage approach to synthesizing covariance matrices in meta-analytic structural equation modeling. \emph{Structural Equation Modeling}, \bold{16}, 28-53.
 }
@@ -65,8 +70,9 @@ Cheung, M. W. L., & Chan, W. (2009). A two-stage approach to synthesizing covari
 \seealso{ \code{\link[metaSEM]{wls}}
 }
 \examples{
-digman1 <- tssem1(Digman97$data, Digman97$n)
-summary(digman1)
+## Fixed-effects TSSEM
+digmanFixed1 <- tssem1(Digman97$data, Digman97$n)
+summary(digmanFixed1)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
