@@ -17,7 +17,7 @@ tssem2(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB"),
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{tssem1.obj}{An object of either class
-	\code{tssemFE1}, class \code{tssemFE1.cluster} or class \code{tssemRE1}}
+	\code{tssem1FE}, class \code{tssem1FE.cluster} or class \code{tssem1RE}}
   \item{S}{A \eqn{p}{p} x \eqn{p}{p} sample correlation/covariance matrix
 	where \eqn{p}{p} is the number of variables.
 }
@@ -58,6 +58,7 @@ tssem2(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB"),
 \item{call}{The matched call}
 \item{noObservedStat}{Number of observed statistics}
 \item{n}{Sample size}
+\item{cor.analysis}{logical}
 \item{indepModelChisq}{Chi-square statistic of the independent model
   returned by \code{.indepwlsChisq} }
 \item{indepModelDf}{Degrees of freedom of the independent model returned
@@ -166,7 +167,7 @@ summary(wls.fit3)
 
 
 ##### Example of Fixed-effects TSSEM
-fixed1 <- tssem1(Digman97$data, Digman97$n)
+fixed1 <- tssem1(Digman97$data, Digman97$n, method="FE")
 summary(fixed1)
 
 P4 <- mxMatrix("Stand", ncol=2, nrow=2, value=.2, free=TRUE, name="P4")
@@ -191,8 +192,8 @@ summary(fixed1.cluster)
 fixed2.cluster <- tssem2(fixed1.cluster, impliedS=impliedR4, matrices=c(P4, L4))
 summary(fixed2.cluster)
 
-##### Example of Random-effects TSSEM
-random1 <- tssem1(Digman97$data, Digman97$n, method="RE")
+##### Example of Random-effects TSSEM with random effects on the diagonals
+random1 <- tssem1(Digman97$data, Digman97$n, method="RE", RE_diag=TRUE)
 summary(random1)
 
 random2 <- tssem2(random1, impliedS=impliedR4, matrices=c(P4, L4))

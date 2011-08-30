@@ -1,3 +1,4 @@
 exportPattern("^[^\\.]")
 import(Matrix)
 importFrom(ellipse, ellipse)
+importFrom(utils, installed.packages)

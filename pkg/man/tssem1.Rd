@@ -1,14 +1,23 @@
 \name{tssem1}
 \alias{tssem1}
+\alias{tssem1FE}
+\alias{tssem1RE}
 \title{First Stage of the Two-Stage Structural Equation Modeling (TSSEM)
 }
 \description{It conducts the first stage analysis of TSSEM by pooling
-  correlation/covariance matrices with a fixed- or random-effects model. 
+  correlation/covariance matrices. \code{tssem1FE()} and
+  \code{tssem1RE()} use fixed- and random-effects models,
+  respectively. \code{tssem1()} is a wrapper of these functions. 
 }
 \usage{
 tssem1(my.df, n, method=c("FE","RE"), cor.analysis = TRUE, cluster=NULL,
-       RE_diag=TRUE, RE.startvalues=0.1, RE.lbound = 1e-10,
-       model.name=NULL, suppressWarnings=TRUE, ...) 
+       RE_diag=FALSE, RE.startvalues=0.1, RE.lbound = 1e-10,
+       model.name=NULL, suppressWarnings=TRUE, ...)
+tssem1FE(my.df, n, cor.analysis = TRUE, model.name = NULL,
+       cluster = NULL, suppressWarnings = TRUE, ...)
+tssem1RE(my.df, n, cor.analysis = TRUE, RE_diag = FALSE,
+         RE.startvalues = 0.1, RE.lbound = 1e-10, model.name = NULL,
+         suppressWarnings = TRUE, ...)
 }
 \arguments{
   \item{my.df}{A list of correlation/covariance matrices
@@ -43,9 +52,9 @@ tssem1(my.df, n, method=c("FE","RE"), cor.analysis = TRUE, cluster=NULL,
 }
 \details{
 }
-\value{Either an object of class \code{tssemFE1} for fixed-effects TSSEM,
-  an object of class \code{tssemFE1.cluster} for fixed-effects TSSEM
-  with \code{cluster} argument, or an object of class \code{tssemRE1}
+\value{Either an object of class \code{tssem1FE} for fixed-effects TSSEM,
+  an object of class \code{tssem1FE.cluster} for fixed-effects TSSEM
+  with \code{cluster} argument, or an object of class \code{tssem1RE}
   for random-effects TSSEM. 
 }
 \references{

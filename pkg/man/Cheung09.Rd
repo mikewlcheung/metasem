@@ -1,6 +1,5 @@
 \name{Cheung09}
 \alias{Cheung09}
-\alias{Cheung09.n}
 \docType{data}
 \title{Data Set from TSSEM User's Guide Version 1.11 by Cheung (2009) 
 }

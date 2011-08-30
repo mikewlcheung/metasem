@@ -1,5 +1,5 @@
-.tssemFE1 <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
-                      cluster=NULL, suppressWarnings=TRUE, ...) {
+tssem1FE <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
+                     cluster=NULL, suppressWarnings=TRUE, ...) {
   if (!is.null(cluster)) {
     data.cluster <- tapply(my.df, cluster, function(x) {x})
     n.cluster <- tapply(n, cluster, function(x) {x})
@@ -10,7 +10,7 @@
                          cor.analysis=cor.analysis, model.name=model.name, ...)
     }
     names(out) <- names(data.cluster) 
-    class(out) <- "tssemFE1.cluster"
+    class(out) <- "tssem1FE.cluster"
     out
   } else {  
     no.groups <- length(my.df)
@@ -153,15 +153,21 @@
                 modelMinus2LL = tssem1.fit@output$Minus2LogLikelihood,
                 independentMinus2LL = independentMinus2LL, saturatedMinus2LL = saturatedMinus2LL,
                 tssem1.fit = tssem1.fit)
-    class(out) <- "tssemFE1"
+    class(out) <- "tssem1FE"
     return(out)
   }
 }
 
-.tssemRE1 <- function(my.df, n, cor.analysis=TRUE, RE_diag=TRUE, RE.startvalues=0.1, RE.lbound = 1e-10,
-                      model.name=NULL, suppressWarnings=TRUE, ...) {
+tssem1RE <- function(my.df, n, cor.analysis=TRUE, RE_diag=FALSE, RE.startvalues=0.1, RE.lbound = 1e-10,
+                     model.name=NULL, suppressWarnings=TRUE, ...) {
+  ## Replace diagonals with 1.0
+  my.complete <- lapply(my.df, function (x) { diag(x)[is.na(diag(x))] <- 1; x })
+  ## Replace missing variables with 0.0
+  my.complete <- lapply(my.complete, function (x) { x[is.na(x)] <- 0; x })
+  
   ## Calculate the asymptotic sampling covariance matrix of the correlation matrix
-  acovR <- asyCov(x=my.df, n=n, cor.analysis=cor.analysis)
+  acovR <- asyCov(x=my.complete, n=n, cor.analysis=cor.analysis)
+  
   ## Convert the correlation matrices into effect sizes; default of diag=FALSE for cor matrix
   ES <- list2matrix(x=my.df, diag=!cor.analysis)
   ## no. of effect sizes
@@ -186,18 +192,18 @@
 
   out <- list(call = match.call(), total.n=sum(n), cor.analysis=cor.analysis, RE_diag=RE_diag, no.es=no.es,
               meta.fit=meta.fit)
-  class(out) <- "tssemRE1"
+  class(out) <- "tssem1RE"
   return(out)
 }
 
 tssem1 <- function(my.df, n, method=c("FE", "RE"), cor.analysis=TRUE, cluster=NULL,
-                   RE_diag=TRUE, RE.startvalues=0.1, RE.lbound = 1e-10,
+                   RE_diag=FALSE, RE.startvalues=0.1, RE.lbound = 1e-10,
                    model.name=NULL, suppressWarnings=TRUE, ...) {
   method <- match.arg(method)
   switch(method,
-    FE = out <- .tssemFE1(my.df=my.df, n=n, cor.analysis=cor.analysis, model.name=model.name,
+    FE = out <- tssem1FE(my.df=my.df, n=n, cor.analysis=cor.analysis, model.name=model.name,
                           cluster=cluster, suppressWarnings=suppressWarnings, ...),
-    RE = out <- .tssemRE1(my.df=my.df, n=n, cor.analysis=cor.analysis, RE_diag=RE_diag,
+    RE = out <- tssem1RE(my.df=my.df, n=n, cor.analysis=cor.analysis, RE_diag=RE_diag,
                           RE.startvalues=RE.startvalues, RE.lbound=RE.lbound,
                           model.name=model.name, suppressWarnings=suppressWarnings, ...) )
   out  
@@ -265,7 +271,7 @@ wls <- function(S, acovS, n, impliedS, matrices, cor.analysis = TRUE,
         cat("Error in running the mxModel:\n")
         stop(print(wls.fit))
     } else {
-        out <- list(call = match.call(), noObservedStat=ps, n=n, 
+        out <- list(call = match.call(), noObservedStat=ps, n=n, cor.analysis=cor.analysis,
                     indepModelChisq=.indepwlsChisq(S=S, acovS=acovS, cor.analysis=cor.analysis),
                     indepModelDf=no.var*(no.var-1)/2, wls.fit=wls.fit)
         class(out) <- 'wls'
@@ -276,15 +282,15 @@ wls <- function(S, acovS, n, impliedS, matrices, cor.analysis = TRUE,
 
 tssem2 <- function(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB"),
                    model.name=NULL, suppressWarnings = TRUE, ...) {
-  if ( !is.element( class(tssem1.obj), c("tssemFE1.cluster", "tssemFE1", "tssemRE1")) )
-      stop("\"tssem1.obj\" must be of neither class \"tssemFE1.cluster\", class \"tssemFE1\" or \"tssemRE1\".")
+  if ( !is.element( class(tssem1.obj), c("tssem1FE.cluster", "tssem1FE", "tssem1RE")) )
+      stop("\"tssem1.obj\" must be of neither class \"tssem1FE.cluster\", class \"tssem1FE\" or \"tssem1RE\".")
       
   switch(class(tssem1.obj),
-         tssemFE1.cluster = { out <- lapply(tssem1.obj, tssem2, impliedS=impliedS, matrices=matrices,
+         tssem1FE.cluster = { out <- lapply(tssem1.obj, tssem2, impliedS=impliedS, matrices=matrices,
                                             intervals.type=intervals.type, model.name=model.name,
                                             suppressWarnings=suppressWarnings, ...)
                               class(out) <- "wls.cluster" },
-         tssemFE1 = { cor.analysis <- tssem1.obj$cor.analysis
+         tssem1FE = { cor.analysis <- tssem1.obj$cor.analysis
                       # check the call to determine whether it is a correlation or covariance analysis
                       ## cor.analysis <- tssem1.obj$call[[match("cor.analysis", names(tssem1.obj$call))]]
                       ## # if not specified, the default in tssem1() is cor.analysis=TRUE
@@ -299,7 +305,7 @@ tssem2 <- function(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB")
                                  impliedS=impliedS, matrices=matrices, cor.analysis=cor.analysis,
                                  intervals.type=intervals.type, model.name=model.name,
                                  suppressWarnings = suppressWarnings, ...) },
-         tssemRE1 = { cor.analysis <- tssem1.obj$cor.analysis
+         tssem1RE = { cor.analysis <- tssem1.obj$cor.analysis
                      ## Extract the pooled correlation matrix
                       pooledS <- vec2symMat( coef(tssem1.obj$meta.fit, select="fixed"), diag=!cor.analysis)
                      ## Extract the asymptotic covariance matrix of the pooled correlations

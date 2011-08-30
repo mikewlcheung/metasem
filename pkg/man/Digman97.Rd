@@ -1,7 +1,5 @@
 \name{Digman97}
 \alias{Digman97}
-\alias{Digman97.n}
-\alias{Digman97.cluster}
 \docType{data}
 \title{Factor Correlation Matrices of Big Five Model from Digman (1997)}
 \description{
