@@ -69,8 +69,7 @@ Cheung, M. W. L., & Chan, W. (2009). A two-stage approach to synthesizing covari
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
-\note{It assumes that there is no missing values in the first
-  study. If the \code{cluster} argument is used, it returns a list of
+\note{If the \code{cluster} argument is used, it returns a list of
   results based for each cluster.
 }
 

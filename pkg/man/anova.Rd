@@ -2,7 +2,7 @@
 \alias{anova.wls}
 \alias{anova.meta}
 \alias{anova.reml}
-\title{Compare Nested Models with Likelihood Ratio Statitics
+\title{Compare Nested Models with Likelihood Ratio Statistic
 }
 \description{It compares nested models with the likelihood ratio statistic from either \code{wls}, \code{meta} or
   \code{reml} objects. It is a wrapper of \code{\link[OpenMx]{mxCompare}}.
@@ -14,12 +14,12 @@
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{object}{An object or a list of objects returned from either class
+  \item{object}{An object or a list of objects of either class
 	\code{\link[metaSEM]{wls}}, class \code{\link[metaSEM]{meta}} or
 	class \code{\link[metaSEM]{reml}}. It will be passed to the
 	\code{base} argument in \code{\link[OpenMx]{mxCompare}}.
   }
-  \item{\dots}{An object or a list of objects returned from either class
+  \item{\dots}{An object or a list of objects of either class
 	\code{\link[metaSEM]{wls}}, class \code{\link[metaSEM]{meta}} or
 	class \code{\link[metaSEM]{reml}}. It will be passed to the
 	\code{comparison} argument in \code{\link[OpenMx]{mxCompare}}.
@@ -30,7 +30,7 @@
 }
 \details{Special care has to be taken to make sure that the models being
   compared in \code{base} and \code{comparison} are nested. One common mistake is
-  comparing a model without predictor and a model with predictor in \code{\link[metaSEM]{meta}}. Since
+  comparing a model without predictor and a model with predictors in \code{\link[metaSEM]{meta}}. Since
   the parameters in the predictors, e.g., means and variances, are also estimated in \code{\link[metaSEM]{meta}},
   these two models are not nested. The correct way to compare them is to
   fix the regression coefficients of one model at zero while the

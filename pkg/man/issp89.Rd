@@ -3,7 +3,7 @@
 \docType{data}
 \title{Data Set from Cheung and Chan (2005; 2009) 
 }
-\description{Eleven correlation matrices on work-related attitudes were extracted from the Inter-University Consortium for Political and Social Research (1989). Nine variables were selected by Cheung and Chan (2005; 2009) for demonstration purposes. They were grouped into three meaningful constructs: job prospects (F1), including job security (x1), income (x2), and advancement opportunity (x3); job nature (F2), including interesting job (x4), independent work (x5), help other people (x6), and useful to society (x7); and time demand (F3), represented by flexible working hours (x8) and lots of leisure time (x9).
+\description{Eleven covariance matrices on work-related attitudes were extracted from the Inter-University Consortium for Political and Social Research (1989). Nine variables were selected by Cheung and Chan (2005; 2009) for demonstration purposes. They were grouped into three meaningful constructs: job prospects (F1), including job security (x1), income (x2), and advancement opportunity (x3); job nature (F2), including interesting job (x4), independent work (x5), help other people (x6), and useful to society (x7); and time demand (F3), represented by flexible working hours (x8) and lots of leisure time (x9).
 }
 \usage{data(issp89)}
 \format{

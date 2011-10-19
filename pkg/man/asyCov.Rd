@@ -2,7 +2,7 @@
 \alias{asyCov}
 \title{Asymptotic Covariance Matrix of a Correlation/Covariance Matrix
 }
-\description{It estimates the asymptotic covariance matrices of a
+\description{It estimates the asymptotic sampling covariance matrix of a
   correlation/covariance matrix under the assumption of multivariate normality. 
 }
 \usage{
@@ -16,7 +16,7 @@ asyCov(x, n, cor.analysis = TRUE, dropNA = FALSE, as.matrix = TRUE,
 	values defined in \code{na.strings} will be removed before the
 	analysis. Note that it only checks the diagonal elements of
 	the matrices. If there are missing values, make sure that the
-	diagonals are coded with \code{NA} or values defined in \code{na.string}.
+	diagonals are coded with \code{NA} or values defined in \code{na.strings}.
 }
   \item{n}{Sample size or a vector of sample sizes}
   \item{cor.analysis}{Logical. The output is either a correlation or

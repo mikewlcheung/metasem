@@ -7,7 +7,7 @@ It conducts univariate and multivariate meta-analysis with maximum
 likelihood estimation method. Mixed-effects meta-analysis can be conducted by
 including study characteristics as predictors. Equality constraints on
 intercepts, regression coefficients and variance components can be
-easily imposed.
+easily imposed by setting the same labels on the parameter estimates.
 }
 \usage{
 meta(y, v, x, data, intercept.constraints, coeff.constraints, RE.constraints,
@@ -55,13 +55,13 @@ model.name="Meta analysis with ML", suppressWarnings = TRUE, ...)
   }
   \item{RE.startvalues}{A vector of \eqn{p}{p} starting values on the
 	diagonals of the variance component of the random effects. If only one
-	scalar is given, it will be repeated across the diagonals. Starting values for the
+	scalar is given, it will be duplicated across the diagonals. Starting values for the
 	off-diagonals of the variance component are all 0. A \eqn{p}{p} x
 	\eqn{p}{p} symmetric matrix of starting values is also accepted. 
 }
   \item{RE.lbound}{A vector of \eqn{p}{p} lower bounds on the
 	diagonals of the variance component of the random effects. If only one
-	scalar is given, it will be repeated across the diagonals. Lower
+	scalar is given, it will be duplicated across the diagonals. Lower
 	bounds for the off-diagonals of the variance component are set at \code{NA}. A \eqn{p}{p} x
 	\eqn{p}{p} symmetric matrix of the lower bounds is also accepted.
 }
@@ -145,7 +145,7 @@ summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
 summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
               x=scale(pub_year, center=1979), data=Berkey98) )
 
-## Multivariate meta-analysis with equality constraint on regression coefficients
+## Multivariate meta-analysis with equality constraint on the regression coefficients
 summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
               x=scale(pub_year, center=1979), data=Berkey98,
               coeff.constraints=matrix(c("0.3*Eq_slope", "0.3*Eq_slope"), nrow=2)) ) 

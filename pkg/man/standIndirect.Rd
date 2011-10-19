@@ -2,8 +2,8 @@
 \alias{standIndirect}
 \title{Asymptotic covariance matrix of standardized indirect and direct effects
 }
-\description{It calculates the asymptotic covariance matrix of standardized indirect
-  and direct effects.
+\description{It calculates the standardized indirect and direct effects
+  and their asymptotic sampling covariance matrix.
 }
 \usage{
 standIndirect(x, n)
@@ -17,9 +17,9 @@ standIndirect(x, n)
   \item{n}{Sample size or a vector of sample sizes
 }
 }
-\details{Cheung (2009) uses non-linear constraints to estimate the
-  standardized indirect effect and its standard error. Since \code{OpenMx} does not generate standard errors when there
-  are non-linear constraints, Kwan and Chan's (in press) approach is used in this function. The calculated standard errors are the same for both approaches.
+\details{Cheung (2009) estimated the standardized indirect effect and
+  its standard error with non-linear constraints. Since \code{OpenMx} does not generate standard errors when there
+  are non-linear constraints, Kwan and Chan's (in press) approach is used in this function. 
 }
 \value{A vector (or a matrix if the input is a list of matrices) of standardized indirect effect, standardized direct effect and their asymptotic
   sampling covariance matrices

@@ -6,28 +6,45 @@ tssem1FE <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
     out <- list()
     for (i in 1:length(data.cluster)) {
       ## Need to correct it to tssem1()
-      out[[i]] <- tssem1(data.cluster[[i]], n.cluster[[i]], 
-                         cor.analysis=cor.analysis, model.name=model.name, ...)
+      out[[i]] <- tssem1FE(data.cluster[[i]], n.cluster[[i]], 
+                           cor.analysis=cor.analysis, model.name=model.name,
+                           suppressWarnings=suppressWarnings, ...)
     }
     names(out) <- names(data.cluster) 
     class(out) <- "tssem1FE.cluster"
     out
-  } else {  
+  } else {
+    my.range <- range(sapply(my.df, function(x) {ncol(x)}))
+    if ( !all.equal(my.range[1], my.range[2]) )
+      stop("Dimensions of all groups are not the same!\n")
+    
     no.groups <- length(my.df)
-    no.var <- max(sapply(my.df, ncol))
+    no.var <- ncol(my.df[[1]])
     var.names <- paste("x", 1:no.var, sep = "")
-    # matrix of labels; only use the lower triangle
-    ps.labels <- outer(1:no.var, 1:no.var, function(x, y) paste("C", x, y, sep = ""))
-    total.n <- sum(n)
+    ## Convert variable labels to x1, x2, ...
+    my.df <- lapply(my.df, function(x) {dimnames(x) <- list(var.names, var.names); x})
+    total.n <- sum(n)   
     
     ## Check positive definiteness of data
     isPD <- is.pd(my.df)
     if (!all(isPD)) 
-        stop(paste("Group(s) ", (1:no.groups)[isPD], " are not positive definite."), sep = "")
+        stop(paste("Group ", (1:no.groups)[!isPD], " is not positive definite.", sep = ""))
     
-    ## Prepare starting values
-    sv <- .startValues(my.df, cor.analysis = cor.analysis)
-
+    ## Prepare starting values based on covariance matrices
+    sv <- .startValues(my.df, cor.analysis = FALSE)
+    # matrix of labels; only use the lower triangle
+    ps.labels <- outer(1:no.var, 1:no.var, function(x, y) paste("s", x, y, sep = ""))
+    if (cor.analysis==TRUE) {
+      S <- mxMatrix(type="Stand", nrow=no.var, ncol=no.var, free=TRUE, values=vechs(cov2cor(sv)),
+                    labels=vechs(ps.labels), name="S")
+    } else {
+      ## Set lower bound on variances
+      lbound <- matrix(NA, nrow=no.var, ncol=no.var)
+      diag(lbound) <- 0.00001
+      S <- mxMatrix(type="Symm", nrow=no.var, ncol=no.var, free=TRUE, values=vech(sv),
+                    labels=vech(ps.labels), lbound=lbound, name="S")      
+    }
+       
     ## Index for missing variables: only check the diagonals only!!!
     miss.index <- lapply(my.df, function(x) { is.na(diag(x)) })
     
@@ -39,78 +56,67 @@ tssem1FE <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
     ## if (is.null(complete.index)) 
     ##     stop("It is expected that at least one study has complete data!")
      
-    if ( sum(!miss.index[[1]], na.rm = TRUE) != no.var )
-        stop("There should be no missing data in the first group.")
+    ## if ( sum(!miss.index[[1]], na.rm = TRUE) != no.var )
+    ##     stop("There should be no missing data in the first group.")
     
     for (i in 1:no.groups) {
         no.var.i <- sum(!miss.index[[i]], na.rm = TRUE)
-        my.df.i <- my.df[[i]][!miss.index[[i]], !miss.index[[i]]]
-        dimnames(my.df.i) <- list(var.names[!miss.index[[i]]], var.names[!miss.index[[i]]])
+        miss.index.i <- miss.index[[i]]
+        my.df.i <- my.df[[i]][!miss.index.i, !miss.index.i]
+        ## dimnames(my.df.i) <- list(var.names[!miss.index.i], var.names[!miss.index.i])
         
         # Prepare matrices for calculations
         if (cor.analysis) {
             if (is.null(model.name)) model.name <- "TSSEM1 Analysis of Correlation Matrix"
-            S.matrix <- paste("S", i, " <- mxMatrix('Stand', nrow=", no.var.i, ", ncol=", 
-                no.var.i, ", free=TRUE, values=vechs(sv[!miss.index[[", i, "]],!miss.index[[", 
-                i, "]]]), name=\"S", i, "\", labels=vechs(ps.labels[!miss.index[[", 
-                i, "]],!miss.index[[", i, "]]]))", sep = "")
-            D.matrix <- paste("D", i, " <- mxMatrix('Diag', nrow=", no.var.i, ", ncol=", 
-                no.var.i, ", free=TRUE, values=sqrt(diag(my.df[[", i, "]])[!miss.index[[", 
-                i, "]]]), labels=c(", paste("\"D", i, var.names[!miss.index[[i]]], 
-                  "\"", sep = "", collapse = ","), "), name=\"D", i, "\")", sep = "")
-            # Expected covariance matrix
-            expC.algebra <- paste("expC", i, " <- mxAlgebra(D", i, " %&% S", i, ", name=\"expC", 
-                i, "\", dimnames=list(var.names[!miss.index[[", i, "]]], var.names[!miss.index[[", 
-                i, "]]]))", sep = "")
-            # Create mxModel
-            g.model <- paste("g", i, " <- mxModel(\"g", i, "\", S", i, ", D", i, 
-                ", expC", i, ", mxData(observed=my.df.i, type=\"cov\", numObs=n[", i,
-                "]), mxMLObjective(\"expC", i,
-                "\", dimnames=var.names[!miss.index[[", i, "]]]))", sep = "")
-            
-            eval(parse(text = S.matrix))
-            eval(parse(text = D.matrix))
-            eval(parse(text = expC.algebra))
-            eval(parse(text = g.model))
+            SD <- diag(paste(sqrt(diag(sv)), "*sd", i, "_", 1:no.var, sep=""))
+            SD <- SD[!miss.index.i, ]
+            SD <- as.mxMatrix(SD)   
         } else {
             if (is.null(model.name)) model.name <- "TSSEM1 Analysis of Covariance Matrix"
-            S.matrix <- paste("S", i, " <- mxMatrix('Symm', nrow=", no.var.i, ", ncol=", 
-                no.var.i, ", free=TRUE, values=vech(sv[!miss.index[[", i, "]],!miss.index[[", 
-                i, "]]]), name=\"S", i, "\", labels=vech(ps.labels[!miss.index[[", 
-                i, "]],!miss.index[[", i, "]]]))", sep = "")
-            g.model <- paste("g", i, " <- mxModel(\"g", i, "\", S", i, ", mxData(observed=my.df.i, 
-                type=\"cov\", numObs=n[", i,
-                "]), mxMLObjective(\"S", i, "\", dimnames=var.names[!miss.index[[", 
-                i, "]]]))", sep = "")
-            
-            eval(parse(text = S.matrix))
-            eval(parse(text = g.model))
+            SD <- diag(rep(1, no.var))
+            SD <- SD[!miss.index.i, ]
+            SD <- as.mxMatrix(SD)
         }
+        # Expected covariance matrix
+        expC <- mxAlgebra(SD %&% S, name="expC", dimnames=list(var.names[!miss.index.i],
+                          var.names[!miss.index.i]))
+        # Create mxModel
+        ## model <- mxModel(paste("group",i,sep=""), S, Dmatrix, expC,
+        ##                      mxData(observed=my.df.i, type="cov", numObs=n[i]),
+        ##                      mxMLObjective(expC, dimnames=var.names[!miss.index[[i]]]))
+        g.model <- paste("g", i, " <- mxModel(\"g", i, "\", S, SD, expC, mxData(observed=my.df[[",i,"]][!miss.index[[",i,"]],!miss.index[[",i,"]]], type=\"cov\", numObs=n[", i,
+                "]), mxMLObjective(\"expC\", dimnames=var.names[!miss.index[[", i, "]]]))", sep = "")
+        eval(parse(text = g.model))       
     }
     
-    if (cor.analysis) {
-        tssem1.model <- paste("tssem1 <- mxModel(\"", model.name, "\", ", paste("S", 
-            1:no.groups, sep = "", collapse = ","), ", ", paste("D", 1:no.groups, 
-            sep = "", collapse = ","), ", ", paste("expC", 1:no.groups, sep = "", 
-            collapse = ","), ", ", paste("g", 1:no.groups, sep = "", collapse = ","), 
-            ", mxAlgebra(", paste("g", 1:no.groups, ".objective", sep = "", collapse = "+"), 
-            ", name=\"obj\"), mxAlgebraObjective(\"obj\"))", sep = "")
-    } else {
-        tssem1.model <- paste("tssem1 <- mxModel(\"", model.name, "\", ", paste("S", 
-            1:no.groups, sep = "", collapse = ","), ", ", paste("g", 1:no.groups, 
-            sep = "", collapse = ","), ", mxAlgebra(", paste("g", 1:no.groups, ".objective", 
-            sep = "", collapse = "+"), ", name=\"obj\"), mxAlgebraObjective(\"obj\"))", 
-            sep = "")
-    }
+    ## if (cor.analysis==TRUE) {
+    ##     tssem1.model <- paste("tssem1 <- mxModel(\"", model.name, "\", ", paste("S", 
+    ##         1:no.groups, sep = "", collapse = ","), ", ", paste("D", 1:no.groups, 
+    ##         sep = "", collapse = ","), ", ", paste("expC", 1:no.groups, sep = "", 
+    ##         collapse = ","), ", ", paste("g", 1:no.groups, sep = "", collapse = ","), 
+    ##         ", mxAlgebra(", paste("g", 1:no.groups, ".objective", sep = "", collapse = "+"), 
+    ##         ", name=\"obj\"), mxAlgebraObjective(\"obj\"))", sep = "")
+    ## } else {
+    ##     tssem1.modelb <- paste("tssem1 <- mxModel(\"", model.name, "\", ", paste("S", 
+    ##         1:no.groups, sep = "", collapse = ","), ", ", paste("g", 1:no.groups, 
+    ##         sep = "", collapse = ","), ", mxAlgebra(", paste("g", 1:no.groups, ".objective", 
+    ##         sep = "", collapse = "+"), ", name=\"obj\"), mxAlgebraObjective(\"obj\"))", 
+    ##         sep = "")
+    ## }
+    tssem1.model <- paste("tssem1 <- mxModel(\"", model.name, "\", S, ",
+                          paste("g", 1:no.groups, sep = "", collapse = ","),
+                          ", mxAlgebra(", paste("g", 1:no.groups, ".objective", sep = "", collapse = "+"),
+                          ", name=\"obj\"), mxAlgebraObjective(\"obj\"))", sep = "")
     eval(parse(text = tssem1.model))
     
     # try to run it with error message as output
+    ## tssem1.fit <- mxRun(tssem1)
     tssem1.fit <- tryCatch(mxRun(tssem1, suppressWarnings = suppressWarnings, ...),
                            error = function(e) e)
     if (inherits(tssem1.fit, "error")) 
         stop(print(tssem1.fit))
     
-    pooledS <- eval(parse(text = "mxEval(S1, tssem1.fit)"))
+    pooledS <- eval(parse(text = "mxEval(S, tssem1.fit)"))
     
     if (cor.analysis) {
         #Hessian_S <- 0.5*tssem1.fit@output$calculatedHessian[vechs(ps.labels), vechs(ps.labels)]
@@ -190,9 +196,9 @@ tssem1RE <- function(my.df, n, cor.analysis=TRUE, RE_diag=FALSE, RE.startvalues=
     meta.fit <- meta(y=ES, v=acovR, model.name=model.name, RE.startvalues=RE.startvalues, RE.lbound = RE.lbound)
   }
 
-  out <- list(call = match.call(), total.n=sum(n), cor.analysis=cor.analysis, RE_diag=RE_diag, no.es=no.es,
-              meta.fit=meta.fit)
-  class(out) <- "tssem1RE"
+  out <- list(total.n=sum(n), cor.analysis=cor.analysis, RE_diag=RE_diag, no.es=no.es)
+  out <- c(out, meta.fit)
+  class(out) <- c("tssem1RE", "meta")
   return(out)
 }
 
@@ -282,10 +288,10 @@ wls <- function(S, acovS, n, impliedS, matrices, cor.analysis = TRUE,
 
 tssem2 <- function(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB"),
                    model.name=NULL, suppressWarnings = TRUE, ...) {
-  if ( !is.element( class(tssem1.obj), c("tssem1FE.cluster", "tssem1FE", "tssem1RE")) )
+  if ( !is.element( class(tssem1.obj)[1], c("tssem1FE.cluster", "tssem1FE", "tssem1RE")) )
       stop("\"tssem1.obj\" must be of neither class \"tssem1FE.cluster\", class \"tssem1FE\" or \"tssem1RE\".")
       
-  switch(class(tssem1.obj),
+  switch(class(tssem1.obj)[1],
          tssem1FE.cluster = { out <- lapply(tssem1.obj, tssem2, impliedS=impliedS, matrices=matrices,
                                             intervals.type=intervals.type, model.name=model.name,
                                             suppressWarnings=suppressWarnings, ...)
@@ -307,9 +313,9 @@ tssem2 <- function(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB")
                                  suppressWarnings = suppressWarnings, ...) },
          tssem1RE = { cor.analysis <- tssem1.obj$cor.analysis
                      ## Extract the pooled correlation matrix
-                      pooledS <- vec2symMat( coef(tssem1.obj$meta.fit, select="fixed"), diag=!cor.analysis)
+                      pooledS <- vec2symMat( coef(tssem1.obj, select="fixed"), diag=!cor.analysis)
                      ## Extract the asymptotic covariance matrix of the pooled correlations
-                      acovS <- vcov(tssem1.obj$meta.fit, select="fixed")
+                      acovS <- vcov(tssem1.obj, select="fixed")
                       
                       if (cor.analysis==TRUE) {
                         if (is.null(model.name)) model.name <- "TSSEM2 (Random Effects Model) Analysis of Correlation Structure"

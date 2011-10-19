@@ -1,13 +1,14 @@
-Release 0.7-0 (Aug 30, 2011)
+Release 0.7-0 (Oct 19, 2011)
 ====================================
+* Revised tssemFE() to handle incomplete data in the first group
 * Added tssem1RE() for random-effects TSSEM
 * Renamed tssem1() to tssem1FE() for fixed-effects TSSEM
 * Modified tssem1() to be a wrapper for tssem1FE() and tssem1RE()
 * Modified tssem2() to fit both fixed- and random-effects structural models from tssem1()
-* Added "cluster" argument in tssem1() and some methods for it
+* Added "cluster" argument in tssem1.FE() and some methods for it
 * Added "select" argument in coef.meta() and vcov.meta()
 * Fixed a bug by removing the characters in matrix column when OpenMx 1.1 is used 
-* Fixed a bug in asyCov() that only uses the first sample size
+* Fixed a bug in asyCov() that uses only the first sample size
 
 Release 0.6-0 (May 24, 2011)
 ====================================

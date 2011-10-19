@@ -2,7 +2,7 @@ Package: metaSEM
 Type: Package
 Title: Meta-Analysis using Structural Equation Modeling
 Version: 0.7-0
-Date: 2011-08-30
+Date: 2011-10-19
 Depends:R (>= 2.13.0), OpenMx (>= 1.1) 
 Imports: Matrix, ellipse(>= 0.3-5), utils
 Suggests: metafor (>= 1.6-0)

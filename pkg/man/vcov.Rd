@@ -28,9 +28,8 @@
 	\code{tssem1FE}, class \code{tssem1FE.cluster}, class \code{tssem1RE},
 	class \code{wls}, class \code{wls.cluster}, class \code{meta} or class \code{reml}
   }
-  \item{select}{Select "all" for all parameters, "fixed" for the
-  fixed-effects parameters or "random" for the random-effects
-  parameters. 
+  \item{select}{Select \code{all} for both fixed- and random-effects parameters, \code{fixed} for the
+  fixed-effects parameters or \code{random} for the random-effects parameters.   
 }  
   \item{\dots}{Further arguments; currently none is used}
 }

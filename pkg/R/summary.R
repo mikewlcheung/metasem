@@ -187,8 +187,9 @@ summary.tssem1FE <- function(object, ...) {
     colnames(stat) <- "Value"
 
     # calculate coefficients    
-    my.para <- summary(object$tssem1.fit)$parameters    
-    my.para <- my.para[my.para$matrix=="S1", ]
+    my.para <- summary(object$tssem1.fit)$parameters
+    ## my.para <- my.para[my.para$matrix=="S1", ]
+    my.para <- my.para[my.para$matrix=="S", ]
     #Sel <- grep("^S", my.para$matrix, value=TRUE)
     #my.para <- subset(my.para, my.para$matrix==Sel)
     my.para <- my.para[order(my.para$row, my.para$col), ]
@@ -234,7 +235,7 @@ print.summary.tssem1FE <- function(x, ...) {
     cat("\nOpenMx version:", x$OpenMx.version)
     cat("\nmetaSEM version:", x$metaSEM.version)
     cat("\nDate of analysis:", x$date)
-    cat("\nOpenMx status1:", x$Mx.status1, "(\"0\" and \"1\": considered fine; other values indicate problems)")
+    cat("\nOpenMx status:", x$Mx.status1, "(\"0\" and \"1\": considered fine; other values indicate problems)")
     cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")    
 }
 
@@ -282,7 +283,7 @@ print.tssem1RE <- function(x, ...) {
 summary.tssem1RE <- function(object, ...) {
     if (!is.element("tssem1RE", class(object)))
     stop("\"object\" must be an object of class \"tssem1RE\".")
-    summary.meta(object$meta.fit)
+    summary.meta(object)
 }
    
 print.wls <- function(x, ...) {
@@ -312,6 +313,7 @@ print.meta <- function(x, ...) {
 
 summary.meta <- function(object, ...) {
     if (!is.element("meta", class(object)))
+    ## if (!("meta" %in% class(object)))
     stop("\"object\" must be an object of class \"meta\".")
 
     # calculate coefficients    
@@ -554,7 +556,11 @@ vcov.meta <- function(object, select=c("all", "fixed", "random"), ...) {
              my.name <- c( paste("Intercept", 1:no.y, sep=""),
                            outer(1:no.y, 1:no.x, function(y, x) paste("Slope", y,"_", x, sep = "")) )
            },
-           random = my.name <- vech(outer(1:no.y, 1:no.y, function(x,y) { paste("Tau2_",x,"_",y,sep="")}))
+           random = if ("tssem1RE" %in% class(object)) {
+                        my.name <- paste("Tau2_", 1:no.y,"_", 1:no.y,sep="")
+                    } else {
+                        my.name <- vech(outer(1:no.y, 1:no.y, function(x,y) { paste("Tau2_",x,"_",y,sep="")}))
+                    }
            )
 
     acov <- tryCatch( 2*solve(object$meta@output$calculatedHessian[my.name, my.name]), error = function(e) e)
@@ -582,7 +588,7 @@ vcov.tssem1FE.cluster <- function(object, ...) {
 vcov.tssem1RE <- function(object, select=c("all", "fixed", "random"), ...) {
   if (!is.element("tssem1RE", class(object)))
     stop("\"object\" must be an object of class \"tssem1RE\".")
-  vcov.meta(object$meta.fit, select, ...)
+  vcov.meta(object, select, ...)
 }
 
 vcov.wls <- function(object, ...) {
@@ -641,13 +647,17 @@ coef.meta <- function(object, select=c("all", "fixed", "random"), ...) {
   select <- match.arg(select)
   switch( select,
          ## all = my.name <- my.name,
-         fixed = if (no.x==0) {
-           my.name <- paste("Intercept", 1:no.y, sep="")
-         } else {
-           my.name <- c( paste("Intercept", 1:no.y, sep=""),
-                         outer(1:no.y, 1:no.x, function(y, x) paste("Slope", y,"_", x, sep = "")) )
-         },
-         random = my.name <- vech(outer(1:no.y, 1:no.y, function(x,y) { paste("Tau2_",x,"_",y,sep="")}))
+         fixed =  if (no.x==0) {
+                     my.name <- paste("Intercept", 1:no.y, sep="")
+                  } else {
+                     my.name <- c( paste("Intercept", 1:no.y, sep=""),
+                                   outer(1:no.y, 1:no.x, function(y, x) paste("Slope", y,"_", x, sep = "")) )
+                  },
+         random = if ("tssem1RE" %in% class(object)) {
+                     my.name <- paste("Tau2_", 1:no.y,"_", 1:no.y,sep="")
+                  } else {
+                     my.name <- vech(outer(1:no.y, 1:no.y, function(x,y) { paste("Tau2_",x,"_",y,sep="")}))
+                  }
          )  
   object$meta.fit@output$estimate[my.name]
 }
@@ -661,7 +671,7 @@ coef.tssem1FE <- function(object, ...) {
 coef.tssem1RE <- function(object, select=c("all", "fixed", "random"), ...) {
   if (!is.element("tssem1RE", class(object)))
     stop("\"object\" must be an object of class \"tssem1RE\".")
-  coef.meta(object$meta.fit, select, ...)
+  coef.meta(object, select, ...)
 }
 
 coef.tssem1FE.cluster <- function(object, ...) {

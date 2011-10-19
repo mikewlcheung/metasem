@@ -4,7 +4,7 @@
 }
 \description{
 It estimates the variance components of random-effects in univariate and
-multivariate meta-analysis with the restricted (residual) maximum likelihood
+multivariate meta-analysis with restricted (residual) maximum likelihood
 (REML) estimation method.
 }
 \usage{
@@ -66,7 +66,7 @@ suppressWarnings = TRUE, ...)
 }
 }
 \details{
-  Restricted (residual) maximum likelihood obtains the parameter estimates on the transformed data that do not include the fixed-effects parameters. A transformation matrix \eqn{M=I-X(X'X)^{-1}X}{M=I-X(X'X)^{-1}X'} is created based on a design matrix \eqn{X}{X} which is just a column vector when there is no predictor in \code{x}. The last \eqn{N}{N} redundant rows of \eqn{M}{M} is removed where \eqn{N}{N} is the rank of \eqn{X}{X}. After pre-multiplying by \eqn{M} on \code{y}, the parameters of fixed-effects are removed from the model. Thus, only the parameters of random-effects are estimated.
+  Restricted (residual) maximum likelihood obtains the parameter estimates on the transformed data that do not include the fixed-effects parameters. A transformation matrix \eqn{M=I-X(X'X)^{-1}X}{M=I-X(X'X)^{-1}X'} is created based on the design matrix \eqn{X}{X} which is just a column vector when there is no predictor in \code{x}. The last \eqn{N}{N} redundant rows of \eqn{M}{M} is removed where \eqn{N}{N} is the rank of \eqn{X}{X}. After pre-multiplying by \eqn{M} on \code{y}, the parameters of fixed-effects are removed from the model. Thus, only the parameters of random-effects are estimated.
 
   An alternative but equivalent approach is to minimize the
   -2*log-likelihood function: \deqn{
@@ -88,11 +88,13 @@ suppressWarnings = TRUE, ...)
   \item{reml.fit}{A fitted object returned from	\code{\link[OpenMx]{mxRun}}}
 }
 \references{
+  Cheung, M. W. L. (2011). Implementing restricted maximum likelihood (REML) estimation in structural equation models. \emph{Manuscript
+  submitted for publication}.
+
   Mehta, P. D., & Neale, M. C. (2005). People Are Variables Too: Multilevel Structural Equations Modeling. \emph{Psychological
   	Methods}, \bold{10(3)}, 259-284.
 
-  Searle, S. R., Casella, G., & McCulloch, C. E. (1992). \emph{Variance
-	components}. New York: Wiley.
+  Searle, S. R., Casella, G., & McCulloch, C. E. (1992). \emph{Variance components}. New York: Wiley.
   
   Viechtbauer, W. (2005). Bias and efficiency of meta-analytic variance estimators in the random-effects model. \emph{Journal of Educational and Behavioral Statistics}, \bold{30(3)}, 261-293.
   
