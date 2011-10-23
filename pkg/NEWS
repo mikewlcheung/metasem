@@ -1,5 +1,6 @@
-Release 0.7-0 (Oct 19, 2011)
+Release 0.7-0 (Oct 22, 2011)
 ====================================
+* Fixed a bug in meta() that does not include RE.lbound in Tau matrix when RE.lbound is a matrix
 * Revised tssemFE() to handle incomplete data in the first group
 * Added tssem1RE() for random-effects TSSEM
 * Renamed tssem1() to tssem1FE() for fixed-effects TSSEM

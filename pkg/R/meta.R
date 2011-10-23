@@ -88,15 +88,14 @@ meta <- function(y, v, x, data, intercept.constraints, coeff.constraints,
     if (!all(dim(RE.lbound)==c(no.y, no.y)))
       warning("Dimensions of \"RE.lbound\" are incorrect.")
       # FIXME: need to handle unequal dimensions better
-      # lbound is a matrix
-      ## lbound <- vech(RE.lbound)
+      lbound <- RE.lbound
+      ## lbound is a matrix
     } else {
       lbound <- matrix(NA, nrow=no.y, ncol=no.y)
       diag(lbound) <- RE.lbound
-      # lbound is a matrix      
-      ## lbound <- vech(lbound)
+      ## lbound is a matrix      
   }  
-  
+ 
   ## Preparing the S matrix for covariance elements
   #  No predictor
   if (missing(RE.constraints)) {
@@ -116,7 +115,7 @@ meta <- function(y, v, x, data, intercept.constraints, coeff.constraints,
     if (!all(dim(RE.constraints)==c(no.y, no.y)))
       stop("Dimensions of \"RE.constraints\" are incorrect.")
     
-    Tau <- as.mxMatrix(RE.constraints, lbound=lbound, name="Tau")
+    Tau <- as.mxMatrix(RE.constraints, lbound=vech(lbound), name="Tau")
   }
   V <- mxMatrix("Symm", ncol=no.y, nrow=no.y, free=FALSE,
                  labels=paste("data.", v.labels, sep=""), name="V")
