@@ -183,9 +183,6 @@ fixed2 <- tssem2(fixed1, impliedS=impliedR4, matrices=c(P4, L4),
 summary(fixed2)
 
 ##### Example of Fixed-effects TSSEM with several clusters
-data.cluster <- tapply(Digman97$data, Digman97$cluster, function(x) {x})
-n.cluster <- tapply(Digman97$n, Digman97$cluster, function(x) {x})
-
 fixed1.cluster <- tssem1(Digman97$data, Digman97$n, cluster=Digman97$cluster)
 summary(fixed1.cluster)
 

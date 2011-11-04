@@ -8,7 +8,7 @@
   their confidence ellipses for \code{meta} objects.
 }
 \usage{
-plot.meta(x, effect.sizes, add.margin = 0.1, interval = 0.95,
+\method{plot}{meta}(x, effect.sizes, add.margin = 0.1, interval = 0.95,
 main= paste("Effect Sizes and their Confidence Ellipses"),
 axis.labels= paste("Effect size ", effect.sizes, sep = ""),
 study.col = "black", study.pch = 19, study.min.cex = 0.8,
