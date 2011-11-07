@@ -17,7 +17,8 @@ summary.wls <- function(object, ...) {
     ##    cor.analysis <- FALSE
     ## }
     cor.analysis <- object$cor.analysis
-    
+
+    ## Hu and Bentler (1998) Psychological Methods
     RMSEA <- sqrt(max((tT-dfT)/(n-1),0)/dfT)
     TLI <- (tB/dfB - tT/dfT)/(tB/dfB-1)
     CFI <- 1 - max((tT-dfT),0)/max((tT-dfT),(tB-dfB),0)
@@ -29,7 +30,7 @@ summary.wls <- function(object, ...) {
       # diag(impliedS)!=1
       SRMR <- sqrt(mean(vechs(sampleS-impliedS)^2))
     } else {
-      # standardize it according to Hu & Benterl (1998)
+      # standardize it according to Hu & Bentler (1998)
       stand <- diag(1/sqrt(diag(sampleS)))
       SRMR <- sqrt(mean(vech(stand %*% (sampleS-impliedS) %*% stand)^2))
     }
@@ -142,7 +143,7 @@ summary.tssem1FE <- function(object, ...) {
     ## summary.tssem1: no visible binding for global variable ‘S1’
     no.var <- ncol(object$pooledS)
 
-    # FIXME: what if there are incomplete data in S1
+    # Fixed if there are incomplete data in the first group
     ## no.var <- ncol(mxEval(S1, object$tssem1.fit))
     if (cor.analysis)
       ps <- no.var*(no.var-1)/2
@@ -156,8 +157,10 @@ summary.tssem1FE <- function(object, ...) {
 
     no.groups <- length(object$tssem1.fit@submodels)
     RMSEA <- sqrt(no.groups)*sqrt(max((tT-dfT)/(n-1),0)/dfT)
+    ## Hu and Bentler (1998)
     TLI <- (tB/dfB - tT/dfT)/(tB/dfB-1)
     CFI <- 1 - max((tT-dfT),0)/max((tT-dfT),(tB-dfB),0)
+    ## FIXME: definitions of AIC
     AIC <- tT-2*dfT
     BIC <- tT-log(n)*dfT
     

@@ -1,4 +1,4 @@
-Release 0.7-0 (Oct 22, 2011)
+Release 0.7-0 (Nov 6, 2011)
 ====================================
 * Fixed a bug in meta() that does not include RE.lbound in Tau matrix when RE.lbound is a matrix
 * Revised tssemFE() to handle incomplete data in the first group
