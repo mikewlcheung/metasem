@@ -1,3 +1,8 @@
+Release 0.7-1 (Nov 12, 2011)
+====================================
+* Added homoStat argument in summary.meta()
+* Renamed tssem1FE() and tssem1RE() to tssem1FEM() and tssem1REM()
+
 Release 0.7-0 (Nov 6, 2011)
 ====================================
 * Fixed a bug in meta() that does not include RE.lbound in Tau matrix when RE.lbound is a matrix

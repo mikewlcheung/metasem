@@ -118,9 +118,9 @@ print.summary.wls <- function(x, ...) {
     cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")
 }
 
-summary.tssem1FE <- function(object, ...) {
-    if (!is.element("tssem1FE", class(object)))
-    stop("\"object\" must be an object of class \"tssem1FE\".")
+summary.tssem1FEM <- function(object, ...) {
+    if (!is.element("tssem1FEM", class(object)))
+    stop("\"object\" must be an object of class \"tssem1FEM\".")
     
     # it relies on the model name
     ## if (!is.na(match("TSSEM1 Analysis of Correlation Matrix", object$tssem1.fit@name))) {
@@ -207,13 +207,13 @@ summary.tssem1FE <- function(object, ...) {
     out <- list(call=object$call, coefficients=coefficients, stat=stat, Mx.status1=Mx.status1,
                 R.version=as.character(getRversion()), OpenMx.version=libMatrix["OpenMx", "Version"],
                 metaSEM.version=libMatrix["metaSEM", "Version"], date=date())
-    class(out) <- "summary.tssem1FE"
+    class(out) <- "summary.tssem1FEM"
     out
 }
    
-print.summary.tssem1FE <- function(x, ...) {
-    if (!is.element("summary.tssem1FE", class(x)))
-    stop("\"x\" must be an object of class \"summary.tssem1FE\".")
+print.summary.tssem1FEM <- function(x, ...) {
+    if (!is.element("summary.tssem1FEM", class(x)))
+    stop("\"x\" must be an object of class \"summary.tssem1FEM\".")
     ## call.text <- deparse(x$call)
     
     ## cat("Call:\n")
@@ -242,9 +242,9 @@ print.summary.tssem1FE <- function(x, ...) {
     cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")    
 }
 
-print.tssem1FE <- function(x, ...) {
-    if (!is.element("tssem1FE", class(x)))
-      stop("\"x\" must be an object of class \"tssem1FE\".")
+print.tssem1FEM <- function(x, ...) {
+    if (!is.element("tssem1FEM", class(x)))
+      stop("\"x\" must be an object of class \"tssem1FEM\".")
     ## call.text <- deparse(x$call)
 
     ## cat("Call:\n")
@@ -262,9 +262,9 @@ print.tssem1FE <- function(x, ...) {
     print(summary.default(x), ...)
 }
 
-print.tssem1FE.cluster <- function(x, ...) {
-    if (!is.element("tssem1FE.cluster", class(x)))
-      stop("\"x\" must be an object of class \"tssem1FE.cluster\".")
+print.tssem1FEM.cluster <- function(x, ...) {
+    if (!is.element("tssem1FEM.cluster", class(x)))
+      stop("\"x\" must be an object of class \"tssem1FEM.cluster\".")
 
     cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"), 
         "\n\n", sep = "")    
@@ -272,9 +272,9 @@ print.tssem1FE.cluster <- function(x, ...) {
     print(summary.default(x), ...)
 }
 
-print.tssem1RE <- function(x, ...) {
-    if (!is.element("tssem1RE", class(x)))
-      stop("\"x\" must be an object of class \"tssem1RE\".")
+print.tssem1REM <- function(x, ...) {
+    if (!is.element("tssem1REM", class(x)))
+      stop("\"x\" must be an object of class \"tssem1REM\".")
     ## call.text <- deparse(x$call)
 
     cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"), 
@@ -283,9 +283,9 @@ print.tssem1RE <- function(x, ...) {
     print(summary.default(x), ...)
 }
 
-summary.tssem1RE <- function(object, ...) {
-    if (!is.element("tssem1RE", class(object)))
-    stop("\"object\" must be an object of class \"tssem1RE\".")
+summary.tssem1REM <- function(object, ...) {
+    if (!is.element("tssem1REM", class(object)))
+    stop("\"object\" must be an object of class \"tssem1REM\".")
     summary.meta(object)
 }
    
@@ -314,7 +314,7 @@ print.meta <- function(x, ...) {
     print(summary.default(x), ...)
 }
 
-summary.meta <- function(object, ...) {
+summary.meta <- function(object, homoStat=TRUE, ...) {
     if (!is.element("meta", class(object)))
     ## if (!("meta" %in% class(object)))
     stop("\"object\" must be an object of class \"meta\".")
@@ -370,7 +370,11 @@ summary.meta <- function(object, ...) {
     no.y <- object$no.y
     no.v <- no.y*(no.y+1)/2
 	# Remove studies that have missing x. Make sure that studies are the same in calculating Q.stat and meta()
-    Q.stat <- homoStat(y=object$data[!object$miss.x, 1:no.y], v=object$data[!object$miss.x, (no.y+1):(no.y+no.v)])
+    if (homoStat) {
+      Q.stat <- homoStat(y=object$data[!object$miss.x, 1:no.y], v=object$data[!object$miss.x, (no.y+1):(no.y+no.v)])
+    } else {
+      Q.stat <- list(Q=NA, Q.df=NA, pval=NA)
+    }
 
     Mx.status1 <- object$meta.fit@output$status[[1]]   
     libMatrix <- installed.packages()    
@@ -559,7 +563,7 @@ vcov.meta <- function(object, select=c("all", "fixed", "random"), ...) {
              my.name <- c( paste("Intercept", 1:no.y, sep=""),
                            outer(1:no.y, 1:no.x, function(y, x) paste("Slope", y,"_", x, sep = "")) )
            },
-           random = if ("tssem1RE" %in% class(object)) {
+           random = if ("tssem1REM" %in% class(object)) {
                         my.name <- paste("Tau2_", 1:no.y,"_", 1:no.y,sep="")
                     } else {
                         my.name <- vech(outer(1:no.y, 1:no.y, function(x,y) { paste("Tau2_",x,"_",y,sep="")}))
@@ -576,21 +580,21 @@ vcov.meta <- function(object, select=c("all", "fixed", "random"), ...) {
 }
 
 
-vcov.tssem1FE <- function(object, ...) {
-    if (!is.element("tssem1FE", class(object)))
-    stop("\"object\" must be an object of class \"tssem1FE\".")
+vcov.tssem1FEM <- function(object, ...) {
+    if (!is.element("tssem1FEM", class(object)))
+    stop("\"object\" must be an object of class \"tssem1FEM\".")
     object$acovS
 }
 
-vcov.tssem1FE.cluster <- function(object, ...) {
-    if (!is.element("tssem1FE.cluster", class(object)))
-    stop("\"object\" must be an object of class \"tssem1FE.cluster\".")
-    lapply(object, vcov.tssem1FE)
+vcov.tssem1FEM.cluster <- function(object, ...) {
+    if (!is.element("tssem1FEM.cluster", class(object)))
+    stop("\"object\" must be an object of class \"tssem1FEM.cluster\".")
+    lapply(object, vcov.tssem1FEM)
 }  
 
-vcov.tssem1RE <- function(object, select=c("all", "fixed", "random"), ...) {
-  if (!is.element("tssem1RE", class(object)))
-    stop("\"object\" must be an object of class \"tssem1RE\".")
+vcov.tssem1REM <- function(object, select=c("all", "fixed", "random"), ...) {
+  if (!is.element("tssem1REM", class(object)))
+    stop("\"object\" must be an object of class \"tssem1REM\".")
   vcov.meta(object, select, ...)
 }
 
@@ -656,7 +660,7 @@ coef.meta <- function(object, select=c("all", "fixed", "random"), ...) {
                      my.name <- c( paste("Intercept", 1:no.y, sep=""),
                                    outer(1:no.y, 1:no.x, function(y, x) paste("Slope", y,"_", x, sep = "")) )
                   },
-         random = if ("tssem1RE" %in% class(object)) {
+         random = if ("tssem1REM" %in% class(object)) {
                      my.name <- paste("Tau2_", 1:no.y,"_", 1:no.y,sep="")
                   } else {
                      my.name <- vech(outer(1:no.y, 1:no.y, function(x,y) { paste("Tau2_",x,"_",y,sep="")}))
@@ -665,22 +669,22 @@ coef.meta <- function(object, select=c("all", "fixed", "random"), ...) {
   object$meta.fit@output$estimate[my.name]
 }
 
-coef.tssem1FE <- function(object, ...) {  
-    if (!is.element("tssem1FE", class(object)))
-    stop("\"object\" must be an object of class \"tssem1FE\".")
+coef.tssem1FEM <- function(object, ...) {  
+    if (!is.element("tssem1FEM", class(object)))
+    stop("\"object\" must be an object of class \"tssem1FEM\".")
     object$pooledS
 }
 
-coef.tssem1RE <- function(object, select=c("all", "fixed", "random"), ...) {
-  if (!is.element("tssem1RE", class(object)))
-    stop("\"object\" must be an object of class \"tssem1RE\".")
+coef.tssem1REM <- function(object, select=c("all", "fixed", "random"), ...) {
+  if (!is.element("tssem1REM", class(object)))
+    stop("\"object\" must be an object of class \"tssem1REM\".")
   coef.meta(object, select, ...)
 }
 
-coef.tssem1FE.cluster <- function(object, ...) {
-    if (!is.element("tssem1FE.cluster", class(object)))
-    stop("\"object\" must be an object of class \"tssem1FE.cluster\".")
-    lapply(object, coef.tssem1FE)
+coef.tssem1FEM.cluster <- function(object, ...) {
+    if (!is.element("tssem1FEM.cluster", class(object)))
+    stop("\"object\" must be an object of class \"tssem1FEM.cluster\".")
+    lapply(object, coef.tssem1FEM)
 }
   
 coef.wls <- function(object, ...) {
@@ -722,10 +726,10 @@ anova.reml <- function(object, ..., all=FALSE) {
   mxCompare(base=base, comparison=comparison, all=all)
 }
 
-summary.tssem1FE.cluster <- function(object, ...) {
-    if (!is.element("tssem1FE.cluster", class(object)))
-    stop("\"object\" must be an object of class \"tssem1FE.cluster\".")
-    lapply(object, summary.tssem1FE)
+summary.tssem1FEM.cluster <- function(object, ...) {
+    if (!is.element("tssem1FEM.cluster", class(object)))
+    stop("\"object\" must be an object of class \"tssem1FEM.cluster\".")
+    lapply(object, summary.tssem1FEM)
 }
 
 summary.wls.cluster <- function(object, ...) {

@@ -17,7 +17,7 @@ tssem2(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB"),
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{tssem1.obj}{An object of either class
-	\code{tssem1FE}, class \code{tssem1FE.cluster} or class \code{tssem1RE}}
+	\code{tssem1FEM}, class \code{tssem1FEM.cluster} or class \code{tssem1REM}}
   \item{S}{A \eqn{p}{p} x \eqn{p}{p} sample correlation/covariance matrix
 	where \eqn{p}{p} is the number of variables.
 }

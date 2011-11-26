@@ -1,7 +1,7 @@
 \name{vcov}
-\alias{vcov.tssem1FE}
-\alias{vcov.tssem1FE.cluster}
-\alias{vcov.tssem1RE}
+\alias{vcov.tssem1FEM}
+\alias{vcov.tssem1FEM.cluster}
+\alias{vcov.tssem1REM}
 \alias{vcov.wls}
 \alias{vcov.wls.cluster}
 \alias{vcov.meta}
@@ -9,14 +9,14 @@
 \title{Extract Covariance Matrix Parameter Estimates from Various Objects
 }
 \description{It extracts the variance-covariance matrix of the
-  parameter estimates from either \code{tssem1FE},
-  \code{tssem1FE.cluster}, \code{tssem1RE}, \code{wls}, \code{wls.cluster}, \code{meta}
+  parameter estimates from either \code{tssem1FEM},
+  \code{tssem1FEM.cluster}, \code{tssem1REM}, \code{wls}, \code{wls.cluster}, \code{meta}
   or \code{reml} objects.
 }
 \usage{
-\method{vcov}{tssem1FE}(object, \dots)
-\method{vcov}{tssem1FE.cluster}(object, \dots)
-\method{vcov}{tssem1RE}(object, select = c("all", "fixed", "random"), \dots)
+\method{vcov}{tssem1FEM}(object, \dots)
+\method{vcov}{tssem1FEM.cluster}(object, \dots)
+\method{vcov}{tssem1REM}(object, select = c("all", "fixed", "random"), \dots)
 \method{vcov}{wls}(object, \dots)
 \method{vcov}{wls.cluster}(object, \dots)
 \method{vcov}{meta}(object, select = c("all", "fixed", "random"), \dots)
@@ -25,7 +25,7 @@
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{object}{An object returned from either class
-	\code{tssem1FE}, class \code{tssem1FE.cluster}, class \code{tssem1RE},
+	\code{tssem1FEM}, class \code{tssem1FEM.cluster}, class \code{tssem1REM},
 	class \code{wls}, class \code{wls.cluster}, class \code{meta} or class \code{reml}
   }
   \item{select}{Select \code{all} for both fixed- and random-effects parameters, \code{fixed} for the

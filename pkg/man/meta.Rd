@@ -1,6 +1,7 @@
 \name{meta}
 \alias{meta}
-\title{Univariate and Multivariate Meta-Analysis
+\title{Univariate and Multivariate Meta-Analysis Based on Maximum
+  Likelihood Estimation
 }
 \description{
 It conducts univariate and multivariate meta-analysis with maximum
@@ -102,15 +103,15 @@ model.name="Meta analysis with ML", suppressWarnings = TRUE, ...)
   for parameters with structural equation models. \emph{Structural
 	Equation Modeling}, \bold{16}, 267-294.
   
-  Cheung, M. W. L. (2011). Multivariate meta-analaysis as structural equation models. \emph{Manuscript submitted for publication.}
+  Cheung, M. W. L. (in press). Multivariate meta-analaysis as structural
+	equation models. \emph{Structural Equation Modeling.}
   
   Hardy, R. J., & Thompson, S. G. (1996). A likelihood approach to
   meta-analysis with random effects. \emph{Statistics in Medicine},
   \bold{15}, 619-629.
   
   Neale, M. C., & Miller, M. B. (1997). The use of likelihood-based
-  confidence intervals in genetic models. \emph{Behavior
-Genetics}, \bold{27}, 113-120.
+  confidence intervals in genetic models. \emph{Behavior Genetics}, \bold{27}, 113-120.
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }

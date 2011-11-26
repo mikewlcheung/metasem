@@ -1,43 +1,45 @@
 \name{summary}
-\alias{summary.tssem1FE}
-\alias{summary.tssem1FE.cluster}
-\alias{summary.tssem1RE}
+\alias{summary.tssem1FEM}
+\alias{summary.tssem1FEM.cluster}
+\alias{summary.tssem1REM}
 \alias{summary.wls}
 \alias{summary.wls.cluster}
 \alias{summary.meta}
 \alias{summary.reml}
-\alias{print.summary.tssem1FE}
-\alias{print.summary.tssem1FE.cluster}
+\alias{print.summary.tssem1FEM}
+\alias{print.summary.tssem1FEM.cluster}
 \alias{print.summary.wls}
 \alias{print.summary.meta}
 \alias{print.summary.reml}
 \title{Summary Method for tssem1, wls and meta Objects
 }
-\description{It summaries results for either class \code{tssem1FE},
-  class \code{tssem1FE.cluster}, class \code{tssem1RE}, class
+\description{It summaries results for either class \code{tssem1FEM},
+  class \code{tssem1FEM.cluster}, class \code{tssem1REM}, class
   \code{wls}, class \code{wls.cluster}, class \code{meta} or class \code{reml}.
 }
 \usage{
-\method{summary}{tssem1FE}(object, \dots)
-\method{summary}{tssem1FE.cluster}(object, \dots)
-\method{summary}{tssem1RE}(object, \dots)
+\method{summary}{tssem1FEM}(object, \dots)
+\method{summary}{tssem1FEM.cluster}(object, \dots)
+\method{summary}{tssem1REM}(object, \dots)
 \method{summary}{wls}(object, \dots)
 \method{summary}{wls.cluster}(object, \dots)
-\method{summary}{meta}(object, \dots)
+\method{summary}{meta}(object, homoStat=TRUE, \dots)
 \method{summary}{reml}(object, \dots)
-\method{print.summary}{tssem1FE}(x, \dots)
+\method{print.summary}{tssem1FEM}(x, \dots)
 \method{print.summary}{wls}(x, \dots)
 \method{print.summary}{meta}(x, \dots)
 \method{print.summary}{reml}(x, \dots)
 }
 \arguments{
   \item{object}{An object returned from either class
-	\code{tssem1FE}, class \code{tssem1FE.cluster},
-	class \code{tssem1RE}, class \code{wls}, class \code{wls.cluster}, class \code{meta} or class \code{reml}.
+	\code{tssem1FEM}, class \code{tssem1FEM.cluster},
+	class \code{tssem1REM}, class \code{wls}, class \code{wls.cluster}, class \code{meta} or class \code{reml}.
 }
-  \item{x}{An object returned from either class \code{summary.tssem1FE},
-	class \code{tssem1FE.cluster}, class \code{summary.wls}, class \code{summary.meta} or class \code{summary.reml}.
+  \item{x}{An object returned from either class \code{summary.tssem1FEM},
+	class \code{tssem1FEM.cluster}, class \code{summary.wls}, class \code{summary.meta} or class \code{summary.reml}.
 }
+  \item{homoStat}{Logical. Whether to conduct a homogeneity test on the
+	effect sizes.} 
   \item{\dots}{Further arguments to be passed to \code{\link[stats]{printCoefmat}}
 }
 }
