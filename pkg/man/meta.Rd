@@ -1,17 +1,17 @@
 \name{meta}
 \alias{meta}
-\title{Univariate and Multivariate Meta-Analysis Based on Maximum
+\title{Univariate and Multivariate Meta-Analysis Using Maximum
   Likelihood Estimation
 }
 \description{
 It conducts univariate and multivariate meta-analysis with maximum
-likelihood estimation method. Mixed-effects meta-analysis can be conducted by
-including study characteristics as predictors. Equality constraints on
+likelihood estimation method. Mixed-effects meta-analysis can be
+conducted by including study characteristics as predictors. Equality constraints on
 intercepts, regression coefficients and variance components can be
 easily imposed by setting the same labels on the parameter estimates.
 }
 \usage{
-meta(y, v, x, data, intercept.constraints, coeff.constraints, RE.constraints,
+meta(y, v, x, data, intercept.constraints, coef.constraints, RE.constraints,
 RE.startvalues=0.1, RE.lbound = 1e-10, intervals.type = c("z", "LB"),
 model.name="Meta analysis with ML", suppressWarnings = TRUE, ...)
 }
@@ -40,7 +40,7 @@ model.name="Meta analysis with ML", suppressWarnings = TRUE, ...)
 	\code{\link[metaSEM]{as.mxMatrix}}. The intercepts can be
 	constrained equally by using the same labels.
 }
-  \item{coeff.constraints}{A \eqn{p}{p} x \eqn{m}{m} matrix
+  \item{coef.constraints}{A \eqn{p}{p} x \eqn{m}{m} matrix
 	specifying how the predictors predict the effect sizes. The default
 	is that all \eqn{m}{m} predictors predict all \eqn{p}{p} effect sizes. The
 	format of this matrix follows
@@ -115,8 +115,10 @@ model.name="Meta analysis with ML", suppressWarnings = TRUE, ...)
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
-\note{
-%%  ~~further notes~~
+\note{Missing values (NA) in y and their related elements in v
+  will be removed automatically. When there are missing values in v but
+  not in y, missing values will be replaced by 1e5. Effectively, these
+  effect sizes will have little impact on the analysis.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
@@ -149,7 +151,7 @@ summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
 ## Multivariate meta-analysis with equality constraint on the regression coefficients
 summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
               x=scale(pub_year, center=1979), data=Berkey98,
-              coeff.constraints=matrix(c("0.3*Eq_slope", "0.3*Eq_slope"), nrow=2)) ) 
+              coef.constraints=matrix(c("0.3*Eq_slope", "0.3*Eq_slope"), nrow=2)) ) 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

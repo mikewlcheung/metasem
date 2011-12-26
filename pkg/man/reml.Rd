@@ -1,6 +1,7 @@
 \name{reml}
 \alias{reml}
-\title{Extract Variance Components with REML
+\title{Extract Variance Components with Restricted (Residual) Maximum
+  Likelihood Estimation
 }
 \description{
 It estimates the variance components of random-effects in univariate and

@@ -28,7 +28,9 @@ standIndirect(x, n)
   Cheung, M. W. L. (2009). Comparison of methods for constructing confidence intervals of standardized indirect effects. \emph{Behavior
   Research Methods}, \emph{41}, 425-438.
   
-  Kwan, J., & Chan, W. (in press). Comparing standardized coefficients in structural equation modeling: a model reparameterization approach. \emph{Behavior Research Methods}.
+  Kwan, J., & Chan, W. (2011). Comparing standardized coefficients in
+  structural equation modeling: a model reparameterization
+  approach. \emph{Behavior Research Methods}, \emph{43}, 730-745.
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 

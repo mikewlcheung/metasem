@@ -76,8 +76,8 @@ summary(mixed.ma1)
 mixed.ma2 <- meta(y=cbind(lifesat, lifecon),
                   v=cbind(lifesat.var, inter.cov, lifecon.var),
                   x=scale(gnp/10000, scale=FALSE), data=wvs94,
-                  coeff.constraints=matrix(c("0.0*Eq_slope",
-                                             "0.0*Eq_slope"), nrow=2),
+                  coef.constraints=matrix(c("0.0*Eq_slope",
+                                            "0.0*Eq_slope"), nrow=2),
                   model.name="GNP as a predictor with equal slope")
 summary(mixed.ma2)
 

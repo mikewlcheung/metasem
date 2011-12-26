@@ -1,5 +1,10 @@
-Release 0.7-1 (Nov 12, 2011)
+Release 0.7-1 (Dec 26, 2011)
 ====================================
+* Added meta3() for 3-level meta-analysis
+* Added data set Cooper03
+* Rewrote meta() to exclude predictors in the models
+* Revised meta() to replace NA with 1e5 in v object
+* Modified coeff.constraints argument to coef.constraints in meta()
 * Added homoStat argument in summary.meta()
 * Renamed tssem1FE() and tssem1RE() to tssem1FEM() and tssem1REM()
 

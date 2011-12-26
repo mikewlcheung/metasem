@@ -1,4 +1,4 @@
-meta <- function(y, v, x, data, intercept.constraints, coeff.constraints,
+meta <- function(y, v, x, data, intercept.constraints, coef.constraints,
                  RE.constraints, RE.startvalues=0.1, RE.lbound=1e-10,
                  intervals.type=c("z", "LB"), model.name="Meta analysis with ML",
                  suppressWarnings = TRUE, ...) {
@@ -14,7 +14,11 @@ meta <- function(y, v, x, data, intercept.constraints, coeff.constraints,
   my.v <- mf[[match("v", names(mf))]]    
   y <- eval(my.y, data, enclos = sys.frame(sys.parent()))
   v <- eval(my.v, data, enclos = sys.frame(sys.parent()))
-
+  
+  ## Replace NA in v with 1e5
+  ## Users should manually remove elements in y and v when there are NA in v only.
+  v[is.na(v)] <- 1e5
+  
   if (is.vector(y)) no.y <- 1 else no.y <- ncol(y)  
   if (is.vector(v)) no.v <- 1 else no.v <- ncol(v)
   if (missing(x)) no.x <- 0 else {
@@ -30,9 +34,8 @@ meta <- function(y, v, x, data, intercept.constraints, coeff.constraints,
   y.labels <- paste("y", 1:no.y, sep="")
   x.labels <- paste("x", 1:no.x, sep="")
 
-  ## miss.x: any one in x is missing
   if (no.x==0) {
-    x <- NULL
+    ## x <- NULL
     input.df <- as.matrix(cbind(y, v))
     dimnames(input.df) <- list(NULL, c(y.labels, v.labels))
     # No missing value in x
@@ -40,17 +43,34 @@ meta <- function(y, v, x, data, intercept.constraints, coeff.constraints,
   } else {    
     input.df <- as.matrix(cbind(y, v, x))
     dimnames(input.df) <- list(NULL, c(y.labels, v.labels, x.labels))
-    if (no.x==1) miss.x <- is.na(x) else miss.x <- apply(is.na(x), 1, any)
+    if (no.x==1) {
+      ## miss.x: any one in x is missing
+      miss.x <- is.na(x)
+    } else {
+      miss.x <- apply(is.na(x), 1, any)
+    }
   }
   ## Remove missing data; my.df is used in the actual data analysis
   ## Missing y is automatically handled by OpenMx
   my.df <- input.df[!miss.x, ]
-    
-  if (no.x==0) {
-    # No predictor
-    A <- mxMatrix("Zero", nrow=no.y, ncol=no.y, name="A")
+
+  ## Preparing the Beta matrix for the intercept vector
+  ## Beta is a 1 by no.y row vector
+  if (missing(intercept.constraints)) {
+    Beta <- matrix( paste("0*Intercept", 1:no.y, sep=""), nrow=1, ncol=no.y )
   } else {
-    if (missing(coeff.constraints)) {
+    if (!all(dim(intercept.constraints)==c(1, no.y)))
+      stop("Dimensions of \"intercept.constraints\" are incorrect.")
+    Beta <- intercept.constraints
+  }  
+  Beta <- t(Beta)
+ 
+  ## Without predictors
+  ## X: a 1 by (1+no.x) row vector
+  if (no.x==0) {
+    X <- mxMatrix("Unit", nrow=1, ncol=1, name="X") 
+  } else {
+    if (missing(coef.constraints)) {
       yVar <- paste("y", seq(1,no.y), sep="", collapse="+")
       xVar <- paste("x", seq(1,no.x), sep="", collapse="+")
       # Use lm() coefficients as starting values
@@ -60,27 +80,25 @@ meta <- function(y, v, x, data, intercept.constraints, coeff.constraints,
       if (inherits(startValues, "error"))
         startValues <- matrix(0, nrow=no.y, ncol=(no.x+1))
       
-      # A1 includes regresson coefficients among ys
-      # The default is no prediction among ys
       A.labels <- outer(1:no.y, 1:no.x, function(y, x) paste("*Slope", y,"_", x, sep = ""))
-      A1 <- cbind(matrix(0, nrow=no.y, ncol=no.y),
-                  matrix( paste(startValues[,-1], A.labels, sep=""), nrow=no.y, ncol=no.x ))
+      A <- matrix( paste(startValues[,-1], A.labels, sep=""), nrow=no.y, ncol=no.x )
     } else {
-      coeff.dim <- dim(coeff.constraints)
-      if (!coeff.dim[1]==no.y | !(coeff.dim[2] %in% c(no.x, no.x+no.y)))
-          stop("Dimensions of \"coeff.constraints\" are incorrect.")
-      # Regression among ys have not been defined yet
-      if (no.x==ncol(coeff.constraints)) {
-        A1 <- cbind( matrix(0, nrow=no.y, ncol=no.y), coeff.constraints)
-      } else {
-        A1 <- coeff.constraints
-      }
+      coef.dim <- dim(coef.constraints)
+      if (!coef.dim[1]==no.y | !(coef.dim[2] %in% c(no.x, no.x+no.y)))
+          stop("Dimensions of \"coef.constraints\" are incorrect.")
+       A <- coef.constraints
     }
-    A <- rbind( A1,
-                matrix(0, nrow=no.x, ncol=(no.x+no.y)))
-    A <- as.mxMatrix(A, name="A")
+   ## 
+    Beta <- cbind(Beta, A)
+    ## X.matrix <- paste("mxMatrix(\"Full\", nrow=1, ncol=(1+no.x), free=FALSE, values=c(1,",
+    ##                   paste("data.x",1:no.x,sep="", collapse=","), "), name=\"X\")", sep="")
+    ## eval(parse(text = X.matrix))
+    X <- mxMatrix("Full", nrow=1, ncol=(1+no.x), free=FALSE, values=c(1, rep(NA, no.x)),
+                  labels=c(NA, paste("data.x",1:no.x,sep="")), name="X")
   }
-
+  Beta <- as.mxMatrix(Beta)
+  M <- mxAlgebra( X %*% t(Beta), name="M")
+  
   ## Fixed a bug in 0.5-0 that lbound is not added into Tau
   ## when RE.constraints is used.
   ## lbound in variance component of the random effects
@@ -107,70 +125,21 @@ meta <- function(y, v, x, data, intercept.constraints, coeff.constraints,
     } else {
       values <- vech(diag(x=RE.startvalues, nrow=no.y, ncol=no.y))
     }
-
     Tau.labels <- vech(outer(1:no.y, 1:no.y, function(x,y) { paste("Tau2_",x,"_",y,sep="")}))
     Tau <- mxMatrix("Symm", ncol=no.y, nrow=no.y, free=TRUE, labels=Tau.labels,
                     lbound=vech(lbound), values=values, name="Tau")      
   } else {
     if (!all(dim(RE.constraints)==c(no.y, no.y)))
-      stop("Dimensions of \"RE.constraints\" are incorrect.")
-    
+      stop("Dimensions of \"RE.constraints\" are incorrect.")    
     Tau <- as.mxMatrix(RE.constraints, lbound=vech(lbound), name="Tau")
   }
   V <- mxMatrix("Symm", ncol=no.y, nrow=no.y, free=FALSE,
                  labels=paste("data.", v.labels, sep=""), name="V")
-   
-  if (no.x == 0) {
-    S <- mxAlgebra(V+Tau, name="S")
-  } else {
-    S1 <- mxAlgebra(V+Tau, name="S1")
-    S2 <- mxMatrix("Full", nrow=no.y, ncol=no.x, free=FALSE, name="S2")
-    S3 <- mxMatrix("Full", nrow=no.x, ncol=no.y, free=FALSE, name="S3")
-    S4 <- mxMatrix("Symm", nrow=no.x, ncol=no.x, free=TRUE,
-                   values=vech(var(x, use="complete.obs")), name="S4")
-    S <- mxAlgebra(rbind(cbind(S1,S2),
-                         cbind(S3,S4)), name="S")
-  }
-
-  ## Preparing the M matrix for the mean vector 
-  if (missing(intercept.constraints)) {
-    M <- matrix( paste("0*Intercept", 1:no.y, sep=""), nrow=1, ncol=no.y )
-    #M <- matrix("0*", nrow=1, ncol=no.y)
-  } else {
-    if (!all(dim(intercept.constraints)==c(1, no.y)))
-      stop("Dimensions of \"intercept.constraints\" are incorrect.")
-    M <- intercept.constraints
-  }
+  S <- mxAlgebra(V+Tau, name="S")
   
-  if (no.x==0) {
-    M <- as.mxMatrix(M, name="M")
-    ## Fixed a bug in OpenMx 1.1 that requires dimnames for M
-    dimnames(M) <- list(NULL, y.labels)
-  } else {
-    # t() is required to fix a bug when no.x>1
-    M <- cbind(M, t(matrix(paste(round(colMeans(matrix(x, ncol=no.x), na.rm=TRUE),2),"*", sep=""))))
-    M <- as.mxMatrix(M, name="M")
-    ## Fixed a bug in OpenMx 1.1 that requires dimnames for M
-    dimnames(M) <- list(NULL, c(y.labels, x.labels))    
-  }
- 
-  if (no.x==0) {
-    F <- mxMatrix("Iden", nrow=(no.y), ncol=(no.y), free=FALSE, name="F",
-                dimnames=list( paste("y", 1:no.y, sep=""), paste("y", 1:no.y, sep="") ))
-  } else {
-    F <- mxMatrix("Iden", nrow=(no.y+no.x), ncol=(no.y+no.x), free=FALSE, name="F",
-                dimnames=list( c(y.labels, x.labels), c(y.labels, x.labels)) )
-  }
-  
-  if (no.x==0) {
-    meta <- mxModel(model=model.name, mxData(observed=my.df, type="raw"),
-                    mxRAMObjective("A", "S", "F", "M"), A, S, F, M, Tau, V, 
-                    mxCI(c("Tau","M")))
-  } else {
-    meta <- mxModel(model=model.name, mxData(observed=my.df, type="raw"),
-                    mxRAMObjective("A", "S", "F", "M"), A, S, F, M, Tau, V, 
-                    S1, S2, S3, S4, mxCI(c("Tau","M", "A")))
-  }
+  meta <- mxModel(model=model.name, mxData(observed=my.df, type="raw"),
+                  mxFIMLObjective( covariance="S", means="M", dimnames=y.labels),
+                  Beta, M, X, S, Tau, V, mxCI(c("Tau","Beta")))
 
   intervals.type <- match.arg(intervals.type)
   # Default is z
@@ -181,8 +150,8 @@ meta <- function(y, v, x, data, intercept.constraints, coeff.constraints,
                                      suppressWarnings = suppressWarnings, ...), error = function(e) e ) )
  
   if (inherits(meta.fit, "error")) {
-    cat("Error in running the mxModel:\n")
-    stop(print(meta.fit))
+    cat("Error in running mxModel:\n")
+    warning(print(meta.fit))
   }
   
   out <- list(call = mf, data=input.df, no.y=no.y, no.x=no.x,

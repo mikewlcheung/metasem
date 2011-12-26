@@ -53,13 +53,11 @@
 
 \examples{
 ## Test the significance of a predictor with likelihood ratio test
-## Model0: Regression coefficient is fixed at 0
-model0 <- meta(y=yi, v=vi, x=weeks, coeff.constraints=matrix(0), data=Hox02,
-               model.name="No predictor")
+## Model0: No predictor
+model0 <- meta(y=yi, v=vi, data=Hox02, model.name="No predictor")
 
-## Model1: Regression coefficient is free
-model1 <- meta(y=yi, v=vi, x=weeks, data=Hox02,
-               model.name="One predictor")
+## Model1: With a predictor
+model1 <- meta(y=yi, v=vi, x=weeks, data=Hox02, model.name="One predictor")
 
 ## Compare these two models
 anova(model1, model0) 
