@@ -166,7 +166,7 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
   }
 }
 
-tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE_diag=FALSE, RE.startvalues=0.1, RE.lbound = 1e-10,
+tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE.diag.only=FALSE, RE.startvalues=0.1, RE.lbound = 1e-10,
                      model.name=NULL, suppressWarnings=TRUE, ...) {
   ## Replace diagonals with 1.0
   my.complete <- lapply(my.df, function (x) { diag(x)[is.na(diag(x))] <- 1; x })
@@ -189,7 +189,7 @@ tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE_diag=FALSE, RE.startvalues
     }
   }
   
-  if (RE_diag==TRUE) {
+  if (RE.diag.only==TRUE) {
     ## No covariance between random effects
     meta.fit <- meta(y=ES, v=acovR, model.name=model.name,
                      RE.constraints=diag(x=paste(RE.startvalues, "*Tau2_", 1:no.es, "_", 1:no.es, sep=""),
@@ -198,20 +198,20 @@ tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE_diag=FALSE, RE.startvalues
     meta.fit <- meta(y=ES, v=acovR, model.name=model.name, RE.startvalues=RE.startvalues, RE.lbound = RE.lbound)
   }
 
-  out <- list(total.n=sum(n), cor.analysis=cor.analysis, RE_diag=RE_diag, no.es=no.es)
+  out <- list(total.n=sum(n), cor.analysis=cor.analysis, RE.diag.only=RE.diag.only, no.es=no.es)
   out <- c(out, meta.fit)
   class(out) <- c("tssem1REM", "meta")
   return(out)
 }
 
 tssem1 <- function(my.df, n, method=c("FEM", "REM"), cor.analysis=TRUE, cluster=NULL,
-                   RE_diag=FALSE, RE.startvalues=0.1, RE.lbound = 1e-10,
+                   RE.diag.only=FALSE, RE.startvalues=0.1, RE.lbound = 1e-10,
                    model.name=NULL, suppressWarnings=TRUE, ...) {
   method <- match.arg(method)
   switch(method,
     FEM = out <- tssem1FEM(my.df=my.df, n=n, cor.analysis=cor.analysis, model.name=model.name,
                           cluster=cluster, suppressWarnings=suppressWarnings, ...),
-    REM = out <- tssem1REM(my.df=my.df, n=n, cor.analysis=cor.analysis, RE_diag=RE_diag,
+    REM = out <- tssem1REM(my.df=my.df, n=n, cor.analysis=cor.analysis, RE.diag.only=RE.diag.only,
                           RE.startvalues=RE.startvalues, RE.lbound=RE.lbound,
                           model.name=model.name, suppressWarnings=suppressWarnings, ...) )
   out  

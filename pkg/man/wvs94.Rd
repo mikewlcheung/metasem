@@ -33,7 +33,7 @@ satisfaction and on life control in each country were calculated as the effect s
   Au, K., & Cheung, M. W. L. (2004). Intra-cultural variation and job autonomy in 42
   countries. \emph{Organization Studies}, \bold{25}, 1339-1362.
   
-  Cheung, M. W. L. (in press). Multivariate meta-analaysis as structural
+  Cheung, M. W. L. (in press). Multivariate meta-analysis as structural
   equation models. \emph{Structural Equation Modeling.}
 }
 \examples{

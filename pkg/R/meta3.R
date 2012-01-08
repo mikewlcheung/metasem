@@ -44,12 +44,8 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints, coef.constraint
   
   ## c() is required to convert matrix to vector when the data are balanced.
   ## c() is not required when the data are unbalanced.
-  my.long$time <- c(unlist(sapply(split(y, cluster), function(x) 1:length(x))))
-  ## if (no.x3==0) {
+  my.long$time <- c(unlist(sapply(split(my.long$y, my.long$cluster), function(x) 1:length(x))))
   my.wide <- reshape(my.long, timevar="time", idvar=c("cluster"), direction="wide")
-  ## } else {
-  ##   my.wide <- reshape(my.long, timevar="time", idvar=c("cluster", x3.labels), direction="wide")
-  ## }
 
   ## Replace "." with "_" since OpenMx does not allow "." as variable names
   names(my.wide) <- sub("\\.", "_", names(my.wide))

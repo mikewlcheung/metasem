@@ -11,11 +11,11 @@
 }
 \usage{
 tssem1(my.df, n, method=c("FEM","REM"), cor.analysis = TRUE, cluster=NULL,
-       RE_diag=FALSE, RE.startvalues=0.1, RE.lbound = 1e-10,
+       RE.diag.only=FALSE, RE.startvalues=0.1, RE.lbound = 1e-10,
        model.name=NULL, suppressWarnings=TRUE, ...)
 tssem1FEM(my.df, n, cor.analysis = TRUE, model.name = NULL,
           cluster = NULL, suppressWarnings = TRUE, ...)
-tssem1REM(my.df, n, cor.analysis = TRUE, RE_diag = FALSE,
+tssem1REM(my.df, n, cor.analysis = TRUE, RE.diag.only = FALSE,
           RE.startvalues = 0.1, RE.lbound = 1e-10, model.name = NULL,
           suppressWarnings = TRUE, ...)
 }
@@ -34,7 +34,7 @@ tssem1REM(my.df, n, cor.analysis = TRUE, RE_diag = FALSE,
 	clusters. Analyses will be conducted for each cluster. It will be
 	ignored when \code{method="REM"}.
   }
-  \item{RE_diag}{Logical. If it is \code{TRUE} (default if missing),
+  \item{RE.diag.only}{Logical. If it is \code{TRUE} (default if missing),
 	there are only random effects on the specific correlation/covariance elements
 	while the correlation/covariance elments are assumed independent. If
 	it is \code{FALSE}, there are random effects on the covariances
@@ -58,10 +58,10 @@ tssem1REM(my.df, n, cor.analysis = TRUE, RE_diag = FALSE,
   for random-effects TSSEM. 
 }
 \references{
-  Cheung, M. W. L. (2011). Applications of meta-analytic structural
-  equation modeling. \emph{Manuscript in preparation.}
+  % Cheung, M. W. L. (2011). Applications of meta-analytic structural
+  % equation modeling. \emph{Manuscript in preparation.}
 
-  Cheung, M. W. L. (in press). Multivariate meta-analaysis as structural equation models. \emph{Structural Equation Modeling.}
+  Cheung, M. W. L. (in press). Multivariate meta-analysis as structural equation models. \emph{Structural Equation Modeling.}
 
   Cheung, M. W. L., & Chan, W. (2005). Meta-analytic structural equation modeling: A two-stage approach. \emph{Psychological Methods}, \bold{10}, 40-64.
 

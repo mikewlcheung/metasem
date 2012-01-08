@@ -1,6 +1,6 @@
 \name{reml}
 \alias{reml}
-\title{Extract Variance Components with Restricted (Residual) Maximum
+\title{Estimate Variance Components with Restricted (Residual) Maximum
   Likelihood Estimation
 }
 \description{

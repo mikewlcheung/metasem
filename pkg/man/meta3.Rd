@@ -1,6 +1,6 @@
 \name{meta3}
 \alias{meta3}
-\title{Three-Level Univariate Meta-Analysis using Maximum Likelihood Estimation
+\title{Three-Level Univariate Meta-Analysis with Maximum Likelihood Estimation
 }
 \description{
 It conducts three-level univariate meta-analysis with maximum

@@ -15,7 +15,7 @@
 Package: \tab metaSEM\cr
 Type: \tab Package\cr
 Version: \tab 0.7-1\cr
-Date: \tab 2011-12-26\cr
+Date: \tab 2012-01-06\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }
@@ -29,7 +29,7 @@ Cheung, M. W. L. (2008). A model for integrating fixed-, random-, and mixed-effe
 
 Cheung, M. W. L. (2009). Constructing approximate confidence intervals for parameters with structural equation models. \emph{Structural Equation Modeling}, \bold{16}, 267-294.
 
-Cheung, M. W. L. (in press). Multivariate meta-analaysis as structural equation models. \emph{Structural Equation Modeling.}
+Cheung, M. W. L. (in press). Multivariate meta-analysis as structural equation models. \emph{Structural Equation Modeling.}
 
 Cheung, M. W. L., & Chan, W. (2004). Testing dependent correlation coefficients via structural equation modeling. \emph{Organizational Research Methods}, \bold{7}, 206-223.
 

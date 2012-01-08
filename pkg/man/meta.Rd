@@ -1,6 +1,6 @@
 \name{meta}
 \alias{meta}
-\title{Univariate and Multivariate Meta-Analysis Using Maximum
+\title{Univariate and Multivariate Meta-Analysis with Maximum
   Likelihood Estimation
 }
 \description{
@@ -103,7 +103,7 @@ model.name="Meta analysis with ML", suppressWarnings = TRUE, ...)
   for parameters with structural equation models. \emph{Structural
 	Equation Modeling}, \bold{16}, 267-294.
   
-  Cheung, M. W. L. (in press). Multivariate meta-analaysis as structural
+  Cheung, M. W. L. (in press). Multivariate meta-analysis as structural
 	equation models. \emph{Structural Equation Modeling.}
   
   Hardy, R. J., & Thompson, S. G. (1996). A likelihood approach to
