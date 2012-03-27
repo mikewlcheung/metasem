@@ -28,17 +28,17 @@
 	comparisons. It will be passed to the \code{all} argument in
 	\code{\link[OpenMx]{mxCompare}}.}
 }
-\details{Special care has to be taken to make sure that the models being
-  compared in \code{base} and \code{comparison} are nested. One common mistake is
-  comparing a model without predictor and a model with predictors in \code{\link[metaSEM]{meta}}. Since
-  the parameters in the predictors, e.g., means and variances, are also estimated in \code{\link[metaSEM]{meta}},
-  these two models are not nested. The correct way to compare them is to
-  fix the regression coefficients of one model at zero while the
-  coefficients in the other model are free (see the example). If only one parameter is tested, an alternative (and easier) approach
-  is to request the likelihood-based CI directly with the
-  \code{intervals.type="LB"} argument in \code{\link[metaSEM]{meta}}.
-%%  ~~ If necessary, more details than the description above ~~
-}
+% \details{Special care has to be taken to make sure that the models being
+%   compared in \code{base} and \code{comparison} are nested. One common mistake is
+%   comparing a model without predictor and a model with predictors in \code{\link[metaSEM]{meta}}. Since
+%   the parameters in the predictors, e.g., means and variances, are also estimated in \code{\link[metaSEM]{meta}},
+%   these two models are not nested. The correct way to compare them is to
+%   fix the regression coefficients of one model at zero while the
+%   coefficients in the other model are free (see the example). If only one parameter is tested, an alternative (and easier) approach
+%   is to request the likelihood-based CI directly with the
+%   \code{intervals.type="LB"} argument in \code{\link[metaSEM]{meta}}.
+%
+% }
 \value{A table of comparisons between the models in base and comparison.
 }
 \references{

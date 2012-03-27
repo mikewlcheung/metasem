@@ -154,7 +154,7 @@ meta <- function(y, v, x, data, intercept.constraints, coef.constraints,
     warning(print(meta.fit))
   }
   
-  out <- list(call = mf, data=input.df, no.y=no.y, no.x=no.x,
+  out <- list(call = mf, type="meta2", data=input.df, no.y=no.y, no.x=no.x,
               miss.x=miss.x, meta.fit=meta.fit)
   class(out) <- "meta"
   return(out)

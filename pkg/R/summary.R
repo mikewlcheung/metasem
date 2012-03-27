@@ -58,16 +58,21 @@ summary.wls <- function(object, ...) {
       coefficients <- my.para[, -c(1:4)]
 	  intervals.type="z"
     } else {
-      # model.name: may vary in diff models
-      model.name <- object$call[[match("model.name", names(object$call))]]
-      # if not specified, the default is "Structure" as it can be either "Correlation Structure" or "Covariance Structure" 
-      if (is.null(model.name)) {
-        model.name <- "Structure."
-      } else {
-        model.name <- paste(model.name, ".", sep="")
-      }          
+      ## # model.name: may vary in diff models
+      ## model.name <- object$call[[match("model.name", names(object$call))]]
+      ## # if not specified, the default is "Structure" as it can be either "Correlation Structure" or "Covariance Structure" 
+      ## if (is.null(model.name)) {
+      ##   model.name <- "Structure."
+      ## } else {
+      ##   model.name <- paste(model.name, ".", sep="")
+      ## }          
+      ## name <- sapply(unlist(dimnames(my.ci)[1]), function(x)
+      ##                  {strsplit(x, model.name, fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
+
+      ## Simply remove the part before "."
       name <- sapply(unlist(dimnames(my.ci)[1]), function(x)
-                       {strsplit(x, model.name, fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
+                       {strsplit(x, ".", fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)      
+
       my.ci <- data.frame(name, my.ci)
       coefficients <- merge(my.para, my.ci, by=c("name"))
       dimnames(coefficients)[[1]] <- coefficients$name
@@ -366,7 +371,7 @@ summary.meta <- function(object, homoStat=TRUE, ...) {
     if (is.null(intervals.type))
       intervals.type <- "z"
 
-    # Homogeneity statistic
+    ## Homogeneity statistic
     no.y <- object$no.y
     no.v <- no.y*(no.y+1)/2
 	# Remove studies that have missing x. Make sure that studies are the same in calculating Q.stat and meta()
@@ -376,9 +381,50 @@ summary.meta <- function(object, homoStat=TRUE, ...) {
       Q.stat <- list(Q=NA, Q.df=NA, pval=NA)
     }
 
+    ## Calculate I2 only if no.x=0
+    if (object$no.x==0) {
+      ## Test whether it is meta2 or meta3
+      if (object$type=="meta2") {
+        ## Need to do sth for meta2
+        heter.values <- NULL
+      } else {
+        heter.indices <- object$call[[match("heter.indices", names(object$call))]]
+        if (is.null(heter.indices)) {
+          heter.indices <- "I2hm"
+        } else {
+          ## remove the first "c" character
+          heter.indices <- as.character(heter.indices)[-1]
+        }
+        heter.names <-c(outer(heter.indices, c("_2","_3"), paste, sep=""))
+        
+        ## Wald test, no CI
+        if (is.null(dimnames(my.ci))) {
+          my.heter <- paste("mxEval(c(", paste(heter.names, collapse=","), "), object$meta.fit)", sep="")
+          heter.values <- matrix(NA, nrow=length(heter.names), ncol=3)
+          heter.values[,2] <- eval(parse(text = my.heter))
+        } else {
+        ## LB CI  
+        # model.name <- "Meta analysis with ML."
+          heter.values <- my.mx$CI[paste(model.name, heter.names, "[1,1]", sep=""), ]
+        }
+
+        heter.names <- sub("I2q_2", "I2_2 (Q statistic)", heter.names)
+        heter.names <- sub("I2q_3", "I2_3 (Q statistic)", heter.names)
+        heter.names <- sub("I2hm_2", "I2_2 (harmonic mean)", heter.names)
+        heter.names <- sub("I2hm_3", "I2_3 (harmonic mean)", heter.names)
+        heter.names <- sub("I2am_2", "I2_2 (arithmetic mean)", heter.names)
+        heter.names <- sub("I2am_3", "I2_3 (arithmetic mean)", heter.names)
+        dimnames(heter.values) <- list(heter.names, c("lbound", "Estimate", "ubound"))
+      }
+    } else {
+      ## no.x != 0
+      heter.values <- NULL
+    }
+    
     Mx.status1 <- object$meta.fit@output$status[[1]]   
     libMatrix <- installed.packages()    
-    out <- list(call=object$call, Q.stat=Q.stat, intervals.type=intervals.type, no.studies=my.mx$numObs,
+    out <- list(call=object$call, type=object$type, Q.stat=Q.stat, intervals.type=intervals.type,
+                heter.values=heter.values, no.studies=my.mx$numObs,
                 obsStat=my.mx$observedStatistics, estPara=my.mx$estimatedParameters,
                 df=my.mx$degreesOfFreedom, Minus2LL=my.mx$Minus2LogLikelihood,
                 coefficients=coefficients, Mx.status1=Mx.status1, R.version=as.character(getRversion()),
@@ -408,12 +454,23 @@ print.summary.meta <- function(x, ...) {
     cat("\nQ statistic on homogeneity of effect sizes:", x$Q.stat[["Q"]])
     cat("\nDegrees of freedom of the Q statistic:", x$Q.stat[["Q.df"]])
     cat("\nP value of the Q statistic:", x$Q.stat[["pval"]])
-    cat("\n\nNumber of studies:", x$no.studies)
+    cat("\n\nNumber of studies (or clusters):", x$no.studies)
     cat("\nNumber of observed statistics:", x$obsStat)
-    cat("\nNumber of parameter estimated:", x$estPara)
+    cat("\nNumber of estimated parameters:", x$estPara)
     cat("\nDegrees of freedom:", x$df)
     cat("\n-2 log likelihood:", x$Minus2LL)        
 
+    if (x$type=="meta3") {
+    ## Print heterogeneity indices if no x in the call
+    if ( is.null(x$call[[match("x", names(x$call))]]) ) {
+      switch(x$intervals.type,
+             z =  { cat("\n\nHeterogeneity indices:\n")
+                    printCoefmat(x$heter.values[,2, drop=FALSE], ...) },
+             LB = { cat("\n\nHeterogeneity indices (and 95% likelihood-based CIs):\n")
+                    printCoefmat(x$heter.values, ...) } )
+    }
+    }
+    
     cat("\n\nR version:", x$R.version)
     cat("\nOpenMx version:", x$OpenMx.version)
     cat("\nmetaSEM version:", x$metaSEM.version)
@@ -501,9 +558,9 @@ print.summary.reml <- function(x, ...) {
     cat("\nCoefficients:\n")
     printCoefmat(x$coefficients, P.values=TRUE, ...)
 
-    cat("\nNumber of studies:", x$no.studies)
+    cat("\nNumber of studies (or clusters):", x$no.studies)
     cat("\nNumber of observed statistics:", x$obsStat)
-    cat("\nNumber of parameter estimated:", x$estPara)
+    cat("\nNumber of estimated parameters:", x$estPara)
     cat("\nDegrees of freedom:", x$df)
     cat("\n-2 log likelihood:", x$Minus2LL)        
 
@@ -556,19 +613,24 @@ vcov.meta <- function(object, select=c("all", "fixed", "random"), ...) {
     
     select <- match.arg(select)
     switch( select,
-           ## all = my.name <- my.name,
-           fixed = if (no.x==0) {
-             my.name <- paste("Intercept", 1:no.y, sep="")
-           } else {
-             my.name <- c( paste("Intercept", 1:no.y, sep=""),
-                           outer(1:no.y, 1:no.x, function(y, x) paste("Slope", y,"_", x, sep = "")) )
-           },
-           random = if ("tssem1REM" %in% class(object)) {
-                        my.name <- paste("Tau2_", 1:no.y,"_", 1:no.y,sep="")
-                    } else {
-                        my.name <- vech(outer(1:no.y, 1:no.y, function(x,y) { paste("Tau2_",x,"_",y,sep="")}))
-                    }
-           )
+         ## all = my.name <- my.name,
+         fixed =  my.name <- my.name[ grep("Intercept|Slope", my.name) ],
+         random = my.name <- my.name[ grep("Tau2", my.name) ]
+         )    
+    ## switch( select,
+    ##        ## all = my.name <- my.name,
+    ##        fixed = if (no.x==0) {
+    ##          my.name <- paste("Intercept", 1:no.y, sep="")
+    ##        } else {
+    ##          my.name <- c( paste("Intercept", 1:no.y, sep=""),
+    ##                        outer(1:no.y, 1:no.x, function(y, x) paste("Slope", y,"_", x, sep = "")) )
+    ##        },
+    ##        random = if ("tssem1REM" %in% class(object)) {
+    ##                     my.name <- paste("Tau2_", 1:no.y,"_", 1:no.y,sep="")
+    ##                 } else {
+    ##                     my.name <- vech(outer(1:no.y, 1:no.y, function(x,y) { paste("Tau2_",x,"_",y,sep="")}))
+    ##                 }
+    ##        )
 
     acov <- tryCatch( 2*solve(object$meta@output$calculatedHessian[my.name, my.name]), error = function(e) e)
     if (inherits(acov, "error")) {
@@ -654,18 +716,23 @@ coef.meta <- function(object, select=c("all", "fixed", "random"), ...) {
   select <- match.arg(select)
   switch( select,
          ## all = my.name <- my.name,
-         fixed =  if (no.x==0) {
-                     my.name <- paste("Intercept", 1:no.y, sep="")
-                  } else {
-                     my.name <- c( paste("Intercept", 1:no.y, sep=""),
-                                   outer(1:no.y, 1:no.x, function(y, x) paste("Slope", y,"_", x, sep = "")) )
-                  },
-         random = if ("tssem1REM" %in% class(object)) {
-                     my.name <- paste("Tau2_", 1:no.y,"_", 1:no.y,sep="")
-                  } else {
-                     my.name <- vech(outer(1:no.y, 1:no.y, function(x,y) { paste("Tau2_",x,"_",y,sep="")}))
-                  }
-         )  
+         fixed =  my.name <- my.name[ grep("Intercept|Slope", my.name) ],
+         random = my.name <- my.name[ grep("Tau2", my.name) ]
+         )
+  ## switch( select,
+  ##        ## all = my.name <- my.name,
+  ##        fixed =  if (no.x==0) {
+  ##                    my.name <- paste("Intercept", 1:no.y, sep="")
+  ##                 } else {
+  ##                    my.name <- c( paste("Intercept", 1:no.y, sep=""),
+  ##                                  outer(1:no.y, 1:no.x, function(y, x) paste("Slope", y,"_", x, sep = "")) )
+  ##                 },
+  ##        random = if ("tssem1REM" %in% class(object)) {
+  ##                    my.name <- paste("Tau2_", 1:no.y,"_", 1:no.y,sep="")
+  ##                 } else {
+  ##                    my.name <- vech(outer(1:no.y, 1:no.y, function(x,y) { paste("Tau2_",x,"_",y,sep="")}))
+  ##                 }
+  ##        )  
   object$meta.fit@output$estimate[my.name]
 }
 

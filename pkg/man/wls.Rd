@@ -167,7 +167,7 @@ summary(wls.fit3)
 
 
 ##### Example of Fixed-effects TSSEM
-fixed1 <- tssem1(Digman97$data, Digman97$n, method="FE")
+fixed1 <- tssem1(Digman97$data, Digman97$n, method="FEM")
 summary(fixed1)
 
 P4 <- mxMatrix("Stand", ncol=2, nrow=2, value=.2, free=TRUE, name="P4")
@@ -190,7 +190,7 @@ fixed2.cluster <- tssem2(fixed1.cluster, impliedS=impliedR4, matrices=c(P4, L4))
 summary(fixed2.cluster)
 
 ##### Example of Random-effects TSSEM with random effects on the diagonals
-random1 <- tssem1(Digman97$data, Digman97$n, method="RE", RE.diag.only=TRUE)
+random1 <- tssem1(Digman97$data, Digman97$n, method="REM", RE.diag.only=TRUE)
 summary(random1)
 
 random2 <- tssem2(random1, impliedS=impliedR4, matrices=c(P4, L4))

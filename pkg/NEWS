@@ -1,11 +1,17 @@
-Release 0.7-1 (Jan 6, 2012)
+Release 0.7-1 (Mar 21, 2012)
 ====================================
+* TODO Added heter.indices argument in meta() and reml()
+* TODO Added reml3()
+* TODO Bornmann07
+* TODO move ellipse package to suggests
+
+* Fixed a bug in vec2symMat() reported by Yonghao Lim
 * Added meta3() for 3-level meta-analysis
-* Added data set Cooper03
-* Rename argument RE_diag to RE.diag.only in tssem1() and tssem1REM()
+* Added data sets Cooper03 and Mak09
+* Renamed argument RE_diag to RE.diag.only in tssem1() and tssem1REM()
 * Rewrote meta() to exclude predictors in the models
 * Revised meta() to replace NA with 1e5 in v object
-* Modified coeff.constraints argument to coef.constraints in meta()
+* Renamed coeff.constraints argument to coef.constraints in meta()
 * Added homoStat argument in summary.meta()
 * Renamed tssem1FE() and tssem1RE() to tssem1FEM() and tssem1REM()
 

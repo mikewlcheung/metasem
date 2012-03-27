@@ -8,6 +8,9 @@ vec2symMat <- function (x, diag=TRUE) {
 
   mat[lower.tri(mat, diag=diag)] <- x
   # Just mirroring the matrix, exclude the diagonals
-  mat[upper.tri(mat, diag=FALSE)] <- mat[lower.tri(mat, diag=FALSE)]
+  ## mat[upper.tri(mat, diag=FALSE)] <- mat[lower.tri(mat, diag=FALSE)]
+  ## Corrected a bug
+  index <- upper.tri(mat)
+  mat[index] <- t(mat)[index]  
   mat
 }

@@ -13,7 +13,8 @@ and on the level-3 can be easily imposed by setting the same labels on the param
 meta3(y, v, cluster, x, data, intercept.constraints,
       coef.constraints, RE2.constraints, RE2.lbound = 1e-10,
       RE3.constraints, RE3.lbound = 1e-10,
-      intervals.type = c("z", "LB"), model.name = "Meta analysis with ML",
+      intervals.type = c("z", "LB"), heter.indices="I2hm",
+      model.name = "Meta analysis with ML",
       suppressWarnings = TRUE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -78,6 +79,9 @@ meta3(y, v, cluster, x, data, intercept.constraints,
 	associated p values are based on the z statistic. They are not
 	related to the likelihood-based CIs.
 }
+  \item{heter.indices}{Possible options are \code{"I2hm"}, \code{"I2am"}
+	\code{"I2q"} and \code{"ICC"}. More than one options are possible. If \code{intervals.type="LB"}, 95\% confidence intervals on the heterogeneity indices will be constructed. (See the details.)
+}
   \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. 
 }
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
@@ -86,7 +90,14 @@ meta3(y, v, cluster, x, data, intercept.constraints,
   \item{\dots}{Futher arguments to be passed to \code{\link[OpenMx]{mxRun}}}
 }
 \details{
-%%  ~~ If necessary, more details than the description above ~~
+  \deqn{y_{ij} = \beta_0 + \beta_1*x_{ij} + \dots + \beta_m*x_{ij} + u_{ij(2)}
+	+ u_{ij(3)} + e_{ij}
+	} where \eqn{u_{ij(2)} \sim N(0, \tau^2_2)}{u_{ij(2)}~ N(0,
+	  tau^2_2)} and \eqn{u_{ij(3)} \sim N(0, \tau^2_3)}{u_{ij(3)}~ N(0,
+	  tau^2_3)} are the level-2 and level-3 heterogeneity variances,
+	respectively, and \eqn{e_{ij} \sim N(0, v_{ij})}{e_{ij}~ N(0,
+	  v_{ij})} is the conditional known sampling variance.
+	
 }
 \value{
 %%  ~Describe the value returned
@@ -117,12 +128,15 @@ meta3(y, v, cluster, x, data, intercept.constraints,
 }
 \examples{
 ## No predictor
-fit1 <- meta3(y=y, v=v, cluster=District, data=Cooper03)
-summary(fit1)
+summary( meta3(y=y, v=v, cluster=District, data=Cooper03) )
+
+## Show all heterogeneity indices and their 95\% confidence intervals
+summary( meta3(y=y, v=v, cluster=District, data=Cooper03,
+               intervals.type="LB",
+               heter.indices=c("I2hm", "I2am", "I2q", "ICC")) )
 
 ## Year as a predictor
-fit2 <- meta3(y=y, v=v, cluster=District, x=scale(Year, scale=FALSE), data=Cooper03)
-summary(fit2)
+summary( meta3(y=y, v=v, cluster=District, x=scale(Year, scale=FALSE), data=Cooper03) )
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
