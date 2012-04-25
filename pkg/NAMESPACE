@@ -1,4 +1,45 @@
 exportPattern("^[^\\.]")
 import(Matrix)
 importFrom(ellipse, ellipse)
-importFrom(utils, installed.packages)
+
+S3method(print, wls)
+S3method(summary, wls)
+S3method(print, summary.wls)
+S3method(vcov, wls)
+S3method(coef, wls)
+
+S3method(print, tssem1FEM)
+S3method(summary, tssem1FEM)
+S3method(print, summary.tssem1FEM)
+S3method(vcov, tssem1FEM) 
+S3method(coef, tssem1FEM) 
+
+S3method(print, tssem1FEM.cluster)
+S3method(summary, tssem1FEM.cluster)
+S3method(vcov, tssem1FEM.cluster) 
+S3method(coef, tssem1FEM.cluster) 
+S3method(summary, wls.cluster)
+S3method(vcov, wls.cluster)
+S3method(coef, wls.cluster)
+
+S3method(print, tssem1REM)
+S3method(summary, tssem1REM)
+S3method(vcov, tssem1REM)
+S3method(coef, tssem1REM)
+
+S3method(print, meta)
+S3method(summary, meta)
+S3method(print, summary.meta)
+S3method(vcov, meta)
+S3method(coef, meta)
+
+S3method(print, reml)
+S3method(summary, reml)
+S3method(print, summary.reml)
+S3method(vcov, reml)
+S3method(coef, reml)
+
+S3method(anova, meta)
+S3method(anova, wls)
+S3method(anova, reml)
+

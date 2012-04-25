@@ -66,9 +66,9 @@
     model <- match.arg(model)
     switch(model,
            saturated = expCov <- mxMatrix("Symm", nrow=no.var, ncol=no.var, free=TRUE, 
-                                          value=vech(x), name="expCov"),
+                                          values=vech(x), name="expCov"),
            independent = expCov <- mxMatrix("Diag", nrow=no.var, ncol=no.var, free=TRUE, 
-                                            value=diag(x), name="expCov")
+                                            values=diag(x), name="expCov")
      )
     objective <- mxMLObjective(covariance = "expCov", dimnames=vars)
     fit <- tryCatch(mxRun(mxModel("model", expCov, obsCov, objective), silent=TRUE, 

@@ -1,10 +1,10 @@
-Release 0.7-1 (Mar 21, 2012)
+Release 0.7-1 (Apr22, 2012)
 ====================================
 * TODO Added heter.indices argument in meta() and reml()
 * TODO Added reml3()
 * TODO Bornmann07
-* TODO move ellipse package to suggests
 
+* Improved efficiency by removing the call on installed.packages()
 * Fixed a bug in vec2symMat() reported by Yonghao Lim
 * Added meta3() for 3-level meta-analysis
 * Added data sets Cooper03 and Mak09
