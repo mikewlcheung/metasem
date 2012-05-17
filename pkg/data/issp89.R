@@ -100,7 +100,7 @@ c(0.77298,0.26975,0.24009,0.23778,0.20869,0.22377,0.18801,0.07055,0.10051,
 0.11839,0.33333,0.21031,0.16285,0.15794,0.11454,0.12856,0.63627,1.42450),
 ncol=9, byrow=TRUE)
 my.df <- split(my.df, rep(1:11, each=9))
-my.df <- lapply(my.df, function(x) { my.names <- paste("x", 1:9, sep="")
+my.df <- lapply(my.df, function(x) { my.names <- c("JP1","JP2","JP3","JN1","JN2","JN3","JN4","TD1","TD2") 
                                      my.matrix <- matrix(x, ncol=9)
                                      dimnames(my.matrix) <- list(my.names, my.names)
                                      my.matrix})

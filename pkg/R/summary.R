@@ -3,8 +3,9 @@ summary.wls <- function(object, ...) {
     stop("\"object\" must be an object of class \"wls\".")
 
     n <- object$n
-    tT <- object$wls.fit@output$Minus2LogLikelihood 
-    dfT <- object$noObservedStat - summary(object$wls.fit)$estimatedParameters
+    tT <- object$wls.fit@output$Minus2LogLikelihood
+    ## Adjust for the constraints on the diagonals
+    dfT <- object$noObservedStat - summary(object$wls.fit)$estimatedParameters + object$noConstraints
     tB <- object$indepModelChisq
     dfB <- object$indepModelDf
     p <- pchisq(tT, df=dfT, lower.tail=FALSE)
@@ -19,7 +20,12 @@ summary.wls <- function(object, ...) {
     cor.analysis <- object$cor.analysis
 
     ## Hu and Bentler (1998) Psychological Methods
-    RMSEA <- sqrt(max((tT-dfT)/(n-1),0)/dfT)
+    ## Protect RMSEA divided by 0
+    if (min((tT-dfT),0)==0) {
+      RMSEA <- 0
+    } else {
+      RMSEA <- sqrt(max((tT-dfT)/(n-1),0)/dfT)
+    }
     TLI <- (tB/dfB - tT/dfT)/(tB/dfB-1)
     CFI <- 1 - max((tT-dfT),0)/max((tT-dfT),(tB-dfB),0)
 	## FIXME: better to use -2LL+2r where r is the no. of free parameters (Mplus, p. 22; R ?AIC)
@@ -35,10 +41,10 @@ summary.wls <- function(object, ...) {
       SRMR <- sqrt(mean(vech(stand %*% (sampleS-impliedS) %*% stand)^2))
     }
     
-    stat <- matrix(c(n, tT, dfT, p, tB, dfB, RMSEA, SRMR, TLI, CFI, AIC, BIC), ncol=1)
+    stat <- matrix(c(n, tT, dfT, p, tB, dfB, object$noConstraints, RMSEA, SRMR, TLI, CFI, AIC, BIC), ncol=1)
     rownames(stat) <- c("Sample size", "Chi-square of target model", "DF of target model",
                         "p value of target model", "Chi-square of independent model",
-                        "DF of independent model", "RMSEA", "SRMR", "TLI", "CFI", "AIC", "BIC")
+                        "DF of independent model", "No. of constraints imposed on \"S\"", "RMSEA", "SRMR", "TLI", "CFI", "AIC", "BIC")
     colnames(stat) <- "Value"
   
     # calculate coefficients
@@ -121,8 +127,8 @@ print.summary.wls <- function(x, ...) {
     ## cat("\nOpenMx version:", x$OpenMx.version)
     ## cat("\nmetaSEM version:", x$metaSEM.version)
     ## cat("\nDate of analysis:", x$date)
-    cat("\nOpenMx status1:", x$Mx.status1, "(\"0\" and \"1\": considered fine; other values indicate problems)")
-    cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")
+    cat("OpenMx status1:", x$Mx.status1, "(\"0\" and \"1\": considered fine; other values indicate problems)\n")
+    ## cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")
 }
 
 summary.tssem1FEM <- function(object, ...) {
@@ -246,8 +252,8 @@ print.summary.tssem1FEM <- function(x, ...) {
     ## cat("\nOpenMx version:", x$OpenMx.version)
     ## cat("\nmetaSEM version:", x$metaSEM.version)
     ## cat("\nDate of analysis:", x$date)
-    cat("\nOpenMx status:", x$Mx.status1, "(\"0\" and \"1\": considered fine; other values indicate problems)")
-    cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")    
+    cat("OpenMx status:", x$Mx.status1, "(\"0\" and \"1\": considered fine; other values indicate problems)\n")
+    ## cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")    
 }
 
 print.tssem1FEM <- function(x, ...) {
@@ -483,8 +489,8 @@ print.summary.meta <- function(x, ...) {
     ## cat("\nOpenMx version:", x$OpenMx.version)
     ## cat("\nmetaSEM version:", x$metaSEM.version)
     ## cat("\nDate of analysis:", x$date)
-    cat("\nOpenMx status1:", x$Mx.status1, "(\"0\" and \"1\": considered fine; other values indicate problems)")
-    cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")    
+    cat("\nOpenMx status1:", x$Mx.status1, "(\"0\" and \"1\": considered fine; other values indicate problems)\n")
+    ## cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")      
 }
 
 summary.reml <- function(object, ...) {
@@ -580,8 +586,8 @@ print.summary.reml <- function(x, ...) {
     ## cat("\nOpenMx version:", x$OpenMx.version)
     ## cat("\nmetaSEM version:", x$metaSEM.version)
     ## cat("\nDate of analysis:", x$date)
-    cat("\nOpenMx status:", x$Mx.status1, "(\"0\" and \"1\": considered fine; other values indicate problems)")
-    cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")    
+    cat("OpenMx status:", x$Mx.status1, "(\"0\" and \"1\": considered fine; other values indicate problems)\n")
+    ## cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")      
 }
 
 print.reml <- function(x, ...) {
@@ -596,31 +602,14 @@ print.reml <- function(x, ...) {
     print(summary.default(x), ...)
 }
 
-## vcov.meta <- function(object, ...) {
-##     if (!is.element("meta", class(object)))
-##     stop("\"object\" must be an object of class \"meta\".")
-
-##     # labels of the parameters    
-##     my.name <- summary(object$meta.fit)$parameters$name
-##     my.name <- my.name[!is.na(my.name)]
-##     acov <- tryCatch( 2*solve(object$meta@output$calculatedHessian[my.name, my.name]), error = function(e) e) 
-    
-##     if (inherits(acov, "error")) {
-##       cat("Error in solving the Hessian matrix.\n")
-##       stop(print(acov))
-##     } else {
-##       return(acov)
-##     }
-## }
-
+## FIXME: no name when there is only one element
 vcov.meta <- function(object, select=c("all", "fixed", "random"), ...) {
     if (!is.element("meta", class(object)))
     stop("\"object\" must be an object of class \"meta\".")
 
-    no.y <- object$no.y
-    no.x <- object$no.x
     # labels of the parameters    
-    my.name <- summary(object$meta.fit)$parameters$name
+    ## my.name <- summary(object$meta.fit)$parameters$name
+    my.name <- names( omxGetParameters(object$meta.fit) )
     my.name <- my.name[!is.na(my.name)]
     
     select <- match.arg(select)
@@ -645,24 +634,25 @@ vcov.meta <- function(object, select=c("all", "fixed", "random"), ...) {
     ##        )
 
     acov <- tryCatch( 2*solve(object$meta@output$calculatedHessian[my.name, my.name]), error = function(e) e)
+    # Issue a warning instead of error message
     if (inherits(acov, "error")) {
       cat("Error in solving the Hessian matrix.\n")
-      stop(print(acov))
+      warning(print(acov))
     } else {
       return(acov)
     }
 }
 
 vcov.tssem1FEM <- function(object, ...) {
-    if (!is.element("tssem1FEM", class(object)))
+  if (!is.element("tssem1FEM", class(object)))
     stop("\"object\" must be an object of class \"tssem1FEM\".")
-    object$acovS
+  object$acovS
 }
 
 vcov.tssem1FEM.cluster <- function(object, ...) {
-    if (!is.element("tssem1FEM.cluster", class(object)))
+  if (!is.element("tssem1FEM.cluster", class(object)))
     stop("\"object\" must be an object of class \"tssem1FEM.cluster\".")
-    lapply(object, vcov.tssem1FEM)
+  lapply(object, vcov.tssem1FEM)
 }  
 
 vcov.tssem1REM <- function(object, select=c("all", "fixed", "random"), ...) {
@@ -672,15 +662,20 @@ vcov.tssem1REM <- function(object, select=c("all", "fixed", "random"), ...) {
 }
 
 vcov.wls <- function(object, ...) {
-    if (!is.element("wls", class(object)))
+  if (!is.element("wls", class(object)))
     stop("\"object\" must be an object of class \"wls\".")
-    acovS <- tryCatch( 2*solve(object$wls.fit@output$calculatedHessian), error = function(e) e ) 
-    # Issue a warning instead of error message
-    if (inherits(acovS, "error")) {
-      cat("Error in solving the Hessian matrix.\n")
-      warning(print(acovS))
-    }
+  acovS <- tryCatch( 2*solve(object$wls.fit@output$calculatedHessian), error = function(e) e ) 
+  # Issue a warning instead of error message
+  if (inherits(acovS, "error")) {
+    cat("Error in solving the Hessian matrix.\n")
+    warning(print(acovS))
+  } else {
+    my.mx <- summary(object$wls.fit)
+    # For example, P[1,2], L[1,2], ...
+    my.names <- with(my.mx$parameters[, 2:4], paste(matrix,"[",row,",",col,"]",sep=""))
+    dimnames(acovS) <- list(my.names, my.names)
     acovS
+  }
 }
 
 vcov.wls.cluster <- function(object, ...) {
@@ -693,8 +688,9 @@ vcov.reml <- function(object, ...) {
     if (!is.element("reml", class(object)))
     stop("\"object\" must be an object of class \"reml\".")
 
-    # labels of the parameters    
-    my.name <- summary(object$reml.fit)$parameters$name
+    ## # labels of the parameters    
+    ## my.name <- summary(object$reml.fit)$parameters$name
+    my.name <- names(omxGetParameters(object$reml.fit))
     my.name <- my.name[!is.na(my.name)]
     acov <- tryCatch( 2*solve(object$reml@output$calculatedHessian[my.name, my.name]), error = function(e) e) 
     
@@ -706,45 +702,28 @@ vcov.reml <- function(object, ...) {
     }
 }
   
-## coef.meta <- function(object, ...) {
-##     if (!is.element("meta", class(object)))
-##     stop("\"object\" must be an object of class \"meta\".")
-##     # labels of the parameters    
-##     my.name <- summary(object$meta.fit)$parameters$name
-##     my.name <- my.name[!is.na(my.name)]
-##     object$meta.fit@output$estimate[my.name]
-## }
 
 coef.meta <- function(object, select=c("all", "fixed", "random"), ...) {
   if (!is.element("meta", class(object)))
     stop("\"object\" must be an object of class \"meta\".")
-  no.y <- object$no.y
-  no.x <- object$no.x
-  # labels of the parameters    
-  my.name <- summary(object$meta.fit)$parameters$name
-  my.name <- my.name[!is.na(my.name)]
 
+  ## # labels of the parameters    
+  ## my.name <- summary(object$meta.fit)$parameters$name
+  ## my.name <- my.name[!is.na(my.name)]
+
+  my.para <- omxGetParameters(object$meta.fit)
   select <- match.arg(select)
   switch( select,
-         ## all = my.name <- my.name,
-         fixed =  my.name <- my.name[ grep("Intercept|Slope", my.name) ],
-         random = my.name <- my.name[ grep("Tau2", my.name) ]
+         fixed =  my.para <- my.para[ grep("Intercept|Slope", names(my.para)) ],
+         random = my.para <- my.para[ grep("Tau2", names(my.para)) ]
          )
   ## switch( select,
   ##        ## all = my.name <- my.name,
-  ##        fixed =  if (no.x==0) {
-  ##                    my.name <- paste("Intercept", 1:no.y, sep="")
-  ##                 } else {
-  ##                    my.name <- c( paste("Intercept", 1:no.y, sep=""),
-  ##                                  outer(1:no.y, 1:no.x, function(y, x) paste("Slope", y,"_", x, sep = "")) )
-  ##                 },
-  ##        random = if ("tssem1REM" %in% class(object)) {
-  ##                    my.name <- paste("Tau2_", 1:no.y,"_", 1:no.y,sep="")
-  ##                 } else {
-  ##                    my.name <- vech(outer(1:no.y, 1:no.y, function(x,y) { paste("Tau2_",x,"_",y,sep="")}))
-  ##                 }
-  ##        )  
-  object$meta.fit@output$estimate[my.name]
+  ##        fixed =  my.name <- my.name[ grep("Intercept|Slope", my.name) ],
+  ##        random = my.name <- my.name[ grep("Tau2", my.name) ]
+  ##        )
+  ## object$meta.fit@output$estimate[my.name]
+  my.para
 }
 
 coef.tssem1FEM <- function(object, ...) {  
@@ -768,7 +747,12 @@ coef.tssem1FEM.cluster <- function(object, ...) {
 coef.wls <- function(object, ...) {
     if (!is.element("wls", class(object)))
     stop("\"object\" must be an object of class \"wls\".")
-    object$wls.fit@output$estimate
+    ## object$wls.fit@output$estimate
+    my.mx <- summary(object$wls.fit)
+    my.coef <- my.mx$parameters$Estimate
+    # For example, P[1,2], L[1,2], ...
+    names(my.coef) <- with(my.mx$parameters[, 2:4], paste(matrix,"[",row,",",col,"]",sep=""))
+    my.coef
 }
 
 coef.wls.cluster <- function(object, ...) {
@@ -781,7 +765,8 @@ coef.reml <- function(object, ...) {
     if (!is.element("reml", class(object)))
     stop("\"object\" must be an object of class \"reml\".")
     # labels of the parameters    
-    my.name <- summary(object$reml.fit)$parameters$name
+    ## my.name <- summary(object$reml.fit)$parameters$name
+    my.name <- names(omxGetParameters(object$reml.fit))
     my.name <- my.name[!is.na(my.name)]
     object$reml.fit@output$estimate[my.name]
 }

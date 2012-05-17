@@ -86,7 +86,8 @@ Joreskog, K. G., Sorbom, D., Du Toit, S., & Du Toit, M. (1999). \emph{LISREL 8: 
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{ \code{\link[metaSEM]{tssem1}}
+\seealso{ \code{\link[metaSEM]{tssem1}},
+  \code{\link[metaSEM]{Becker92}}, \code{\link[metaSEM]{Digman97}}, \code{\link[metaSEM]{issp89}}, \code{\link[metaSEM]{issp05}}
 }
 \examples{
 #### Analysis of correlation structure
@@ -164,36 +165,5 @@ wls.fit3 <- wls(S=S3, acovS=acovS3, n=n, impliedS=impliedS3,
                 intervals.type="LB",
                 model.name="Covariance structure with LB CI")
 summary(wls.fit3)
-
-
-##### Example of Fixed-effects TSSEM
-fixed1 <- tssem1(Digman97$data, Digman97$n, method="FEM")
-summary(fixed1)
-
-P4 <- mxMatrix("Stand", ncol=2, nrow=2, value=.2, free=TRUE, name="P4")
-L4 <- mxMatrix("Full", ncol=2, nrow=5, value=c(0,.3,.3,.3,0,.3,0,0,0,.3),
-free=c(FALSE,TRUE,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,FALSE,TRUE),
-name="L4")
-
-## Model to be fitted
-impliedR4 <- mxAlgebra(L4 \%&\% P4, name="impliedR4")
-
-fixed2 <- tssem2(fixed1, impliedS=impliedR4, matrices=c(P4, L4),
-                  model.name="TSSEM2 Digman97")
-summary(fixed2)
-
-##### Example of Fixed-effects TSSEM with several clusters
-fixed1.cluster <- tssem1(Digman97$data, Digman97$n, cluster=Digman97$cluster)
-summary(fixed1.cluster)
-
-fixed2.cluster <- tssem2(fixed1.cluster, impliedS=impliedR4, matrices=c(P4, L4))
-summary(fixed2.cluster)
-
-##### Example of Random-effects TSSEM with random effects on the diagonals
-random1 <- tssem1(Digman97$data, Digman97$n, method="REM", RE.diag.only=TRUE)
-summary(random1)
-
-random2 <- tssem2(random1, impliedS=impliedR4, matrices=c(P4, L4))
-summary(random2)
 }
 \keyword{ tssem }

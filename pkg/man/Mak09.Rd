@@ -33,7 +33,7 @@
 \references{
  Cheung, M. W. L., Ho, R. C. M., Lim, Y., & Mak, A. (2012). Conducting a
  meta-analysis: Basics and good practices. \emph{International Journal
-   of Rheumatic Diseases}, \bold{x(xx)}, xx-xx. doi:
+   of Rheumatic Diseases}, \bold{15(2)}, 129-135. doi: 10.1111/j.1756-185X.2012.01712.x
 }
 \examples{
 ## Random-effects meta-analysis

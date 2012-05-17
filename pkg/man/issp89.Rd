@@ -3,7 +3,14 @@
 \docType{data}
 \title{Data Set from Cheung and Chan (2005; 2009) 
 }
-\description{Eleven covariance matrices on work-related attitudes were extracted from the Inter-University Consortium for Political and Social Research (1989). Nine variables were selected by Cheung and Chan (2005; 2009) for demonstration purposes. They were grouped into three meaningful constructs: job prospects (F1), including job security (x1), income (x2), and advancement opportunity (x3); job nature (F2), including interesting job (x4), independent work (x5), help other people (x6), and useful to society (x7); and time demand (F3), represented by flexible working hours (x8) and lots of leisure time (x9).
+\description{Eleven covariance matrices on work-related attitudes were
+  extracted from the Inter-University Consortium for Political and
+  Social Research (1989). Nine variables were selected by Cheung and
+  Chan (2005; 2009) for demonstration purposes. They were grouped into
+  three constructs: \emph{Job Prospects} measured by job security
+  (JP1), income (JP2), and advancement opportunity (JP3); \emph{Job Nature}
+  measured by interesting job (JN1), independent work (JN2), help
+  other people (JN3), and useful to society (JN4); and \emph{Time Demand} measured by flexible working hours (TD1) and lots of leisure time (TD2).
 }
 \usage{data(issp89)}
 \format{
@@ -11,7 +18,7 @@
 \details{
 A list of data with the following structure:
 \describe{
-  \item{data}{A list of 11 studies of correlation matrices }
+  \item{data}{A list of 11 studies of covariance matrices }
   \item{n}{A vector of sample sizes}
 }
 }
@@ -22,8 +29,39 @@ A list of data with the following structure:
 
 Cheung, M. W. L., & Chan, W. (2009). A two-stage approach to synthesizing covariance matrices in meta-analytic structural equation modeling. \emph{Structural Equation Modeling}, \bold{16}, 28-53.
 }
+\author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
+}
+\seealso{ \code{\link[metaSEM]{issp05}}
+}
 \examples{
-data(issp89)
-## maybe str(issp89)
+issp89
+
+#### Fixed-effects model: Stage 1 analysis
+fixed1 <- tssem1(issp89$data, issp89$n, method="FEM")
+summary(fixed1)
+  
+## Prepare a model implied matrix
+## Factor correlation matrix
+Phi <- mxMatrix("Stand", ncol=3, nrow=3, value=.2, free=TRUE, name="Phi")
+
+## Factor loadings
+Lambda <- as.mxMatrix( matrix(c(".3*a",".3*b",".3*c",rep(0,9),
+                                ".3*d",".3*e",".3*f",".3*g",rep(0,9),
+                                ".3*h",".3*i"), ncol=3, nrow=9), name="Lambda")
+
+impliedR <- mxAlgebra(Lambda \%&\% Phi, name="impliedR")
+  
+#### Fixed-effects model: Stage 2 analysis
+fixed2 <- tssem2(fixed1, impliedS=impliedR, matrices=c(Phi, Lambda))
+summary(fixed2)
+  
+#### Random-effects model: Stage 1 analysis
+## Non-convergent solution
+% random1 <- tssem1(issp89$data, issp89$n, method="REM", RE.diag.only=TRUE)
+% summary(random1)
+  
+% #### Random-effects model: Stage 2 analysis
+% random2 <- tssem2(random1, impliedS=impliedR, matrices=c(Phi, Lambda))
+% summary(random2) 
 }
 \keyword{datasets}

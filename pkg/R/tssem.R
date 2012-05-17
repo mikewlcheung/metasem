@@ -168,6 +168,10 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
 
 tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE.diag.only=FALSE, RE.startvalues=0.1, RE.lbound = 1e-10,
                      model.name=NULL, suppressWarnings=TRUE, ...) {
+  ## It handles missing effect sizes rather than missing correlations. Thus, it is more flexible than tssem1FEM().
+  ## ACOV is calculated without missing data by assuming 1 and 0 for the missing variances and covariances.
+  ## Missing values are indicated by the missing effect sizes.
+  
   ## Replace diagonals with 1.0
   my.complete <- lapply(my.df, function (x) { diag(x)[is.na(diag(x))] <- 1; x })
   ## Replace missing variables with 0.0

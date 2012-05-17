@@ -3,9 +3,8 @@
 \docType{data}
 \title{Five Published Trails from Berkey et al. (1998)}
 \description{
-  Five published trials, reported by Berkey et al. (1998), comparing surgical and non-surgical treatments
+  The data set includes five published trials, reported by Berkey et al. (1998), comparing surgical and non-surgical treatments
   for medium-severity periodontal disease, one year after treatment. 
-%%  ~~ A concise (1-5 lines) description of the dataset. ~~
 }
 \usage{data(Berkey98)}
 \format{

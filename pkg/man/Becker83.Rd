@@ -4,7 +4,7 @@
 \title{Studies on Sex Differences in Conformity Reported by Becker (1983)
 }
 \description{
-Studies on sex differences in conformity using the fictitious norm group
+The data set includes studies on sex differences in conformity using the fictitious norm group
 paradigm reported by Becker (1983).
 }
 \usage{data(Becker83)}

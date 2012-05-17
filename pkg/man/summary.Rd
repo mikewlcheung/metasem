@@ -59,8 +59,9 @@
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 %%  ~~who you are~~
 }
-\note{
-%%  ~~further notes~~
+\note{If the OpenMx status1 is either 0 or 1, the estimation is
+  considered fine. If the OpenMx status1 is other values, it indicates
+  estimation problems. Users should refer to \url{http://openmx.psyc.virginia.edu/wiki/errors} for more details.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
