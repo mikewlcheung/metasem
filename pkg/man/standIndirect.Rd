@@ -55,5 +55,5 @@ standIndirect( list(my.df, my.df), n=c(300,500) )
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
-\keyword{ utilities }
+\keyword{ tssem }
 

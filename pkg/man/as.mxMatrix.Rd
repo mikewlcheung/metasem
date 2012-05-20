@@ -2,7 +2,7 @@
 \alias{as.mxMatrix}
 \title{Convert a Matrix into MxMatrix-class
 }
-\description{It converts a matrix into  \code{MxMatrix-class} via \code{mxMatrix}.
+\description{It converts a matrix into \code{MxMatrix-class} via \code{mxMatrix}.
 }
 \usage{
 as.mxMatrix(x, name, ...)
@@ -41,7 +41,8 @@ as.mxMatrix(x, name, ...)
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{ \code{\link[OpenMx]{mxMatrix}}
+\seealso{ \code{\link[OpenMx]{mxMatrix}},
+	\code{\link[metaSEM]{create.mxMatrix}},  \code{\link[metaSEM]{create.Fmatrix}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{

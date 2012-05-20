@@ -221,86 +221,189 @@ tssem1 <- function(my.df, n, method=c("FEM", "REM"), cor.analysis=TRUE, cluster=
   out  
 }
   
-wls <- function(S, acovS, n, impliedS, matrices, cor.analysis = TRUE,
-                intervals.type =c("z", "LB"), model.name, suppressWarnings = TRUE, ...) {
-    impliedS@name <- "impliedS"
-    no.var <- ncol(S)
-    sampleS <- mxMatrix("Full", ncol = no.var, nrow = no.var, values = c(S), free = FALSE, 
-        name = "sampleS")
+## wls <- function(S, acovS, n, impliedS, matrices, cor.analysis = TRUE,
+##                 intervals.type =c("z", "LB"), model.name, suppressWarnings = TRUE, ...) {
+##     impliedS@name <- "impliedS"
+##     no.var <- ncol(S)
+##     sampleS <- mxMatrix("Full", ncol = no.var, nrow = no.var, values = c(S), free = FALSE, 
+##         name = "sampleS")
     
-    intervals.type <- match.arg(intervals.type)
-    # Default is z
-    switch(intervals.type,
-           z = intervals <- FALSE,
-           LB = intervals <- TRUE)
+##     intervals.type <- match.arg(intervals.type)
+##     # Default is z
+##     switch(intervals.type,
+##            z = intervals <- FALSE,
+##            LB = intervals <- TRUE)
     
-    if (cor.analysis) {
-        if (missing(model.name)) model.name <- "WLS Analysis of Correlation Structure"
-        ps <- no.var * (no.var - 1)/2
-        vecS <- mxAlgebra(vechs(sampleS - impliedS), name = "vecS")
-    } else {
-        if (missing(model.name)) model.name <- "WLS Analysis of Covariance Structure"
-        ps <- no.var * (no.var + 1)/2
-        vecS <- mxAlgebra(vech(sampleS - impliedS), name = "vecS")
-    }
-    if (ncol(acovS) != ps) 
-        stop("No. of dimension of \"S\" does not match the dimension of \"acovS\"\n")
+##     if (cor.analysis) {
+##         if (missing(model.name)) model.name <- "WLS Analysis of Correlation Structure"
+##         ps <- no.var * (no.var - 1)/2
+##         vecS <- mxAlgebra(vechs(sampleS - impliedS), name = "vecS")
+##     } else {
+##         if (missing(model.name)) model.name <- "WLS Analysis of Covariance Structure"
+##         ps <- no.var * (no.var + 1)/2
+##         vecS <- mxAlgebra(vech(sampleS - impliedS), name = "vecS")
+##     }
+##     if (ncol(acovS) != ps) 
+##         stop("No. of dimension of \"S\" does not match the dimension of \"acovS\"\n")
     
-    # Inverse of asymptotic covariance matrix
-    invacovS <- tryCatch(solve(acovS), error = function(e) e)
-    if (inherits(invacovS, "error")) {
-        cat("Error in inverting \"acovS\":\n")
-        stop(print(invacovS))
-    }
+##     # Inverse of asymptotic covariance matrix
+##     invacovS <- tryCatch(solve(acovS), error = function(e) e)
+##     if (inherits(invacovS, "error")) {
+##         cat("Error in inverting \"acovS\":\n")
+##         stop(print(invacovS))
+##     }
     
-    invAcov <- mxMatrix("Full", ncol = ps, nrow = ps, values = c(invacovS), free = FALSE, 
-        name = "invAcov")
-    obj <- mxAlgebra(t(vecS) %&% invAcov, name = "obj")
-    objective <- mxAlgebraObjective("obj")
+##     invAcov <- mxMatrix("Full", ncol = ps, nrow = ps, values = c(invacovS), free = FALSE, 
+##         name = "invAcov")
+##     obj <- mxAlgebra(t(vecS) %&% invAcov, name = "obj")
+##     objective <- mxAlgebraObjective("obj")
     
-    if (missing(matrices)) {
-        text1 <- paste("mxRun(mxModel(model=\"", model.name, "\", ", "impliedS", 
-            ", sampleS, vecS, invAcov, obj, objective, mxCI(\"impliedS\")), intervals=", 
-            intervals, ", suppressWarnings = ", suppressWarnings, ", ...)", sep = "")
-    } else {
-        matName1 <- sapply(matrices, function(x) {
-            x@name
-        })
-        matName2 <- sapply(matName1, function(x) {
-            paste("\"", x, "\"", sep = "")
-        })
+##     if (missing(matrices)) {
+##         text1 <- paste("mxRun(mxModel(model=\"", model.name, "\", ", "impliedS", 
+##             ", sampleS, vecS, invAcov, obj, objective, mxCI(\"impliedS\")), intervals=", 
+##             intervals, ", suppressWarnings = ", suppressWarnings, ", ...)", sep = "")
+##     } else {
+##         matName1 <- sapply(matrices, function(x) {
+##             x@name
+##         })
+##         matName2 <- sapply(matName1, function(x) {
+##             paste("\"", x, "\"", sep = "")
+##         })
         
-        text1 <- paste("mxRun(mxModel(model=\"", model.name, "\", ", "impliedS", 
-            ", sampleS, vecS, invAcov, obj, objective, ", paste(matName1, collapse = ", "), 
-            ", mxCI(c(", paste(matName2, collapse = ", "), "))", "), intervals=", 
-            intervals, ", suppressWarnings = ", suppressWarnings, ", ... )", sep = "")
-    }
+##         text1 <- paste("mxRun(mxModel(model=\"", model.name, "\", ", "impliedS", 
+##             ", sampleS, vecS, invAcov, obj, objective, ", paste(matName1, collapse = ", "), 
+##             ", mxCI(c(", paste(matName2, collapse = ", "), "))", "), intervals=", 
+##             intervals, ", suppressWarnings = ", suppressWarnings, ", ... )", sep = "")
+##     }
     
-    wls.fit <- tryCatch(eval(parse(text = text1)), error = function(e) e)
+##     wls.fit <- tryCatch(eval(parse(text = text1)), error = function(e) e)
     
-    # try to run it with error message as output
-    if (inherits(wls.fit, "error")) {
-        cat("Error in running the mxModel:\n")
-        stop(print(wls.fit))
-    } else {
-        out <- list(call = match.call(), noObservedStat=ps, n=n, cor.analysis=cor.analysis,
-                    indepModelChisq=.indepwlsChisq(S=S, acovS=acovS, cor.analysis=cor.analysis),
-                    indepModelDf=no.var*(no.var-1)/2, wls.fit=wls.fit)
-        class(out) <- 'wls'
-    }
-    out
+##     # try to run it with error message as output
+##     if (inherits(wls.fit, "error")) {
+##         cat("Error in running the mxModel:\n")
+##         stop(print(wls.fit))
+##     } else {
+##         out <- list(call = match.call(), noObservedStat=ps, n=n, cor.analysis=cor.analysis,
+##                     indepModelChisq=.indepwlsChisq(S=S, acovS=acovS, cor.analysis=cor.analysis),
+##                     indepModelDf=no.var*(no.var-1)/2, wls.fit=wls.fit)
+##         class(out) <- 'wls'
+##     }
+##     out
+## }
+
+wls <- function(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=FALSE,
+                cor.analysis=TRUE, intervals.type=c("z", "LB"), model.name=NULL, suppressWarnings=TRUE, ...) {
+  if (is.null(Smatrix)) {
+    stop("\"Smatrix\" matrix is not specified.\n")
+  } else {
+    p <- nrow(Smatrix@values)
+    Smatrix@name <- "Smatrix"  
+  }
+
+  if (is.null(Amatrix)) {
+    Amatrix <- as.mxMatrix(matrix(0, nrow=p, ncol=p), name="Amatrix")
+  } else {
+    Amatrix@name <- "Amatrix"
+  }
+
+  if (is.null(Fmatrix)) {
+    Fmatrix <- as.mxMatrix(diag(rep(p,1)), name="Fmatrix")
+  } else {
+    Fmatrix@name <- "Fmatrix"
+  }
+
+  Id <- as.mxMatrix(diag(rep(p,1)), name="Id")
+
+  ## No. of observed variables
+  no.var <- ncol(Cov)
+  if (is.pd(Cov)) {
+    sampleS <- as.mxMatrix(Cov, name="sampleS")
+  } else {
+    stop("\"Cov\" is not positive definite.\n")
+  }
+    
+  intervals.type <- match.arg(intervals.type)
+  # Default is z
+  switch(intervals.type,
+         z = intervals <- FALSE,
+         LB = intervals <- TRUE)
+
+  # Inverse of asymptotic covariance matrix
+  if (is.pd(asyCov)) {
+    invacovS <- tryCatch(solve(asyCov), error = function(e) e)
+  } else {
+    stop("\"asyCov\" is not positive definite.\n")
+  }
+
+  ## It appears that solve() does not fail
+  if (inherits(invacovS, "error")) {
+    cat("Error in inverting \"asyCov\":\n")
+    stop(print(invacovS))
+  }
+  invAcov <- as.mxMatrix(invacovS, name="invAcov")
+  impliedS <- mxAlgebra( (Fmatrix%*%solve(Id-Amatrix))%&%Smatrix, name="impliedS" )
+
+  ## Assuming no constraint
+  Constraints <- 0
+  if (cor.analysis) {
+    if (is.null(model.name)) model.name <- "WLS Analysis of Correlation Structure"
+    ps <- no.var * (no.var - 1)/2
+    vecS <- mxAlgebra(vechs(sampleS - impliedS), name="vecS")
+
+    ## Dependent variables including both observed and latent variables
+    Constraints <- diag(Smatrix@free)
+    ## Setup constraints on diagonals
+    if (diag.constraints & (sum(Constraints)>0)) {      
+      One <- mxMatrix("Full", values=1, ncol=1, nrow=sum(Constraints), free=FALSE, name="One")
+      select <- create.Fmatrix(Constraints, name="select")
+      constraint <- mxConstraint( select%*%diag2vec(solve(Id-Amatrix)%&%Smatrix)==One, name="constraint" )
+    }    
+  } else {
+    if (is.null(model.name)) model.name <- "WLS Analysis of Covariance Structure"
+    ps <- no.var * (no.var + 1)/2
+    vecS <- mxAlgebra(vech(sampleS - impliedS), name="vecS")
+  }
+  if (ncol(asyCov) != ps) 
+    stop("No. of dimension of \"Cov\" does not match the multiplier of the dimension of \"asyCov\"\n")
+    
+  obj <- mxAlgebra( t(vecS) %&% invAcov, name = "obj" )
+  objective <- mxAlgebraObjective("obj")
+  
+  if (diag.constraints) {
+    text1 <- paste("mxRun(mxModel(model=\"", model.name, "\", Fmatrix, Amatrix, Smatrix, Id, impliedS, vecS, invAcov, ",
+                   "obj, objective, One, select, constraint, sampleS, mxCI(c(\"Amatrix\", \"Smatrix\"))), intervals=", 
+                    intervals, ", suppressWarnings = ", suppressWarnings, ", ...)", sep="")
+  } else {
+    text1 <- paste("mxRun(mxModel(model=\"", model.name, "\", Fmatrix, Amatrix, Smatrix, Id, impliedS, vecS, invAcov, ",
+                   "obj, objective, sampleS, mxCI(c(\"Amatrix\", \"Smatrix\"))), intervals=", 
+                    intervals, ", suppressWarnings = ", suppressWarnings, ", ...)", sep="")
+  }
+
+  mx.fit <- tryCatch(eval(parse(text = text1)), error = function(e) e)
+
+  # try to run it with error message as output
+  if (inherits(mx.fit, "error")) {
+      cat("Error in running the mxModel:\n")
+      stop(print(mx.fit))
+  } else {
+      out <- list(call=match.call(), noObservedStat=ps, n=n, cor.analysis=cor.analysis, Constraints=Constraints,
+                  indepModelChisq=.indepwlsChisq(S=Cov, acovS=asyCov, cor.analysis=cor.analysis),
+                  indepModelDf=no.var*(no.var-1)/2, mx.fit=mx.fit)
+      class(out) <- 'wls'
+  }
+  out
 }
 
 
-tssem2 <- function(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB"),
-                   model.name=NULL, suppressWarnings = TRUE, ...) {
+tssem2 <- function(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=FALSE,
+                   intervals.type = c("z", "LB"), model.name=NULL, suppressWarnings = TRUE, ...) {
   if ( !is.element( class(tssem1.obj)[1], c("tssem1FEM.cluster", "tssem1FEM", "tssem1REM")) )
       stop("\"tssem1.obj\" must be of neither class \"tssem1FEM.cluster\", class \"tssem1FEM\" or \"tssem1REM\".")
       
   switch(class(tssem1.obj)[1],
-         tssem1FEM.cluster = { out <- lapply(tssem1.obj, tssem2, impliedS=impliedS, matrices=matrices,
-                                            intervals.type=intervals.type, model.name=model.name,
-                                            suppressWarnings=suppressWarnings, ...)
+         tssem1FEM.cluster = { out <- lapply(tssem1.obj, tssem2, Amatrix=Amatrix, Smatrix=Smatrix, Fmatrix=Fmatrix,
+                                             diag.constraints=diag.constraints, intervals.type=intervals.type,
+                                             model.name=model.name, suppressWarnings=suppressWarnings, ...)
                               class(out) <- "wls.cluster" },
          tssem1FEM = { cor.analysis <- tssem1.obj$cor.analysis
                       # check the call to determine whether it is a correlation or covariance analysis
@@ -313,24 +416,26 @@ tssem2 <- function(tssem1.obj, impliedS, matrices, intervals.type = c("z", "LB")
                       # to handle symbolic F(T) vs. logical FALSE(TRUE)
                       ## cor.analysis <- as.logical(as.character(cor.analysis))
                       }
-                      out <- wls(S=tssem1.obj$pooledS, acovS=tssem1.obj$acovS, n=tssem1.obj$total.n,
-                                 impliedS=impliedS, matrices=matrices, cor.analysis=cor.analysis,
+                      out <- wls(Cov=tssem1.obj$pooledS, asyCov=tssem1.obj$acovS, n=tssem1.obj$total.n,
+                                 Amatrix=Amatrix, Smatrix=Smatrix, Fmatrix=Fmatrix,
+                                 diag.constraints=diag.constraints, cor.analysis=cor.analysis,
                                  intervals.type=intervals.type, model.name=model.name,
                                  suppressWarnings = suppressWarnings, ...) },
          tssem1REM = { cor.analysis <- tssem1.obj$cor.analysis
                      ## Extract the pooled correlation matrix
                       pooledS <- vec2symMat( coef(tssem1.obj, select="fixed"), diag=!cor.analysis)
                      ## Extract the asymptotic covariance matrix of the pooled correlations
-                      acovS <- vcov(tssem1.obj, select="fixed")
+                      asyCov <- vcov(tssem1.obj, select="fixed")
                       
                       if (cor.analysis==TRUE) {
                         if (is.null(model.name)) model.name <- "TSSEM2 (Random Effects Model) Analysis of Correlation Structure"
                       } else {
                         if (is.null(model.name)) model.name <- "TSSEM2 (Random Effects Model) Analysis of Covariance Structure"
                       }
-                      out <- wls(S=pooledS, acovS=acovS, n=tssem1.obj$total.n, impliedS=impliedS,
-                                 matrices=matrices, cor.analysis=cor.analysis, intervals.type=intervals.type,
-                                 model.name=model.name, suppressWarnings = suppressWarnings, ...) })
+                      out <- wls(Cov=pooledS, asyCov=asyCov, n=tssem1.obj$total.n,
+                                 Amatrix=Amatrix, Smatrix=Smatrix, Fmatrix=Fmatrix, diag.constraints=diag.constraints,
+                                 cor.analysis=cor.analysis, intervals.type=intervals.type, model.name=model.name,
+                                 suppressWarnings = suppressWarnings, ...) })
   out
 }
     

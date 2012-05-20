@@ -35,11 +35,12 @@ A list of data with the following structure:
 \examples{
 issp05
 
+\dontrun{
 #### Fixed-effects TSSEM
 fixed1 <- tssem1(issp05$data, issp05$n, method="FEM")
 summary(fixed1)
 
-Phi <- mxMatrix("Stand", ncol=3, nrow=3, value=.2, free=TRUE, name="Phi")
+Phi <- matrix(c(1,), ncol=3, nrow=3, value=.2, free=TRUE, name="Phi")
 Lambda <- mxMatrix("Full", ncol=3, nrow=7,
                    value=c(rep(0.2,3), rep(0,7), rep(0.2,2), rep(0,7), rep(0.2,2)),
                    free=c(rep(TRUE,3), rep(FALSE,7), rep(TRUE,2), rep(FALSE,7), rep(TRUE,2)),
@@ -51,5 +52,6 @@ impliedR <- mxAlgebra(Lambda \%&\% Phi, name="impliedR")
 fixed2 <- tssem2(fixed1, impliedS=impliedR, matrices=c(Phi, Lambda),
                  model.name="TSSEM2 ISSP05")
 summary(fixed2)
+}
 }
 \keyword{datasets}

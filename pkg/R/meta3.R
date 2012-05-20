@@ -1,7 +1,7 @@
 meta3 <- function(y, v, cluster, x, data, intercept.constraints, coef.constraints, 
                   RE2.constraints, RE2.lbound=1e-10,
                   RE3.constraints, RE3.lbound=1e-10,
-                  intervals.type=c("z", "LB"), heter.indices="I2hm",
+                  intervals.type=c("z", "LB"), heter.indices="I2hm", R2=TRUE,
                   model.name="Meta analysis with ML",
                   suppressWarnings = TRUE, ...) {
   mf <- match.call()
@@ -31,17 +31,18 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints, coef.constraint
     } else {
     my.x <- mf[[match("x", names(mf))]]
     x <- eval(my.x, data, enclos = sys.frame(sys.parent()))
-    if (is.vector(x)) no.x <- 1 else no.x <- ncol(x)
+    if (is.vector(x)) no.x <- 1 else no.x <- ncol(x)   
     old.labels <- names(my.long)
     my.long <- data.frame(my.long, x)
     names(my.long) <- c(old.labels, paste("x_", 1:no.x, sep=""))
+    ## Indicator of missing x
     if (no.x==1) miss.x <- is.na(x) else miss.x <- apply(is.na(x), 1, any)
   }
+  
   ## Remove missing x. Missing y is automatically handled by OpenMx.
   my.long <- my.long[!miss.x, ]
-  ## index to order cluster
-  index <- order(my.long$cluster)  
-  my.long <- my.long[index, ]
+  ## Reorder data according to clusters
+  my.long <- my.long[order(my.long$cluster), ]  
 
   ## Convert long format to wide format as SEM uses wide format
   ## c() is required to convert matrix to vector when the data are balanced.
@@ -149,6 +150,8 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints, coef.constraint
   heter.indices <- match.arg(heter.indices, c("I2hm", "I2q", "I2am", "ICC"), several.ok=TRUE)
   ci <- c(outer(heter.indices, c("_2","_3"), paste, sep=""))
 
+  ## Assuming NA first
+  meta0.fit <- NA  
   if (no.x==0) {
     meta3 <- mxModel(model=model.name, mxData(observed=my.wide[,-1], type="raw"), oneRow, Id, Ones,
                      inter, coeff, mydata, Tau2, Tau3, V, expMean, expCov,
@@ -156,13 +159,17 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints, coef.constraint
                      mxFIMLObjective("expCov","expMean", dimnames=paste("y_", 1:k, sep="")),
                      mxCI(c("inter","coeff","Tau2","Tau3", ci)))
                    ## mxCI(c("inter","coeff","Tau2","Tau3",
-                   ##        "I2Q_2", "I2Q_3", "I2HM_2", "I2HM_3", "I2AM_2", "I2AM_3", "ICC_2", "ICC_3")))  
+                   ##        "I2Q_2", "I2Q_3", "I2HM_2", "I2HM_3", "I2AM_2", "I2AM_3", "ICC_2", "ICC_3")))
   } else {
     ## No need to calculate I2
     meta3 <- mxModel(model=model.name, mxData(observed=my.wide[,-1], type="raw"), oneRow, Id, Ones,
                      inter, coeff, mydata, Tau2, Tau3, V, expMean, expCov,
                      mxFIMLObjective("expCov","expMean", dimnames=paste("y_", 1:k, sep="")),
                      mxCI(c("inter","coeff","Tau2","Tau3")))
+
+    ## Calculate R2
+    if (R2) meta0.fit <- tryCatch( meta3(y=y, v=v, cluster=cluster, data=my.long, model.name="No predictor",
+                                   suppressWarnings=TRUE, silent=TRUE), error = function(e) e )    
   }
   
   intervals.type <- match.arg(intervals.type)
@@ -178,9 +185,9 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints, coef.constraint
     stop(print(meta.fit))
   }
   
-  out <- list(call = mf, type="meta3", data.wide=my.wide, data=my.long,
+  out <- list(call = mf, type="meta3", R2=R2, data.wide=my.wide, data=my.long,
               no.y=1, no.x=no.x, miss.x=rep(FALSE, nrow(my.long)), 
-              meta.fit=meta.fit)
+              meta.fit=meta.fit, meta0.fit=meta0.fit)
   class(out) <- "meta"
   return(out)
 }

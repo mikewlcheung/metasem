@@ -31,32 +31,37 @@ Digman97
 fixed1 <- tssem1(Digman97$data, Digman97$n, method="FEM")
 summary(fixed1)
 
-## Factor correlation matrix
-Phi <- mxMatrix("Stand", ncol=2, nrow=2, value=.2, free=TRUE, name="Phi")
-## Factor loadings
-Lambda <- mxMatrix("Full", ncol=2, nrow=5, value=c(0,.3,.3,.3,0,.3,0,0,0,.3),
-free=c(FALSE,TRUE,TRUE,TRUE,FALSE,TRUE,FALSE,FALSE,FALSE,TRUE),
-name="Lambda")
+## S matrix
+Phi <- matrix(c(1,"0.3*cor","0.3*cor",1), ncol=2, nrow=2)
+(S1 <- bdiagMat(list(diag(c("0.2*e1","0.2*e2","0.2*e3","0.2*e4","0.2*e5")), Phi)))
+S1 <- as.mxMatrix(S1)
 
-## Model to be fitted
-impliedR <- mxAlgebra(Lambda \%&\% Phi, name="impliedR")
+## A matrix
+Lambda <-
+matrix(c(0,".3*f1_x2",".3*f1_x3",".3*f1_x4",0,".3*f2_x1",0,0,0,".3*f2_x5"),
+       ncol=2, nrow=5)
+(A1 <- rbind( cbind(matrix(0,ncol=5,nrow=5), Lambda),
+             matrix(0, ncol=7, nrow=2) ))
+A1 <- as.mxMatrix(A1)
 
-fixed2 <- tssem2(fixed1, impliedS=impliedR, matrices=c(Phi, Lambda),
-                  model.name="TSSEM2 Digman97")
+F1 <- create.Fmatrix(c(1,1,1,1,1,0,0), name="F1")
+
+fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, Fmatrix=F1, diag.constraints=TRUE, intervals="LB",
+                 model.name="TSSEM2 Digman97")
 summary(fixed2)
 
 ##### Example of Fixed-effects TSSEM with several clusters
 fixed1.cluster <- tssem1(Digman97$data, Digman97$n, cluster=Digman97$cluster)
 summary(fixed1.cluster)
 
-fixed2.cluster <- tssem2(fixed1.cluster, impliedS=impliedR, matrices=c(Phi, Lambda))
+fixed2.cluster <- tssem2(fixed1.cluster, Amatrix=A1, Smatrix=S1, Fmatrix=F1, diag.constraints=TRUE)
 summary(fixed2.cluster)
 
 ##### Example of Random-effects TSSEM with random effects on the diagonals
 random1 <- tssem1(Digman97$data, Digman97$n, method="REM", RE.diag.only=TRUE)
 summary(random1)
 
-random2 <- tssem2(random1, impliedS=impliedR, matrices=c(Phi, Lambda))
+random2 <- tssem2(random1, Amatrix=A1, Smatrix=S1, Fmatrix=F1, diag.constraints=TRUE, intervals="LB")
 summary(random2)
 }
 \keyword{datasets}

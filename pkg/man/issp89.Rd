@@ -34,6 +34,8 @@ Cheung, M. W. L., & Chan, W. (2009). A two-stage approach to synthesizing covari
 \seealso{ \code{\link[metaSEM]{issp05}}
 }
 \examples{
+
+\dontrun{
 issp89
 
 #### Fixed-effects model: Stage 1 analysis
@@ -54,7 +56,8 @@ impliedR <- mxAlgebra(Lambda \%&\% Phi, name="impliedR")
 #### Fixed-effects model: Stage 2 analysis
 fixed2 <- tssem2(fixed1, impliedS=impliedR, matrices=c(Phi, Lambda))
 summary(fixed2)
-  
+}
+
 #### Random-effects model: Stage 1 analysis
 ## Non-convergent solution
 % random1 <- tssem1(issp89$data, issp89$n, method="REM", RE.diag.only=TRUE)

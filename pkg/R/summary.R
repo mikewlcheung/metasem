@@ -1,22 +1,18 @@
 summary.wls <- function(object, ...) {
     if (!is.element("wls", class(object)))
-    stop("\"object\" must be an object of class \"wls\".")
+      stop("\"object\" must be an object of class \"wls\".")
 
     n <- object$n
-    tT <- object$wls.fit@output$Minus2LogLikelihood
-    ## Adjust for the constraints on the diagonals
-    dfT <- object$noObservedStat - summary(object$wls.fit)$estimatedParameters + object$noConstraints
+    tT <- object$mx.fit@output$Minus2LogLikelihood
+    my.mx <- summary(object$mx.fit)
+    ## Adjust the df by the no. of constraints on the diagonals
+    dfT <- object$noObservedStat - my.mx$estimatedParameters + sum(object$Constraints)
     tB <- object$indepModelChisq
     dfB <- object$indepModelDf
     p <- pchisq(tT, df=dfT, lower.tail=FALSE)
-    sampleS <- mxEval(sampleS, object$wls.fit)
-    impliedS <- mxEval(impliedS, object$wls.fit)
-    # it relies on that "Correlation structure" is used as the model name
-    ## if (!is.na(match("Correlation structure", object$wls.fit@name))) {
-    ##    cor.analysis <- TRUE
-    ## } else {
-    ##    cor.analysis <- FALSE
-    ## }
+    sampleS <- mxEval(sampleS, object$mx.fit)
+    impliedS <- mxEval(impliedS, object$mx.fit)
+
     cor.analysis <- object$cor.analysis
 
     ## Hu and Bentler (1998) Psychological Methods
@@ -41,14 +37,13 @@ summary.wls <- function(object, ...) {
       SRMR <- sqrt(mean(vech(stand %*% (sampleS-impliedS) %*% stand)^2))
     }
     
-    stat <- matrix(c(n, tT, dfT, p, tB, dfB, object$noConstraints, RMSEA, SRMR, TLI, CFI, AIC, BIC), ncol=1)
+    stat <- matrix(c(n, tT, dfT, p, tB, dfB, sum(object$Constraints), RMSEA, SRMR, TLI, CFI, AIC, BIC), ncol=1)
     rownames(stat) <- c("Sample size", "Chi-square of target model", "DF of target model",
                         "p value of target model", "Chi-square of independent model",
-                        "DF of independent model", "No. of constraints imposed on \"S\"", "RMSEA", "SRMR", "TLI", "CFI", "AIC", "BIC")
+                        "DF of independent model", "No. of constraints imposed on \"Smatrix\"",
+                        "RMSEA", "SRMR", "TLI", "CFI", "AIC", "BIC")
     colnames(stat) <- "Value"
   
-    # calculate coefficients
-    my.mx <- summary(object$wls.fit)
     ## my.para <- my.mx$parameters       # Worked up to OpenMx1.0.6
     my.para <- my.mx$parameters[, 1:6]   # Fixed for OpenMx1.1 
     # For example, P[1,2], L[1,2], ...
@@ -56,7 +51,7 @@ summary.wls <- function(object, ...) {
     dimnames(my.para)[[1]] <- my.para$name
 
     my.ci <- my.mx$CI
-    # Determine if CIs on parameter estimates are present
+    # Check if CIs on parameter estimates are present
     if (is.null(dimnames(my.ci))) {
       my.para$lbound <- my.para$Estimate - qnorm(.975)*my.para$Std.Error
       my.para$ubound <- my.para$Estimate + qnorm(.975)*my.para$Std.Error
@@ -96,7 +91,7 @@ summary.wls <- function(object, ...) {
     ##             OpenMx.version=libMatrix["OpenMx", "Version"],
     ##             metaSEM.version=libMatrix["metaSEM", "Version"], date=date())
     out <- list(call=object$call, coefficients=coefficients, stat=stat, intervals.type=intervals.type,
-                Mx.status1=object$wls.fit@output$status[[1]])
+                Mx.status1=object$mx.fit@output$status[[1]])
     class(out) <- "summary.wls"
     out
 }
@@ -298,9 +293,9 @@ print.tssem1REM <- function(x, ...) {
 }
 
 summary.tssem1REM <- function(object, ...) {
-    if (!is.element("tssem1REM", class(object)))
+  if (!is.element("tssem1REM", class(object)))
     stop("\"object\" must be an object of class \"tssem1REM\".")
-    summary.meta(object)
+  summary.meta(object)
 }
    
 print.wls <- function(x, ...) {
@@ -330,8 +325,7 @@ print.meta <- function(x, ...) {
 
 summary.meta <- function(object, homoStat=TRUE, ...) {
     if (!is.element("meta", class(object)))
-    ## if (!("meta" %in% class(object)))
-    stop("\"object\" must be an object of class \"meta\".")
+      stop("\"object\" must be an object of class \"meta\".")
 
     # calculate coefficients    
     my.mx <- summary(object$meta.fit)
@@ -390,30 +384,35 @@ summary.meta <- function(object, homoStat=TRUE, ...) {
       Q.stat <- list(Q=NA, Q.df=NA, pval=NA)
     }
 
-    ## Calculate I2 only if no.x=0
-    if (object$no.x==0) {
-      ## Test whether it is meta2 or meta3
-      if (object$type=="meta2") {
-        ## Need to do sth for meta2
-        heter.values <- NULL
-      } else {
+    ## Assuming NA first
+    heter.values <- NA
+    R2.values <- NA
+    if (object$type=="meta2") {
+      R2 <- NA
+    } else {
+      R2 <- object$R2
+    }
+
+    if (object$type=="meta2") {
+      ## FIXME Need to do sth for meta2
+      ## heter.values <- NA
+    } else {
+      ## meta3 object
+
+      ## Calculate I2 only if no.x=0
+      if (object$no.x==0) {
         heter.indices <- object$call[[match("heter.indices", names(object$call))]]
-        if (is.null(heter.indices)) {
-          heter.indices <- "I2hm"
-        } else {
-          ## remove the first "c" character
-          heter.indices <- as.character(heter.indices)[-1]
-        }
-        heter.names <-c(outer(heter.indices, c("_2","_3"), paste, sep=""))
+
+        ## remove the first "c" character        
+        if (is.null(heter.indices)) heter.indices <- "I2hm" else heter.indices <- as.character(heter.indices)[-1]
         
+        heter.names <-c(outer(heter.indices, c("_2","_3"), paste, sep=""))
         ## Wald test, no CI
         if (is.null(dimnames(my.ci))) {
           my.heter <- paste("mxEval(c(", paste(heter.names, collapse=","), "), object$meta.fit)", sep="")
           heter.values <- matrix(NA, nrow=length(heter.names), ncol=3)
           heter.values[,2] <- eval(parse(text = my.heter))
-        } else {
-        ## LB CI  
-        # model.name <- "Meta analysis with ML."
+        } else {## LB CI  model.name <- "Meta analysis with ML."
           heter.values <- my.mx$CI[paste(model.name, heter.names, "[1,1]", sep=""), ]
         }
 
@@ -424,12 +423,38 @@ summary.meta <- function(object, homoStat=TRUE, ...) {
         heter.names <- sub("I2am_2", "I2_2 (arithmetic mean)", heter.names)
         heter.names <- sub("I2am_3", "I2_3 (arithmetic mean)", heter.names)
         dimnames(heter.values) <- list(heter.names, c("lbound", "Estimate", "ubound"))
+        
+      } else {## no.x != 0
+
+        if (R2) {
+          ## Tau2 with predictors
+          ## Tau2_2model <- mxEval(Tau2_2, object$meta.fit)
+          ## Tau2_3model <- mxEval(Tau2_3, object$meta.fit)
+          Tau2_2model <- eval(parse(text="mxEval(Tau2_2, object$meta.fit)"))
+          Tau2_3model <- eval(parse(text="mxEval(Tau2_3, object$meta.fit)"))
+          
+          if (inherits(object$meta0.fit, "error")) {
+            Tau2_2base <- NA
+            Tau2_3base <- NA
+          } else {
+            ## Tau2_2base <- mxEval(Tau2_2, object$meta0.fit$meta.fit)
+            ## Tau2_3base <- mxEval(Tau2_3, object$meta0.fit$meta.fit)
+            Tau2_2base <- eval(parse(text="mxEval(Tau2_2, object$meta0.fit$meta.fit)"))
+            Tau2_3base <- eval(parse(text="mxEval(Tau2_3, object$meta0.fit$meta.fit)"))            
+          }
+          
+          Minus2LLbase <- summary(object$meta0.fit$meta.fit)$Minus2LogLikelihood 
+          Minus2LLmodel <- my.mx$Minus2LogLikelihood
+          R2.values <- matrix(c(Tau2_2base, Tau2_2model, (1-Tau2_2model/Tau2_2base),
+                                Tau2_3base, Tau2_3model, (1-Tau2_3model/Tau2_3base),
+                                Minus2LLbase, Minus2LLmodel, (1-Minus2LLmodel/Minus2LLbase)), ncol=1)
+          dimnames(R2.values) <- list(c("Tau2_2 (no predictor)", "Tau2_2 (with predictors)", "R2_2 (level-2)",
+                                        "Tau2_3 (no predictor)", "Tau2_3 (with predictors)", "R2_3 (level-3)",
+                                        "-2LL (no predictor)", "-2LL (with predictors)", "R2 (pseudo)"), c("Value"))
+        }
       }
-    } else {
-      ## no.x != 0
-      heter.values <- NULL
     }
-    
+         
     ## Mx.status1 <- object$meta.fit@output$status[[1]]   
     ## libMatrix <- installed.packages()    
     ## out <- list(call=object$call, type=object$type, Q.stat=Q.stat, intervals.type=intervals.type,
@@ -443,7 +468,8 @@ summary.meta <- function(object, homoStat=TRUE, ...) {
                 heter.values=heter.values, no.studies=my.mx$numObs,
                 obsStat=my.mx$observedStatistics, estPara=my.mx$estimatedParameters,
                 df=my.mx$degreesOfFreedom, Minus2LL=my.mx$Minus2LogLikelihood,
-                coefficients=coefficients, Mx.status1=object$meta.fit@output$status[[1]])
+                coefficients=coefficients, Mx.status1=object$meta.fit@output$status[[1]],
+                R2=R2, R2.values=R2.values)
     class(out) <- "summary.meta"
     out
 }
@@ -472,24 +498,30 @@ print.summary.meta <- function(x, ...) {
     cat("\nNumber of observed statistics:", x$obsStat)
     cat("\nNumber of estimated parameters:", x$estPara)
     cat("\nDegrees of freedom:", x$df)
-    cat("\n-2 log likelihood:", x$Minus2LL)        
+    cat("\n-2 log likelihood:", x$Minus2LL, "\n")        
 
     if (x$type=="meta3") {
-    ## Print heterogeneity indices if no x in the call
-    if ( is.null(x$call[[match("x", names(x$call))]]) ) {
-      switch(x$intervals.type,
-             z =  { cat("\n\nHeterogeneity indices:\n")
-                    printCoefmat(x$heter.values[,2, drop=FALSE], ...) },
-             LB = { cat("\n\nHeterogeneity indices (and 95% likelihood-based CIs):\n")
-                    printCoefmat(x$heter.values, ...) } )
-    }
+      ## Print heterogeneity indices if no x in the call
+      if ( is.null(x$call[[match("x", names(x$call))]]) ) {
+        switch(x$intervals.type,
+               z =  { cat("\nHeterogeneity indices:\n")
+                      printCoefmat(x$heter.values[,2, drop=FALSE], ...) },
+               LB = { cat("\nHeterogeneity indices (and 95% likelihood-based CIs):\n")
+                      printCoefmat(x$heter.values, ...) } )
+      } else {
+        ## There are predictors
+        if (x$R2) {
+          cat("\nR2 (untruncated):\n")
+          printCoefmat(x$R2.values, ...) 
+        }
+      }
     }
     
     ## cat("\n\nR version:", x$R.version)
     ## cat("\nOpenMx version:", x$OpenMx.version)
     ## cat("\nmetaSEM version:", x$metaSEM.version)
     ## cat("\nDate of analysis:", x$date)
-    cat("\nOpenMx status1:", x$Mx.status1, "(\"0\" and \"1\": considered fine; other values indicate problems)\n")
+    cat("OpenMx status1:", x$Mx.status1, "(\"0\" and \"1\": considered fine; other values indicate problems)\n")
     ## cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")      
 }
 
@@ -602,7 +634,6 @@ print.reml <- function(x, ...) {
     print(summary.default(x), ...)
 }
 
-## FIXME: no name when there is only one element
 vcov.meta <- function(object, select=c("all", "fixed", "random"), ...) {
     if (!is.element("meta", class(object)))
     stop("\"object\" must be an object of class \"meta\".")
@@ -618,22 +649,8 @@ vcov.meta <- function(object, select=c("all", "fixed", "random"), ...) {
          fixed =  my.name <- my.name[ grep("Intercept|Slope", my.name) ],
          random = my.name <- my.name[ grep("Tau2", my.name) ]
          )    
-    ## switch( select,
-    ##        ## all = my.name <- my.name,
-    ##        fixed = if (no.x==0) {
-    ##          my.name <- paste("Intercept", 1:no.y, sep="")
-    ##        } else {
-    ##          my.name <- c( paste("Intercept", 1:no.y, sep=""),
-    ##                        outer(1:no.y, 1:no.x, function(y, x) paste("Slope", y,"_", x, sep = "")) )
-    ##        },
-    ##        random = if ("tssem1REM" %in% class(object)) {
-    ##                     my.name <- paste("Tau2_", 1:no.y,"_", 1:no.y,sep="")
-    ##                 } else {
-    ##                     my.name <- vech(outer(1:no.y, 1:no.y, function(x,y) { paste("Tau2_",x,"_",y,sep="")}))
-    ##                 }
-    ##        )
 
-    acov <- tryCatch( 2*solve(object$meta@output$calculatedHessian[my.name, my.name]), error = function(e) e)
+    acov <- tryCatch( 2*solve(object$meta@output$calculatedHessian[my.name, my.name, drop=FALSE]), error = function(e) e)
     # Issue a warning instead of error message
     if (inherits(acov, "error")) {
       cat("Error in solving the Hessian matrix.\n")
@@ -664,17 +681,26 @@ vcov.tssem1REM <- function(object, select=c("all", "fixed", "random"), ...) {
 vcov.wls <- function(object, ...) {
   if (!is.element("wls", class(object)))
     stop("\"object\" must be an object of class \"wls\".")
-  acovS <- tryCatch( 2*solve(object$wls.fit@output$calculatedHessian), error = function(e) e ) 
-  # Issue a warning instead of error message
-  if (inherits(acovS, "error")) {
-    cat("Error in solving the Hessian matrix.\n")
-    warning(print(acovS))
+  
+  if (sum(object$Constraints)==0) {
+    ## Select the free parameters for inversion
+    acovS <- tryCatch( 2*solve(object$mx.fit@output$calculatedHessian), error = function(e) e ) 
+
+    # Issue a warning instead of error message
+    if (inherits(acovS, "error")) {
+      cat("Error in solving the Hessian matrix.\n")
+      warning(print(acovS))
+    } else {
+      my.mx <- summary(object$mx.fit)
+      # For example, P[1,2], L[1,2], ...
+      my.names <- with(my.mx$parameters[, 2:4], paste(matrix,"[",row,",",col,"]",sep=""))
+      dimnames(acovS) <- list(my.names, my.names)
+      acovS
+    }
+    
   } else {
-    my.mx <- summary(object$wls.fit)
-    # For example, P[1,2], L[1,2], ...
-    my.names <- with(my.mx$parameters[, 2:4], paste(matrix,"[",row,",",col,"]",sep=""))
-    dimnames(acovS) <- list(my.names, my.names)
-    acovS
+    ## No vcov when there are constraints
+    return(NA)
   }
 }
 
@@ -717,12 +743,6 @@ coef.meta <- function(object, select=c("all", "fixed", "random"), ...) {
          fixed =  my.para <- my.para[ grep("Intercept|Slope", names(my.para)) ],
          random = my.para <- my.para[ grep("Tau2", names(my.para)) ]
          )
-  ## switch( select,
-  ##        ## all = my.name <- my.name,
-  ##        fixed =  my.name <- my.name[ grep("Intercept|Slope", my.name) ],
-  ##        random = my.name <- my.name[ grep("Tau2", my.name) ]
-  ##        )
-  ## object$meta.fit@output$estimate[my.name]
   my.para
 }
 
@@ -748,7 +768,7 @@ coef.wls <- function(object, ...) {
     if (!is.element("wls", class(object)))
     stop("\"object\" must be an object of class \"wls\".")
     ## object$wls.fit@output$estimate
-    my.mx <- summary(object$wls.fit)
+    my.mx <- summary(object$mx.fit)
     my.coef <- my.mx$parameters$Estimate
     # For example, P[1,2], L[1,2], ...
     names(my.coef) <- with(my.mx$parameters[, 2:4], paste(matrix,"[",row,",",col,"]",sep=""))

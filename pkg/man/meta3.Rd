@@ -14,7 +14,7 @@ meta3(y, v, cluster, x, data, intercept.constraints,
       coef.constraints, RE2.constraints, RE2.lbound = 1e-10,
       RE3.constraints, RE3.lbound = 1e-10,
       intervals.type = c("z", "LB"), heter.indices="I2hm",
-      model.name = "Meta analysis with ML",
+      R2=TRUE, model.name = "Meta analysis with ML",
       suppressWarnings = TRUE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -81,7 +81,10 @@ meta3(y, v, cluster, x, data, intercept.constraints,
 }
   \item{heter.indices}{Possible options are \code{"I2hm"}, \code{"I2am"}
 	\code{"I2q"} and \code{"ICC"}. More than one options are possible. If \code{intervals.type="LB"}, 95\% confidence intervals on the heterogeneity indices will be constructed. (See the details.)
-}
+  }
+  \item{R2}{Logical. If \code{TRUE} and there are predictors, R2 are
+	calculated.
+  }
   \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. 
 }
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
