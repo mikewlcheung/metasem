@@ -6,7 +6,7 @@
   function.
 }
 \usage{
-create.Fmatrix(x, name)
+create.Fmatrix(x, name, as.mxMatrix=TRUE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -14,6 +14,9 @@ create.Fmatrix(x, name)
 }
 \item{name}{Name of the matrix. If it is missing, "Fmatrix" will be used.
 }
+\item{as.mxMatrix}{Logical. If it is \code{TRUE}, the output is a matrix of
+  \code{MxMatrix-class}. If it is \code{FALSE}, it is a numeric matrix.}
+\item{\dots}{Not used.}
 }
 \details{
 }
@@ -30,5 +33,7 @@ create.Fmatrix(x, name)
 \examples{
 ## Select the first 3 variables while the other 2 variables are latent.
 create.Fmatrix(c(1,1,1,0,0))
+
+create.Fmatrix(c(1,1,1,0,0), as.mxMatrix=FALSE)
 }
 \keyword{utilities}

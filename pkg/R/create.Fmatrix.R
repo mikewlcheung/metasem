@@ -1,9 +1,9 @@
-create.Fmatrix <- function(x, name) {
+create.Fmatrix <- function(x, name, as.mxMatrix=TRUE, ...) {
   x <- as.logical(x)
   Fmatrix <- diag(as.numeric(x))[x, , drop=FALSE]
-  if (missing(name)) {
-    as.mxMatrix(Fmatrix)
+  if (as.mxMatrix) {
+    if (missing(name)) as.mxMatrix(Fmatrix) else as.mxMatrix(Fmatrix, name=name)
   } else {
-    as.mxMatrix(Fmatrix, name=name)
+    Fmatrix
   }
 }

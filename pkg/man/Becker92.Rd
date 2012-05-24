@@ -32,20 +32,21 @@ Becker92
 
 #### Fixed-effects model
 ## First stage analysis
-## Replicate Becker's (1992) analysis by using 4 studies only
+## Replicate Becker's (1992) analysis using 4 studies only
 fixed1 <- tssem1(Becker92$data[1:4], Becker92$n[1:4], method="FEM")
 summary(fixed1)
 
-## Prepare a regression model
+## Prepare a regression model using create.mxMatrix()
 A1 <- create.mxMatrix(c(0,0,0,"0.2*spatial2aptitude",
                         0,0,"0.2*verbal2aptitude",0,0), type="Full", ncol=3, nrow=3, name="A1")
 S1 <- create.mxMatrix(c("0.2*varY",0,0,1,"0.2*cor",1), type="Symm", name="S1")
 
-% A1 <- mxMatrix("Full", ncol=3, nrow=3, value=0, free=c(FALSE,FALSE,FALSE,TRUE,FALSE,FALSE,TRUE,FALSE,FALSE),
-%                label=c(NA,NA,NA,"spatial2aptitude",NA,NA,"verbal2aptitude",NA,NA),
-%                name="A1")
-% S1 <- mxMatrix("Symm", ncol=3, nrow=3, value=c(0.5,0,0,1,0.2,1), free=c(TRUE,FALSE,FALSE,FALSE,TRUE,FALSE),
-%                label=c("varY",NA,NA,NA,"cor",NA), name="S1")
+## An alternative method to create a regression model using mxMatrix()
+# A1 <- mxMatrix("Full", ncol=3, nrow=3, value=0, free=c(FALSE,FALSE,FALSE,TRUE,FALSE,FALSE,TRUE,FALSE,FALSE),
+#                label=c(NA,NA,NA,"spatial2aptitude",NA,NA,"verbal2aptitude",NA,NA),
+#                name="A1")
+# S1 <- mxMatrix("Symm", ncol=3, nrow=3, value=c(0.5,0,0,1,0.2,1), free=c(TRUE,FALSE,FALSE,FALSE,TRUE,FALSE),
+#                label=c("varY",NA,NA,NA,"cor",NA), name="S1")
 
 ## Fixed-effects model: Second stage analysis
 fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, diag.constraints=TRUE, intervals="LB")

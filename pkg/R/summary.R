@@ -210,11 +210,6 @@ summary.tssem1FEM <- function(object, ...) {
     coefficients$"z value" <- coefficients$Estimate/coefficients$Std.Error
     coefficients$"Pr(>|z|)" <- 2*(1-pnorm(abs(coefficients$"z value")))
     
-    ## Mx.status1 <- object$tssem1.fit@output$status[[1]]   
-    ## libMatrix <- installed.packages()    
-    ## out <- list(call=object$call, coefficients=coefficients, stat=stat, Mx.status1=Mx.status1,
-    ##             R.version=as.character(getRversion()), OpenMx.version=libMatrix["OpenMx", "Version"],
-    ##             metaSEM.version=libMatrix["metaSEM", "Version"], date=date())
     out <- list(call=object$call, coefficients=coefficients, stat=stat, Mx.status1=object$tssem1.fit@output$status[[1]])
     class(out) <- "summary.tssem1FEM"
     out
@@ -224,17 +219,7 @@ print.summary.tssem1FEM <- function(x, ...) {
     if (!is.element("summary.tssem1FEM", class(x)))
     stop("\"x\" must be an object of class \"summary.tssem1FEM\".")
     ## call.text <- deparse(x$call)
-    
-    ## cat("Call:\n")
-    ## # Ad-hoc solution to remove very long call text
-	## if ( length(call.text)>30 ) {
-    ##     cat(call.text[1], "\n")
-    ## } else { 		
-    ##     for (i in 1:length(call.text)) {
-    ##         cat(call.text[i], "\n")
-    ##     }	
-    ## }
-    
+       
     cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"), 
         "\n\n", sep = "")    
     cat("Coefficients:\n")
@@ -256,15 +241,6 @@ print.tssem1FEM <- function(x, ...) {
       stop("\"x\" must be an object of class \"tssem1FEM\".")
     ## call.text <- deparse(x$call)
 
-    ## cat("Call:\n")
-    ## # Ad-hoc solution to remove very long call text
-	## if ( length(call.text)>30 ) {
-    ##     cat(call.text[1], "\n")
-    ## } else { 	
-    ##     for (i in 1:length(call.text)) {
-    ##         cat(call.text[i], "\n")
-    ##     }	
-    ## }
     cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"), 
         "\n\n", sep = "")    
     cat("Structure:\n")
@@ -301,11 +277,7 @@ summary.tssem1REM <- function(object, ...) {
 print.wls <- function(x, ...) {
     if (!is.element("wls", class(x)))
       stop("\"x\" must be an object of class \"wls\".")
-    ## call.text <- deparse(x$call)
-    ## cat("Call:\n")
-    ## for (i in 1:length(call.text)) {
-    ##     cat(call.text[i], "\n")
-    ## }
+
     cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"), 
         "\n\n", sep = "")    
     cat("Structure:\n")	
@@ -329,8 +301,8 @@ summary.meta <- function(object, homoStat=TRUE, ...) {
 
     # calculate coefficients    
     my.mx <- summary(object$meta.fit)
-    ## my.para <- my.mx$parameters       # Worked up to OpenMx1.0.6
-    my.para <- my.mx$parameters[, 1:6]   # Fixed for OpenMx1.1
+    ## Exclude lbound ubound etc
+    my.para <- my.mx$parameters[, 1:6]   
     ## OpenMx1.1: y1, y2 and x1 appear in col
     my.para$col <- sub("[a-z]", "", my.para$col)  # Fixed for OpenMx1.1
     # For example, P[1,2], L[1,2], ...
@@ -349,6 +321,7 @@ summary.meta <- function(object, homoStat=TRUE, ...) {
       dimnames(coefficients)[[1]] <- my.para$label 
     } else {
       # model.name: may vary in diff models
+      ## FIXME: it may break down when model.name is a variable.
       model.name <- object$call[[match("model.name", names(object$call))]]
       # if not specified, the default in meta() is "Meta analysis with ML"
       if (is.null(model.name)) {
@@ -385,94 +358,117 @@ summary.meta <- function(object, homoStat=TRUE, ...) {
     }
 
     ## Assuming NA first
-    heter.values <- NA
+    R2 <- object$R2
+    I2 <- object$I2
+    I2.values <- NA
     R2.values <- NA
-    if (object$type=="meta2") {
-      R2 <- NA
-    } else {
-      R2 <- object$R2
-    }
 
-    if (object$type=="meta2") {
-      ## FIXME Need to do sth for meta2
-      ## heter.values <- NA
-    } else {
-      ## meta3 object
+    ## Calculate I2
+    if (object$no.x==0) {
 
-      ## Calculate I2 only if no.x=0
-      if (object$no.x==0) {
-        heter.indices <- object$call[[match("heter.indices", names(object$call))]]
+      ## meta3 class
+      if ( "meta3" %in% class(object) ) {
 
-        ## remove the first "c" character        
-        if (is.null(heter.indices)) heter.indices <- "I2hm" else heter.indices <- as.character(heter.indices)[-1]
-        
-        heter.names <-c(outer(heter.indices, c("_2","_3"), paste, sep=""))
+        I2.names <- c("I2q","I2hm","I2am","ICC")
+        ## Rearrange different I2 into the standard format
+        I2.names <- I2.names[ c("I2q","I2hm","I2am","ICC") %in% I2 ]
+        I2.names <- c(outer(I2, c("_2","_3"), paste, sep=""))
+
         ## Wald test, no CI
         if (is.null(dimnames(my.ci))) {
-          my.heter <- paste("mxEval(c(", paste(heter.names, collapse=","), "), object$meta.fit)", sep="")
-          heter.values <- matrix(NA, nrow=length(heter.names), ncol=3)
-          heter.values[,2] <- eval(parse(text = my.heter))
+          I2.values <- matrix(NA, nrow=length(I2.names), ncol=3)
+          I2.values[,2] <- eval(parse(text = paste("mxEval(c(", paste(I2.names, collapse=","), "), object$meta.fit)", sep="")))
         } else {## LB CI  model.name <- "Meta analysis with ML."
-          heter.values <- my.mx$CI[paste(model.name, heter.names, "[1,1]", sep=""), ]
+          I2.values <- my.mx$CI[paste(model.name, I2.names, "[1,1]", sep=""), ]
         }
+        ## Truncate within 0 and 1
+        ## I2.values <- apply(I2.values, c(1,2), function(x) max(x,0))
+        I2.values <- ifelse(I2.values<0, 0, I2.values)
+        I2.values <- ifelse(I2.values>1, 1, I2.values)        
+        I2.names <- sub("I2q_2", "I2_2 (Q statistic)", I2.names)
+        I2.names <- sub("I2q_3", "I2_3 (Q statistic)", I2.names)
+        I2.names <- sub("I2hm_2", "I2_2 (harmonic mean)", I2.names)
+        I2.names <- sub("I2hm_3", "I2_3 (harmonic mean)", I2.names)
+        I2.names <- sub("I2am_2", "I2_2 (arithmetic mean)", I2.names)
+        I2.names <- sub("I2am_3", "I2_3 (arithmetic mean)", I2.names)
+        dimnames(I2.values) <- list(I2.names, c("lbound", "Estimate", "ubound"))
 
-        heter.names <- sub("I2q_2", "I2_2 (Q statistic)", heter.names)
-        heter.names <- sub("I2q_3", "I2_3 (Q statistic)", heter.names)
-        heter.names <- sub("I2hm_2", "I2_2 (harmonic mean)", heter.names)
-        heter.names <- sub("I2hm_3", "I2_3 (harmonic mean)", heter.names)
-        heter.names <- sub("I2am_2", "I2_2 (arithmetic mean)", heter.names)
-        heter.names <- sub("I2am_3", "I2_3 (arithmetic mean)", heter.names)
-        dimnames(heter.values) <- list(heter.names, c("lbound", "Estimate", "ubound"))
-        
+      } else {
+      ## meta class
+               
+        I2.names <- c("I2q","I2hm","I2am")
+        ## Rearrange different I2 into the standard format
+        I2.names <- I2.names[ c("I2q","I2hm","I2am") %in% I2 ]
+
+        ## Wald test, no CI
+        if (is.null(dimnames(my.ci))) {
+          I2.values <- matrix(NA, nrow=length(I2.names)*no.y, ncol=3)
+          I2.values[,2] <- eval(parse(text = paste("mxEval(I2_values, object$meta.fit)", sep="")))
+        } else {## LB CI  model.name <- "Meta analysis with ML."
+          I2.values <- my.mx$CI[paste(model.name, "I2_values[", 1:(length(I2.names)*no.y), ",1]", sep=""), ,drop=FALSE]
+        }
+        ## Truncate into 0
+        ## I2.values <- apply(I2.values, c(1,2), function(x) max(x,0))
+        I2.values <- ifelse(I2.values<0, 0, I2.values)
+        I2.values <- ifelse(I2.values>1, 1, I2.values) 
+        I2.names <- paste(": ", I2.names, sep="")
+        I2.names <- paste("Intercept", c( outer(1:no.y, I2.names, paste, sep="")), sep="")
+        I2.names <- sub("I2q", "I2 (Q statistic)", I2.names)
+        I2.names <- sub("I2hm", "I2 (harmonic mean)", I2.names)
+        I2.names <- sub("I2am", "I2 (arithmetic mean)", I2.names)
+        dimnames(I2.values) <- list(I2.names, c("lbound", "Estimate", "ubound"))
+      }
+
+      ## Calculate R2  
       } else {## no.x != 0
 
         if (R2) {
-          ## Tau2 with predictors
-          ## Tau2_2model <- mxEval(Tau2_2, object$meta.fit)
-          ## Tau2_3model <- mxEval(Tau2_3, object$meta.fit)
-          Tau2_2model <- eval(parse(text="mxEval(Tau2_2, object$meta.fit)"))
-          Tau2_3model <- eval(parse(text="mxEval(Tau2_3, object$meta.fit)"))
-          
-          if (inherits(object$meta0.fit, "error")) {
-            Tau2_2base <- NA
-            Tau2_3base <- NA
+
+          ## meta3 class
+          if ( "meta3" %in% class(object) ) {           
+            ## Tau2 with predictors
+            Tau2_2model <- tryCatch( eval(parse(text="mxEval(Tau2_2, object$meta.fit)")), error = function(e) NA )
+            Tau2_3model <- tryCatch( eval(parse(text="mxEval(Tau2_3, object$meta.fit)")), error = function(e) NA )
+            Tau2_2base <- tryCatch( eval(parse(text="mxEval(Tau2_2, object$meta0.fit$meta.fit)")), error = function(e) NA )
+            Tau2_3base <- tryCatch( eval(parse(text="mxEval(Tau2_3, object$meta0.fit$meta.fit)")), error = function(e) NA )           
+
+            R2_2 <- max((1-Tau2_2model/Tau2_2base), 0)
+            R2_3 <- max((1-Tau2_3model/Tau2_3base), 0)
+            R2.values <- matrix(c(Tau2_2base, Tau2_2model, R2_2, Tau2_3base, Tau2_3model, R2_3), ncol=1)
+            dimnames(R2.values) <- list(c("Tau2_2 (no predictor)", "Tau2_2 (with predictors)", "R2_2 (level-2)",
+                                          "Tau2_3 (no predictor)", "Tau2_3 (with predictors)", "R2_3 (level-3)"),
+                                        c("Estimate"))      
           } else {
-            ## Tau2_2base <- mxEval(Tau2_2, object$meta0.fit$meta.fit)
-            ## Tau2_3base <- mxEval(Tau2_3, object$meta0.fit$meta.fit)
-            Tau2_2base <- eval(parse(text="mxEval(Tau2_2, object$meta0.fit$meta.fit)"))
-            Tau2_3base <- eval(parse(text="mxEval(Tau2_3, object$meta0.fit$meta.fit)"))            
+            ## Return NA when Tau2 values cannot be retrieved, e.g., constrained at lbound or no name
+            Tau2model <- sapply(1:no.y, function(x) { temp <- paste("mxEval(Tau2_",x,"_",x,", object$meta.fit)", sep="")
+                                tryCatch( eval(parse(text=temp)), error = function(e) NA ) })
+            Tau2base <- sapply(1:no.y, function(x) { temp <- paste("mxEval(Tau2_",x,"_",x,", object$meta0.fit$meta.fit)", sep="")
+                               tryCatch( eval(parse(text=temp)), error = function(e) NA ) })
+            R2_2 <- pmax((1-Tau2model/Tau2base), 0)
+            R2.values <- matrix( c(rbind(Tau2base, Tau2model, R2_2)), ncol=1 )
+            dimnames(R2.values) <- list( paste("y", c(t(outer(1:no.y, c(": Tau2 (no predictor)", ": Tau2 (with predictors)", ": R2"),
+                                                              paste, sep=""))), sep=""), c("Estimate")) 
           }
           
-          Minus2LLbase <- summary(object$meta0.fit$meta.fit)$Minus2LogLikelihood 
-          Minus2LLmodel <- my.mx$Minus2LogLikelihood
-          R2.values <- matrix(c(Tau2_2base, Tau2_2model, (1-Tau2_2model/Tau2_2base),
-                                Tau2_3base, Tau2_3model, (1-Tau2_3model/Tau2_3base),
-                                Minus2LLbase, Minus2LLmodel, (1-Minus2LLmodel/Minus2LLbase)), ncol=1)
-          dimnames(R2.values) <- list(c("Tau2_2 (no predictor)", "Tau2_2 (with predictors)", "R2_2 (level-2)",
-                                        "Tau2_3 (no predictor)", "Tau2_3 (with predictors)", "R2_3 (level-3)",
-                                        "-2LL (no predictor)", "-2LL (with predictors)", "R2 (pseudo)"), c("Value"))
-        }
-      }
-    }
+        } ## if (R2)
+        
+      } ## if (object$no.x==0)
          
-    ## Mx.status1 <- object$meta.fit@output$status[[1]]   
-    ## libMatrix <- installed.packages()    
-    ## out <- list(call=object$call, type=object$type, Q.stat=Q.stat, intervals.type=intervals.type,
-    ##             heter.values=heter.values, no.studies=my.mx$numObs,
-    ##             obsStat=my.mx$observedStatistics, estPara=my.mx$estimatedParameters,
-    ##             df=my.mx$degreesOfFreedom, Minus2LL=my.mx$Minus2LogLikelihood,
-    ##             coefficients=coefficients, Mx.status1=Mx.status1, R.version=as.character(getRversion()),
-    ##             OpenMx.version=libMatrix["OpenMx", "Version"], metaSEM.version=libMatrix["metaSEM", "Version"],
-    ##             date=date())
-    out <- list(call=object$call, type=object$type, Q.stat=Q.stat, intervals.type=intervals.type,
-                heter.values=heter.values, no.studies=my.mx$numObs,
+    out <- list(call=object$call, Q.stat=Q.stat, intervals.type=intervals.type,
+                I2=I2, I2.values=I2.values, R2=R2, R2.values=R2.values, no.studies=my.mx$numObs,
                 obsStat=my.mx$observedStatistics, estPara=my.mx$estimatedParameters,
                 df=my.mx$degreesOfFreedom, Minus2LL=my.mx$Minus2LogLikelihood,
-                coefficients=coefficients, Mx.status1=object$meta.fit@output$status[[1]],
-                R2=R2, R2.values=R2.values)
+                coefficients=coefficients, Mx.status1=object$meta.fit@output$status[[1]])
     class(out) <- "summary.meta"
     out
 }
+
+## Magee, L. (1990). R2 Measures Based on Wald and Likelihood Ratio Joint Significance Tests. The American Statistician, 44(3), 250–253. doi:10.2307/2685352
+## Nagelkerke, N. J. D. (1991). A note on a general definition of the coefficient of determination. Biometrika, 78(3), 691–692. doi:10.2307/2337038
+## Minus2LLbase <- summary(object$meta0.fit$meta.fit)$Minus2LogLikelihood 
+## Minus2LLmodel <- my.mx$Minus2LogLikelihood           
+## Minus2LLbase, Minus2LLmodel, (1 - exp((Minus2LLmodel-Minus2LLbase)/no.studies))
+## "-2LL (no predictor)", "-2LL (with predictors)", "R2 (pseudo)"
 
 print.summary.meta <- function(x, ...) {
     if (!is.element("summary.meta", class(x)))
@@ -494,36 +490,31 @@ print.summary.meta <- function(x, ...) {
     cat("\nQ statistic on homogeneity of effect sizes:", x$Q.stat[["Q"]])
     cat("\nDegrees of freedom of the Q statistic:", x$Q.stat[["Q.df"]])
     cat("\nP value of the Q statistic:", x$Q.stat[["pval"]])
-    cat("\n\nNumber of studies (or clusters):", x$no.studies)
+
+    ## Print heterogeneity indices if no x in the call
+    if ( is.null(x$call[[match("x", names(x$call))]]) ) {
+      switch(x$intervals.type,
+             z =  { cat("\nHeterogeneity indices (based on the estimated Tau2):\n")
+                    printCoefmat(x$I2.values[,2, drop=FALSE], ...) },
+             LB = { cat("\nHeterogeneity indices (I2) and their 95% likelihood-based CIs:\n")
+                    printCoefmat(x$I2.values, ...) } )
+    } else {
+      ## There are predictors
+      if (x$R2) {
+        cat("\nExplained variances (R2):\n")
+        printCoefmat(x$R2.values, ...) 
+      }
+    }    
+    cat("\nNumber of studies (or clusters):", x$no.studies)
     cat("\nNumber of observed statistics:", x$obsStat)
     cat("\nNumber of estimated parameters:", x$estPara)
     cat("\nDegrees of freedom:", x$df)
     cat("\n-2 log likelihood:", x$Minus2LL, "\n")        
-
-    if (x$type=="meta3") {
-      ## Print heterogeneity indices if no x in the call
-      if ( is.null(x$call[[match("x", names(x$call))]]) ) {
-        switch(x$intervals.type,
-               z =  { cat("\nHeterogeneity indices:\n")
-                      printCoefmat(x$heter.values[,2, drop=FALSE], ...) },
-               LB = { cat("\nHeterogeneity indices (and 95% likelihood-based CIs):\n")
-                      printCoefmat(x$heter.values, ...) } )
-      } else {
-        ## There are predictors
-        if (x$R2) {
-          cat("\nR2 (untruncated):\n")
-          printCoefmat(x$R2.values, ...) 
-        }
-      }
-    }
     
-    ## cat("\n\nR version:", x$R.version)
-    ## cat("\nOpenMx version:", x$OpenMx.version)
-    ## cat("\nmetaSEM version:", x$metaSEM.version)
-    ## cat("\nDate of analysis:", x$date)
     cat("OpenMx status1:", x$Mx.status1, "(\"0\" and \"1\": considered fine; other values indicate problems)\n")
     ## cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")      
 }
+
 
 summary.reml <- function(object, ...) {
     if (!is.element("reml", class(object)))
@@ -576,14 +567,6 @@ summary.reml <- function(object, ...) {
     if (is.null(intervals.type))
       intervals.type <- "z"
 
-    ## Mx.status1 <- object$reml.fit@output$status[[1]]   
-    ## libMatrix <- installed.packages()    
-    ## out <- list(call=object$call, intervals.type=intervals.type, no.studies=my.mx$numObs,
-    ##             obsStat=my.mx$observedStatistics, estPara=my.mx$estimatedParameters,
-    ##             df=my.mx$degreesOfFreedom, Minus2LL=my.mx$Minus2LogLikelihood,
-    ##             coefficients=coefficients, Mx.status1=Mx.status1, R.version=as.character(getRversion()),
-    ##             OpenMx.version=libMatrix["OpenMx", "Version"], metaSEM.version=libMatrix["metaSEM", "Version"],
-    ##             date=date())
     out <- list(call=object$call, intervals.type=intervals.type, no.studies=my.mx$numObs,
                 obsStat=my.mx$observedStatistics, estPara=my.mx$estimatedParameters,
                 df=my.mx$degreesOfFreedom, Minus2LL=my.mx$Minus2LogLikelihood,
@@ -614,10 +597,6 @@ print.summary.reml <- function(x, ...) {
     cat("\nDegrees of freedom:", x$df)
     cat("\n-2 log likelihood:", x$Minus2LL)        
 
-    ## cat("\n\nR version:", x$R.version)
-    ## cat("\nOpenMx version:", x$OpenMx.version)
-    ## cat("\nmetaSEM version:", x$metaSEM.version)
-    ## cat("\nDate of analysis:", x$date)
     cat("OpenMx status:", x$Mx.status1, "(\"0\" and \"1\": considered fine; other values indicate problems)\n")
     ## cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")      
 }
@@ -650,7 +629,7 @@ vcov.meta <- function(object, select=c("all", "fixed", "random"), ...) {
          random = my.name <- my.name[ grep("Tau2", my.name) ]
          )    
 
-    acov <- tryCatch( 2*solve(object$meta@output$calculatedHessian[my.name, my.name, drop=FALSE]), error = function(e) e)
+    acov <- tryCatch( 2*solve(object$meta.fit@output$calculatedHessian[my.name, my.name, drop=FALSE]), error = function(e) e)
     # Issue a warning instead of error message
     if (inherits(acov, "error")) {
       cat("Error in solving the Hessian matrix.\n")

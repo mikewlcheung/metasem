@@ -1,4 +1,4 @@
-create.mxMatrix <- function(x, type=c("Full","Symm","Diag","Stand"), ncol=NA, nrow=NA, ...) {
+create.mxMatrix <- function(x, type=c("Full","Symm","Diag","Stand"), ncol=NA, nrow=NA, as.mxMatrix=TRUE, ...) {
   my.mx <- function(y) {
     # suppress warnings
     warn <- options()$warn
@@ -23,30 +23,56 @@ create.mxMatrix <- function(x, type=c("Full","Symm","Diag","Stand"), ncol=NA, nr
   }
 
   type <- match.arg(type)
-  switch(type,
-         Full = { if (length(x) != ncol*nrow)
-                    stop("Length of \"x\" does not match the dimensions of \"ncol\" and \"nrow\".\n")
-                  untitled1 <- matrix(x, ncol=ncol, nrow=nrow)
-                  untitled1 <- as.mxMatrix(untitled1, ...)
-                },
-         Symm = { no.var <- (sqrt(1 + 8 * length(x)) - 1)/2
-                  if (abs(no.var - round(no.var)) > .Machine$double.eps^0.5)
-                    stop("Length of \"x\" does not match the no. of elements for a symmetric matrix.\n")
-                  my.x <- my.mx(x)
-                  untitled1 <- mxMatrix(type="Symm", nrow=no.var, ncol=no.var, free=my.x$free,
-                                        values=my.x$values, labels=my.x$labels, ...)   
-                },
-         Diag = { no.var <- length(x)
-                  my.x <- my.mx(x)
-                  untitled1 <- mxMatrix(type="Diag", nrow=no.var, ncol=no.var, free=my.x$free,
-                                        values=my.x$values, labels=my.x$labels, ...)                                         
-                 },
-         Stand = { no.var <- (sqrt(1 + 8 * length(x)) + 1)/2
-                  if (abs(no.var - round(no.var)) > .Machine$double.eps^0.5)
-                    stop("Length of \"x\" does not match the no. of elements for a standardized matrix.\n")
-                  my.x <- my.mx(x)
-                  untitled1 <- mxMatrix(type="Stand", nrow=no.var, ncol=no.var, free=my.x$free,
-                                        values=my.x$values, labels=my.x$labels, ...)   
-                })
+  
+  if (as.mxMatrix) {
+    
+    switch(type,
+           Full = { if (length(x) != ncol*nrow)
+                      stop("Length of \"x\" does not match the dimensions of \"ncol\" and \"nrow\".\n")
+                    untitled1 <- matrix(x, ncol=ncol, nrow=nrow)
+                    untitled1 <- as.mxMatrix(untitled1, ...)
+                  },
+           Symm = { no.var <- (sqrt(1 + 8 * length(x)) - 1)/2
+                    if (abs(no.var - round(no.var)) > .Machine$double.eps^0.5)
+                      stop("Length of \"x\" does not match the no. of elements for a symmetric matrix.\n")
+                    my.x <- my.mx(x)
+                    untitled1 <- mxMatrix(type="Symm", nrow=no.var, ncol=no.var, free=my.x$free,
+                                          values=my.x$values, labels=my.x$labels, ...)   
+                  },
+           Diag = { no.var <- length(x)
+                    my.x <- my.mx(x)
+                    untitled1 <- mxMatrix(type="Diag", nrow=no.var, ncol=no.var, free=my.x$free,
+                                          values=my.x$values, labels=my.x$labels, ...)                                         
+                   },
+           Stand = { no.var <- (sqrt(1 + 8 * length(x)) + 1)/2
+                    if (abs(no.var - round(no.var)) > .Machine$double.eps^0.5)
+                      stop("Length of \"x\" does not match the no. of elements for a standardized matrix.\n")
+                    my.x <- my.mx(x)
+                    untitled1 <- mxMatrix(type="Stand", nrow=no.var, ncol=no.var, free=my.x$free,
+                                          values=my.x$values, labels=my.x$labels, ...)   
+                  })
+  } else {
+        switch(type,
+           Full = { if (length(x) != ncol*nrow)
+                      stop("Length of \"x\" does not match the dimensions of \"ncol\" and \"nrow\".\n")
+                    untitled1 <- matrix(x, ncol=ncol, nrow=nrow)                    
+                  },
+           Symm = { no.var <- (sqrt(1 + 8 * length(x)) - 1)/2
+                    if (abs(no.var - round(no.var)) > .Machine$double.eps^0.5)
+                      stop("Length of \"x\" does not match the no. of elements for a symmetric matrix.\n")
+                    untitled1 <- matrix(0, ncol=no.var, nrow=no.var)
+                    untitled1[lower.tri(untitled1, diag = TRUE)] <- x
+                    untitled1[upper.tri(untitled1)] <- t(untitled1)[upper.tri(untitled1)]
+                  },
+           Diag = { untitled1 <- diag(x)                                         
+                   },
+           Stand = { no.var <- (sqrt(1 + 8 * length(x)) + 1)/2
+                     if (abs(no.var - round(no.var)) > .Machine$double.eps^0.5)
+                       stop("Length of \"x\" does not match the no. of elements for a standardized matrix.\n")
+                     untitled1 <- diag(rep(1,no.var))
+                     untitled1[lower.tri(untitled1, diag = FALSE)] <- x
+                     untitled1[upper.tri(untitled1)] <- t(untitled1)[upper.tri(untitled1)]  
+                  })    
+  }
   untitled1
 }

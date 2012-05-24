@@ -11,12 +11,12 @@
 }
 \usage{
 tssem1(my.df, n, method=c("FEM","REM"), cor.analysis = TRUE, cluster=NULL,
-       RE.diag.only=FALSE, RE.startvalues=0.1, RE.lbound = 1e-10,
+       RE.diag.only=FALSE, RE.startvalues=0.1, RE.lbound = 1e-10, I2="I2q",
        model.name=NULL, suppressWarnings=TRUE, ...)
 tssem1FEM(my.df, n, cor.analysis = TRUE, model.name = NULL,
           cluster = NULL, suppressWarnings = TRUE, ...)
 tssem1REM(my.df, n, cor.analysis = TRUE, RE.diag.only = FALSE,
-          RE.startvalues = 0.1, RE.lbound = 1e-10, model.name = NULL,
+          RE.startvalues = 0.1, RE.lbound = 1e-10, I2="I2q", model.name = NULL,
           suppressWarnings = TRUE, ...)
 }
 \arguments{
@@ -42,7 +42,11 @@ tssem1REM(my.df, n, cor.analysis = TRUE, RE.diag.only = FALSE,
   \item{RE.startvalues}{Starting values on the
 	diagonals of the variance component of the random effects. It will be ignored when \code{method="FEM"}.}
   \item{RE.lbound}{Lower bounds on the diagonals of the variance
-	component of the random effects. It will be ignored when \code{method="FEM"}.}
+	component of the random effects. It will be ignored when
+	\code{method="FEM"}.}
+  \item{I2}{Possible options are \code{"I2q"}, \code{"I2hm"} and
+	\code{"I2am"}. More than one options are possible. If \code{intervals.type="LB"}, 95\% confidence intervals on the heterogeneity indices will be constructed. (See the details.)
+  }
   \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. 
   }  
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are

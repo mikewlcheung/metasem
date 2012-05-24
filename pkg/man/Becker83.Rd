@@ -32,6 +32,11 @@ paradigm reported by Becker (1983).
 }
 \examples{
 data(Becker83)
-## maybe str(Becker83) ; plot(Becker83) ...
+
+## Random-effects meta-analysis
+summary( meta(y=di, v=vi, data=Becker83) )
+
+## Mixed-effects meta-analysis with log(items) as the predictor
+summary( meta(y=di, v=vi, x=log(items), data=Becker83) )
 }
 \keyword{datasets}

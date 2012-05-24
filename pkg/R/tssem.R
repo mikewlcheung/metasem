@@ -167,7 +167,7 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
 }
 
 tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE.diag.only=FALSE, RE.startvalues=0.1, RE.lbound = 1e-10,
-                     model.name=NULL, suppressWarnings=TRUE, ...) {
+                      I2="I2q", model.name=NULL, suppressWarnings=TRUE, ...) {
   ## It handles missing effect sizes rather than missing correlations. Thus, it is more flexible than tssem1FEM().
   ## ACOV is calculated without missing data by assuming 1 and 0 for the missing variances and covariances.
   ## Missing values are indicated by the missing effect sizes.
@@ -195,11 +195,11 @@ tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE.diag.only=FALSE, RE.startv
   
   if (RE.diag.only==TRUE) {
     ## No covariance between random effects
-    meta.fit <- meta(y=ES, v=acovR, model.name=model.name,
+    meta.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2,
                      RE.constraints=diag(x=paste(RE.startvalues, "*Tau2_", 1:no.es, "_", 1:no.es, sep=""),
                                          nrow=no.es, ncol=no.es))    
   } else {
-    meta.fit <- meta(y=ES, v=acovR, model.name=model.name, RE.startvalues=RE.startvalues, RE.lbound = RE.lbound)
+    meta.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2, RE.startvalues=RE.startvalues, RE.lbound = RE.lbound)
   }
 
   out <- list(total.n=sum(n), cor.analysis=cor.analysis, RE.diag.only=RE.diag.only, no.es=no.es)
@@ -209,14 +209,14 @@ tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE.diag.only=FALSE, RE.startv
 }
 
 tssem1 <- function(my.df, n, method=c("FEM", "REM"), cor.analysis=TRUE, cluster=NULL,
-                   RE.diag.only=FALSE, RE.startvalues=0.1, RE.lbound = 1e-10,
+                   RE.diag.only=FALSE, RE.startvalues=0.1, RE.lbound = 1e-10, I2="I2q",
                    model.name=NULL, suppressWarnings=TRUE, ...) {
   method <- match.arg(method)
   switch(method,
     FEM = out <- tssem1FEM(my.df=my.df, n=n, cor.analysis=cor.analysis, model.name=model.name,
                           cluster=cluster, suppressWarnings=suppressWarnings, ...),
     REM = out <- tssem1REM(my.df=my.df, n=n, cor.analysis=cor.analysis, RE.diag.only=RE.diag.only,
-                          RE.startvalues=RE.startvalues, RE.lbound=RE.lbound,
+                          RE.startvalues=RE.startvalues, RE.lbound=RE.lbound, I2=I2,
                           model.name=model.name, suppressWarnings=suppressWarnings, ...) )
   out  
 }

@@ -13,7 +13,7 @@ and on the level-3 can be easily imposed by setting the same labels on the param
 meta3(y, v, cluster, x, data, intercept.constraints,
       coef.constraints, RE2.constraints, RE2.lbound = 1e-10,
       RE3.constraints, RE3.lbound = 1e-10,
-      intervals.type = c("z", "LB"), heter.indices="I2hm",
+      intervals.type = c("z", "LB"), I2="I2q",
       R2=TRUE, model.name = "Meta analysis with ML",
       suppressWarnings = TRUE, ...)
 }
@@ -79,8 +79,8 @@ meta3(y, v, cluster, x, data, intercept.constraints,
 	associated p values are based on the z statistic. They are not
 	related to the likelihood-based CIs.
 }
-  \item{heter.indices}{Possible options are \code{"I2hm"}, \code{"I2am"}
-	\code{"I2q"} and \code{"ICC"}. More than one options are possible. If \code{intervals.type="LB"}, 95\% confidence intervals on the heterogeneity indices will be constructed. (See the details.)
+  \item{I2}{Possible options are \code{"I2q"}, \code{"I2hm"}, \code{"I2am"}
+	and \code{"ICC"}. More than one options are possible. If \code{intervals.type="LB"}, 95\% confidence intervals on the heterogeneity indices will be constructed. (See the details.)
   }
   \item{R2}{Logical. If \code{TRUE} and there are predictors, R2 are
 	calculated.
@@ -126,20 +126,10 @@ meta3(y, v, cluster, x, data, intercept.constraints,
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
+\seealso{\code{\link[metaSEM]{Cooper03}}
 }
 \examples{
-## No predictor
-summary( meta3(y=y, v=v, cluster=District, data=Cooper03) )
 
-## Show all heterogeneity indices and their 95\% confidence intervals
-summary( meta3(y=y, v=v, cluster=District, data=Cooper03,
-               intervals.type="LB",
-               heter.indices=c("I2hm", "I2am", "I2q", "ICC")) )
-
-## Year as a predictor
-summary( meta3(y=y, v=v, cluster=District, x=scale(Year, scale=FALSE), data=Cooper03) )
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

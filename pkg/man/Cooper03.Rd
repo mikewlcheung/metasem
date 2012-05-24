@@ -29,6 +29,15 @@
 }
 \examples{
 data(Cooper03)
-## maybe str(Cooper03) ; plot(Cooper03) ...
+
+## No predictor
+summary( meta3(y=y, v=v, cluster=District, data=Cooper03) )
+
+## Show all heterogeneity indices and their 95\% confidence intervals
+summary( meta3(y=y, v=v, cluster=District, data=Cooper03,
+               intervals.type="LB", I2=c("I2q", "I2hm", "I2am", "ICC")) )
+
+## Year as a predictor
+summary( meta3(y=y, v=v, cluster=District, x=scale(Year, scale=FALSE), data=Cooper03) )
 }
 \keyword{datasets}

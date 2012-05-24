@@ -13,6 +13,7 @@ easily imposed by setting the same labels on the parameter estimates.
 \usage{
 meta(y, v, x, data, intercept.constraints, coef.constraints, RE.constraints,
 RE.startvalues=0.1, RE.lbound = 1e-10, intervals.type = c("z", "LB"),
+I2="I2q", R2=TRUE,
 model.name="Meta analysis with ML", suppressWarnings = TRUE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -74,6 +75,12 @@ model.name="Meta analysis with ML", suppressWarnings = TRUE, ...)
 	associated p values are based on the z statistic. They are not
 	related to the likelihood-based CIs.
   }
+  \item{I2}{Possible options are \code{"I2q"}, \code{"I2hm"} and
+	\code{"I2am"}. More than one options are possible. If \code{intervals.type="LB"}, 95\% confidence intervals on the heterogeneity indices will be constructed. (See the details.)
+  }
+  \item{R2}{Logical. If \code{TRUE} and there are predictors, R2 are
+	calculated.
+  }
   \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. 
 	}
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
@@ -90,7 +97,10 @@ model.name="Meta analysis with ML", suppressWarnings = TRUE, ...)
   \item{no.y}{No. of effect sizes}
   \item{no.x}{No. of predictors}
   \item{miss.x}{A vector indicating whether the predictors are
-	missing. Studies will be removed before the analysis if they are \code{TRUE}}
+	missing. Studies will be removed before the analysis if they are
+	\code{TRUE}}
+  \item{I2}{Types of I2 calculated}
+  \item{R2}{Logical}
   \item{meta.fit}{A fitted object returned from
 	\code{\link[OpenMx]{mxRun}}}
 }
@@ -123,35 +133,10 @@ model.name="Meta analysis with ML", suppressWarnings = TRUE, ...)
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{\code{\link[metaSEM]{reml}}
-%% ~~objects to See Also as \code{\link{help}}, ~~~
+\seealso{\code{\link[metaSEM]{reml}}, \code{\link[metaSEM]{Hox02}}, \code{\link[metaSEM]{Berkey98}}
 }
 \examples{
 
-## Random-effects meta-analysis
-summary( meta(y=yi, v=vi, data=Hox02) ) 
-
-## Fixed-effects meta-analysis
-summary( meta(y=yi, v=vi, data=Hox02, RE.constraints=matrix(0, ncol=1, nrow=1),
-              model.name="Fixed effects model") )
-
-## Mixed-effects meta-analysis with "weeks" as a predictor
-## Request likelihood-based CI
-summary( meta(y=yi, v=vi, x=weeks, data=Hox02, intervals.type="LB",
-              model.name="Mixed effects meta analysis with LB CI") )
-
-## Multivariate meta-analysis
-summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
-              data=Berkey98, model.name="Multivariate meta analysis") )
-
-## Multivariate meta-analysis with "publication year-1979" as the predictor
-summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
-              x=scale(pub_year, center=1979), data=Berkey98) )
-
-## Multivariate meta-analysis with equality constraint on the regression coefficients
-summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
-              x=scale(pub_year, center=1979), data=Berkey98,
-              coef.constraints=matrix(c("0.3*Eq_slope", "0.3*Eq_slope"), nrow=2)) ) 
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

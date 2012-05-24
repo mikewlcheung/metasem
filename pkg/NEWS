@@ -1,20 +1,21 @@
-Release 0.7-1 (May 20, 2012)
+Release 0.7-1 (May 24, 2012)
 ====================================
-* TODO Added heter.indices argument in meta() and reml()
 * TODO Added reml3()
 * TODO Bornmann07
 
 * Added create.Fmatrix() and create.mxMatrix to create mxMatrix objects
-* Rewrote wls() that uses RAM specification and added diag.constraints argument
+* Rewrote wls() using RAM specification (A, S and F matrices)
+* Added diag.constraints argument in wls() to constrain diagonals as 1
 * Improved efficiency by removing the call on installed.packages() and summary() from OpenMx
 * Fixed a bug in vec2symMat() reported by Yonghao Lim
 * Added meta3() for 3-level meta-analysis
 * Added data sets Becker92, Cooper03, Mak09 and issp05
-* Renamed argument RE_diag to RE.diag.only in tssem1() and tssem1REM()
-* Rewrote meta() to exclude predictors in the models
+* Added I2 and R2 arguments to calculate heterogeneity and explained variance in meta()
+* Rewrote meta() so that the predictors are not involved in the models
 * Revised meta() to replace NA with 1e5 in v object
 * Renamed coeff.constraints argument to coef.constraints in meta()
 * Added homoStat argument in summary.meta()
+* Renamed argument RE_diag to RE.diag.only in tssem1() and tssem1REM()
 * Renamed tssem1FE() and tssem1RE() to tssem1FEM() and tssem1REM()
 
 Release 0.7-0 (Nov 6, 2011)

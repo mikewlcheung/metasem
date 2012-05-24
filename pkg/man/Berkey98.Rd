@@ -28,6 +28,19 @@
 }
 \examples{
 data(Berkey98)
-## maybe str(Berkey98) ; plot(Berkey98) ...
+
+## Multivariate meta-analysis
+summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
+              data=Berkey98, I2=c("I2q", "I2hm", "I2am"),
+              intervals.type="LB") )
+
+## Multivariate meta-analysis with "publication year-1979" as the predictor
+summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
+              x=scale(pub_year, center=1979), data=Berkey98) )
+
+## Multivariate meta-analysis with equality constraint on the regression coefficients
+summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
+              x=scale(pub_year, center=1979), data=Berkey98,
+              coef.constraints=matrix(c("0.3*Eq_slope", "0.3*Eq_slope"), nrow=2)) ) 
 }
 \keyword{datasets}

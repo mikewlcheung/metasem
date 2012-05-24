@@ -26,6 +26,17 @@ Cheung, M. W. L. (2008). A model for integrating fixed-, random-, and mixed-effe
 }
 \examples{
 data(Hox02)
-## maybe str(Hox02) ; plot(Hox02) ...
+
+## Random-effects meta-analysis
+summary( meta(y=yi, v=vi, data=Hox02, I2=c("I2q", "I2hm"), intervals.type="LB") ) 
+
+## Fixed-effects meta-analysis
+summary( meta(y=yi, v=vi, data=Hox02, RE.constraints=matrix(0, ncol=1, nrow=1),
+              model.name="Fixed effects model") )
+
+## Mixed-effects meta-analysis with "weeks" as a predictor
+## Request likelihood-based CI
+summary( meta(y=yi, v=vi, x=weeks, data=Hox02, intervals.type="LB",
+              model.name="Mixed effects meta analysis with LB CI") )
 }
 \keyword{datasets}

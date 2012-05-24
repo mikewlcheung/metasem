@@ -37,14 +37,14 @@
 }
 \examples{
 ## Random-effects meta-analysis
-(metaSEM1 <- summary(meta(y=yi, v=vi, data=Mak09)))
+( meta1 <- summary(meta(y=yi, v=vi, data=Mak09, I2=c("I2q", "I2hm"))) )
 
 ## Convert the estimates back into odds ratio 
-OR <- with(coef(metaSEM1), exp(c(Estimate[1], lbound[1], ubound[1])))
+OR <- with(coef(meta1), exp(c(Estimate[1], lbound[1], ubound[1])))
 names(OR) <- c("Estimate in OR", "lbound in OR", "ubound in OR")
 OR
   
 ## Mixed-effects meta-analysis with mean age as a covariate
-summary(meta(y=yi, v=vi, x=age.mean, data=Mak09))
+summary( meta(y=yi, v=vi, x=age.mean, data=Mak09) )
 }
 \keyword{datasets}

@@ -1,9 +1,9 @@
 meta3 <- function(y, v, cluster, x, data, intercept.constraints, coef.constraints, 
                   RE2.constraints, RE2.lbound=1e-10,
                   RE3.constraints, RE3.lbound=1e-10,
-                  intervals.type=c("z", "LB"), heter.indices="I2hm", R2=TRUE,
+                  intervals.type=c("z", "LB"), I2="I2q", R2=TRUE,
                   model.name="Meta analysis with ML",
-                  suppressWarnings = TRUE, ...) {
+                  suppressWarnings=TRUE, ...) {
   mf <- match.call()
   if (missing(data)) {
     data <- sys.frame(sys.parent())
@@ -19,15 +19,14 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints, coef.constraint
   v <- eval(my.v, data, enclos = sys.frame(sys.parent()))
   cluster <- eval(my.cluster, data, enclos = sys.frame(sys.parent()))
 
-  ## maximum no. of data in level-2 unit
-  k <- max(sapply( split(cluster, cluster), length))
   ## data in long format
   my.long <- data.frame(y, v, cluster)
 
   ## Add level-2 and level-3 predictors into the data set
   if (missing(x)) {
     no.x <- 0
-    miss.x <- rep(FALSE, nrow(my.long))
+    ## Indicator of either missing v or x
+    miss.x <- is.na(v)
     } else {
     my.x <- mf[[match("x", names(mf))]]
     x <- eval(my.x, data, enclos = sys.frame(sys.parent()))
@@ -35,11 +34,11 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints, coef.constraint
     old.labels <- names(my.long)
     my.long <- data.frame(my.long, x)
     names(my.long) <- c(old.labels, paste("x_", 1:no.x, sep=""))
-    ## Indicator of missing x
-    if (no.x==1) miss.x <- is.na(x) else miss.x <- apply(is.na(x), 1, any)
+    ## Indicator of either missing v or x
+    miss.x <- apply(is.na(cbind(v,x)), 1, any)
   }
   
-  ## Remove missing x. Missing y is automatically handled by OpenMx.
+  ## Remove missing x. Missing y is fine as it will be handled by OpenMx.
   my.long <- my.long[!miss.x, ]
   ## Reorder data according to clusters
   my.long <- my.long[order(my.long$cluster), ]  
@@ -52,9 +51,13 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints, coef.constraint
 
   ## Replace "." with "_" since OpenMx does not allow "." as variable names
   names(my.wide) <- sub("\\.", "_", names(my.wide))
-  ## Replace NA with 1e5 in v as NA is not allowed in definition variables
+
+  ## maximum no. of data in level-2 unit
+  k <- max(sapply( split(my.long$cluster, my.long$cluster), length))
+  ## NA in v is due to NA in y in wide format
+  ## Replace with 1e10 though it does not affect the analysis as NA in y
   temp <- my.wide[, paste("v_", 1:k, sep="")]
-  temp[is.na(temp)] <- 1e5
+  temp[is.na(temp)] <- 1e10
   my.wide[, paste("v_", 1:k, sep="")] <- temp
   ## Missing indicator on y
   miss.y <- is.na(my.wide[, paste("y_", 1:k, sep="")])
@@ -68,14 +71,14 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints, coef.constraint
     inter <- as.mxMatrix(intercept.constraints, name="inter")
   }
   ## Row vector of ones
-  oneRow <- mxMatrix("Full", nrow=1, ncol=k, free=FALSE, values=1, name="oneRow")
+  oneRow <- mxMatrix("Unit", nrow=1, ncol=k, name="oneRow")
   
   if ( no.x==0 ) {
     ## matrices with all zeroes; not actually used in the calculations
-    coeff <- mxMatrix("Full", nrow=1, ncol=1, free=FALSE, values=0, name="coeff")
-    mydata <- mxMatrix("Full", nrow=1, ncol=k, free=FALSE, values=0, name="mydata")
+    coeff <- mxMatrix("Zero", nrow=1, ncol=1, name="coeff")
+    mydata <- mxMatrix("Zero", nrow=1, ncol=k, name="mydata")
   } else {
-    ## NA is not available for definition variable.
+    ## NA is not available for definition variable even y is NA.
     ## Replace NA with 0 in x. Since y is missing, 0 does not affect the results.
     for (i in 1:no.x) {
       temp <- my.wide[, paste("x", i, 1:k, sep="_")]
@@ -117,51 +120,51 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints, coef.constraint
   }  
   
   Id <- mxMatrix("Iden", nrow=k, ncol=k, name="Id")
-  Ones <- mxMatrix("Full", nrow=k, ncol=k, free=FALSE, values=1, name="Ones") 
+  Ones <- mxMatrix("Unit", nrow=k, ncol=k, name="Ones") 
   ## conditional sampling variances
   V <- mxMatrix("Diag", nrow=k, ncol=k, free=FALSE, labels=paste("data.v_", 1:k, sep=""), name="V")
   ## expMean <- mxAlgebra( oneRow %x% inter + coeff2 %*% data2 + coeff3 %*% data3, name="expMean")
   expMean <- mxAlgebra( oneRow %x% inter + coeff %*% mydata, name="expMean")     
   expCov <- mxAlgebra( Ones %x% Tau3 + Id %x% Tau2 + V, name="expCov")
-
-  ## Calculate I2
-  ## Based on Higgins and Thompson (2002), Eq. 9
-  sum.w <- sum(1/my.long$v)
-  sum.w2 <- sum(1/my.long$v^2)
-  no.studies <- length(my.long$v)
-  qV <- matrix((no.studies-1)*sum.w/(sum.w^2-sum.w2), nrow=1, ncol=1)
-  qV <- as.mxMatrix(qV)
-  ## Based on harmonic mean  
-  hmV <- matrix(no.studies/sum.w, nrow=1, ncol=1)
-  hmV <- as.mxMatrix(hmV)
-  ## Based on arithmatic mean
-  amV <- matrix(mean(my.long$v))
-  amV <- as.mxMatrix(amV)
-
-  I2q_2 <- mxAlgebra( Tau2/(Tau2+Tau3+qV), name="I2q_2")
-  I2q_3 <- mxAlgebra( Tau3/(Tau2+Tau3+qV), name="I2q_3")
-  I2hm_2 <- mxAlgebra( Tau2/(Tau2+Tau3+hmV), name="I2hm_2")
-  I2hm_3 <- mxAlgebra( Tau3/(Tau2+Tau3+hmV), name="I2hm_3")  
-  I2am_2 <- mxAlgebra( Tau2/(Tau2+Tau3+amV), name="I2am_2")
-  I2am_3 <- mxAlgebra( Tau3/(Tau2+Tau3+amV), name="I2am_3") 
-  ICC_2 <- mxAlgebra( Tau2/(Tau2+Tau3), name="ICC_2")
-  ICC_3 <- mxAlgebra( Tau3/(Tau2+Tau3), name="ICC_3")
-
-  heter.indices <- match.arg(heter.indices, c("I2hm", "I2q", "I2am", "ICC"), several.ok=TRUE)
-  ci <- c(outer(heter.indices, c("_2","_3"), paste, sep=""))
-
+  
   ## Assuming NA first
   meta0.fit <- NA  
   if (no.x==0) {
+
+    ## Calculate I2
+    ## Based on Higgins and Thompson (2002), Eq. 9
+    sum.w <- sum(1/my.long$v)
+    sum.w2 <- sum(1/my.long$v^2)
+    no.studies <- length(my.long$v)
+    ## Typical V based on Q statistic
+    qV <- matrix((no.studies-1)*sum.w/(sum.w^2-sum.w2), nrow=1, ncol=1)
+    qV <- as.mxMatrix(qV)
+    ## Typical V based on harmonic mean  
+    hmV <- matrix(no.studies/sum.w, nrow=1, ncol=1)
+    hmV <- as.mxMatrix(hmV)
+    ## Typical V based on arithmatic mean
+    amV <- matrix(mean(my.long$v))
+    amV <- as.mxMatrix(amV)
+
+    I2q_2 <- mxAlgebra( Tau2/(Tau2+Tau3+qV), name="I2q_2")
+    I2q_3 <- mxAlgebra( Tau3/(Tau2+Tau3+qV), name="I2q_3")
+    I2hm_2 <- mxAlgebra( Tau2/(Tau2+Tau3+hmV), name="I2hm_2")
+    I2hm_3 <- mxAlgebra( Tau3/(Tau2+Tau3+hmV), name="I2hm_3")  
+    I2am_2 <- mxAlgebra( Tau2/(Tau2+Tau3+amV), name="I2am_2")
+    I2am_3 <- mxAlgebra( Tau3/(Tau2+Tau3+amV), name="I2am_3") 
+    ICC_2 <- mxAlgebra( Tau2/(Tau2+Tau3), name="ICC_2")
+    ICC_3 <- mxAlgebra( Tau3/(Tau2+Tau3), name="ICC_3")
+
+    I2 <- match.arg(I2, c("I2q", "I2hm", "I2am", "ICC"), several.ok=TRUE)
+    ci <- c(outer(I2, c("_2","_3"), paste, sep=""))
+    
     meta3 <- mxModel(model=model.name, mxData(observed=my.wide[,-1], type="raw"), oneRow, Id, Ones,
                      inter, coeff, mydata, Tau2, Tau3, V, expMean, expCov,
                      qV, hmV, amV, I2q_2, I2q_3, I2hm_2, I2hm_3, I2am_2, I2am_3, ICC_2, ICC_3,
                      mxFIMLObjective("expCov","expMean", dimnames=paste("y_", 1:k, sep="")),
                      mxCI(c("inter","coeff","Tau2","Tau3", ci)))
-                   ## mxCI(c("inter","coeff","Tau2","Tau3",
-                   ##        "I2Q_2", "I2Q_3", "I2HM_2", "I2HM_3", "I2AM_2", "I2AM_3", "ICC_2", "ICC_3")))
   } else {
-    ## No need to calculate I2
+    ## no.x > 0
     meta3 <- mxModel(model=model.name, mxData(observed=my.wide[,-1], type="raw"), oneRow, Id, Ones,
                      inter, coeff, mydata, Tau2, Tau3, V, expMean, expCov,
                      mxFIMLObjective("expCov","expMean", dimnames=paste("y_", 1:k, sep="")),
@@ -184,11 +187,13 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints, coef.constraint
     cat("Error in running the mxModel:\n")
     stop(print(meta.fit))
   }
-  
-  out <- list(call = mf, type="meta3", R2=R2, data.wide=my.wide, data=my.long,
+
+  ## my.long is complete data
+  ## FIXME: remove miss.x (is it used by meta()?)
+  out <- list(call=mf, I2=I2, R2=R2, data.wide=my.wide, data=my.long,
               no.y=1, no.x=no.x, miss.x=rep(FALSE, nrow(my.long)), 
               meta.fit=meta.fit, meta0.fit=meta0.fit)
-  class(out) <- "meta"
+  class(out) <- c("meta", "meta3")
   return(out)
 }
 
