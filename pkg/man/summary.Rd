@@ -21,8 +21,8 @@
 \method{summary}{tssem1FEM}(object, \dots)
 \method{summary}{tssem1FEM.cluster}(object, \dots)
 \method{summary}{tssem1REM}(object, \dots)
-\method{summary}{wls}(object, \dots)
-\method{summary}{wls.cluster}(object, \dots)
+\method{summary}{wls}(object, df.adjustment=0, \dots)
+\method{summary}{wls.cluster}(object, df.adjustment=0, \dots)
 \method{summary}{meta}(object, homoStat=TRUE, \dots)
 \method{summary}{reml}(object, \dots)
 \method{print.summary}{tssem1FEM}(x, \dots)
@@ -39,7 +39,11 @@
 	class \code{tssem1FEM.cluster}, class \code{summary.wls}, class \code{summary.meta} or class \code{summary.reml}.
 }
   \item{homoStat}{Logical. Whether to conduct a homogeneity test on the
-	effect sizes.} 
+	effect sizes.}
+  \item{df.adjustment}{Numeric. Adjust the degrees of freedom
+	manually. It may be necessary if the df calculated is incorrect when
+	\code{diag.constraints=TRUE}.
+	}
   \item{\dots}{Further arguments to be passed to \code{\link[stats]{printCoefmat}}
 }
 }

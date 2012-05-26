@@ -4,6 +4,7 @@ Release 0.7-1 (May 24, 2012)
 * TODO Bornmann07
 
 * Added create.Fmatrix() and create.mxMatrix to create mxMatrix objects
+* Added df.adjustment argument in summary.wls()
 * Rewrote wls() using RAM specification (A, S and F matrices)
 * Added diag.constraints argument in wls() to constrain diagonals as 1
 * Improved efficiency by removing the call on installed.packages() and summary() from OpenMx

@@ -1,4 +1,4 @@
-summary.wls <- function(object, ...) {
+summary.wls <- function(object, df.adjustment=0, ...) {
     if (!is.element("wls", class(object)))
       stop("\"object\" must be an object of class \"wls\".")
 
@@ -6,7 +6,8 @@ summary.wls <- function(object, ...) {
     tT <- object$mx.fit@output$Minus2LogLikelihood
     my.mx <- summary(object$mx.fit)
     ## Adjust the df by the no. of constraints on the diagonals
-    dfT <- object$noObservedStat - my.mx$estimatedParameters + sum(object$Constraints)
+    ## Adjust the df manually with df.adjustment 
+    dfT <- object$noObservedStat - my.mx$estimatedParameters + sum(object$Constraints) + df.adjustment
     tB <- object$indepModelChisq
     dfB <- object$indepModelDf
     p <- pchisq(tT, df=dfT, lower.tail=FALSE)
@@ -36,14 +37,15 @@ summary.wls <- function(object, ...) {
       stand <- diag(1/sqrt(diag(sampleS)))
       SRMR <- sqrt(mean(vech(stand %*% (sampleS-impliedS) %*% stand)^2))
     }
-    
-    stat <- matrix(c(n, tT, dfT, p, tB, dfB, sum(object$Constraints), RMSEA, SRMR, TLI, CFI, AIC, BIC), ncol=1)
-    rownames(stat) <- c("Sample size", "Chi-square of target model", "DF of target model",
-                        "p value of target model", "Chi-square of independent model",
-                        "DF of independent model", "No. of constraints imposed on \"Smatrix\"",
-                        "RMSEA", "SRMR", "TLI", "CFI", "AIC", "BIC")
-    colnames(stat) <- "Value"
-  
+
+    stat <- matrix(c(n, tT, dfT, p, sum(object$Constraints), df.adjustment, tB, dfB, 
+                     RMSEA, SRMR, TLI, CFI, AIC, BIC), ncol=1)
+
+    dimnames(stat) <- list( c("Sample size", "Chi-square of target model", "DF of target model",
+                        "p value of target model", "Number of constraints imposed on \"Smatrix\"",
+                        "DF manually adjusted", "Chi-square of independent model",
+                        "DF of independent model",  "RMSEA", "SRMR", "TLI", "CFI", "AIC", "BIC"), "Value" )
+   
     ## my.para <- my.mx$parameters       # Worked up to OpenMx1.0.6
     my.para <- my.mx$parameters[, 1:6]   # Fixed for OpenMx1.1 
     # For example, P[1,2], L[1,2], ...
@@ -794,8 +796,8 @@ summary.tssem1FEM.cluster <- function(object, ...) {
     lapply(object, summary.tssem1FEM)
 }
 
-summary.wls.cluster <- function(object, ...) {
+summary.wls.cluster <- function(object, df.adjustment=0, ...) {
     if (!is.element("wls.cluster", class(object)))
     stop("\"object\" must be an object of class \"wls.cluster\".")
-    lapply(object, summary.wls)
+    lapply(object, summary.wls, df.adjustment=df.adjustment)
 }
