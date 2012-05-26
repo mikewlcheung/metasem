@@ -70,7 +70,7 @@ summary(fixed2.cluster)
 
 ##### Example of Random-effects TSSEM with random effects on the diagonals
 random1 <- tssem1(Digman97$data, Digman97$n, method="REM",
-                  RE.diag.only=TRUE, I2="I2q"))
+                  RE.diag.only=TRUE, I2="I2q")
 summary(random1)
 
 random2 <- tssem2(random1, Amatrix=A1, Smatrix=S1, Fmatrix=F1, diag.constraints=TRUE, intervals="LB")

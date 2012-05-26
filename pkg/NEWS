@@ -3,7 +3,7 @@ Release 0.7-1 (May 24, 2012)
 * TODO Added reml3()
 * TODO Bornmann07
 
-* Added create.Fmatrix() and create.mxMatrix to create mxMatrix objects
+* Added is.mxMatrix(), create.Fmatrix() and create.mxMatrix to create/test mxMatrix objects
 * Added df.adjustment argument in summary.wls()
 * Rewrote wls() using RAM specification (A, S and F matrices)
 * Added diag.constraints argument in wls() to constrain diagonals as 1

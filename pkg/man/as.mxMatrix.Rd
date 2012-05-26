@@ -42,7 +42,8 @@ as.mxMatrix(x, name, ...)
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{ \code{\link[OpenMx]{mxMatrix}},
-	\code{\link[metaSEM]{create.mxMatrix}},  \code{\link[metaSEM]{create.Fmatrix}}
+	\code{\link[metaSEM]{create.mxMatrix}},
+	\code{\link[metaSEM]{create.Fmatrix}}, \code{\link[metaSEM]{as.mxMatrix}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
