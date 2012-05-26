@@ -21,6 +21,8 @@ Digman97 <- lapply(split(Digman97, 1:14),
                               mat})
 Digman97 <- lapply(Digman97, function(x, var.names) {dimnames(x) <- list(var.names, var.names); x},
                  var.names=c("E", "A", "C", "ES", "I"))
+## Arrange the data into Alpha: A, C and ES; Beta: E and I
+Digman97 <- lapply( Digman97, function(x) x[c(2,3,4,1,5), c(2,3,4,1,5)] )
 names(Digman97) <- c("Digman 1 (1994)", "Digman 2 (1994)", "Digman 3 (1963c)", "Digman & Takemoto-Chock (1981b)",
            "Graziano & Ward (1992)", "Yik & Bond (1993)", "John et al. 1 (1984)", "John et al. 2 (1984)",
            "Costa & McCrae 1 (1992c)", "Costa & McCrae 2 (1992b)", "Costa & McCrae 3 (1992b)",

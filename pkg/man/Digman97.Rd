@@ -12,8 +12,8 @@ The data set includes fourteen studies of the factor correlation matrices of the
 A list of data with the following structure:
 \describe{
   \item{data}{A list of 14 studies of correlation matrices. The
-	variables are \emph{Extraversion} (E), \emph{Agreeableness} (A), \emph{Conscientiousness}
-	(C), \emph{Emotional Stability} (ES) and \emph{Intellect} (I)}
+	variables are \emph{Agreeableness} (A), \emph{Conscientiousness}
+	(C), \emph{Emotional Stability} (ES), \emph{Extraversion} (E) and \emph{Intellect} (I)}
   \item{n}{A vector of sample sizes}
   \item{cluster}{Types of participants of the studies}
 }
@@ -33,17 +33,28 @@ summary(fixed1)
 
 ## S matrix
 Phi <- matrix(c(1,"0.3*cor","0.3*cor",1), ncol=2, nrow=2)
-(S1 <- bdiagMat(list(diag(c("0.2*e1","0.2*e2","0.2*e3","0.2*e4","0.2*e5")), Phi)))
+S1 <- bdiagMat(list(diag(c("0.2*e1","0.2*e2","0.2*e3","0.2*e4","0.2*e5")), Phi))
+
+## This step is not necessary but it is useful in checking the content.
+## dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c("A","C","ES","E","I","Alpha","Beta") 
+## S1
+
 S1 <- as.mxMatrix(S1)
 
 ## A matrix
 Lambda <-
-matrix(c(0,".3*f1_x2",".3*f1_x3",".3*f1_x4",0,".3*f2_x1",0,0,0,".3*f2_x5"),
+matrix(c(".3*Alpha_A",".3*Alpha_C",".3*Alpha_ES",rep(0,5),".3*Beta_E",".3*Beta_I"),
        ncol=2, nrow=5)
-(A1 <- rbind( cbind(matrix(0,ncol=5,nrow=5), Lambda),
-             matrix(0, ncol=7, nrow=2) ))
+A1 <- rbind( cbind(matrix(0,ncol=5,nrow=5), Lambda),
+             matrix(0, ncol=7, nrow=2) )
+
+## This step is not necessary but it is useful in checking the content.
+## dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- c("A","C","ES","E","I","Alpha","Beta") 
+## A1
+
 A1 <- as.mxMatrix(A1)
 
+## F matrix to select the observed variables
 F1 <- create.Fmatrix(c(1,1,1,1,1,0,0), name="F1")
 
 fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, Fmatrix=F1, diag.constraints=TRUE, intervals="LB",
@@ -59,7 +70,7 @@ summary(fixed2.cluster)
 
 ##### Example of Random-effects TSSEM with random effects on the diagonals
 random1 <- tssem1(Digman97$data, Digman97$n, method="REM",
-                  RE.diag.only=TRUE, I2=c("I2q", "I2hm"))
+                  RE.diag.only=TRUE, I2="I2q"))
 summary(random1)
 
 random2 <- tssem2(random1, Amatrix=A1, Smatrix=S1, Fmatrix=F1, diag.constraints=TRUE, intervals="LB")
