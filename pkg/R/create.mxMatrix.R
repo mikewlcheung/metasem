@@ -1,9 +1,9 @@
 create.mxMatrix <- function(x, type=c("Full","Symm","Diag","Stand"), ncol=NA, nrow=NA, as.mxMatrix=TRUE, ...) {
   my.mx <- function(y) {
     # suppress warnings
-    warn <- options()$warn
-    options(warn=-1)
-    values <- as.numeric(y)  # They are NA for characters 
+    ## warn <- options()$warn
+    ## options(warn=-1)
+    values <- suppressWarnings(as.numeric(y))  # They are NA for characters 
     free <- is.na(values)    # They are TRUE for parameters with labels 
     freePara1 <- y[free]     # Extract free parameters
 
@@ -18,7 +18,7 @@ create.mxMatrix <- function(x, type=c("Full","Symm","Diag","Stand"), ncol=NA, nr
     } else {
       out <- list(values=values, free=free, labels=NA)
     }
-    options(warn=warn)
+    ## options(warn=warn)
     out
   }
 

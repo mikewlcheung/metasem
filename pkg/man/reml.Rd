@@ -89,8 +89,7 @@ suppressWarnings = TRUE, ...)
   \item{reml.fit}{A fitted object returned from	\code{\link[OpenMx]{mxRun}}}
 }
 \references{
-  Cheung, M. W. L. (2011). Implementing restricted maximum likelihood (REML) estimation in structural equation models. \emph{Manuscript
-  submitted for publication}.
+  Cheung, M. W. L. (in press). Implementing restricted maximum likelihood (REML) estimation in structural equation models. \emph{Structural Equation Modeling.}
 
   Mehta, P. D., & Neale, M. C. (2005). People Are Variables Too: Multilevel Structural Equations Modeling. \emph{Psychological
   	Methods}, \bold{10(3)}, 259-284.
@@ -113,34 +112,11 @@ suppressWarnings = TRUE, ...)
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{ \code{\link[metaSEM]{meta}}
+\seealso{ \code{\link[metaSEM]{meta}}, \code{\link[metaSEM]{reml3}}, \code{\link[metaSEM]{Hox02}}, \code{\link[metaSEM]{Berkey98}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
 
-## Random-effects meta-analysis with REML
-summary( VarComp <- reml(y=yi, v=vi, data=Hox02) )
-
-## Extract the variance component
-VarComp_REML <- matrix( coef(VarComp), ncol=1, nrow=1 )
-
-## Meta-analysis by treating the variance component as fixed
-summary( meta(y=yi, v=vi, data=Hox02, RE.constraints=VarComp_REML) )
-
-
-## Mixed-effects meta-analysis with "weeks" as a predictor
-## Request likelihood-based CI
-summary( reml(y=yi, v=vi, x=weeks, intervals.type="LB",
-              data=Hox02, model.name="REML with LB CI") )
-
-## Multivariate meta-analysis
-summary( reml(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL,var_AL),
-              data=Berkey98,
-              model.name="Multivariate meta analysis with REML") )
-
-## Multivariate meta-analysis with "publication year-1979" as the predictor
-summary( reml(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
-              x=scale(pub_year, center=1979), data=Berkey98) )
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

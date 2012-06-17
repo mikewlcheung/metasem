@@ -1,16 +1,13 @@
-Release 0.7-1 (May 24, 2012)
+Release 0.7-1 (Jun 17, 2012)
 ====================================
-* TODO Added reml3()
-* TODO Bornmann07
-
-* Added is.mxMatrix(), create.Fmatrix() and create.mxMatrix to create/test mxMatrix objects
+* Added create.Fmatrix() and create.mxMatrix() to create mxMatrix objects
 * Added df.adjustment argument in summary.wls()
 * Rewrote wls() using RAM specification (A, S and F matrices)
 * Added diag.constraints argument in wls() to constrain diagonals as 1
 * Improved efficiency by removing the call on installed.packages() and summary() from OpenMx
 * Fixed a bug in vec2symMat() reported by Yonghao Lim
-* Added meta3() for 3-level meta-analysis
-* Added data sets Becker92, Cooper03, Mak09 and issp05
+* Added meta3() and reml3() for 3-level meta-analysis
+* Added data sets Becker92, Cooper03, Mak09, issp05 and Bornmann07
 * Added I2 and R2 arguments to calculate heterogeneity and explained variance in meta()
 * Rewrote meta() so that the predictors are not involved in the models
 * Revised meta() to replace NA with 1e5 in v object

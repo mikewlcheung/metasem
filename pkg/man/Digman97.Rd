@@ -27,7 +27,7 @@ Digman, J.M. (1997). Higher-order factors of the Big Five. \emph{Journal of Pers
 \examples{
 Digman97
 
-##### Example of Fixed-effects TSSEM
+##### Fixed-effects TSSEM
 fixed1 <- tssem1(Digman97$data, Digman97$n, method="FEM")
 summary(fixed1)
 
@@ -61,14 +61,26 @@ fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, Fmatrix=F1, diag.constraints=TR
                  model.name="TSSEM2 Digman97")
 summary(fixed2)
 
-##### Example of Fixed-effects TSSEM with several clusters
-fixed1.cluster <- tssem1(Digman97$data, Digman97$n, cluster=Digman97$cluster)
+#### Fixed-effects TSSEM with several clusters
+#### Create a variable for different samples
+#### Younger participants: Children and Adolescents
+#### Older participants: others
+sample <- ifelse(Digman97$cluster \%in\% c("Children","Adolescents"),
+                 yes="Younger parcipants", no="Older partcipants")
+
+#### Show the sample
+sample
+
+## Example of Fixed-effects TSSEM with several clusters
+fixed1.cluster <- tssem1(Digman97$data, Digman97$n, method="FEM", 
+                         cluster=sample)
 summary(fixed1.cluster)
 
-fixed2.cluster <- tssem2(fixed1.cluster, Amatrix=A1, Smatrix=S1, Fmatrix=F1, diag.constraints=TRUE)
+fixed2.cluster <- tssem2(fixed1.cluster, Amatrix=A1, Smatrix=S1, Fmatrix=F1, 
+                         diag.constraints=TRUE, intervals.type="LB")
 summary(fixed2.cluster)
 
-##### Example of Random-effects TSSEM with random effects on the diagonals
+#### Random-effects TSSEM with random effects on the diagonals
 random1 <- tssem1(Digman97$data, Digman97$n, method="REM",
                   RE.diag.only=TRUE, I2="I2q")
 summary(random1)

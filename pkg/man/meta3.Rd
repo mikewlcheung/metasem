@@ -126,7 +126,7 @@ meta3(y, v, cluster, x, data, intercept.constraints,
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{\code{\link[metaSEM]{Cooper03}}
+\seealso{\code{\link[metaSEM]{reml3}}, \code{\link[metaSEM]{Cooper03}}, \code{\link[metaSEM]{Bornmann07}}
 }
 \examples{
 

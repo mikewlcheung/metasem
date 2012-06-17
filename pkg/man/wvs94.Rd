@@ -45,7 +45,7 @@ random.ma1 <- meta(y=cbind(lifesat, lifecon),
                    model.name="Random effects model")
 summary(random.ma1)
 
-## Random-effects model with both population effect sizes at 0
+## Random-effects model with both population effect sizes fixed at 0
 random.ma2 <- meta(y=cbind(lifesat, lifecon),
                    v=cbind(lifesat.var, inter.cov, lifecon.var), data=wvs94,
                    intercept.constraints=matrix(0, nrow=1, ncol=2),
@@ -61,7 +61,6 @@ fixed.ma <- meta(y=cbind(lifesat, lifecon),
                  RE.constraints=matrix(0, ncol=2, nrow=2),
                  model.name="Fixed effects model")
 summary(fixed.ma)
-
 
 ## Mixed-effects model
 ## gnp is divided by 10000 and centered by using 
@@ -88,6 +87,5 @@ anova(mixed.ma1, mixed.ma2)
 plot(random.ma1, main="Estimated effect sizes and their 95\% confidence ellipses",
      axis.label=c("Gender difference on life satisfaction",
                   "Gender difference on life control"))
-
 }
 \keyword{datasets}

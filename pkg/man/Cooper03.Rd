@@ -30,6 +30,7 @@
 \examples{
 data(Cooper03)
 
+#### ML estimation method
 ## No predictor
 summary( meta3(y=y, v=v, cluster=District, data=Cooper03) )
 
@@ -38,6 +39,19 @@ summary( meta3(y=y, v=v, cluster=District, data=Cooper03,
                intervals.type="LB", I2=c("I2q", "I2hm", "I2am", "ICC")) )
 
 ## Year as a predictor
-summary( meta3(y=y, v=v, cluster=District, x=scale(Year, scale=FALSE), data=Cooper03) )
+summary( meta3(y=y, v=v, cluster=District, x=scale(Year, scale=FALSE),
+data=Cooper03) )
+
+#### REML estimation method
+## No predictor
+summary( reml3(y=y, v=v, cluster=District, data=Cooper03) )
+
+## Level-2 and level-3 variances are constrained equally 
+summary( reml3(y=y, v=v, cluster=District, data=Cooper03,
+               RE.equal=TRUE, model.name="Equal variance") )
+
+## Year as a predictor
+summary( reml3(y=y, v=v, cluster=District, x=scale(Year, scale=FALSE),
+               data=Cooper03, intervals.type="LB") )
 }
 \keyword{datasets}

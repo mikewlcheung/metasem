@@ -518,6 +518,65 @@ print.summary.meta <- function(x, ...) {
 }
 
 
+## summary.reml <- function(object, ...) {
+##     if (!is.element("reml", class(object)))
+##     stop("\"object\" must be an object of class \"reml\".")
+
+##     # calculate coefficients    
+##     my.mx <- summary(object$reml.fit)
+##     ## my.para <- my.mx$parameters       # Worked up to OpenMx1.0.6
+##     my.para <- my.mx$parameters[, 1:6]   # Fixed for OpenMx1.1 
+##     # For example, P[1,2], L[1,2], ...
+##     my.para$label <- my.para$name
+##     my.para$name <- with(my.para, paste(matrix,"[",row,",",col,"]",sep=""))
+    
+##     my.ci <- my.mx$CI
+##     # Determine if CIs on parameter estimates are present
+##     if (is.null(dimnames(my.ci))) {
+##       my.para$lbound <- my.para$Estimate - qnorm(.975)*my.para$Std.Error
+##       my.para$ubound <- my.para$Estimate + qnorm(.975)*my.para$Std.Error
+##       my.para <- my.para[order(my.para$matrix, my.para$row, my.para$col), ]
+##       # remove rows with missing labels
+##       my.para <- my.para[!is.na(my.para$label), ]
+##       coefficients <- my.para[, -c(1:4,7)]
+##       dimnames(coefficients)[[1]] <- my.para$label 
+##     } else {
+##       # model.name: may vary in diff models
+##       model.name <- object$call[[match("model.name", names(object$call))]]
+##       # if not specified, the default in meta() is "Variance component with REML"
+##       if (is.null(model.name)) {
+##         model.name <- "Variance component with REML."
+##       } else {
+##         model.name <- paste(model.name, ".", sep="")
+##       }      
+##       name <- sapply(unlist(dimnames(my.ci)[1]), function(x)
+##                        {strsplit(x, model.name, fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
+##       # remove duplicate elements in my.ci from my.para$name
+##       name.sel <- name %in% my.para$name
+##       my.ci <- data.frame(name=my.para$name, my.ci[name.sel, ,drop=FALSE])
+##       my.para <- merge(my.para, my.ci, by=c("name"))
+##       my.para <- my.para[order(my.para$matrix, my.para$row, my.para$col), ]
+##       # remove rows with missing labels
+##       my.para <- my.para[!is.na(my.para$label), ]
+##       coefficients <- my.para[, -c(1:4,7,9)]
+##       dimnames(coefficients)[[1]] <- my.para$label 
+##     }
+##     coefficients$"z value" <- coefficients$Estimate/coefficients$Std.Error
+##     coefficients$"Pr(>|z|)" <- 2*(1-pnorm(abs(coefficients$"z value")))
+
+##     intervals.type <- object$call[[match("intervals.type", names(object$call))]]
+##     # default
+##     if (is.null(intervals.type))
+##       intervals.type <- "z"
+
+##     out <- list(call=object$call, intervals.type=intervals.type, no.studies=my.mx$numObs,
+##                 obsStat=my.mx$observedStatistics, estPara=my.mx$estimatedParameters,
+##                 df=my.mx$degreesOfFreedom, Minus2LL=my.mx$Minus2LogLikelihood,
+##                 coefficients=coefficients, Mx.status1=object$reml.fit@output$status[[1]])
+##     class(out) <- "summary.reml"
+##     out
+## }
+
 summary.reml <- function(object, ...) {
     if (!is.element("reml", class(object)))
     stop("\"object\" must be an object of class \"reml\".")
@@ -527,8 +586,7 @@ summary.reml <- function(object, ...) {
     ## my.para <- my.mx$parameters       # Worked up to OpenMx1.0.6
     my.para <- my.mx$parameters[, 1:6]   # Fixed for OpenMx1.1 
     # For example, P[1,2], L[1,2], ...
-    my.para$label <- my.para$name
-    my.para$name <- with(my.para, paste(matrix,"[",row,",",col,"]",sep=""))
+    my.para$label <- my.para$name   
     
     my.ci <- my.mx$CI
     # Determine if CIs on parameter estimates are present
@@ -541,18 +599,25 @@ summary.reml <- function(object, ...) {
       coefficients <- my.para[, -c(1:4,7)]
       dimnames(coefficients)[[1]] <- my.para$label 
     } else {
-      # model.name: may vary in diff models
-      model.name <- object$call[[match("model.name", names(object$call))]]
-      # if not specified, the default in meta() is "Variance component with REML"
-      if (is.null(model.name)) {
-        model.name <- "Variance component with REML."
+
+      if ( "reml3" %in% class(object) ) {
+        name.sel <- my.para$name
       } else {
-        model.name <- paste(model.name, ".", sep="")
-      }      
-      name <- sapply(unlist(dimnames(my.ci)[1]), function(x)
-                       {strsplit(x, model.name, fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
-      # remove duplicate elements in my.ci from my.para$name
-      name.sel <- name %in% my.para$name
+        my.para$name <- with(my.para, paste(matrix,"[",row,",",col,"]",sep=""))
+        # model.name: may vary in diff models
+        model.name <- object$call[[match("model.name", names(object$call))]]
+        # if not specified, the default in meta() is "Variance component with REML"
+        if (is.null(model.name)) {
+          model.name <- "Variance component with REML."
+        } else { # reml2
+          model.name <- paste(model.name, ".", sep="")
+        }      
+        name <- sapply(unlist(dimnames(my.ci)[1]), function(x)
+                         {strsplit(x, model.name, fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
+        # remove duplicate elements in my.ci from my.para$name
+        name.sel <- name %in% my.para$name
+      } # reml2
+
       my.ci <- data.frame(name=my.para$name, my.ci[name.sel, ,drop=FALSE])
       my.para <- merge(my.para, my.ci, by=c("name"))
       my.para <- my.para[order(my.para$matrix, my.para$row, my.para$col), ]
@@ -560,7 +625,8 @@ summary.reml <- function(object, ...) {
       my.para <- my.para[!is.na(my.para$label), ]
       coefficients <- my.para[, -c(1:4,7,9)]
       dimnames(coefficients)[[1]] <- my.para$label 
-    }
+    } # is.null(dimnames(my.ci))
+      
     coefficients$"z value" <- coefficients$Estimate/coefficients$Std.Error
     coefficients$"Pr(>|z|)" <- 2*(1-pnorm(abs(coefficients$"z value")))
 
@@ -597,7 +663,7 @@ print.summary.reml <- function(x, ...) {
     cat("\nNumber of observed statistics:", x$obsStat)
     cat("\nNumber of estimated parameters:", x$estPara)
     cat("\nDegrees of freedom:", x$df)
-    cat("\n-2 log likelihood:", x$Minus2LL)        
+    cat("\n-2 log likelihood:", x$Minus2LL, "\n")        
 
     cat("OpenMx status:", x$Mx.status1, "(\"0\" and \"1\": considered fine; other values indicate problems)\n")
     ## cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")      
@@ -699,11 +765,11 @@ vcov.reml <- function(object, ...) {
     ## my.name <- summary(object$reml.fit)$parameters$name
     my.name <- names(omxGetParameters(object$reml.fit))
     my.name <- my.name[!is.na(my.name)]
-    acov <- tryCatch( 2*solve(object$reml@output$calculatedHessian[my.name, my.name]), error = function(e) e) 
+    acov <- tryCatch( 2*solve(object$reml@output$calculatedHessian[my.name, my.name, drop=FALSE]), error = function(e) e) 
     
     if (inherits(acov, "error")) {
       cat("Error in solving the Hessian matrix.\n")
-      stop(print(acov))
+      warning(print(acov))
     } else {
       return(acov)
     }

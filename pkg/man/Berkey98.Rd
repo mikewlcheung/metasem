@@ -29,6 +29,7 @@
 \examples{
 data(Berkey98)
 
+#### ML estimation method
 ## Multivariate meta-analysis
 summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
               data=Berkey98, I2=c("I2q", "I2hm", "I2am"),
@@ -41,6 +42,17 @@ summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
 ## Multivariate meta-analysis with equality constraint on the regression coefficients
 summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
               x=scale(pub_year, center=1979), data=Berkey98,
-              coef.constraints=matrix(c("0.3*Eq_slope", "0.3*Eq_slope"), nrow=2)) ) 
+              coef.constraints=matrix(c("0.3*Eq_slope", "0.3*Eq_slope"),
+              nrow=2)) )
+
+#### REML estimation method
+## Multivariate meta-analysis
+summary( reml(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL,var_AL),
+              data=Berkey98,
+              model.name="Multivariate meta analysis with REML") )
+
+## Multivariate meta-analysis with "publication year-1979" as the predictor
+summary( reml(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
+              x=scale(pub_year, center=1979), data=Berkey98) )
 }
 \keyword{datasets}

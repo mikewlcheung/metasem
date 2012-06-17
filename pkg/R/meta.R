@@ -135,8 +135,10 @@ meta <- function(y, v, x, data, intercept.constraints, coef.constraints,
                     lbound=vech(lbound), values=values, name="Tau")      
   } else {
     if (!all(dim(RE.constraints)==c(no.y, no.y)))
-      stop("Dimensions of \"RE.constraints\" are incorrect.")    
-    Tau <- as.mxMatrix(RE.constraints, lbound=vech(lbound), name="Tau")
+      stop("Dimensions of \"RE.constraints\" are incorrect.")
+    ## Fixed a bug that reads lbound improperly
+    ## Since as.mxMatrix expects a full matrix, lbound=vech(lbound) is incorrect
+    Tau <- as.mxMatrix(RE.constraints, lbound=c(lbound), name="Tau")
   }
   V <- mxMatrix("Symm", ncol=no.y, nrow=no.y, free=FALSE,
                  labels=paste("data.", v.labels, sep=""), name="V")
