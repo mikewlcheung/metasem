@@ -9,7 +9,7 @@
 }
 \usage{
 \method{plot}{meta}(x, effect.sizes, add.margin = 0.1, interval = 0.95,
-main= paste("Effect Sizes and their Confidence Ellipses"),
+main= "Effect Sizes and their Confidence Ellipses",
 axis.labels= paste("Effect size ", effect.sizes, sep = ""),
 study.col = "black", study.pch = 19, study.min.cex = 0.8,
 study.weight.plot = FALSE, study.ellipse.plot = TRUE,

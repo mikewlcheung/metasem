@@ -1,6 +1,6 @@
 ## effect.sizes=x,y
 plot.meta <- function(x, effect.sizes, add.margin=0.1, interval=0.95,
-                      main=paste("Effect Sizes and their Confidence Ellipses"),
+                      main="Effect Sizes and their Confidence Ellipses",
                       axis.labels=paste("Effect size ", effect.sizes, sep=""),                      
                       study.col="black", study.pch=19, study.min.cex=0.8, study.weight.plot=FALSE,
                       study.ellipse.plot=TRUE, study.ellipse.col="black", study.ellipse.lty=2,
@@ -19,8 +19,8 @@ plot.meta <- function(x, effect.sizes, add.margin=0.1, interval=0.95,
     stop("\"x\" must be a class of \"meta\".")
   
   no.y <- x$no.y
-  if (x$no.y==1) stop("There must be at least TWO effect sizes.\n")
-  if (x$no.x!=0) warning("There are predictors in the model.\nThe plot is based on the estimated intercepts.\n")
+  if (no.y==1) stop("There must be at least TWO effect sizes.\n")
+  if (x$no.x!=0) warning("There are predictors in the model.\nThe plot is based on the intercepts.\n")
   if (missing(effect.sizes)) effect.sizes <- seq(1, no.y)
 
   ## Expand main to match the no. of plots

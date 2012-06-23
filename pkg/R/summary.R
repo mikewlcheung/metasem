@@ -18,7 +18,7 @@ summary.wls <- function(object, df.adjustment=0, ...) {
 
     ## Hu and Bentler (1998) Psychological Methods
     ## Protect RMSEA divided by 0
-    if (min((tT-dfT),0)==0) {
+    if (dfT==0) {
       RMSEA <- 0
     } else {
       RMSEA <- sqrt(max((tT-dfT)/(n-1),0)/dfT)

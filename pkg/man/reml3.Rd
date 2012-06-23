@@ -79,6 +79,9 @@ An alternative but equivalent approach is to minimize the
 \references{
   Cheung, M. W. L. (in press). Implementing restricted maximum likelihood (REML) estimation in structural equation models. \emph{Structural Equation Modeling.}
 
+  Cheung, M. W. L. (2012). Modeling three-level meta-analyses as
+  structural equation models. \emph{Manuscript in preparation}.
+	
   Mehta, P. D., & Neale, M. C. (2005). People Are Variables Too: Multilevel Structural Equations Modeling. \emph{Psychological
   	Methods}, \bold{10(3)}, 259-284.
 

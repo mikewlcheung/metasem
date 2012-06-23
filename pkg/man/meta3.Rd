@@ -31,45 +31,34 @@ meta3(y, v, cluster, x, data, intercept.constraints,
 }
   \item{data}{An optional data frame containing the variables in the model.
 }
-  \item{intercept.constraints}{A \eqn{1}{1} x \eqn{p}{p} matrix
-	specifying whether the intercepts of the effect sizes are fixed or
-	free. The default is that the intercepts are free. When there is no predictor, these intercepts are the same as
-	the pooled effect sizes. The format of this matrix follows
-	\code{\link[metaSEM]{as.mxMatrix}}. The intercepts can be
-	constrained equally by using the same labels.
+  \item{intercept.constraints}{A \eqn{1}{1} x \eqn{1}{1} matrix
+	specifying whether the intercept of the effect size is fixed or
+	constrained. The format of this matrix follows
+	\code{\link[metaSEM]{as.mxMatrix}}. The intercept can be
+	constrained with other parameters by using the same label.
 }
-  \item{coef.constraints}{A \eqn{p}{p} x \eqn{m}{m} matrix
+  \item{coef.constraints}{A \eqn{1}{1} x \eqn{m}{m} matrix
 	specifying how the level-2 and level-3 predictors predict the effect sizes. The default
-	is that all \eqn{m}{m} predictors predict all \eqn{p}{p} effect sizes. The
+	is that all \eqn{m}{m} predictors predict the effect size. The
 	format of this matrix follows
 	\code{\link[metaSEM]{as.mxMatrix}}. The regression coefficients can be
 	constrained equally by using the same labels.
 }
-  \item{RE2.constraints}{A \eqn{p}{p} x \eqn{p}{p} matrix
-	specifying the variance componets of the random effects. The default is that all
-	covariance/variance components are free. The format of this matrix
+  \item{RE2.constraints}{A \eqn{1}{1} x \eqn{1}{1} matrix
+	specifying the variance componets of the random effects. The default
+	is that the variance components is free. The format of this matrix
 	follows \code{\link[metaSEM]{as.mxMatrix}}. Elements of the variance
-	components can be constrained equally by using the same labels. If a zero matrix is
-	specified, it becomes a fixed-effects meta-analysis.
+	components can be constrained equally by using the same label. 
 }
-  \item{RE2.lbound}{A vector of \eqn{p}{p} lower bounds on the
-	diagonals of the variance component of the random effects at level-2. If only one
-	scalar is given, it will be duplicated across the diagonals. Lower
-	bounds for the off-diagonals of the variance component are set at \code{NA}. A \eqn{p}{p} x
-	\eqn{p}{p} symmetric matrix of the lower bounds is also accepted.
+  \item{RE2.lbound}{A \eqn{1}{1} x \eqn{1}{1} matrix of lower bound on the level-2 variance component of the random effects. 
 }
-  \item{RE3.constraints}{A \eqn{p}{p} x \eqn{p}{p} matrix
-	specifying the variance componets of the random effects at level-3. The default is that all
-	covariance/variance components are free. The format of this matrix
+  \item{RE3.constraints}{A \eqn{1}{1} x \eqn{1}{1} matrix
+	specifying the variance componets of the random effects at
+	level-3. The default is that the variance components is free. The format of this matrix
 	follows \code{\link[metaSEM]{as.mxMatrix}}. Elements of the variance
-	components can be constrained equally by using the same labels. If a zero matrix is
-	specified, it becomes a fixed-effects meta-analysis.
+	components can be constrained equally by using the same label. 
 }
-  \item{RE3.lbound}{A vector of \eqn{p}{p} lower bounds on the
-	diagonals of the variance component of the random effects. If only one
-	scalar is given, it will be duplicated across the diagonals. Lower
-	bounds for the off-diagonals of the variance component are set at \code{NA}. A \eqn{p}{p} x
-	\eqn{p}{p} symmetric matrix of the lower bounds is also accepted.
+  \item{RE3.lbound}{A \eqn{1}{1} x \eqn{1}{1} matrix of lower bound on the level-3 variance component of the random effects. 
 }
   \item{intervals.type}{Either \code{z} (default if missing) or
 	\code{LB}. If it is \code{z}, it calculates the 95\% Wald confidence
@@ -93,10 +82,11 @@ meta3(y, v, cluster, x, data, intercept.constraints,
   \item{\dots}{Futher arguments to be passed to \code{\link[OpenMx]{mxRun}}}
 }
 \details{
-  \deqn{y_{ij} = \beta_0 + \beta_1*x_{ij} + \dots + \beta_m*x_{ij} + u_{ij(2)}
-	+ u_{ij(3)} + e_{ij}
-	} where \eqn{u_{ij(2)} \sim N(0, \tau^2_2)}{u_{ij(2)}~ N(0,
-	  tau^2_2)} and \eqn{u_{ij(3)} \sim N(0, \tau^2_3)}{u_{ij(3)}~ N(0,
+  \deqn{y_{ij} = \beta_0 + \mathbf{\beta'}*\mathbf{x_{ij}} + u_{(2)ij} + u_{(3)j} + e_{ij}
+  } where \eqn{y_{ij}} is the effect size for the ith study in the jth cluster,
+  \eqn{\beta_0} is the intercept, \eqn{\mathbf{\beta}} is the
+  regression coefficients, \eqn{\mathbf{x_{ij}}} is a vector of predictors, \eqn{u_{(2)ij} \sim N(0, \tau^2_2)}{u_{(2)ij}~ N(0,
+	  tau^2_2)} and \eqn{u_{(3)j} \sim N(0, \tau^2_3)}{u_{(3)j}~ N(0,
 	  tau^2_3)} are the level-2 and level-3 heterogeneity variances,
 	respectively, and \eqn{e_{ij} \sim N(0, v_{ij})}{e_{ij}~ N(0,
 	  v_{ij})} is the conditional known sampling variance.
@@ -110,7 +100,7 @@ meta3(y, v, cluster, x, data, intercept.constraints,
 %% ...
 }
 \references{
-  Cheung, M. W. L. (2012). Three-level meta-analyses as structural
+  Cheung, M. W. L. (2012). Modeling three-level meta-analyses as structural
   equation models. \emph{Manuscript in preparation}.
 
   Konstantopoulos, S. (2011). Fixed effects and variance components

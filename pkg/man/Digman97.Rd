@@ -66,7 +66,7 @@ summary(fixed2)
 #### Younger participants: Children and Adolescents
 #### Older participants: others
 sample <- ifelse(Digman97$cluster \%in\% c("Children","Adolescents"),
-                 yes="Younger parcipants", no="Older partcipants")
+                 yes="Younger participants", no="Older participants")
 
 #### Show the sample
 sample
@@ -78,6 +78,7 @@ summary(fixed1.cluster)
 
 fixed2.cluster <- tssem2(fixed1.cluster, Amatrix=A1, Smatrix=S1, Fmatrix=F1, 
                          diag.constraints=TRUE, intervals.type="LB")
+#### Please note that the estimates for the younger participants are problematic.
 summary(fixed2.cluster)
 
 #### Random-effects TSSEM with random effects on the diagonals
