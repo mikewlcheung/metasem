@@ -20,9 +20,9 @@ homoStat <- function(y, v) {
     Y <- matrix( Y[!miss.index], ncol=1 )
     X <- matrix( rep(diag(no.y), nrow(y)), ncol=no.y, byrow=TRUE )
 
-    X <- X[!miss.index, ]
+    X <- X[!miss.index, , drop=FALSE]
     V <- matrix2bdiag(v)
-    V <- V[!miss.index, !miss.index]
+    V <- V[!miss.index, !miss.index, drop=FALSE]
     
     V_inv <- solve(V)
     Q <- t(Y) %*% ( V_inv - V_inv %*% X %*% solve(t(X)

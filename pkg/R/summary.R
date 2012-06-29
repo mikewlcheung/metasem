@@ -57,7 +57,7 @@ summary.wls <- function(object, df.adjustment=0, ...) {
     if (is.null(dimnames(my.ci))) {
       my.para$lbound <- my.para$Estimate - qnorm(.975)*my.para$Std.Error
       my.para$ubound <- my.para$Estimate + qnorm(.975)*my.para$Std.Error
-      my.para <- my.para[order(my.para$matrix, my.para$row, my.para$col), ]
+      my.para <- my.para[order(my.para$matrix, my.para$row, my.para$col), , drop=FALSE]
       coefficients <- my.para[, -c(1:4)]
 	  intervals.type="z"
     } else {
@@ -202,10 +202,10 @@ summary.tssem1FEM <- function(object, ...) {
     # calculate coefficients    
     my.para <- summary(object$tssem1.fit)$parameters
     ## my.para <- my.para[my.para$matrix=="S1", ]
-    my.para <- my.para[my.para$matrix=="S", ]
+    my.para <- my.para[my.para$matrix=="S", , drop=FALSE]
     #Sel <- grep("^S", my.para$matrix, value=TRUE)
     #my.para <- subset(my.para, my.para$matrix==Sel)
-    my.para <- my.para[order(my.para$row, my.para$col), ]
+    my.para <- my.para[order(my.para$row, my.para$col), , drop=FALSE]
     my.para$name <- with(my.para, paste(matrix,"[",row,",",col,"]",sep=""))
     dimnames(my.para)[[1]] <- my.para$name
     coefficients <- my.para[, c(5,6)]
@@ -304,7 +304,7 @@ summary.meta <- function(object, homoStat=TRUE, ...) {
     # calculate coefficients    
     my.mx <- summary(object$meta.fit)
     ## Exclude lbound ubound etc
-    my.para <- my.mx$parameters[, 1:6]   
+    my.para <- my.mx$parameters[, 1:6, drop=FALSE]   
     ## OpenMx1.1: y1, y2 and x1 appear in col
     my.para$col <- sub("[a-z]", "", my.para$col)  # Fixed for OpenMx1.1
     # For example, P[1,2], L[1,2], ...
@@ -316,10 +316,10 @@ summary.meta <- function(object, homoStat=TRUE, ...) {
     if (is.null(dimnames(my.ci))) {
       my.para$lbound <- my.para$Estimate - qnorm(.975)*my.para$Std.Error
       my.para$ubound <- my.para$Estimate + qnorm(.975)*my.para$Std.Error
-      my.para <- my.para[order(my.para$matrix, my.para$row, my.para$col), ]
+      my.para <- my.para[order(my.para$matrix, my.para$row, my.para$col), , drop=FALSE]
       # remove rows with missing labels
-      my.para <- my.para[!is.na(my.para$label), ]
-      coefficients <- my.para[, -c(1:4,7)]
+      my.para <- my.para[!is.na(my.para$label), ,drop=FALSE]
+      coefficients <- my.para[, -c(1:4,7), drop=FALSE]
       dimnames(coefficients)[[1]] <- my.para$label 
     } else {
       # model.name: may vary in diff models
@@ -335,9 +335,9 @@ summary.meta <- function(object, homoStat=TRUE, ...) {
                        {strsplit(x, model.name, fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
       my.ci <- data.frame(name, my.ci)
       my.para <- merge(my.para, my.ci, by=c("name"))
-      my.para <- my.para[order(my.para$matrix, my.para$row, my.para$col), ]
+      my.para <- my.para[order(my.para$matrix, my.para$row, my.para$col), , drop=FALSE]
       # remove rows with missing labels
-      my.para <- my.para[!is.na(my.para$label), ]
+      my.para <- my.para[!is.na(my.para$label), , drop=FALSE]
       coefficients <- my.para[, -c(1:4,7,9)]
       dimnames(coefficients)[[1]] <- my.para$label 
     }
@@ -381,7 +381,7 @@ summary.meta <- function(object, homoStat=TRUE, ...) {
           I2.values <- matrix(NA, nrow=length(I2.names), ncol=3)
           I2.values[,2] <- eval(parse(text = paste("mxEval(c(", paste(I2.names, collapse=","), "), object$meta.fit)", sep="")))
         } else {## LB CI  model.name <- "Meta analysis with ML."
-          I2.values <- my.mx$CI[paste(model.name, I2.names, "[1,1]", sep=""), ]
+          I2.values <- my.mx$CI[paste(model.name, I2.names, "[1,1]", sep=""), , drop=FALSE]
         }
         ## Truncate within 0 and 1
         ## I2.values <- apply(I2.values, c(1,2), function(x) max(x,0))

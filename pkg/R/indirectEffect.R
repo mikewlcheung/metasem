@@ -48,7 +48,7 @@ indirectEffect <- function(x, n, standardized=TRUE, direct.effect=TRUE) {
   ## No direct effect by setting c=0
   if (!direct.effect) myMod <- omxSetParameters(myMod, labels="c", free=FALSE, values=0) 
   
-  my.fit <- mxRun(myMod, silent=TRUE)
+  my.fit <- mxRun(myMod, silent=TRUE, suppressWarnings=TRUE)
   ## my.parameters <- summary(my.fit)$parameters
   ## my.parameters$Estimate[my.parameters$name %in% "a"]
   a <- mxEval(a, my.fit) 

@@ -69,12 +69,13 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
         if (cor.analysis) {
             if (is.null(model.name)) model.name <- "TSSEM1 Analysis of Correlation Matrix"
             SD <- diag(paste(sqrt(diag(sv)), "*sd", i, "_", 1:no.var, sep=""))
-            SD <- SD[!miss.index.i, ]
+            # Fixed a bug when SD is a scalar
+            SD <- SD[!miss.index.i, , drop=FALSE]
             SD <- as.mxMatrix(SD)   
         } else {
             if (is.null(model.name)) model.name <- "TSSEM1 Analysis of Covariance Matrix"
             SD <- diag(rep(1, no.var))
-            SD <- SD[!miss.index.i, ]
+            SD <- SD[!miss.index.i, , drop=FALSE]
             SD <- as.mxMatrix(SD)
         }
         # Expected covariance matrix
@@ -84,7 +85,9 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
         ## model <- mxModel(paste("group",i,sep=""), S, Dmatrix, expC,
         ##                      mxData(observed=my.df.i, type="cov", numObs=n[i]),
         ##                      mxMLObjective(expC, dimnames=var.names[!miss.index[[i]]]))
-        g.model <- paste("g", i, " <- mxModel(\"g", i, "\", S, SD, expC, mxData(observed=my.df[[",i,"]][!miss.index[[",i,"]],!miss.index[[",i,"]]], type=\"cov\", numObs=n[", i,
+
+        ## Fixed a bug when my.df[[i]][, , ] is a scalar
+        g.model <- paste("g", i, " <- mxModel(\"g", i, "\", S, SD, expC, mxData(observed=my.df[[",i,"]][!miss.index[[",i,"]],!miss.index[[",i,"]], drop=FALSE], type=\"cov\", numObs=n[", i,
                 "]), mxMLObjective(\"expC\", dimnames=var.names[!miss.index[[", i, "]]]))", sep = "")
         eval(parse(text = g.model))       
     }
