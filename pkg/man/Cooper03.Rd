@@ -3,7 +3,7 @@
 \docType{data}
 \title{Selected effect sizes from Cooper et al. (2003)}
 \description{
-  Fifty-six studies from Cooper et al. (2003) were reported by Konstantopoulos (2011).
+  Fifty-six effect sizes from 11 districts from Cooper et al. (2003) were reported by Konstantopoulos (2011).
 }
 \usage{data(Cooper03)}
 \format{

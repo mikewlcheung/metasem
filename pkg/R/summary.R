@@ -695,9 +695,10 @@ vcov.meta <- function(object, select=c("all", "fixed", "random"), ...) {
          ## all = my.name <- my.name,
          fixed =  my.name <- my.name[ grep("Intercept|Slope", my.name) ],
          random = my.name <- my.name[ grep("Tau2", my.name) ]
-         )    
-
-    acov <- tryCatch( 2*solve(object$meta.fit@output$calculatedHessian[my.name, my.name, drop=FALSE]), error = function(e) e)
+         )
+    
+    # Fixed a bug that all elements have to be inverted before selecting some of them
+    acov <- tryCatch( 2*solve(object$meta.fit@output$calculatedHessian)[my.name, my.name, drop=FALSE], error = function(e) e)
     # Issue a warning instead of error message
     if (inherits(acov, "error")) {
       cat("Error in solving the Hessian matrix.\n")
@@ -765,7 +766,8 @@ vcov.reml <- function(object, ...) {
     ## my.name <- summary(object$reml.fit)$parameters$name
     my.name <- names(omxGetParameters(object$reml.fit))
     my.name <- my.name[!is.na(my.name)]
-    acov <- tryCatch( 2*solve(object$reml@output$calculatedHessian[my.name, my.name, drop=FALSE]), error = function(e) e) 
+    # Fixed a bug that all elements have to be inverted before selecting some of them
+    acov <- tryCatch( 2*solve(object$reml@output$calculatedHessian)[my.name, my.name, drop=FALSE], error = function(e) e) 
     
     if (inherits(acov, "error")) {
       cat("Error in solving the Hessian matrix.\n")

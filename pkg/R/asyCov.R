@@ -90,14 +90,16 @@ asyCov <- function(x, n, cor.analysis = TRUE, dropNA = FALSE, as.matrix = TRUE,
         }
         # Need to multiply 2 to the inverse of Hessian matrix
         # http://openmx.psyc.virginia.edu/thread/360
-        acovS <- tryCatch(2 * solve(mxFit@output$calculatedHessian[acovName, acovName] ), 
+        # Fixed a bug that all elements have to be inverted before selecting some of them
+        acovS <- tryCatch(2 * solve(mxFit@output$calculatedHessian)[acovName, acovName, drop=FALSE], 
                               error = function(e) e)
         if (inherits(acovS, "error")) {
             stop(print(acovS))
         }
 
-        # When the dimensions are 1x1, dimnames are removed. Added them explicitly
-        dimnames(acovS) <- list(acovName, acovName)
+        ## No need to do it as [, drop=FALSE] has been added
+        ## # When the dimensions are 1x1, dimnames are removed. Added them explicitly
+        ## dimnames(acovS) <- list(acovName, acovName)
 
         if (dropNA) {          
           out <- acovS

@@ -120,15 +120,16 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
         stop(print(tssem1.fit))
     
     pooledS <- eval(parse(text = "mxEval(S, tssem1.fit)"))
-    
+
+    # Fixed a bug that all elements have to be inverted before selecting some of them
     if (cor.analysis) {
         #Hessian_S <- 0.5*tssem1.fit@output$calculatedHessian[vechs(ps.labels), vechs(ps.labels)]
-        acovS <- tryCatch( 2*solve(tssem1.fit@output$calculatedHessian[vechs(ps.labels),
-                           vechs(ps.labels)]), error = function(e) e) 
+        acovS <- tryCatch( 2*solve(tssem1.fit@output$calculatedHessian)[vechs(ps.labels),
+                           vechs(ps.labels)], error = function(e) e) 
     } else {
         #Hessian_S <- 0.5*tssem1.fit@output$calculatedHessian[vech(ps.labels), vech(ps.labels)]
-        acovS <-  tryCatch( 2*solve(tssem1.fit@output$calculatedHessian[vech(ps.labels), 
-                            vech(ps.labels)]), error = function(e) e)
+        acovS <-  tryCatch( 2*solve(tssem1.fit@output$calculatedHessian)[vech(ps.labels), 
+                            vech(ps.labels)], error = function(e) e)
     }
     # Issue a warning instead of error message
     if (inherits(acovS, "error")) {
