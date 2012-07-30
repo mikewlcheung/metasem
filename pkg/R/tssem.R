@@ -183,9 +183,15 @@ tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE.diag.only=FALSE, RE.startv
   
   ## Calculate the asymptotic sampling covariance matrix of the correlation matrix
   acovR <- asyCov(x=my.complete, n=n, cor.analysis=cor.analysis)
-  
-  ## Convert the correlation matrices into effect sizes; default of diag=FALSE for cor matrix
-  ES <- list2matrix(x=my.df, diag=!cor.analysis)
+
+  ## Fixed a bug that my.df is covariance matrix while cor.analysis is TRUE
+  ## When cor.analysis=TRUE, the old version just takes the lower triangle without converting covariance into correlation.
+  if (cor.analysis) {
+    ## Convert possible covariance matrices into correlation matrices
+    ES <- list2matrix(x=lapply(my.df, cov2cor), diag=FALSE)
+  } else {
+    ES <- list2matrix(x=my.df, diag=TRUE)
+  } 
   ## no. of effect sizes
   no.es <- ncol(ES)
 

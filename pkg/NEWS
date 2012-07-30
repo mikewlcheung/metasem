@@ -1,5 +1,6 @@
-Release 0.7-1 (Jul 19, 2012)
+Release 0.7-1 (Jul 28, 2012)
 ====================================
+* Fixed a bug in tssem1REM() that my.df is a list of covariance matrices when cor.analysis=TRUE
 * Fixed a bug in calculating acov (solve()) in asyCov(), indirectEffect, tssem1.FE()
 * Added indirectEffect() to calculate the asymptotic covariance matrix of indirect and direct effects
 * Added create.Fmatrix() and create.mxMatrix() to create mxMatrix objects
