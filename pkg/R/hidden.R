@@ -21,13 +21,13 @@
     ps <- no.var * (no.var - 1)/2
     vecS <- mxAlgebra(vechs(sampleS - impliedS), name = "vecS")
   } else {
-      impliedS <- mxMatrix("Diag", ncol = no.var, nrow = no.var, values = diag(S),
-                           free = TRUE, name = "impliedS")
-      ps <- no.var * (no.var + 1)/2
-      vecS <- mxAlgebra(vech(sampleS - impliedS), name = "vecS")
+    impliedS <- mxMatrix("Diag", ncol = no.var, nrow = no.var, values = diag(S),
+                         free = TRUE, name = "impliedS")
+    ps <- no.var * (no.var + 1)/2
+    vecS <- mxAlgebra(vech(sampleS - impliedS), name = "vecS")
   }
   if (ncol(acovS) != ps)
-    stop("No. of dimension of \"S\" does not match the dimension of \"acovS\"\n")
+    stop("Dimensions of \"S\" do not match the dimensions of \"acovS\"\n")
     
   # Inverse of asymptotic covariance matrix
   invacovS <- tryCatch(solve(acovS), error = function(e) e)
@@ -47,11 +47,15 @@
   else return(indep.out@output$Minus2LogLikelihood)
 }
 
-.minus2LL <- function(x, n, model=c("saturated", "independent")) {
+.minus2LL <- function(x, n) {
+## model=c("saturated", "independent")
   if (is.list(x)) {
     if (length(x) != length(n))
       stop("Lengths of \"x\" and \"n\" are not the same.\n")
-    return(mapply(.minus2LL, x=x, n=n, model=model))
+    fit.list <- mapply(.minus2LL, x=x, n=n)
+    out <- apply(matrix(unlist(fit.list), nrow=3), 1, sum)
+    names(out) <- c("SaturatedLikelihood", "IndependenceLikelihood", "independenceDoF")
+    out
   } else {
     miss.index <- is.na(diag(x))
     x <- x[!miss.index, !miss.index]
@@ -63,19 +67,23 @@
     obsCov <- mxData(observed=x, type='cov', numObs=n)
     ## if (missing(model))
     ##   stop("\"model\" was not specified.\n")
-    model <- match.arg(model)
-    switch(model,
-           saturated = expCov <- mxMatrix("Symm", nrow=no.var, ncol=no.var, free=TRUE, 
-                                          values=vech(x), name="expCov"),
-           independent = expCov <- mxMatrix("Diag", nrow=no.var, ncol=no.var, free=TRUE, 
-                                            values=diag(x), name="expCov")
-     )
+    ## model <- match.arg(model)
+    ## switch(model,
+    ##        saturated = expCov <- mxMatrix("Symm", nrow=no.var, ncol=no.var, free=TRUE, 
+    ##                                       values=vech(x), name="expCov"),
+    ##        independent = expCov <- mxMatrix("Diag", nrow=no.var, ncol=no.var, free=TRUE, 
+    ##                                         values=diag(x), name="expCov")
+    ##  )
+    expCov <- mxMatrix("Diag", nrow=no.var, ncol=no.var, free=TRUE, 
+                       values=diag(x), name="expCov")    
     objective <- mxMLObjective(covariance = "expCov", dimnames=vars)
     fit <- tryCatch(mxRun(mxModel("model", expCov, obsCov, objective), silent=TRUE, 
                     suppressWarnings=TRUE), error = function(e) e)
     if (inherits(fit, "error")) 
           stop(print(fit))
-    fit@output$Minus2LogLikelihood
+    #fit@output$Minus2LogLikelihood
+    ## c(unlist(summary(fit)[c("SaturatedLikelihood", "IndependenceLikelihood", "independenceDoF")]))
+    c(unlist(fit@output[c("SaturatedLikelihood", "IndependenceLikelihood")]), independenceDoF=no.var*(no.var-1)/2)
   }
 }
 

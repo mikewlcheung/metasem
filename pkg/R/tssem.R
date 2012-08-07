@@ -16,7 +16,7 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
   } else {
     my.range <- range(sapply(my.df, function(x) {ncol(x)}))
     if ( !all.equal(my.range[1], my.range[2]) )
-      stop("Dimensions of all groups are not the same!\n")
+      stop("Dimensions of groups are not the same!\n")
     
     no.groups <- length(my.df)
     no.var <- ncol(my.df[[1]])
@@ -155,16 +155,13 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
         dimnames(acovS) <- list(psMatnames, psMatnames)
     }
 
-    independentMinus2LL <- tryCatch(sum(.minus2LL(x=my.df, n=n, model="independent")), error = function(e) e)
-    saturatedMinus2LL <- tryCatch(sum(.minus2LL(x=my.df, n=n, model="saturated")), error = function(e) e)
-    if (inherits(independentMinus2LL, "error")) independentMinus2LL <- NA
-    if (inherits(saturatedMinus2LL, "error")) saturatedMinus2LL <- NA
-    
+    ## Calculate 2LL of the saturated and independence models and the DF of independence model
+    baseMinus2LL <- tryCatch(.minus2LL(x=my.df, n=n), error = function(e) e)   
+
     out <- list(call = match.call(), cor.analysis=cor.analysis, data=my.df, pooledS = pooledS,
                 acovS = acovS, total.n = total.n, 
                 modelMinus2LL = tssem1.fit@output$Minus2LogLikelihood,
-                independentMinus2LL = independentMinus2LL, saturatedMinus2LL = saturatedMinus2LL,
-                tssem1.fit = tssem1.fit)
+                baseMinus2LL = baseMinus2LL, tssem1.fit = tssem1.fit)
     class(out) <- "tssem1FEM"
     return(out)
   }
@@ -207,9 +204,9 @@ tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE.diag.only=FALSE, RE.startv
     ## No covariance between random effects
     meta.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2,
                      RE.constraints=diag(x=paste(RE.startvalues, "*Tau2_", 1:no.es, "_", 1:no.es, sep=""),
-                                         nrow=no.es, ncol=no.es))    
+                                         nrow=no.es, ncol=no.es), RE.lbound=RE.lbound)    
   } else {
-    meta.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2, RE.startvalues=RE.startvalues, RE.lbound = RE.lbound)
+    meta.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2, RE.startvalues=RE.startvalues, RE.lbound=RE.lbound)
   }
 
   out <- list(total.n=sum(n), cor.analysis=cor.analysis, RE.diag.only=RE.diag.only, no.es=no.es)
@@ -360,7 +357,8 @@ wls <- function(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.c
     ps <- no.var * (no.var - 1)/2
     vecS <- mxAlgebra(vechs(sampleS - impliedS), name="vecS")
 
-    ## Dependent variables including both observed and latent variables
+    ## Count no. of dependent variables including both observed and latent variables
+    ## Since it is correlation structure, Smatrix@values=1 and Smatrix@free=FALSE on the diagonals.
     Constraints <- diag(Smatrix@free)
     ## Setup constraints on diagonals
     if (diag.constraints & (sum(Constraints)>0)) {      

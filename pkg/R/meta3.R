@@ -33,7 +33,7 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints, coef.constraint
     if (is.vector(x)) no.x <- 1 else no.x <- ncol(x)   
     old.labels <- names(my.long)
     my.long <- data.frame(my.long, x)
-    names(my.long) <- c(old.labels, paste("x_", 1:no.x, sep=""))
+    names(my.long) <- c(old.labels, paste("x", 1:no.x, sep=""))
     ## Indicator of either missing v or x
     miss.x <- apply(is.na(cbind(v,x)), 1, any)
   }
@@ -56,11 +56,11 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints, coef.constraint
   k <- max(sapply( split(my.long$cluster, my.long$cluster), length))
   ## NA in v is due to NA in y in wide format
   ## Replace with 1e10 though it does not affect the analysis as NA in y
-  temp <- my.wide[, paste("v_", 1:k, sep="")]
+  temp <- my.wide[, paste("v", 1:k, sep="_")]
   temp[is.na(temp)] <- 1e10
-  my.wide[, paste("v_", 1:k, sep="")] <- temp
+  my.wide[, paste("v", 1:k, sep="_")] <- temp
   ## Missing indicator on y
-  miss.y <- is.na(my.wide[, paste("y_", 1:k, sep="")])
+  miss.y <- is.na(my.wide[, paste("y", 1:k, sep="_")])
   
   ## Prepare matrices
   if (missing(intercept.constraints)) {
@@ -81,12 +81,12 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints, coef.constraint
     ## NA is not available for definition variable even y is NA.
     ## Replace NA with 0 in x. Since y is missing, 0 does not affect the results.
     for (i in 1:no.x) {
-      temp <- my.wide[, paste("x", i, 1:k, sep="_")]
+      temp <- my.wide[, paste(paste("x", i, sep=""), 1:k, sep="_")]
       temp[miss.y] <- 0
-      my.wide[, paste("x", i, 1:k, sep="_")] <- temp
+      my.wide[, paste(paste("x", i, sep=""), 1:k, sep="_")] <- temp
     }    
     mydata <- mxMatrix("Full", nrow=no.x, ncol=k, free=FALSE, name="mydata",
-                      labels=c(outer(1:no.x, 1:k, function(x, y) paste("data.x_", x,"_", y, sep = ""))))
+                      labels=c(outer(1:no.x, 1:k, function(x, y) paste("data.x", x,"_", y, sep = ""))))
 
     if (missing(coef.constraints)) {
       coeff <- mxMatrix("Full", nrow=1, ncol=no.x, free=TRUE, values=0,
@@ -122,7 +122,7 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints, coef.constraint
   Id <- mxMatrix("Iden", nrow=k, ncol=k, name="Id")
   Ones <- mxMatrix("Unit", nrow=k, ncol=k, name="Ones") 
   ## conditional sampling variances
-  V <- mxMatrix("Diag", nrow=k, ncol=k, free=FALSE, labels=paste("data.v_", 1:k, sep=""), name="V")
+  V <- mxMatrix("Diag", nrow=k, ncol=k, free=FALSE, labels=paste("data.v", 1:k, sep="_"), name="V")
   ## expMean <- mxAlgebra( oneRow %x% inter + coeff2 %*% data2 + coeff3 %*% data3, name="expMean")
   expMean <- mxAlgebra( oneRow %x% inter + coeff %*% mydata, name="expMean")     
   expCov <- mxAlgebra( Ones %x% Tau3 + Id %x% Tau2 + V, name="expCov")
@@ -154,20 +154,20 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints, coef.constraint
     I2am_3 <- mxAlgebra( Tau3/(Tau2+Tau3+amV), name="I2am_3") 
     ICC_2 <- mxAlgebra( Tau2/(Tau2+Tau3), name="ICC_2")
     ICC_3 <- mxAlgebra( Tau3/(Tau2+Tau3), name="ICC_3")
-
+   
     I2 <- match.arg(I2, c("I2q", "I2hm", "I2am", "ICC"), several.ok=TRUE)
     ci <- c(outer(I2, c("_2","_3"), paste, sep=""))
     
     meta3 <- mxModel(model=model.name, mxData(observed=my.wide[,-1], type="raw"), oneRow, Id, Ones,
                      inter, coeff, mydata, Tau2, Tau3, V, expMean, expCov,
                      qV, hmV, amV, I2q_2, I2q_3, I2hm_2, I2hm_3, I2am_2, I2am_3, ICC_2, ICC_3,
-                     mxFIMLObjective("expCov","expMean", dimnames=paste("y_", 1:k, sep="")),
+                     mxFIMLObjective("expCov","expMean", dimnames=paste("y", 1:k, sep="_")),
                      mxCI(c("inter","coeff","Tau2","Tau3", ci)))
   } else {
     ## no.x > 0
     meta3 <- mxModel(model=model.name, mxData(observed=my.wide[,-1], type="raw"), oneRow, Id, Ones,
                      inter, coeff, mydata, Tau2, Tau3, V, expMean, expCov,
-                     mxFIMLObjective("expCov","expMean", dimnames=paste("y_", 1:k, sep="")),
+                     mxFIMLObjective("expCov","expMean", dimnames=paste("y", 1:k, sep="_")),
                      mxCI(c("inter","coeff","Tau2","Tau3")))
 
     ## Calculate R2

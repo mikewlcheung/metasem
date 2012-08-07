@@ -43,8 +43,8 @@ summary.wls <- function(object, df.adjustment=0, ...) {
 
     dimnames(stat) <- list( c("Sample size", "Chi-square of target model", "DF of target model",
                         "p value of target model", "Number of constraints imposed on \"Smatrix\"",
-                        "DF manually adjusted", "Chi-square of independent model",
-                        "DF of independent model",  "RMSEA", "SRMR", "TLI", "CFI", "AIC", "BIC"), "Value" )
+                        "DF manually adjusted", "Chi-square of independence model",
+                        "DF of independence model",  "RMSEA", "SRMR", "TLI", "CFI", "AIC", "BIC"), "Value" )
    
     ## my.para <- my.mx$parameters       # Worked up to OpenMx1.0.6
     my.para <- my.mx$parameters[, 1:6]   # Fixed for OpenMx1.1 
@@ -86,12 +86,6 @@ summary.wls <- function(object, df.adjustment=0, ...) {
     coefficients$"z value" <- coefficients$Estimate/coefficients$Std.Error
     coefficients$"Pr(>|z|)" <- 2*(1-pnorm(abs(coefficients$"z value")))
 
-    ## Mx.status1 <- object$wls.fit@output$status[[1]]    
-    ## libMatrix <- installed.packages()
-    ## out <- list(call=object$call, coefficients=coefficients, stat=stat, intervals.type=intervals.type,
-    ##             Mx.status1=Mx.status1, R.version=as.character(getRversion()),
-    ##             OpenMx.version=libMatrix["OpenMx", "Version"],
-    ##             metaSEM.version=libMatrix["metaSEM", "Version"], date=date())
     out <- list(call=object$call, coefficients=coefficients, stat=stat, intervals.type=intervals.type,
                 Mx.status1=object$mx.fit@output$status[[1]])
     class(out) <- "summary.wls"
@@ -128,22 +122,16 @@ print.summary.wls <- function(x, ...) {
     ## cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")
 }
 
+## NOTE:
+## 1. The chi-square of the independence model in LISREL is different from other SEM programs.
+## Thus, some GOF in stage 1 analysis are different from tssem1FEM()
+## 2. When there are missing correlations or covariances in TSSEM program (LISREL),
+## they are treated as observed correlations or covariances without any constraint.
+## Thus, the DF of the independence model and some GOF in LISREL are incorrect.
 summary.tssem1FEM <- function(object, ...) {
     if (!is.element("tssem1FEM", class(object)))
     stop("\"object\" must be an object of class \"tssem1FEM\".")
     
-    # it relies on the model name
-    ## if (!is.na(match("TSSEM1 Analysis of Correlation Matrix", object$tssem1.fit@name))) {
-    ##    cor.analysis <- TRUE
-    ## } else {
-    ##    cor.analysis <- FALSE
-    ## }   
-
-    ## if ("Correlation" %in% unlist(strsplit(object$tssem1.fit@name, " "))) {
-    ##   cor.analysis <- TRUE
-    ## } else {
-    ##   cor.analysis <- FALSE
-    ## }
     cor.analysis <- object$cor.analysis
     
     # Calculate the no. of variables based on the implied S
@@ -159,13 +147,26 @@ summary.tssem1FEM <- function(object, ...) {
       ps <- no.var*(no.var-1)/2
     else ps <- no.var*(no.var+1)/2
     n <- object$total.n
-    tT <- object$modelMinus2LL - object$saturatedMinus2LL 
+
+    ## Check error in running independence model
+    if (inherits(object$baseMinus2LL, "error")) {
+      tT <- NA
+      tB <- NA
+      dfB <- NA
+    } else {
+      tT <- object$modelMinus2LL - unname(object$baseMinus2LL["SaturatedLikelihood"])
+      tB <- unname(object$baseMinus2LL["IndependenceLikelihood"]) - unname(object$baseMinus2LL["SaturatedLikelihood"])
+      dfB <- unname(object$baseMinus2LL["independenceDoF"])
+    }
+    
+    ## tT <- object$modelMinus2LL - object$saturatedMinus2LL 
     dfT <- mx.fit$degreesOfFreedom
-    tB <- object$independentMinus2LL - object$saturatedMinus2LL
-    dfB <- mx.fit$degreesOfFreedom + ps
+    ## tB <- object$independentMinus2LL - object$saturatedMinus2LL
+    ## dfB <- mx.fit$degreesOfFreedom + ps
     p <- pchisq(tT, df=dfT, lower.tail=FALSE)
 
     no.groups <- length(object$tssem1.fit@submodels)
+    ## Steiger (1998, Eq. 24) A note on multiple sample extensions of the RMSEA fit indices. SEM, 5(4), 411-419.
     RMSEA <- sqrt(no.groups)*sqrt(max((tT-dfT)/(n-1),0)/dfT)
     ## Hu and Bentler (1998)
     TLI <- (tB/dfB - tT/dfT)/(tB/dfB-1)
@@ -195,8 +196,8 @@ summary.tssem1FEM <- function(object, ...) {
     
     stat <- matrix(c(n, tT, dfT, p, tB, dfB, RMSEA, SRMR, TLI, CFI, AIC, BIC), ncol=1)
     rownames(stat) <- c("Sample size", "Chi-square of target model", "DF of target model",
-                        "p value of target model", "Chi-square of independent model",
-                        "DF of independent model", "RMSEA", "SRMR", "TLI", "CFI", "AIC", "BIC")
+                        "p value of target model", "Chi-square of independence model",
+                        "DF of independence model", "RMSEA", "SRMR", "TLI", "CFI", "AIC", "BIC")
     colnames(stat) <- "Value"
 
     # calculate coefficients    

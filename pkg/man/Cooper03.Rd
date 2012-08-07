@@ -32,7 +32,7 @@ data(Cooper03)
 
 #### ML estimation method
 ## No predictor
-summary( meta3(y=y, v=v, cluster=District, data=Cooper03) )
+summary( model1 <- meta3(y=y, v=v, cluster=District, data=Cooper03) )
 
 ## Show all heterogeneity indices and their 95\% confidence intervals
 summary( meta3(y=y, v=v, cluster=District, data=Cooper03,
@@ -40,7 +40,17 @@ summary( meta3(y=y, v=v, cluster=District, data=Cooper03,
 
 ## Year as a predictor
 summary( meta3(y=y, v=v, cluster=District, x=scale(Year, scale=FALSE),
-data=Cooper03) )
+               data=Cooper03, model.name="Year as a predictor") )
+
+## Equality of level-2 and level-3 heterogeneity
+summary( model2 <- meta3(y=y, v=v, cluster=District, data=Cooper03,
+                         RE2.constraints=matrix("0.2*EqTau2"),
+                         RE3.constraints=matrix("0.2*EqTau2"),
+                         model.name="Equal Tau2") )
+
+## Compare model2 vs. model1
+anova(model1, model2)
+
 
 #### REML estimation method
 ## No predictor
@@ -48,7 +58,7 @@ summary( reml3(y=y, v=v, cluster=District, data=Cooper03) )
 
 ## Level-2 and level-3 variances are constrained equally 
 summary( reml3(y=y, v=v, cluster=District, data=Cooper03,
-               RE.equal=TRUE, model.name="Equal variance") )
+               RE.equal=TRUE, model.name="Equal Tau2") )
 
 ## Year as a predictor
 summary( reml3(y=y, v=v, cluster=District, x=scale(Year, scale=FALSE),

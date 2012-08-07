@@ -36,9 +36,10 @@ Cheung, M. W. L., & Chan, W. (2009). A two-stage approach to synthesizing covari
 \examples{
 data(issp89)
 
+#### Analysis of correlation structure in Cheung and Chan (2005)
 #### Fixed-effects model: Stage 1 analysis
-fixed1 <- tssem1(issp89$data, issp89$n, method="FEM")
-summary(fixed1)
+cor1 <- tssem1(issp89$data, issp89$n, method="FEM", cor.analysis=TRUE)
+summary(cor1)
   
 ## Prepare a model implied matrix
 ## Factor correlation matrix
@@ -73,8 +74,18 @@ A1 <- as.mxMatrix(A1)
 F1 <- create.Fmatrix(c(rep(1,9), rep(0,3)))
   
 #### Fixed-effects model: Stage 2 analysis
-fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, Fmatrix=F1,
-                 diag.constraints=TRUE, intervals.type="LB")
-summary(fixed2)
+cor2 <- tssem2(cor1, Amatrix=A1, Smatrix=S1, Fmatrix=F1,
+               diag.constraints=TRUE, intervals.type="LB")
+summary(cor2)
+
+#### Analysis of covariance structure in Cheung and Chan (2009)
+#### Fixed-effects model: Stage 1 analysis
+cov1 <- tssem1(issp89$data, issp89$n, method="FEM", cor.analysis=FALSE)
+summary(cov1)
+  
+#### Fixed-effects model: Stage 2 analysis
+cov2 <- tssem2(cov1, Amatrix=A1, Smatrix=S1, Fmatrix=F1)
+              
+summary(cov2)
 }
 \keyword{datasets}
