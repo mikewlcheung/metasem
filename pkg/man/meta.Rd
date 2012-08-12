@@ -101,7 +101,7 @@ model.name="Meta analysis with ML", suppressWarnings = TRUE, ...)
 	\code{TRUE}}
   \item{I2}{Types of I2 calculated}
   \item{R2}{Logical}
-  \item{meta.fit}{A fitted object returned from
+  \item{mx.fit}{A fitted object returned from
 	\code{\link[OpenMx]{mxRun}}}
 }
 \references{

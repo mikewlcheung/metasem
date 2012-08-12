@@ -113,22 +113,22 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
     eval(parse(text = tssem1.model))
     
     # try to run it with error message as output
-    ## tssem1.fit <- mxRun(tssem1)
-    tssem1.fit <- tryCatch(mxRun(tssem1, suppressWarnings = suppressWarnings, ...),
+    ## mx.fit <- mxRun(tssem1)
+    mx.fit <- tryCatch(mxRun(tssem1, suppressWarnings = suppressWarnings, ...),
                            error = function(e) e)
-    if (inherits(tssem1.fit, "error")) 
-        stop(print(tssem1.fit))
+    if (inherits(mx.fit, "error")) 
+        stop(print(mx.fit))
     
-    pooledS <- eval(parse(text = "mxEval(S, tssem1.fit)"))
+    pooledS <- eval(parse(text = "mxEval(S, mx.fit)"))
 
     # Fixed a bug that all elements have to be inverted before selecting some of them
     if (cor.analysis) {
-        #Hessian_S <- 0.5*tssem1.fit@output$calculatedHessian[vechs(ps.labels), vechs(ps.labels)]
-        acovS <- tryCatch( 2*solve(tssem1.fit@output$calculatedHessian)[vechs(ps.labels),
+        #Hessian_S <- 0.5*mx.fit@output$calculatedHessian[vechs(ps.labels), vechs(ps.labels)]
+        acovS <- tryCatch( 2*solve(mx.fit@output$calculatedHessian)[vechs(ps.labels),
                            vechs(ps.labels)], error = function(e) e) 
     } else {
-        #Hessian_S <- 0.5*tssem1.fit@output$calculatedHessian[vech(ps.labels), vech(ps.labels)]
-        acovS <-  tryCatch( 2*solve(tssem1.fit@output$calculatedHessian)[vech(ps.labels), 
+        #Hessian_S <- 0.5*mx.fit@output$calculatedHessian[vech(ps.labels), vech(ps.labels)]
+        acovS <-  tryCatch( 2*solve(mx.fit@output$calculatedHessian)[vech(ps.labels), 
                             vech(ps.labels)], error = function(e) e)
     }
     # Issue a warning instead of error message
@@ -160,8 +160,8 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
 
     out <- list(call = match.call(), cor.analysis=cor.analysis, data=my.df, pooledS = pooledS,
                 acovS = acovS, total.n = total.n, 
-                modelMinus2LL = tssem1.fit@output$Minus2LogLikelihood,
-                baseMinus2LL = baseMinus2LL, tssem1.fit = tssem1.fit)
+                modelMinus2LL = mx.fit@output$Minus2LogLikelihood,
+                baseMinus2LL = baseMinus2LL, mx.fit = mx.fit)
     class(out) <- "tssem1FEM"
     return(out)
   }
@@ -202,15 +202,15 @@ tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE.diag.only=FALSE, RE.startv
   
   if (RE.diag.only==TRUE) {
     ## No covariance between random effects
-    meta.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2,
+    mx.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2,
                      RE.constraints=diag(x=paste(RE.startvalues, "*Tau2_", 1:no.es, "_", 1:no.es, sep=""),
                                          nrow=no.es, ncol=no.es), RE.lbound=RE.lbound)    
   } else {
-    meta.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2, RE.startvalues=RE.startvalues, RE.lbound=RE.lbound)
+    mx.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2, RE.startvalues=RE.startvalues, RE.lbound=RE.lbound)
   }
 
   out <- list(total.n=sum(n), cor.analysis=cor.analysis, RE.diag.only=RE.diag.only, no.es=no.es)
-  out <- c(out, meta.fit)
+  out <- c(out, mx.fit)
   class(out) <- c("tssem1REM", "meta")
   return(out)
 }
@@ -283,16 +283,16 @@ tssem1 <- function(my.df, n, method=c("FEM", "REM"), cor.analysis=TRUE, cluster=
 ##             intervals, ", suppressWarnings = ", suppressWarnings, ", ... )", sep = "")
 ##     }
     
-##     wls.fit <- tryCatch(eval(parse(text = text1)), error = function(e) e)
+##     mx.fit <- tryCatch(eval(parse(text = text1)), error = function(e) e)
     
 ##     # try to run it with error message as output
-##     if (inherits(wls.fit, "error")) {
+##     if (inherits(mx.fit, "error")) {
 ##         cat("Error in running the mxModel:\n")
-##         stop(print(wls.fit))
+##         stop(print(mx.fit))
 ##     } else {
 ##         out <- list(call = match.call(), noObservedStat=ps, n=n, cor.analysis=cor.analysis,
 ##                     indepModelChisq=.indepwlsChisq(S=S, acovS=acovS, cor.analysis=cor.analysis),
-##                     indepModelDf=no.var*(no.var-1)/2, wls.fit=wls.fit)
+##                     indepModelDf=no.var*(no.var-1)/2, mx.fit=mx.fit)
 ##         class(out) <- 'wls'
 ##     }
 ##     out

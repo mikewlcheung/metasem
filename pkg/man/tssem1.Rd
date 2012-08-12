@@ -79,12 +79,10 @@ tssem1REM(my.df, n, cor.analysis = TRUE, RE.diag.only = FALSE,
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{ \code{\link[metaSEM]{wls}}
+\seealso{ \code{\link[metaSEM]{wls}},
+    \code{\link[metaSEM]{Becker92}}, \code{\link[metaSEM]{Digman97}}, \code{\link[metaSEM]{issp89}}, \code{\link[metaSEM]{issp05}}
 }
 \examples{
-## Fixed-effects TSSEM
-digmanFixed1 <- tssem1(Digman97$data, Digman97$n)
-summary(digmanFixed1)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

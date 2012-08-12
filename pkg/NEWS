@@ -1,5 +1,7 @@
-Release 0.7-1 (Jul 31, 2012)
+Release 0.7-1 (Aug 9, 2012)
 ====================================
+* Added rerun() to refit models
+* Renamed all mx fitted objects to mx.fit
 * Fixed a bug in .minus2LL(), tssem1FEM() and summary.tssem1FEM in calculating the df of the independence model when cor.analysis=FALSE
 * Fixed a bug in tssem1REM() that my.df is a list of covariance matrices when cor.analysis=TRUE
 * Fixed a bug in calculating acov (solve()) in asyCov(), indirectEffect, tssem1.FE()

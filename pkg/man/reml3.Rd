@@ -74,7 +74,7 @@ An alternative but equivalent approach is to minimize the
   % \item{no.y}{No. of effect sizes}
   % \item{no.x}{No. of predictors}
   % \item{miss.vec}{A vector indicating missing data. Studies will be removed before the analysis if they are \code{TRUE}}
-  \item{reml.fit}{A fitted object returned from	\code{\link[OpenMx]{mxRun}}}
+  \item{mx.fit}{A fitted object returned from	\code{\link[OpenMx]{mxRun}}}
 }
 \references{
   Cheung, M. W. L. (in press). Implementing restricted maximum likelihood (REML) estimation in structural equation models. \emph{Structural Equation Modeling.}
@@ -98,7 +98,7 @@ An alternative but equivalent approach is to minimize the
   a likelihood function is directly employed to obtain the parameter
   estimates, there is no number of studies and number of observed statistics
   returned by \code{\link[OpenMx]{mxRun}}. Ad-hoc calculations are used
-  to modify \code{reml.fit@runstate$objectives[[1]]@numObs} and \code{reml.fit@runstate$objectives[[1]]@numStats}.
+  to modify \code{mx.fit@runstate$objectives[[1]]@numObs} and \code{mx.fit@runstate$objectives[[1]]@numStats}.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

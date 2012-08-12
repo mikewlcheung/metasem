@@ -145,7 +145,7 @@ meta <- function(y, v, x, data, intercept.constraints, coef.constraints,
   expCov <- mxAlgebra(V+Tau, name="expCov")
 
   ## Assuming NA first
-  meta0.fit <- NA  
+  mx0.fit <- NA  
   if (no.x==0) {
 
     I2 <- match.arg(I2, c("I2q", "I2hm", "I2am"), several.ok=TRUE)
@@ -188,7 +188,7 @@ meta <- function(y, v, x, data, intercept.constraints, coef.constraints,
                     Beta, expMean, X, expCov, Tau, V, mxCI(c("Tau","Beta")))
 
     ## Calculate R2
-    if (R2) meta0.fit <- tryCatch( meta(y=y, v=v, data=my.df, model.name="No predictor",
+    if (R2) mx0.fit <- tryCatch( meta(y=y, v=v, data=my.df, model.name="No predictor",
                                    suppressWarnings=TRUE, silent=TRUE), error = function(e) e )    
   }
 
@@ -200,18 +200,18 @@ meta <- function(y, v, x, data, intercept.constraints, coef.constraints,
   intervals.type <- match.arg(intervals.type)
   # Default is z
   switch(intervals.type,
-    z = meta.fit <- tryCatch( mxRun(meta, intervals=FALSE,
+    z = mx.fit <- tryCatch( mxRun(meta, intervals=FALSE,
                                     suppressWarnings = suppressWarnings, ...), error = function(e) e ),
-    LB = meta.fit <- tryCatch( mxRun(meta, intervals=TRUE,
+    LB = mx.fit <- tryCatch( mxRun(meta, intervals=TRUE,
                                      suppressWarnings = suppressWarnings, ...), error = function(e) e ) )
  
-  if (inherits(meta.fit, "error")) {
+  if (inherits(mx.fit, "error")) {
     cat("Error in running mxModel:\n")
-    warning(print(meta.fit))
+    warning(print(mx.fit))
   }
   
   out <- list(call=mf, data=input.df, no.y=no.y, no.x=no.x,
-              miss.x=miss.x, I2=I2, R2=R2, meta.fit=meta.fit, meta0.fit=meta0.fit)
+              miss.x=miss.x, I2=I2, R2=R2, mx.fit=mx.fit, mx0.fit=mx0.fit)
   class(out) <- "meta"
   return(out)
 }

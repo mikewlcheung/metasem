@@ -128,7 +128,7 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints, coef.constraint
   expCov <- mxAlgebra( Ones %x% Tau3 + Id %x% Tau2 + V, name="expCov")
   
   ## Assuming NA first
-  meta0.fit <- NA  
+  mx0.fit <- NA  
   if (no.x==0) {
 
     ## Calculate I2
@@ -152,15 +152,16 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints, coef.constraint
     I2hm_3 <- mxAlgebra( Tau3/(Tau2+Tau3+hmV), name="I2hm_3")  
     I2am_2 <- mxAlgebra( Tau2/(Tau2+Tau3+amV), name="I2am_2")
     I2am_3 <- mxAlgebra( Tau3/(Tau2+Tau3+amV), name="I2am_3") 
-    ICC_2 <- mxAlgebra( Tau2/(Tau2+Tau3), name="ICC_2")
-    ICC_3 <- mxAlgebra( Tau3/(Tau2+Tau3), name="ICC_3")
-   
-    I2 <- match.arg(I2, c("I2q", "I2hm", "I2am", "ICC"), several.ok=TRUE)
+    ## ICC_2 <- mxAlgebra( Tau2/(Tau2+Tau3), name="ICC_2")
+    ## ICC_3 <- mxAlgebra( Tau3/(Tau2+Tau3), name="ICC_3")
+    ## I2 <- match.arg(I2, c("I2q", "I2hm", "I2am", "ICC"), several.ok=TRUE)
+
+    I2 <- match.arg(I2, c("I2q", "I2hm", "I2am"), several.ok=TRUE)
     ci <- c(outer(I2, c("_2","_3"), paste, sep=""))
     
     meta3 <- mxModel(model=model.name, mxData(observed=my.wide[,-1], type="raw"), oneRow, Id, Ones,
                      inter, coeff, mydata, Tau2, Tau3, V, expMean, expCov,
-                     qV, hmV, amV, I2q_2, I2q_3, I2hm_2, I2hm_3, I2am_2, I2am_3, ICC_2, ICC_3,
+                     qV, hmV, amV, I2q_2, I2q_3, I2hm_2, I2hm_3, I2am_2, I2am_3, #ICC_2, ICC_3,
                      mxFIMLObjective("expCov","expMean", dimnames=paste("y", 1:k, sep="_")),
                      mxCI(c("inter","coeff","Tau2","Tau3", ci)))
   } else {
@@ -171,28 +172,28 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints, coef.constraint
                      mxCI(c("inter","coeff","Tau2","Tau3")))
 
     ## Calculate R2
-    if (R2) meta0.fit <- tryCatch( meta3(y=y, v=v, cluster=cluster, data=my.long, model.name="No predictor",
+    if (R2) mx0.fit <- tryCatch( meta3(y=y, v=v, cluster=cluster, data=my.long, model.name="No predictor",
                                    suppressWarnings=TRUE, silent=TRUE), error = function(e) e )    
   }
   
   intervals.type <- match.arg(intervals.type)
   # Default is z
   switch(intervals.type,
-    z = meta.fit <- tryCatch( mxRun(meta3, intervals=FALSE,
+    z = mx.fit <- tryCatch( mxRun(meta3, intervals=FALSE,
                                     suppressWarnings = suppressWarnings, ...), error = function(e) e ),
-    LB = meta.fit <- tryCatch( mxRun(meta3, intervals=TRUE,
+    LB = mx.fit <- tryCatch( mxRun(meta3, intervals=TRUE,
                                      suppressWarnings = suppressWarnings, ...), error = function(e) e ) )
  
-  if (inherits(meta.fit, "error")) {
+  if (inherits(mx.fit, "error")) {
     cat("Error in running the mxModel:\n")
-    stop(print(meta.fit))
+    stop(print(mx.fit))
   }
 
   ## my.long is complete data
   ## FIXME: remove miss.x (is it used by meta()?)
   out <- list(call=mf, I2=I2, R2=R2, data.wide=my.wide, data=my.long,
               no.y=1, no.x=no.x, miss.x=rep(FALSE, nrow(my.long)), 
-              meta.fit=meta.fit, meta0.fit=meta0.fit)
+              mx.fit=mx.fit, mx0.fit=mx0.fit)
   class(out) <- c("meta", "meta3")
   return(out)
 }

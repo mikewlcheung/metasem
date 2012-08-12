@@ -188,22 +188,22 @@ reml <- function(y, v, x, data, RE.constraints, RE.startvalues=0.1, RE.lbound=1e
   intervals.type <- match.arg(intervals.type)
   # Default is z
   switch(intervals.type,
-    z = reml.fit <- tryCatch( mxRun(reml.model, intervals=FALSE,
+    z = mx.fit <- tryCatch( mxRun(reml.model, intervals=FALSE,
                                     suppressWarnings = suppressWarnings, ...), error = function(e) e ),
-    LB = reml.fit <- tryCatch( mxRun(reml.model, intervals=TRUE,
+    LB = mx.fit <- tryCatch( mxRun(reml.model, intervals=TRUE,
                                      suppressWarnings = suppressWarnings, ...), error = function(e) e ) )
  
-  if (inherits(reml.fit, "error")) {
+  if (inherits(mx.fit, "error")) {
     cat("Error in running the mxModel:\n")
-    warning(print(reml.fit))
+    warning(print(mx.fit))
   }
 
   ## Ad-hoc: Add no. of studies and no. of observed statistics
-  reml.fit@runstate$objectives[[1]]@numObs <- no.studies
-  reml.fit@runstate$objectives[[1]]@numStats <- numStats
+  mx.fit@runstate$objectives[[1]]@numObs <- no.studies
+  mx.fit@runstate$objectives[[1]]@numStats <- numStats
   
   out <- list(call = mf, data=input.df, no.y=no.y, no.x=no.x, miss.vec=miss.vec,
-              reml.fit=reml.fit)
+              mx.fit=mx.fit)
   class(out) <- "reml"
   return(out)
 }

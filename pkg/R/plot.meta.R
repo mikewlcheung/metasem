@@ -78,7 +78,7 @@ plot.meta <- function(x, effect.sizes, add.margin=0.1, interval=0.95,
     my.rand <- vech(outer(effect.sizes, effect.sizes,
                           function(x,y) { paste("Tau2_",x,"_",y,sep="")}))
     # Names of all parameter estimates
-    para.names <- summary(x$meta.fit)$parameters$name
+    para.names <- summary(x$mx.fit)$parameters$name
     RE <- rep(NA, 3)
     # Extract variance components in the parameter estimates
     RE[my.rand %in% para.names] <- coef(x)[my.rand[my.rand %in% para.names]]
