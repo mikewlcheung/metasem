@@ -82,6 +82,11 @@ summary.wls <- function(object, df.adjustment=0, ...) {
       coefficients <- coefficients[order(coefficients$matrix, coefficients$row, coefficients$col), ]
       coefficients <- coefficients[, -c(1:4, 8)]
 	  intervals.type="LB"
+
+      # NA for LBCI
+      coefficients$Std.Error <- NA
+      ## coefficients$"z value" <- NA
+      ## coefficients$"Pr(>|z|)" <- NA        
     }
     coefficients$"z value" <- coefficients$Estimate/coefficients$Std.Error
     coefficients$"Pr(>|z|)" <- 2*(1-pnorm(abs(coefficients$"z value")))
@@ -340,7 +345,12 @@ summary.meta <- function(object, homoStat=TRUE, ...) {
       # remove rows with missing labels
       my.para <- my.para[!is.na(my.para$label), , drop=FALSE]
       coefficients <- my.para[, -c(1:4,7,9)]
-      dimnames(coefficients)[[1]] <- my.para$label 
+      dimnames(coefficients)[[1]] <- my.para$label
+
+      # NA for LBCI
+      coefficients$Std.Error <- NA
+      ## coefficients$"z value" <- NA
+      ## coefficients$"Pr(>|z|)" <- NA         
     }
     coefficients$"z value" <- coefficients$Estimate/coefficients$Std.Error
     coefficients$"Pr(>|z|)" <- 2*(1-pnorm(abs(coefficients$"z value")))
@@ -541,7 +551,12 @@ summary.reml <- function(object, ...) {
       # remove rows with missing labels
       my.para <- my.para[!is.na(my.para$label), ]
       coefficients <- my.para[, -c(1:4,7,9)]
-      dimnames(coefficients)[[1]] <- my.para$label 
+      dimnames(coefficients)[[1]] <- my.para$label
+
+      # NA for LBCI
+      coefficients$Std.Error <- NA
+      ## coefficients$"z value" <- NA
+      ## coefficients$"Pr(>|z|)" <- NA     
     } # is.null(dimnames(my.ci))
       
     coefficients$"z value" <- coefficients$Estimate/coefficients$Std.Error

@@ -11,13 +11,13 @@
 }
 \usage{
 tssem1(my.df, n, method=c("FEM","REM"), cor.analysis = TRUE, cluster=NULL,
-       RE.diag.only=FALSE, RE.startvalues=0.1, RE.lbound = 1e-10, I2="I2q",
+       RE.type=c("Symm", "Diag", "Zero"), RE.startvalues=0.1, RE.lbound=1e-10, I2="I2q",
        model.name=NULL, suppressWarnings=TRUE, ...)
-tssem1FEM(my.df, n, cor.analysis = TRUE, model.name = NULL,
+tssem1FEM(my.df, n, cor.analysis=TRUE, model.name=NULL,
           cluster = NULL, suppressWarnings = TRUE, ...)
-tssem1REM(my.df, n, cor.analysis = TRUE, RE.diag.only = FALSE,
-          RE.startvalues = 0.1, RE.lbound = 1e-10, I2="I2q", model.name = NULL,
-          suppressWarnings = TRUE, ...)
+tssem1REM(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Zero"),
+          RE.startvalues=0.1, RE.lbound=1e-10, I2="I2q", model.name=NULL,
+          suppressWarnings=TRUE, ...)
 }
 \arguments{
   \item{my.df}{A list of correlation/covariance matrices
@@ -34,19 +34,26 @@ tssem1REM(my.df, n, cor.analysis = TRUE, RE.diag.only = FALSE,
 	clusters. Analyses will be conducted for each cluster. It will be
 	ignored when \code{method="REM"}.
   }
-  \item{RE.diag.only}{Logical. If it is \code{TRUE} (default if missing),
-	there are only random effects on the specific correlation/covariance elements
-	while the correlation/covariance elments are assumed independent. If
-	it is \code{FALSE}, there are random effects on the covariances
-	among the correlation/covariance elements. It will be ignored when \code{method="FEM"}.}
+  \item{RE.type}{Either \code{"Symm"}, \code{"Diag"} or
+	\code{"Zero"}. If it is \code{"Symm"} (default if missing), a
+	symmetric matrix is used for the random effects on the covariances
+	among the correlation (or covariance) vectors. If it is
+	\code{"Diag"}, a diagonal matrix is used for the random effects
+	meaning that the random effects are independent. If it is
+	\code{"Zero"}, there is no random effects which is equivalent to the
+	conventional Generalized Least Squares (GLS) approach to
+	fixed-effects analysis. This argument will be ignored when \code{method="FEM"}.}
   \item{RE.startvalues}{Starting values on the
 	diagonals of the variance component of the random effects. It will be ignored when \code{method="FEM"}.}
   \item{RE.lbound}{Lower bounds on the diagonals of the variance
 	component of the random effects. It will be ignored when
 	\code{method="FEM"}.}
   \item{I2}{Possible options are \code{"I2q"}, \code{"I2hm"} and
-	\code{"I2am"}. More than one options are possible. If \code{intervals.type="LB"}, 95\% confidence intervals on the heterogeneity indices will be constructed. (See the details.)
-  }
+	\code{"I2am"}. They represent the \code{I2} calculated by using a
+	typical within-study sampling variance from the Q statistic, the
+	harmonic mean and the arithmatic mean of the within-study sampling
+	variances (Xiong, Miller, & Morris, 2010). More than one options are possible. If \code{intervals.type="LB"}, 95\% confidence intervals on the heterogeneity indices will be constructed. 
+  }  
   \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. 
   }  
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
@@ -79,7 +86,7 @@ tssem1REM(my.df, n, cor.analysis = TRUE, RE.diag.only = FALSE,
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{ \code{\link[metaSEM]{wls}},
+\seealso{ \code{\link[metaSEM]{wls}}, \code{\link[metaSEM]{Cheung09}},
     \code{\link[metaSEM]{Becker92}}, \code{\link[metaSEM]{Digman97}}, \code{\link[metaSEM]{issp89}}, \code{\link[metaSEM]{issp05}}
 }
 \examples{

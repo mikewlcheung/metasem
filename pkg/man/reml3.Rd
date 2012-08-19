@@ -1,6 +1,6 @@
 \name{reml3}
 \alias{reml3}
-\title{Extract Variance Components in Three-Level Univariate
+\title{Estimate Variance Components in Three-Level Univariate
   Meta-Analysis with Restricted (Residual) Maximum
   Likelihood Estimation
 }
@@ -79,25 +79,21 @@ An alternative but equivalent approach is to minimize the
 \references{
   Cheung, M. W. L. (in press). Implementing restricted maximum likelihood (REML) estimation in structural equation models. \emph{Structural Equation Modeling.}
 
-  Cheung, M. W. L. (2012). Modeling three-level meta-analyses as
-  structural equation models. \emph{Manuscript in preparation}.
+  Cheung, M. W. L. (2012). Three-level meta-analyses as structural equation models. \emph{Manuscript in preparation}.
 	
   Mehta, P. D., & Neale, M. C. (2005). People Are Variables Too: Multilevel Structural Equations Modeling. \emph{Psychological
   	Methods}, \bold{10(3)}, 259-284.
 
   Searle, S. R., Casella, G., & McCulloch, C. E. (1992). \emph{Variance components}. New York: Wiley.
-  
-  Viechtbauer, W. (2005). Bias and efficiency of meta-analytic variance estimators in the random-effects model. \emph{Journal of Educational and Behavioral Statistics}, \bold{30(3)}, 261-293.
-  
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 %%  ~~who you are~~
 }
 \note{ \code{reml} is more computional intensive than \code{meta}. Moreover, \code{reml} is more
-  likely than \code{meta} to encounter errors during optimization. Since
+  likely to encounter errors during optimization. Since
   a likelihood function is directly employed to obtain the parameter
   estimates, there is no number of studies and number of observed statistics
-  returned by \code{\link[OpenMx]{mxRun}}. Ad-hoc calculations are used
+  returned by \code{\link[OpenMx]{mxRun}}. Ad-hoc steps are used
   to modify \code{mx.fit@runstate$objectives[[1]]@numObs} and \code{mx.fit@runstate$objectives[[1]]@numStats}.
 }
 

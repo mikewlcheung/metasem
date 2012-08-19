@@ -13,8 +13,7 @@ easily imposed by setting the same labels on the parameter estimates.
 \usage{
 meta(y, v, x, data, intercept.constraints, coef.constraints, RE.constraints,
 RE.startvalues=0.1, RE.lbound = 1e-10, intervals.type = c("z", "LB"),
-I2="I2q", R2=TRUE,
-model.name="Meta analysis with ML", suppressWarnings = TRUE, ...)
+I2="I2q", R2=TRUE, model.name="Meta analysis with ML", suppressWarnings = TRUE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -76,10 +75,13 @@ model.name="Meta analysis with ML", suppressWarnings = TRUE, ...)
 	related to the likelihood-based CIs.
   }
   \item{I2}{Possible options are \code{"I2q"}, \code{"I2hm"} and
-	\code{"I2am"}. More than one options are possible. If \code{intervals.type="LB"}, 95\% confidence intervals on the heterogeneity indices will be constructed. (See the details.)
+	\code{"I2am"}. They represent the \code{I2} calculated by using a
+	typical within-study sampling variance from the Q statistic, the
+	harmonic mean and the arithmatic mean of the within-study sampling
+	variances (Xiong, Miller, & Morris, 2010). More than one options are possible. If \code{intervals.type="LB"}, 95\% confidence intervals on the heterogeneity indices will be constructed. 
   }
-  \item{R2}{Logical. If \code{TRUE} and there are predictors, R2 are
-	calculated.
+  \item{R2}{Logical. If \code{TRUE} and there are predictors, R2 is
+	calculated (Raudenbush, 2009). 
   }
   \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. 
 	}
@@ -103,6 +105,8 @@ model.name="Meta analysis with ML", suppressWarnings = TRUE, ...)
   \item{R2}{Logical}
   \item{mx.fit}{A fitted object returned from
 	\code{\link[OpenMx]{mxRun}}}
+  \item{mx0.fit}{A fitted object without any predictor returned from
+	\code{\link[OpenMx]{mxRun}}}
 }
 \references{
   Cheung, M. W. L. (2008). A model for integrating fixed-, random-, and
@@ -121,7 +125,12 @@ model.name="Meta analysis with ML", suppressWarnings = TRUE, ...)
   \bold{15}, 619-629.
   
   Neale, M. C., & Miller, M. B. (1997). The use of likelihood-based
-  confidence intervals in genetic models. \emph{Behavior Genetics}, \bold{27}, 113-120.
+  confidence intervals in genetic models. \emph{Behavior Genetics},
+  \bold{27}, 113-120.
+
+  Raudenbush, S. W. (2009). Analyzing effect sizes: random effects models. In H. M. Cooper, L. V. Hedges, & J. C. Valentine (Eds.), \emph{The handbook of research synthesis and meta-analysis} (2nd ed., pp. 295-315). New York: Russell Sage Foundation.
+
+  Xiong, C., Miller, J. P., & Morris, J. C. (2010). Measuring study-specific heterogeneity in meta-analysis: application to an antecedent biomarker study of alzheimer's disease. \emph{Statistics in Biopharmaceutical Research}, \bold{2(3)}, 300-309. doi:10.1198/sbr.2009.0067
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
@@ -133,7 +142,8 @@ model.name="Meta analysis with ML", suppressWarnings = TRUE, ...)
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{\code{\link[metaSEM]{reml}}, \code{\link[metaSEM]{Hox02}}, \code{\link[metaSEM]{Berkey98}}
+\seealso{\code{\link[metaSEM]{reml}}, \code{\link[metaSEM]{Hox02}},
+  \code{\link[metaSEM]{Berkey98}}, \code{\link[metaSEM]{wvs94}}
 }
 \examples{
 

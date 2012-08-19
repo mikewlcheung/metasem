@@ -44,7 +44,7 @@ OR <- with(coef(meta1), exp(c(Estimate[1], lbound[1], ubound[1])))
 names(OR) <- c("Estimate in OR", "lbound in OR", "ubound in OR")
 OR
   
-## Mixed-effects meta-analysis with mean age as a covariate
+## Mixed-effects meta-analysis with mean age as a predictor
 summary( meta(y=yi, v=vi, x=age.mean, data=Mak09) )
 }
 \keyword{datasets}

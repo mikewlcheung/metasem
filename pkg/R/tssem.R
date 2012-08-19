@@ -167,7 +167,7 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
   }
 }
 
-tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE.diag.only=FALSE, RE.startvalues=0.1, RE.lbound = 1e-10,
+tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Zero"), RE.startvalues=0.1, RE.lbound = 1e-10,
                       I2="I2q", model.name=NULL, suppressWarnings=TRUE, ...) {
   ## It handles missing effect sizes rather than missing correlations. Thus, it is more flexible than tssem1FEM().
   ## ACOV is calculated without missing data by assuming 1 and 0 for the missing variances and covariances.
@@ -185,7 +185,9 @@ tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE.diag.only=FALSE, RE.startv
   ## When cor.analysis=TRUE, the old version just takes the lower triangle without converting covariance into correlation.
   if (cor.analysis) {
     ## Convert possible covariance matrices into correlation matrices
-    ES <- list2matrix(x=lapply(my.df, cov2cor), diag=FALSE)
+    ## When there are NA in diagonas, they become 1 after cov2cor()
+    ## It is fine as the diagonals are not used in cor.analysis=TRUE
+    ES <- list2matrix(x=suppressWarnings(lapply(my.df, cov2cor)), diag=FALSE)
   } else {
     ES <- list2matrix(x=my.df, diag=TRUE)
   } 
@@ -199,30 +201,39 @@ tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE.diag.only=FALSE, RE.startv
       model.name <- "TSSEM1 (Random Effects Model) Analysis of Covariance Matrix"
     }
   }
-  
-  if (RE.diag.only==TRUE) {
-    ## No covariance between random effects
-    mx.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2,
-                     RE.constraints=diag(x=paste(RE.startvalues, "*Tau2_", 1:no.es, "_", 1:no.es, sep=""),
-                                         nrow=no.es, ncol=no.es), RE.lbound=RE.lbound)    
-  } else {
-    mx.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2, RE.startvalues=RE.startvalues, RE.lbound=RE.lbound)
-  }
 
-  out <- list(total.n=sum(n), cor.analysis=cor.analysis, RE.diag.only=RE.diag.only, no.es=no.es)
+  RE.type <- match.arg(RE.type)
+  switch( RE.type,
+         Symm = mx.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2, RE.startvalues=RE.startvalues,
+                               RE.lbound=RE.lbound),
+         Diag = mx.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2,
+                               RE.constraints=diag(x=paste(RE.startvalues, "*Tau2_", 1:no.es, "_", 1:no.es, sep=""),
+                                              nrow=no.es, ncol=no.es), RE.lbound=RE.lbound),
+         Zero = mx.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2, RE.constraints=matrix(0, ncol=no.es, nrow=no.es)) )
+  
+  ## if (RE.diag.only==TRUE) {
+  ##   ## No covariance between random effects
+  ##   mx.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2,
+  ##                    RE.constraints=diag(x=paste(RE.startvalues, "*Tau2_", 1:no.es, "_", 1:no.es, sep=""),
+  ##                                        nrow=no.es, ncol=no.es), RE.lbound=RE.lbound)    
+  ## } else {
+  ##   mx.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2, RE.startvalues=RE.startvalues, RE.lbound=RE.lbound)
+  ## }
+
+  out <- list(total.n=sum(n), cor.analysis=cor.analysis, RE.type=RE.type, no.es=no.es)
   out <- c(out, mx.fit)
   class(out) <- c("tssem1REM", "meta")
   return(out)
 }
 
 tssem1 <- function(my.df, n, method=c("FEM", "REM"), cor.analysis=TRUE, cluster=NULL,
-                   RE.diag.only=FALSE, RE.startvalues=0.1, RE.lbound = 1e-10, I2="I2q",
+                   RE.type=c("Symm", "Diag", "Zero"), RE.startvalues=0.1, RE.lbound=1e-10, I2="I2q",
                    model.name=NULL, suppressWarnings=TRUE, ...) {
   method <- match.arg(method)
   switch(method,
     FEM = out <- tssem1FEM(my.df=my.df, n=n, cor.analysis=cor.analysis, model.name=model.name,
                           cluster=cluster, suppressWarnings=suppressWarnings, ...),
-    REM = out <- tssem1REM(my.df=my.df, n=n, cor.analysis=cor.analysis, RE.diag.only=RE.diag.only,
+    REM = out <- tssem1REM(my.df=my.df, n=n, cor.analysis=cor.analysis, RE.type=RE.type,
                           RE.startvalues=RE.startvalues, RE.lbound=RE.lbound, I2=I2,
                           model.name=model.name, suppressWarnings=suppressWarnings, ...) )
   out  

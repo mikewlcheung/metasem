@@ -84,8 +84,7 @@ cov1 <- tssem1(issp89$data, issp89$n, method="FEM", cor.analysis=FALSE)
 summary(cov1)
   
 #### Fixed-effects model: Stage 2 analysis
-cov2 <- tssem2(cov1, Amatrix=A1, Smatrix=S1, Fmatrix=F1)
-              
+cov2 <- tssem2(cov1, Amatrix=A1, Smatrix=S1, Fmatrix=F1)              
 summary(cov2)
 }
 \keyword{datasets}

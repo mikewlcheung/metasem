@@ -9,10 +9,11 @@
   analysis of the two-stage strutural equation modeling (TSSEM). \code{tssem2} is a wrapper of \code{wls}.
 }
 \usage{
-wls(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=FALSE, cor.analysis = TRUE,
-    intervals.type = c("z", "LB"), model.name=NULL, suppressWarnings = TRUE, ...)
-tssem2(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=FALSE, intervals.type = c("z", "LB"),
-       model.name=NULL, suppressWarnings = TRUE, ...) 
+wls(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=FALSE,
+    cor.analysis=TRUE, intervals.type=c("z", "LB"), model.name=NULL,
+    suppressWarnings=TRUE, ...)
+tssem2(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=FALSE,
+       intervals.type=c("z", "LB"), model.name=NULL, suppressWarnings=TRUE, ...) 
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -33,13 +34,13 @@ tssem2(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=FA
   \item{Smatrix}{A matrix of symmetric matrix in the RAM approach with \code{\link[OpenMx]{MxMatrix-class}}.
 }
   \item{Fmatrix}{A matrix of filter matrix in the RAM approach with
-	\code{\link[OpenMx]{MxMatrix-class}}. If it is \code{NULL}, an
+	\code{\link[OpenMx]{MxMatrix-class}}. If it is \code{NULL} (the default), an
 	identity matrix with the same dimensions of \code{S} will be created.
 }  
 \item{diag.constraints}{Logical. If \code{cor.analysis=TRUE}, this
   argument constrains the diagonals at 1. The drawback is that standard
   error will not be generated. Users may use \code{intervals.type="LB"}
-  to test the significance of the parameter estimates.
+  to obtain the likelihood-based confidence intervals of the parameter estimates.
 }
   \item{cor.analysis}{Logical. Analysis of correlation or covariance structure. If \code{cor.analysis=TRUE}, \code{\link[OpenMx]{vechs}} is used to vectorize \code{S}; otherwise, \code{\link[OpenMx]{vech}} is used to vectorize \code{S}.
 }
@@ -80,16 +81,16 @@ by \code{.indepwlsChisq}}
 \references{
 Bentler, P.M., & Savalei, V. (2010). Analysis of correlation structures: current status and open problems. In Kolenikov, S., Thombs, L., & Steinley, D. (Eds.). \emph{Recent Methodological Developments in Social Science Statistics} (pp. 1-36). Hoboken, NJ: Wiley. 
 
-  Cheung, M. W. L. (2011). Applications of meta-analytic structural
-  equation modeling. \emph{Manuscript in preparation.}
+Cheung, M. W. L. (2010). Fixed-effects meta-analyses as multiple-group structural equation models. \emph{Structural Equation Modeling}, \bold{17}, 481-509.
+
+Cheung, M. W. L. (2011). Applications of meta-analytic structural equation modeling. \emph{Manuscript in preparation.}
 
 Cheung, M. W. L., & Chan, W. (2005). Meta-analytic structural equation modeling: A two-stage approach. \emph{Psychological Methods}, \bold{10}, 40-64.
 
 Cheung, M. W. L., & Chan, W. (2009). A two-stage approach to synthesizing covariance matrices in meta-analytic structural equation modeling. \emph{Structural Equation Modeling}, \bold{16}, 28-53.
 
 Joreskog, K. G., Sorbom, D., Du Toit, S., & Du Toit,
-M. (1999). \emph{LISREL 8: New Statistical Features.} Chicago:
-Scientific Software International.
+M. (1999). \emph{LISREL 8: New Statistical Features.} Chicago: Scientific Software International.
 
 McArdle, J. J., & MacDonald, R. P. (1984). Some algebraic properties of the Reticular Action Model for moment structures. \emph{British Journal of Mathematical and Statistical Psychology}, \bold{37}, 234-251. 
 }

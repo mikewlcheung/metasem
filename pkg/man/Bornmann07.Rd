@@ -1,7 +1,7 @@
 \name{Bornmann07}
 \alias{Bornmann07}
 \docType{data}
-\title{A dataset from Bornmann et al. (2007)}
+\title{A Dataset from Bornmann et al. (2007)}
 \description{
   A dataset from Bornmann et al. (2007) for three-level meta-analysis.
 }

@@ -28,6 +28,11 @@ Hedges, L. V., & Olkin, I. (1985). \emph{Statistical methods for meta-analysis.}
 }
 \examples{
 data(HedgesOlkin85)
-## maybe str(HedgesOlkin85) ; plot(HedgesOlkin85) ...
+
+## Fixed-effects meta-analysis
+summary( meta(y=cbind(d_att, d_ach),
+              v=cbind(var_att, cov_att_ach, var_ach),
+              data=HedgesOlkin85,
+              RE.constraints=matrix(0, nrow=2, ncol=2)) )
 }
 \keyword{datasets}

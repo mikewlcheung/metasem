@@ -1,9 +1,8 @@
 \name{homoStat}
 \alias{homoStat}
-\title{Test Statistic on Homogeneity of Effect Sizes
+\title{Test the Homogeneity of Effect Sizes
 }
-\description{A test statistic on the homogeneity of univariate and
-  multivariate effect sizes.
+\description{It tests the homogeneity of univariate and multivariate effect sizes.
 }
 \usage{
 homoStat(y, v)

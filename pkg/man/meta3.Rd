@@ -68,12 +68,15 @@ meta3(y, v, cluster, x, data, intercept.constraints,
 	associated p values are based on the z statistic. They are not
 	related to the likelihood-based CIs.
 }
-  \item{I2}{Possible options are \code{"I2q"}, \code{"I2hm"}, \code{"I2am"}
-	and \code{"ICC"}. More than one options are possible. If \code{intervals.type="LB"}, 95\% confidence intervals on the heterogeneity indices will be constructed. (See the details.)
+  \item{I2}{Possible options are \code{"I2q"}, \code{"I2hm"} and
+	\code{"I2am"}. They represent the \code{I2} calculated by using a
+	typical within-study sampling variance from the Q statistic, the
+	harmonic mean and the arithmatic mean of the within-study sampling
+	variances. More than one options are possible. If \code{intervals.type="LB"}, 95\% confidence intervals on the heterogeneity indices will be constructed. 
   }
-  \item{R2}{Logical. If \code{TRUE} and there are predictors, R2 are
-	calculated.
-  }
+  \item{R2}{Logical. If \code{TRUE} and there are predictors, R2 is
+	calculated. 
+  }  
   \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. 
 }
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
@@ -82,7 +85,7 @@ meta3(y, v, cluster, x, data, intercept.constraints,
   \item{\dots}{Futher arguments to be passed to \code{\link[OpenMx]{mxRun}}}
 }
 \details{
-  \deqn{y_{ij} = \beta_0 + \mathbf{\beta'}*\mathbf{x_{ij}} + u_{(2)ij} + u_{(3)j} + e_{ij}
+  \deqn{y_{ij} = \beta_0 + \mathbf{\beta'}*\mathbf{x_j} + u_{(2)ij} + u_{(3)j} + e_{ij}
   } where \eqn{y_{ij}} is the effect size for the ith study in the jth cluster,
   \eqn{\beta_0} is the intercept, \eqn{\mathbf{\beta}} is the
   regression coefficients, \eqn{\mathbf{x_{ij}}} is a vector of predictors, \eqn{u_{(2)ij} \sim N(0, \tau^2_2)}{u_{(2)ij}~ N(0,
@@ -100,7 +103,7 @@ meta3(y, v, cluster, x, data, intercept.constraints,
 %% ...
 }
 \references{
-  Cheung, M. W. L. (2012). Modeling three-level meta-analyses as structural
+  Cheung, M. W. L. (2012). Three-level meta-analyses as structural
   equation models. \emph{Manuscript in preparation}.
 
   Konstantopoulos, S. (2011). Fixed effects and variance components

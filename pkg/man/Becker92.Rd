@@ -39,13 +39,17 @@ summary(fixed1)
 ## Prepare a regression model using create.mxMatrix()
 A1 <- create.mxMatrix(c(0,0,0,"0.2*Spatial2Aptitude",
                         0,0,"0.2*Verbal2Aptitude",0,0), type="Full", ncol=3, nrow=3, name="A1")
-S1 <- create.mxMatrix(c("0.2*ErrorVarAptitude",0,0,1,"0.2*CorBetweenSpatialVerbal",1), type="Symm", name="S1")
+S1 <-
+create.mxMatrix(c("0.2*ErrorVarAptitude",0,0,1,"0.2*CorBetweenSpatialVerbal",1),
+                type="Symm", name="S1")
 
 ## An alternative method to create a regression model using mxMatrix()
-# A1 <- mxMatrix("Full", ncol=3, nrow=3, value=0, free=c(FALSE,FALSE,FALSE,TRUE,FALSE,FALSE,TRUE,FALSE,FALSE),
+# A1 <- mxMatrix("Full", ncol=3, nrow=3, value=0, free=c(FALSE,FALSE,FALSE,TRUE,FALSE,
+#                                                        FALSE,TRUE,FALSE,FALSE),
 #                label=c(NA,NA,NA,"Spatial2Aptitude",NA,NA,"Verbal2Aptitude",NA,NA),
 #                name="A1")
-# S1 <- mxMatrix("Symm", ncol=3, nrow=3, value=c(0.5,0,0,1,0.2,1), free=c(TRUE,FALSE,FALSE,FALSE,TRUE,FALSE),
+# S1 <- mxMatrix("Symm", ncol=3, nrow=3, value=c(0.5,0,0,1,0.2,1), free=c(TRUE,FALSE,FALSE,
+#                                                                         FALSE,TRUE,FALSE),
 #                label=c("ErrorVarAptitude",NA,NA,NA,"CorBetweenSpatialVerbal",NA), name="S1")
 
 ## Fixed-effects model: Second stage analysis
@@ -55,11 +59,24 @@ summary(fixed2)
 #### Random-effects model
 ## First stage analysis
 ## No random effects for off-diagonal elements
-random1 <- tssem1(Becker92$data, Becker92$n, method="REM", RE.diag.only=TRUE)
+random1 <- tssem1(Becker92$data, Becker92$n, method="REM", RE.type="Diag")
 summary(random1)
 
 ## Random-effects model: Second stage analysis
 random2 <- tssem2(random1, Amatrix=A1, Smatrix=S1, diag.constraints=TRUE, intervals.type="LB")
 summary(random2)
+
+#### Conventional fixed-effects GLS approach
+## First stage analysis
+## No random effects
+## Replicate Becker's (1992) analysis using 4 studies only
+gls1 <- tssem1(Becker92$data[1:4], Becker92$n[1:4], method="REM", RE.type="Zero",
+               model.name="Fixed effects GLS Stage 1")
+summary(gls1)
+
+## Fixed-effects GLS model: Second stage analysis
+gls2 <- tssem2(gls1, Amatrix=A1, Smatrix=S1, diag.constraints=TRUE, intervals.type="LB",
+               model.name="Fixed effects GLS Stage 2")
+summary(gls2)
 }
 \keyword{datasets}

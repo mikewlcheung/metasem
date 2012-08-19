@@ -15,7 +15,7 @@
 Package: \tab metaSEM\cr
 Type: \tab Package\cr
 Version: \tab 0.7-1\cr
-Date: \tab 2012-08-09\cr
+Date: \tab 2012-08-19\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }
@@ -28,6 +28,12 @@ Maintainer: Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 Cheung, M. W. L. (2008). A model for integrating fixed-, random-, and mixed-effects meta-analyses into structural equation modeling. \emph{Psychological Methods}, \bold{13}, 182-202. 
 
 Cheung, M. W. L. (2009). Constructing approximate confidence intervals for parameters with structural equation models. \emph{Structural Equation Modeling}, \bold{16}, 267-294.
+
+Cheung, M. W. L. (2010). Fixed-effects meta-analyses as multiple-group structural equation models. \emph{Structural Equation Modeling}, \bold{17}, 481-509.
+
+Cheung, M. W. L. (2012a). Applications of meta-analytic structural equation modeling. \emph{Manuscript in preparation.}
+
+Cheung, M. W. L. (2012b). Three-level meta-analyses as structural equation models. \emph{Manuscript in preparation}.
 
 Cheung, M. W. L. (in press). Multivariate meta-analysis as structural equation models. \emph{Structural Equation Modeling.}
 

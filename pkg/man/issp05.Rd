@@ -33,25 +33,47 @@ A list of data with the following structure:
 }
 
 \examples{
-issp05
+data(issp05)
 
-\dontrun{
 #### Fixed-effects TSSEM
 fixed1 <- tssem1(issp05$data, issp05$n, method="FEM")
 summary(fixed1)
 
-Phi <- matrix(c(1,), ncol=3, nrow=3, value=.2, free=TRUE, name="Phi")
-Lambda <- mxMatrix("Full", ncol=3, nrow=7,
-                   value=c(rep(0.2,3), rep(0,7), rep(0.2,2), rep(0,7), rep(0.2,2)),
-                   free=c(rep(TRUE,3), rep(FALSE,7), rep(TRUE,2), rep(FALSE,7), rep(TRUE,2)),
-                   name="Lambda")
+## Prepare a model implied matrix
+## Factor correlation matrix
+Phi <- create.mxMatrix( c("0.3*corf2f1","0.3*corf3f1","0.3*corf3f2"),
+                        type="Stand", as.mxMatrix=FALSE )
 
-## Model to be fitted
-impliedR <- mxAlgebra(Lambda \%&\% Phi, name="impliedR")
+## Error variances
+Psi <- create.mxMatrix( paste("0.2*e", 1:7, sep=""), type="Diag",
+                        as.mxMatrix=FALSE )
 
-fixed2 <- tssem2(fixed1, impliedS=impliedR, matrices=c(Phi, Lambda),
-                 model.name="TSSEM2 ISSP05")
+## Create Smatrix
+S1 <- bdiagMat(list(Psi, Phi))
+## dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c(paste("x",1:7,sep=""), paste("f",1:3,sep=""))
+## S1
+S1 <- as.mxMatrix(S1)
+
+## Factor loadings
+Lambda <- create.mxMatrix( c(".3*f1x1",".3*f1x2",".3*f1x3",rep(0,7),
+                             ".3*f2x4",".3*f2x5",rep(0,7),".3*f3x6",".3*f3x7"),
+                           type="Full", ncol=3, nrow=7, as.mxMatrix=FALSE )
+Zero1 <- matrix(0, nrow=7, ncol=7)
+Zero2 <- matrix(0, nrow=3, ncol=10)
+
+## Create Amatrix
+A1 <- rbind( cbind(Zero1, Lambda),
+             Zero2 )
+## dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- c(paste("x",1:7,sep=""), paste("f",1:3,sep=""))
+## A1
+A1 <- as.mxMatrix(A1)
+
+## Create Fmatrix
+F1 <- create.Fmatrix(c(rep(1,7), rep(0,3)))
+
+#### Fixed-effects model: Stage 2 analysis
+fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, Fmatrix=F1,
+                 diag.constraints=TRUE, intervals.type="LB")
 summary(fixed2)
-}
 }
 \keyword{datasets}

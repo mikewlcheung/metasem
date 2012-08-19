@@ -96,17 +96,16 @@ suppressWarnings = TRUE, ...)
 
   Searle, S. R., Casella, G., & McCulloch, C. E. (1992). \emph{Variance components}. New York: Wiley.
   
-  Viechtbauer, W. (2005). Bias and efficiency of meta-analytic variance estimators in the random-effects model. \emph{Journal of Educational and Behavioral Statistics}, \bold{30(3)}, 261-293.
-  
+  Viechtbauer, W. (2005). Bias and efficiency of meta-analytic variance estimators in the random-effects model. \emph{Journal of Educational and Behavioral Statistics}, \bold{30(3)}, 261-293.  
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 %%  ~~who you are~~
 }
 \note{ \code{reml} is more computional intensive than \code{meta}. Moreover, \code{reml} is more
-  likely than \code{meta} to encounter errors during optimization. Since
+  likely to encounter errors during optimization. Since
   a likelihood function is directly employed to obtain the parameter
   estimates, there is no number of studies and number of observed statistics
-  returned by \code{\link[OpenMx]{mxRun}}. Ad-hoc calculations are used
+  returned by \code{\link[OpenMx]{mxRun}}. Ad-hoc steps are used
   to modify \code{mx.fit@runstate$objectives[[1]]@numObs} and \code{mx.fit@runstate$objectives[[1]]@numStats}.
 }
 

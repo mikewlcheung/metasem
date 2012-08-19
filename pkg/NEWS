@@ -1,5 +1,7 @@
-Release 0.7-1 (Aug 9, 2012)
+Release 0.7-1 (Aug 19, 2012)
 ====================================
+* Renamed argument RE_diag to RE.type in tssem1() and tssem1REM()
+* Removed standard error, z value and p values from summary() when intervals.type="LB"
 * Added rerun() to refit models
 * Renamed all mx fitted objects to mx.fit
 * Fixed a bug in .minus2LL(), tssem1FEM() and summary.tssem1FEM in calculating the df of the independence model when cor.analysis=FALSE
@@ -19,7 +21,7 @@ Release 0.7-1 (Aug 9, 2012)
 * Revised meta() to replace NA with 1e5 in v object
 * Renamed coeff.constraints argument to coef.constraints in meta()
 * Added homoStat argument in summary.meta()
-* Renamed argument RE_diag to RE.diag.only in tssem1() and tssem1REM()
+
 * Renamed tssem1FE() and tssem1RE() to tssem1FEM() and tssem1REM()
 
 Release 0.7-0 (Nov 6, 2011)

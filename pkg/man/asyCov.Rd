@@ -1,8 +1,8 @@
 \name{asyCov}
 \alias{asyCov}
-\title{Asymptotic Covariance Matrix of a Correlation/Covariance Matrix
+\title{Compute Asymptotic Covariance Matrix of a Correlation/Covariance Matrix
 }
-\description{It estimates the asymptotic sampling covariance matrix of a
+\description{It computes the asymptotic sampling covariance matrix of a
   correlation/covariance matrix under the assumption of multivariate normality. 
 }
 \usage{

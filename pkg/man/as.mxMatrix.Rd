@@ -15,9 +15,8 @@ as.mxMatrix(x, name, ...)
 	MxMatrix object created by mxModel function. If \code{name} is missing,
   the name of \code{x} will be used.}
   \item{\dots}{Further arguments to be passed to
-	\code{\link[OpenMx]{mxMatrix}}. Please note that \code{type},
-	  \code{nrow}, \code{ncol}, \code{values}, \code{free}, \code{name} and possibly
-	  \code{labels} will be created automatically. Thus, these arguments
+	\code{\link[OpenMx]{mxMatrix}}. It should be noted that \code{type},
+	  \code{nrow}, \code{ncol}, \code{values}, \code{free}, \code{name} and \code{labels} will be created automatically. Thus, these arguments
 	  excepts labels should be avoided in \dots 
 %%     ~~Describe \code{\dots} here~~
 }
@@ -43,8 +42,7 @@ as.mxMatrix(x, name, ...)
 
 \seealso{ \code{\link[OpenMx]{mxMatrix}},
 	\code{\link[metaSEM]{create.mxMatrix}},
-	\code{\link[metaSEM]{create.Fmatrix}}, \code{\link[metaSEM]{as.mxMatrix}}
-%% ~~objects to See Also as \code{\link{help}}, ~~~
+	\code{\link[metaSEM]{create.Fmatrix}}
 }
 \examples{
 ## a and b are free parameters with starting values and labels
