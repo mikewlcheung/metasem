@@ -203,7 +203,7 @@ reml <- function(y, v, x, data, RE.constraints, RE.startvalues=0.1, RE.lbound=1e
   mx.fit@runstate$objectives[[1]]@numStats <- numStats
   
   out <- list(call = mf, data=input.df, no.y=no.y, no.x=no.x, miss.vec=miss.vec,
-              mx.fit=mx.fit)
+              mx.fit=mx.fit, intervals.type=intervals.type)
   class(out) <- "reml"
   return(out)
 }

@@ -210,8 +210,8 @@ meta <- function(y, v, x, data, intercept.constraints, coef.constraints,
     warning(print(mx.fit))
   }
   
-  out <- list(call=mf, data=input.df, no.y=no.y, no.x=no.x,
-              miss.x=miss.x, I2=I2, R2=R2, mx.fit=mx.fit, mx0.fit=mx0.fit)
+  out <- list(call=mf, data=input.df, no.y=no.y, no.x=no.x, miss.x=miss.x,
+              I2=I2, R2=R2, mx.fit=mx.fit, mx0.fit=mx0.fit, intervals.type=intervals.type)
   class(out) <- "meta"
   return(out)
 }

@@ -27,13 +27,13 @@ tssem2(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=FA
 }
   \item{n}{Sample size.
 }
-  \item{Amatrix}{A matrix of asymmetric matrix in the RAM approach with
+  \item{Amatrix}{An asymmetric matrix in the RAM approach with
 	\code{\link[OpenMx]{MxMatrix-class}}. If it is \code{NULL}, a matrix
 	with zeros will be created.
 }
-  \item{Smatrix}{A matrix of symmetric matrix in the RAM approach with \code{\link[OpenMx]{MxMatrix-class}}.
+  \item{Smatrix}{A symmetric matrix in the RAM approach with \code{\link[OpenMx]{MxMatrix-class}}.
 }
-  \item{Fmatrix}{A matrix of filter matrix in the RAM approach with
+  \item{Fmatrix}{A filter matrix in the RAM approach with
 	\code{\link[OpenMx]{MxMatrix-class}}. If it is \code{NULL} (the default), an
 	identity matrix with the same dimensions of \code{S} will be created.
 }  

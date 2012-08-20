@@ -153,7 +153,7 @@ reml3 <- function(y, v, cluster, x, data, RE2.startvalue=0.1, RE2.lbound=1e-10,
   ## Ad-hoc: no. of observed statistics after removing the fixed-effects (p)
   mx.fit@runstate$objectives[[1]]@numStats <- numStats
   
-  out <- list(call = mf, data=data, mx.fit=mx.fit)
+  out <- list(call = mf, data=data, mx.fit=mx.fit, intervals.type=intervals.type)
   class(out) <- c("reml", "reml3")
   return(out)
 }

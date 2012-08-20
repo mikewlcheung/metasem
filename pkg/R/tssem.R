@@ -407,7 +407,7 @@ wls <- function(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.c
   } else {
       out <- list(call=match.call(), noObservedStat=ps, n=n, cor.analysis=cor.analysis, Constraints=Constraints,
                   indepModelChisq=.indepwlsChisq(S=Cov, acovS=asyCov, cor.analysis=cor.analysis),
-                  indepModelDf=no.var*(no.var-1)/2, mx.fit=mx.fit)
+                  indepModelDf=no.var*(no.var-1)/2, mx.fit=mx.fit, intervals.type=intervals.type)
       class(out) <- 'wls'
   }
   out

@@ -193,7 +193,7 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints, coef.constraint
   ## FIXME: remove miss.x (is it used by meta()?)
   out <- list(call=mf, I2=I2, R2=R2, data.wide=my.wide, data=my.long,
               no.y=1, no.x=no.x, miss.x=rep(FALSE, nrow(my.long)), 
-              mx.fit=mx.fit, mx0.fit=mx0.fit)
+              mx.fit=mx.fit, mx0.fit=mx0.fit, intervals.type=intervals.type)
   class(out) <- c("meta", "meta3")
   return(out)
 }

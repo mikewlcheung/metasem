@@ -88,14 +88,5 @@ summary(random1)
 
 random2 <- tssem2(random1, Amatrix=A1, Smatrix=S1, Fmatrix=F1, diag.constraints=TRUE, intervals="LB")
 summary(random2)
-
-#### Fixed-effects GLS approach
-gls1 <- tssem1(Digman97$data, Digman97$n, method="REM",
-               RE.type="Zero", model.name="Fixed effects GLS Stage 1 analysis")
-summary(gls1)
-
-gls2 <- tssem2(gls1, Amatrix=A1, Smatrix=S1, Fmatrix=F1, diag.constraints=TRUE, intervals="LB",
-               model.name="Fixed effects GLS Stage 2 analysis")
-summary(gls2)
 }
 \keyword{datasets}
