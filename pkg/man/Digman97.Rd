@@ -35,7 +35,7 @@ summary(fixed1)
 Phi <- matrix(c(1,"0.3*cor","0.3*cor",1), ncol=2, nrow=2)
 S1 <- bdiagMat(list(diag(c("0.2*e1","0.2*e2","0.2*e3","0.2*e4","0.2*e5")), Phi))
 
-## This step is not necessary but it is useful in checking the content.
+## This step is not necessary but it is useful for inspecting the model.
 ## dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c("A","C","ES","E","I","Alpha","Beta") 
 ## S1
 
@@ -48,7 +48,7 @@ matrix(c(".3*Alpha_A",".3*Alpha_C",".3*Alpha_ES",rep(0,5),".3*Beta_E",".3*Beta_I
 A1 <- rbind( cbind(matrix(0,ncol=5,nrow=5), Lambda),
              matrix(0, ncol=7, nrow=2) )
 
-## This step is not necessary but it is useful in checking the content.
+## This step is not necessary but it is useful for inspecting the model.
 ## dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- c("A","C","ES","E","I","Alpha","Beta") 
 ## A1
 

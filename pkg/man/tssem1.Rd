@@ -40,7 +40,7 @@ tssem1REM(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Zero"),
 	among the correlation (or covariance) vectors. If it is
 	\code{"Diag"}, a diagonal matrix is used for the random effects
 	meaning that the random effects are independent. If it is
-	\code{"Zero"}, there is no random effects which is equivalent to the
+	\code{"Zero"}, there is no random effects which is similar to the
 	conventional Generalized Least Squares (GLS) approach to
 	fixed-effects analysis. This argument will be ignored when \code{method="FEM"}.}
   \item{RE.startvalues}{Starting values on the

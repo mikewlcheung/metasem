@@ -1,3 +1,7 @@
+Release 0.8-0 (Aug 30, 2012)
+====================================
+* Finalized features for release
+
 Release 0.7-1 (Aug 20, 2012)
 ====================================
 * Removed argument RE_diag and added RE.type in tssem1() and tssem1REM()
@@ -21,7 +25,6 @@ Release 0.7-1 (Aug 20, 2012)
 * Revised meta() to replace NA with 1e5 in v object
 * Renamed coeff.constraints argument to coef.constraints in meta()
 * Added homoStat argument in summary.meta()
-
 * Renamed tssem1FE() and tssem1RE() to tssem1FEM() and tssem1REM()
 
 Release 0.7-0 (Nov 6, 2011)
