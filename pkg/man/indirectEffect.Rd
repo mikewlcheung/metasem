@@ -64,5 +64,5 @@ indirectEffect( list(x, x), n=c(300,500), standardized=FALSE )
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
-\keyword{ tssem }
+\keyword{ compute effect sizes }
 

@@ -1,3 +1,7 @@
+Release 0.8-1 (Oct 24, 2012)
+====================================
+* Added dataset Hunter83 and Jaramillo05
+
 Release 0.8-0 (Aug 30, 2012)
 ====================================
 * Finalized features for release
@@ -19,7 +23,7 @@ Release 0.7-1 (Aug 20, 2012)
 * Improved efficiency by removing the call on installed.packages() and summary() from OpenMx
 * Fixed a bug in vec2symMat() reported by Yonghao Lim
 * Added meta3() and reml3() for 3-level meta-analysis
-* Added data sets Becker92, Becker94, Cooper03, Mak09, issp05 and Bornmann07
+* Added datasets Becker92, Becker94, Cooper03, Mak09, issp05 and Bornmann07
 * Added I2 and R2 arguments to calculate heterogeneity and explained variance in meta()
 * Rewrote meta() so that the predictors are treated as design matrix rather than as variables
 * Revised meta() to replace NA with 1e5 in v object
@@ -42,7 +46,7 @@ Release 0.7-0 (Nov 6, 2011)
 
 Release 0.6-0 (May 24, 2011)
 ====================================
-* Added a data set WVS94
+* Added a dataset WVS94
 * Changed dropNA argument from TRUE to FALSE in asyCov()
 * Added data argument in meta() and reml()
 * Fixed a bug by addinng dimnames in M matrix in meta() when OpenMx 1.1 is used
@@ -93,7 +97,7 @@ Release 0.3-7 (September 19, 2010)
 ====================================
 * Added vec2symMat(), matrix2bdiag() and homoStat() functions
 * Moved startValues(), minus2LL() and indepwlsChisq() to hidden functions
-* Updated data sets on Cheung09 and Digman97
+* Updated datasets on Cheung09 and Digman97
 
 Release 0.3-6 (September 16, 2010)
 ====================================

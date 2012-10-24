@@ -10,7 +10,7 @@
 \format{
   A data frame with 8 observations on the following 10 variables.
   \describe{
-    \item{\code{Study}}{a character vector}
+    \item{\code{Study}}{a character vector of study}
     \item{\code{type}}{a character vector}
     \item{\code{AF.BP}}{a numeric vector}
     \item{\code{Tot.BP}}{a numeric vector}

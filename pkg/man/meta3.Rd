@@ -104,7 +104,7 @@ meta3(y, v, cluster, x, data, intercept.constraints,
 }
 \references{
   Cheung, M. W. L. (2012). Three-level meta-analyses as structural
-  equation models. \emph{Manuscript in preparation}.
+  equation models. \emph{Manuscript submitted for publication}.
 
   Konstantopoulos, S. (2011). Fixed effects and variance components
   estimation in three-level meta-analysis. \emph{Research Synthesis
