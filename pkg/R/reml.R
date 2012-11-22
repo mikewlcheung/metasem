@@ -1,4 +1,4 @@
-reml <- function(y, v, x, data, RE.constraints, RE.startvalues=0.1, RE.lbound=1e-10,
+reml <- function(y, v, x, data, RE.constraints=NULL, RE.startvalues=0.1, RE.lbound=1e-10,
                  intervals.type=c("z", "LB"), model.name="Variance component with REML",
                  suppressWarnings = TRUE, ...) {
   mf <- match.call()
@@ -130,7 +130,7 @@ reml <- function(y, v, x, data, RE.constraints, RE.startvalues=0.1, RE.lbound=1e
   
   ## Preparing the S matrix for covariance elements
   ## No predictor
-  if (missing(RE.constraints)) {
+  if (is.null(RE.constraints)) {
     
     if (is.matrix(RE.startvalues)) {
       # FIXME: test symmetry
@@ -155,6 +155,9 @@ reml <- function(y, v, x, data, RE.constraints, RE.startvalues=0.1, RE.lbound=1e
     Tau <- mxMatrix("Symm", ncol=no.es, nrow=no.es, free=free, labels=vech(Tau.labels),
                     lbound=vech(lbound), values=vech(values), name="Tau")
   } else {
+    ## Convert RE.constraints into a column matrix if it is not a matrix
+    if (!is.matrix(RE.constraints))
+      RE.constraints <- as.matrix(RE.constraints)
     
     if (!all(dim(RE.constraints)==c(no.y, no.y)))
       stop("Dimensions of \"RE.constraints\" are incorrect.")

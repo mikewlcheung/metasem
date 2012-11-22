@@ -94,8 +94,8 @@
 ## Calculate R2 for meta and meta3 objects
 .R2 <- function(object) {
   no.y <- object$no.y
-    ## meta3 class
-  if ( "meta3" %in% class(object) ) {
+    ## meta3 or meta3ML class
+  if ( any(c("meta3","meta3Xfiml") %in% class(object)) ) {
     ## Tau2 with predictors
     Tau2_2model <- tryCatch( eval(parse(text="mxEval(Tau2_2, object$mx.fit)")), error = function(e) NA )
     Tau2_3model <- tryCatch( eval(parse(text="mxEval(Tau2_3, object$mx.fit)")), error = function(e) NA )
@@ -125,23 +125,31 @@
 } 
 
 ## Calculate I2 for meta and meta3 objects
-.I2 <- function(object, my.mx, my.ci, model.name) {
+.I2 <- function(object, my.mx) {
   I2 <- object$I2
   no.y <- object$no.y
+  if (missing(my.mx)) {
+    my.mx <- summary(object$mx.fit)
+  }
+  my.ci <- my.mx$CI
+   
   ## meta3 class
   if ( "meta3" %in% class(object) ) {
     I2.names <- c("I2q","I2hm","I2am")
     ## Rearrange different I2 into the standard format
     I2.names <- I2.names[ c("I2q","I2hm","I2am") %in% I2 ]
     I2.names <- c(outer(I2, c("_2","_3"), paste, sep=""))
-
+   
     ## Wald test, no CI
     if (is.null(dimnames(my.ci))) {
       I2.values <- matrix(NA, nrow=length(I2.names), ncol=3)
       I2.values[,2] <- eval(parse(text = paste("mxEval(c(", paste(I2.names, collapse=","), "), object$mx.fit)", sep="")))
-    } else {## LB CI  model.name <- "Meta analysis with ML."
-      I2.values <- my.mx$CI[paste(model.name, I2.names, "[1,1]", sep=""), , drop=FALSE]
-    }    
+    } else {
+      dimnames(my.ci)[[1]] <- sapply(unlist(dimnames(my.ci)[1]), function(x)
+                                    {strsplit(x, ".", fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
+      I2.values <- my.ci[paste(I2.names, "[1,1]", sep=""), , drop=FALSE]
+
+    }
     ## Truncate within 0 and 1
     ## I2.values <- apply(I2.values, c(1,2), function(x) max(x,0))
     I2.values <- ifelse(I2.values<0, 0, I2.values)
@@ -166,7 +174,9 @@
       I2.values <- matrix(NA, nrow=length(I2.names)*no.y, ncol=3)
       I2.values[,2] <- eval(parse(text = paste("mxEval(I2_values, object$mx.fit)", sep="")))
     } else {## LB CI  model.name <- "Meta analysis with ML."
-      I2.values <- my.mx$CI[paste(model.name, "I2_values[", 1:(length(I2.names)*no.y), ",1]", sep=""), ,drop=FALSE]
+      dimnames(my.ci)[[1]] <- sapply(unlist(dimnames(my.ci)[1]), function(x)
+                                    {strsplit(x, ".", fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
+      I2.values <- my.ci[paste("I2_values[", 1:(length(I2.names)*no.y), ",1]", sep=""), ,drop=FALSE]
     }    
     ## Truncate into 0
     ## I2.values <- apply(I2.values, c(1,2), function(x) max(x,0))
@@ -181,4 +191,22 @@
     }
   
   I2.values
+}
+
+## Calculate asymptotic sampling covariance matrix
+## fn=list("x1*x2/x3", "x2^x1/x3")
+## variables=c("x1", "x2", "x3")
+## Mean and Cov based on variables
+.delta <- function (fn, variables, Mean, Cov) { 
+    Cov <- as.matrix(Cov)
+    n <- length(Mean)
+    if ((dim(Cov)[1] != n) || (dim(Cov)[2] != n)) 
+        stop("Dimensions of \"Mean\" and \"Cov\" are different.\n")          
+    if (!is.list(fn))
+      fn <- list(fn)
+    ## Convert into formulas
+    fn <- lapply(fn, function(x) as.formula(paste("~", x, sep="")))
+    for (i in 1:n) assign(variables[i], Mean[i])
+    grad <- t(sapply(fn, function(x) as.numeric(attr(eval(deriv(x, variables)), "gradient"))))
+    grad %*% Cov %*% t(grad)
 }

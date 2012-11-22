@@ -1,5 +1,5 @@
-meta <- function(y, v, x, data, intercept.constraints, coef.constraints,
-                 RE.constraints, RE.startvalues=0.1, RE.lbound=1e-10,
+meta <- function(y, v, x, data, intercept.constraints=NULL, coef.constraints=NULL,
+                 RE.constraints=NULL, RE.startvalues=0.1, RE.lbound=1e-10,
                  intervals.type=c("z", "LB"), I2="I2q", R2=TRUE,
                  model.name="Meta analysis with ML",
                  suppressWarnings=TRUE, ...) {
@@ -59,23 +59,32 @@ meta <- function(y, v, x, data, intercept.constraints, coef.constraints,
   ## Missing y is automatically handled by OpenMx
   my.df <- input.df[!miss.x, ]
 
-  ## Preparing the Beta matrix for the intercept vector
-  ## Beta is a 1 by no.y row vector
-  if (missing(intercept.constraints)) {
-    Beta <- matrix( paste("0*Intercept", 1:no.y, sep=""), nrow=1, ncol=no.y )
+  ## Preparing the Beta1 matrix for the intercept vector
+  ## Inter is a 1 by no.y row vector
+  if (is.null(intercept.constraints)) {
+    Inter <- matrix( paste("0*Intercept", 1:no.y, sep=""), nrow=1, ncol=no.y )
   } else {
+    ## Convert intercept.constraints into a row matrix if it is not a matrix
+    if (!is.matrix(intercept.constraints))
+      intercept.constraints <- t(as.matrix(intercept.constraints))
+    
     if (!all(dim(intercept.constraints)==c(1, no.y)))
       stop("Dimensions of \"intercept.constraints\" are incorrect.")
-    Beta <- intercept.constraints
+    Inter <- intercept.constraints
   }  
-  Beta <- t(Beta)
+  Inter <- as.mxMatrix(t(Inter), name="Inter")
  
   ## Without predictors
   ## X: a 1 by (1+no.x) row vector
   if (no.x==0) {
-    X <- mxMatrix("Unit", nrow=1, ncol=1, name="X") 
+    X <- mxMatrix("Unit", nrow=1, ncol=1, name="X")
+    ## No predictor
+    Beta1 <- mxAlgebra(Inter, name="Beta1")
+    ## Not used
+    Beta <- mxMatrix("Zero", nrow=1, ncol=1, name="Beta")
   } else {
-    if (missing(coef.constraints)) {
+    
+    if (is.null(coef.constraints)) {
       yVar <- paste("y", seq(1,no.y), sep="", collapse="+")
       xVar <- paste("x", seq(1,no.x), sep="", collapse="+")
       # Use lm() coefficients as starting values
@@ -86,23 +95,27 @@ meta <- function(y, v, x, data, intercept.constraints, coef.constraints,
         startValues <- matrix(0, nrow=no.y, ncol=(no.x+1))
       
       A.labels <- outer(1:no.y, 1:no.x, function(y, x) paste("*Slope", y,"_", x, sep = ""))
-      A <- matrix( paste(startValues[,-1], A.labels, sep=""), nrow=no.y, ncol=no.x )
+      Beta <- matrix( paste(startValues[,-1], A.labels, sep=""), nrow=no.y, ncol=no.x )
     } else {
+    ## Convert coef.constraints into a column matrix if it is not a matrix
+    if (!is.matrix(coef.constraints))
+      coef.constraints <- as.matrix(coef.constraints)
+      
       coef.dim <- dim(coef.constraints)
       if (!coef.dim[1]==no.y | !(coef.dim[2] %in% c(no.x, no.x+no.y)))
           stop("Dimensions of \"coef.constraints\" are incorrect.")
-       A <- coef.constraints
+       Beta <- coef.constraints
     }
-   ## 
-    Beta <- cbind(Beta, A)
+    Beta <- as.mxMatrix(Beta)
+    Beta1 <- mxAlgebra( cbind(Inter, Beta), name="Beta1")  
     ## X.matrix <- paste("mxMatrix(\"Full\", nrow=1, ncol=(1+no.x), free=FALSE, values=c(1,",
     ##                   paste("data.x",1:no.x,sep="", collapse=","), "), name=\"X\")", sep="")
     ## eval(parse(text = X.matrix))
     X <- mxMatrix("Full", nrow=1, ncol=(1+no.x), free=FALSE, values=c(1, rep(NA, no.x)),
                   labels=c(NA, paste("data.x",1:no.x,sep="")), name="X")
   }
-  Beta <- as.mxMatrix(Beta)
-  expMean <- mxAlgebra( X %*% t(Beta), name="expMean")
+  
+  expMean <- mxAlgebra( X %*% t(Beta1), name="expMean")
   
   ## Fixed a bug in 0.5-0 that lbound is not added into Tau
   ## when RE.constraints is used.
@@ -121,7 +134,7 @@ meta <- function(y, v, x, data, intercept.constraints, coef.constraints,
  
   ## Preparing the S matrix for covariance elements
   #  No predictor
-  if (missing(RE.constraints)) {
+  if (is.null(RE.constraints)) {
     # Better to use starting values based on diagonal matrix rather than the UMM
     if (is.matrix(RE.startvalues)) {
       if (!all(dim(RE.startvalues)==c(no.y, no.y)))
@@ -134,6 +147,10 @@ meta <- function(y, v, x, data, intercept.constraints, coef.constraints,
     Tau <- mxMatrix("Symm", ncol=no.y, nrow=no.y, free=TRUE, labels=Tau.labels,
                     lbound=vech(lbound), values=values, name="Tau")      
   } else {
+    ## Convert RE.constraints into a column matrix if it is not a matrix
+    if (!is.matrix(RE.constraints))
+      RE.constraints <- as.matrix(RE.constraints)
+    
     if (!all(dim(RE.constraints)==c(no.y, no.y)))
       stop("Dimensions of \"RE.constraints\" are incorrect.")
     ## Fixed a bug that reads lbound improperly
@@ -145,7 +162,7 @@ meta <- function(y, v, x, data, intercept.constraints, coef.constraints,
   expCov <- mxAlgebra(V+Tau, name="expCov")
 
   ## Assuming NA first
-  mx0.fit <- NA  
+  mx0.fit <- NA
   if (no.x==0) {
 
     I2 <- match.arg(I2, c("I2q", "I2hm", "I2am"), several.ok=TRUE)
@@ -177,40 +194,41 @@ meta <- function(y, v, x, data, intercept.constraints, coef.constraints,
     Tau_het <- mxAlgebra( One %x% diag2vec(Tau), name="Tau_het")    
     I2_values <- mxAlgebra( Tau_het/(Tau_het+V_het), name="I2_values")
     
-    meta <- mxModel(model=model.name, mxData(observed=my.df, type="raw"),
-                    mxFIMLObjective( covariance="expCov", means="expMean", dimnames=y.labels),
-                    Beta, expMean, X, expCov, Tau, V, One, V_het, Tau_het, I2_values, mxCI(c("Tau","Beta","I2_values")))
+    mx.model <- mxModel(model=model.name, mxData(observed=my.df, type="raw"),
+                        mxFIMLObjective( covariance="expCov", means="expMean", dimnames=y.labels),
+                        Inter, Beta, Beta1, expMean, X, expCov, Tau, V, One, V_het, Tau_het, I2_values,
+                        mxCI(c("Tau","Inter","I2_values")))
   } else {
     ## no.x > 0
 
-    meta <- mxModel(model=model.name, mxData(observed=my.df, type="raw"),
-                    mxFIMLObjective( covariance="expCov", means="expMean", dimnames=y.labels),
-                    Beta, expMean, X, expCov, Tau, V, mxCI(c("Tau","Beta")))
+    mx.model <- mxModel(model=model.name, mxData(observed=my.df, type="raw"),
+                        mxFIMLObjective( covariance="expCov", means="expMean", dimnames=y.labels),
+                        Inter, Beta, Beta1, expMean, X, expCov, Tau, V, mxCI(c("Tau","Inter","Beta")))
 
     ## Calculate R2
     if (R2) mx0.fit <- tryCatch( meta(y=y, v=v, data=my.df, model.name="No predictor",
-                                   suppressWarnings=TRUE, silent=TRUE), error = function(e) e )    
+                                      suppressWarnings=TRUE, silent=TRUE), error = function(e) e )
   }
 
   
   ## meta <- mxModel(model=model.name, mxData(observed=my.df, type="raw"),
   ##                 mxFIMLObjective( covariance="S", means="M", dimnames=y.labels),
-  ##                 Beta, M, X, S, Tau, V, mxCI(c("Tau","Beta")))
+  ##                 Beta1, M, X, S, Tau, V, mxCI(c("Tau","Beta1")))
 
   intervals.type <- match.arg(intervals.type)
   # Default is z
   switch(intervals.type,
-    z = mx.fit <- tryCatch( mxRun(meta, intervals=FALSE,
-                                    suppressWarnings = suppressWarnings, ...), error = function(e) e ),
-    LB = mx.fit <- tryCatch( mxRun(meta, intervals=TRUE,
-                                     suppressWarnings = suppressWarnings, ...), error = function(e) e ) )
+    z = mx.fit <- tryCatch( mxRun(mx.model, intervals=FALSE,
+                                  suppressWarnings = suppressWarnings, ...), error = function(e) e ),
+    LB = mx.fit <- tryCatch( mxRun(mx.model, intervals=TRUE,
+                                   suppressWarnings = suppressWarnings, ...), error = function(e) e ) )
  
   if (inherits(mx.fit, "error")) {
     cat("Error in running mxModel:\n")
     warning(print(mx.fit))
   }
   
-  out <- list(call=mf, data=input.df, no.y=no.y, no.x=no.x, miss.x=miss.x,
+  out <- list(call=mf, data=input.df, no.y=no.y, no.x=no.x, miss.x=miss.x, mx.model=mx.model,
               I2=I2, R2=R2, mx.fit=mx.fit, mx0.fit=mx0.fit, intervals.type=intervals.type)
   class(out) <- "meta"
   return(out)

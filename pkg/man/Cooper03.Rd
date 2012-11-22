@@ -44,13 +44,12 @@ summary( meta3(y=y, v=v, cluster=District, x=scale(Year, scale=FALSE),
 
 ## Equality of level-2 and level-3 heterogeneity
 summary( model2 <- meta3(y=y, v=v, cluster=District, data=Cooper03,
-                         RE2.constraints=matrix("0.2*EqTau2"),
-                         RE3.constraints=matrix("0.2*EqTau2"),
+                         RE2.constraints="0.2*EqTau2",
+                         RE3.constraints="0.2*EqTau2",
                          model.name="Equal Tau2") )
 
 ## Compare model2 vs. model1
 anova(model1, model2)
-
 
 #### REML estimation method
 ## No predictor

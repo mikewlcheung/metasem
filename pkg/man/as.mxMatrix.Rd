@@ -9,16 +9,18 @@ as.mxMatrix(x, name, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{A character or numeric matrix 
+  \item{x}{A character or numeric matrix. If \code{x} is not a matrix,
+	\code{as.matrix(x)} is applied first. 
   }
   \item{name}{An optional character string as the name of the
 	MxMatrix object created by mxModel function. If \code{name} is missing,
   the name of \code{x} will be used.}
   \item{\dots}{Further arguments to be passed to
 	\code{\link[OpenMx]{mxMatrix}}. It should be noted that \code{type},
-	  \code{nrow}, \code{ncol}, \code{values}, \code{free}, \code{name} and \code{labels} will be created automatically. Thus, these arguments
-	  excepts labels should be avoided in \dots 
-%%     ~~Describe \code{\dots} here~~
+	  \code{nrow}, \code{ncol}, \code{values}, \code{free}, \code{name}
+	  and \code{labels} will be created automatically. Thus, these
+	  arguments excepts labels should be avoided in \dots 
+
 }
 }
 \details{If there are non-numeric values in \code{x}, they are treated
@@ -80,5 +82,9 @@ a3 <- as.mxMatrix(a3, lbound=0)
 # [3,] "3"  "6"  "9"  
 
 a4 <- as.mxMatrix(a4)
+
+## Convert a scalar into mxMatrix object
+## "name" is required as "3*a" is not a valid name.
+(a5 <- as.mxMatrix("3*a", name="a5"))
 }
 \keyword{utilities}

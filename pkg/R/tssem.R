@@ -310,7 +310,7 @@ tssem1 <- function(my.df, n, method=c("FEM", "REM"), cor.analysis=TRUE, cluster=
 ## }
 
 wls <- function(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=FALSE,
-                cor.analysis=TRUE, intervals.type=c("z", "LB"), model.name=NULL, suppressWarnings=TRUE, ...) {
+                cor.analysis=TRUE, intervals.type=c("z", "LB"), mx.algebras=NULL, model.name=NULL, suppressWarnings=TRUE, ...) {
   if (is.null(Smatrix)) {
     stop("\"Smatrix\" matrix is not specified.\n")
   } else {
@@ -387,18 +387,33 @@ wls <- function(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.c
     
   obj <- mxAlgebra( t(vecS) %&% invAcov, name = "obj" )
   objective <- mxAlgebraObjective("obj")
-  
-  if (diag.constraints) {
-    text1 <- paste("mxRun(mxModel(model=\"", model.name, "\", Fmatrix, Amatrix, Smatrix, Id, impliedS, vecS, invAcov, ",
-                   "obj, objective, One, select, constraint, sampleS, mxCI(c(\"Amatrix\", \"Smatrix\"))), intervals=", 
-                    intervals, ", suppressWarnings = ", suppressWarnings, ", ...)", sep="")
-  } else {
-    text1 <- paste("mxRun(mxModel(model=\"", model.name, "\", Fmatrix, Amatrix, Smatrix, Id, impliedS, vecS, invAcov, ",
-                   "obj, objective, sampleS, mxCI(c(\"Amatrix\", \"Smatrix\"))), intervals=", 
-                    intervals, ", suppressWarnings = ", suppressWarnings, ", ...)", sep="")
-  }
 
-  mx.fit <- tryCatch(eval(parse(text = text1)), error = function(e) e)
+  mx.model <- mxModel(model=model.name, Fmatrix, Amatrix, Smatrix, Id, impliedS, vecS, invAcov,
+                     obj, objective, sampleS, mxCI(c("Amatrix", "Smatrix")))
+
+  ## Add additional mxAlgebras
+  if (!is.null(mx.algebras)) {
+    for (i in 1:length(mx.algebras)) {
+      mx.model <- mxModel(mx.model, mx.algebras[[i]])
+    }
+    mx.model <- mxModel(mx.model, mxCI(names(mx.algebras)))
+  }
+  ## mx.model <- eval(parse(text = text1))
+
+  ## Add constraints on diagonals
+  if (diag.constraints) mx.model <- mxModel(mx.model, One, select, constraint) 
+  
+  ## if (diag.constraints) {
+  ##   text1 <- paste("mxRun(mxModel(model=\"", model.name, "\", Fmatrix, Amatrix, Smatrix, Id, impliedS, vecS, invAcov, ",
+  ##                  "obj, objective, One, select, constraint, sampleS, mxCI(c(\"Amatrix\", \"Smatrix\"))), intervals=", 
+  ##                   intervals, ", suppressWarnings = ", suppressWarnings, ", ...)", sep="")
+  ## } else {
+  ##   text1 <- paste("mxRun(mxModel(model=\"", model.name, "\", Fmatrix, Amatrix, Smatrix, Id, impliedS, vecS, invAcov, ",
+  ##                  "obj, objective, sampleS, mxCI(c(\"Amatrix\", \"Smatrix\"))), intervals=", 
+  ##                   intervals, ", suppressWarnings = ", suppressWarnings, ", ...)", sep="")
+  ## }
+
+  mx.fit <- tryCatch( mxRun(mx.model, intervals=intervals, suppressWarnings=suppressWarnings, ...), error = function(e) e)
 
   # try to run it with error message as output
   if (inherits(mx.fit, "error")) {
@@ -407,7 +422,7 @@ wls <- function(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.c
   } else {
       out <- list(call=match.call(), noObservedStat=ps, n=n, cor.analysis=cor.analysis, Constraints=Constraints,
                   indepModelChisq=.indepwlsChisq(S=Cov, acovS=asyCov, cor.analysis=cor.analysis),
-                  indepModelDf=no.var*(no.var-1)/2, mx.fit=mx.fit, intervals.type=intervals.type)
+                  indepModelDf=no.var*(no.var-1)/2, mx.model=mx.model, mx.fit=mx.fit, mx.algebras=names(mx.algebras), intervals.type=intervals.type)
       class(out) <- 'wls'
   }
   out
@@ -415,13 +430,14 @@ wls <- function(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.c
 
 
 tssem2 <- function(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=FALSE,
-                   intervals.type = c("z", "LB"), model.name=NULL, suppressWarnings = TRUE, ...) {
+                   intervals.type = c("z", "LB"), mx.algebras=NULL, model.name=NULL, suppressWarnings = TRUE, ...) {
   if ( !is.element( class(tssem1.obj)[1], c("tssem1FEM.cluster", "tssem1FEM", "tssem1REM")) )
       stop("\"tssem1.obj\" must be of neither class \"tssem1FEM.cluster\", class \"tssem1FEM\" or \"tssem1REM\".")
       
   switch(class(tssem1.obj)[1],
          tssem1FEM.cluster = { out <- lapply(tssem1.obj, tssem2, Amatrix=Amatrix, Smatrix=Smatrix, Fmatrix=Fmatrix,
                                              diag.constraints=diag.constraints, intervals.type=intervals.type,
+                                             mx.algebras=mx.algebras, 
                                              model.name=model.name, suppressWarnings=suppressWarnings, ...)
                               class(out) <- "wls.cluster" },
          tssem1FEM = { cor.analysis <- tssem1.obj$cor.analysis
@@ -438,7 +454,8 @@ tssem2 <- function(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.co
                       out <- wls(Cov=tssem1.obj$pooledS, asyCov=tssem1.obj$acovS, n=tssem1.obj$total.n,
                                  Amatrix=Amatrix, Smatrix=Smatrix, Fmatrix=Fmatrix,
                                  diag.constraints=diag.constraints, cor.analysis=cor.analysis,
-                                 intervals.type=intervals.type, model.name=model.name,
+                                 intervals.type=intervals.type, mx.algebras=mx.algebras,
+                                 model.name=model.name,
                                  suppressWarnings = suppressWarnings, ...) },
          tssem1REM = { cor.analysis <- tssem1.obj$cor.analysis
                      ## Extract the pooled correlation matrix
@@ -453,8 +470,8 @@ tssem2 <- function(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.co
                       }
                       out <- wls(Cov=pooledS, asyCov=asyCov, n=tssem1.obj$total.n,
                                  Amatrix=Amatrix, Smatrix=Smatrix, Fmatrix=Fmatrix, diag.constraints=diag.constraints,
-                                 cor.analysis=cor.analysis, intervals.type=intervals.type, model.name=model.name,
-                                 suppressWarnings = suppressWarnings, ...) })
+                                 cor.analysis=cor.analysis, intervals.type=intervals.type, mx.algebras=mx.algebras,
+                                 model.name=model.name, suppressWarnings = suppressWarnings, ...) })
   out
 }
     

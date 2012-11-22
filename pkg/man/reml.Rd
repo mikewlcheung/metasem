@@ -9,9 +9,10 @@ multivariate meta-analysis with restricted (residual) maximum likelihood
 (REML) estimation method.
 }
 \usage{
-reml(y, v, x, data, RE.constraints, RE.startvalues = 0.1, RE.lbound = 1e-10,
-intervals.type = c("z", "LB"), model.name="Variance component with REML",
-suppressWarnings = TRUE, ...)
+reml(y, v, x, data, RE.constraints = NULL, RE.startvalues = 0.1,
+     RE.lbound = 1e-10, intervals.type = c("z", "LB"),
+     model.name="Variance component with REML",
+     suppressWarnings = TRUE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -32,7 +33,9 @@ suppressWarnings = TRUE, ...)
   \item{data}{An optional data frame containing the variables in the model.
 }   
   \item{RE.constraints}{A \eqn{p}{p} x \eqn{p}{p} matrix
-	specifying the variance componets of the random effects. The default is that all
+	specifying the variance componets of the random effects. If the input
+	is not a matrix, it is converted into a matrix by
+	\code{as.matrix()}. The default is that all
 	covariance/variance components are free. The format of this matrix
 	follows \code{\link[metaSEM]{as.mxMatrix}}. Elements of the variance
 	components can be constrained equally by using the same labels. If a zero matrix is

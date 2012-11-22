@@ -1,7 +1,7 @@
 as.mxMatrix <- function(x, name, ...) {
   ## If it is a vector, the output is a column matrix.
   if (!is.matrix(x))
-    stop("\"x\" must be a matrix.")
+    x <- as.matrix(x)
   # suppress warnings
   ## warn <- options()$warn
   ## options(warn=-1)

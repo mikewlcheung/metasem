@@ -10,9 +10,9 @@ the intercepts, regression coefficients and variance components on the level-2
 and on the level-3 can be easily imposed by setting the same labels on the parameter estimates.
 }
 \usage{
-meta3(y, v, cluster, x, data, intercept.constraints,
-      coef.constraints, RE2.constraints, RE2.lbound = 1e-10,
-      RE3.constraints, RE3.lbound = 1e-10,
+meta3(y, v, cluster, x, data, intercept.constraints = NULL,
+      coef.constraints = NULL , RE2.constraints = NULL,
+      RE2.lbound = 1e-10, RE3.constraints = NULL, RE3.lbound = 1e-10,
       intervals.type = c("z", "LB"), I2="I2q",
       R2=TRUE, model.name = "Meta analysis with ML",
       suppressWarnings = TRUE, ...)
@@ -33,32 +33,36 @@ meta3(y, v, cluster, x, data, intercept.constraints,
 }
   \item{intercept.constraints}{A \eqn{1}{1} x \eqn{1}{1} matrix
 	specifying whether the intercept of the effect size is fixed or
-	constrained. The format of this matrix follows
+	constrained. If the input is not a matrix, the input is converted into a
+	\eqn{1}{1} x \eqn{p}{p} matrix with
+	\code{t(as.matrix(intercept.constraints))}. The format of this matrix follows
 	\code{\link[metaSEM]{as.mxMatrix}}. The intercept can be
 	constrained with other parameters by using the same label.
 }
   \item{coef.constraints}{A \eqn{1}{1} x \eqn{m}{m} matrix
-	specifying how the level-2 and level-3 predictors predict the effect sizes. The default
+	specifying how the level-2 and level-3 predictors predict the effect sizes. If the input
+	is not a matrix, it is converted into a matrix by
+	\code{as.matrix()}. The default
 	is that all \eqn{m}{m} predictors predict the effect size. The
 	format of this matrix follows
 	\code{\link[metaSEM]{as.mxMatrix}}. The regression coefficients can be
 	constrained equally by using the same labels.
 }
-  \item{RE2.constraints}{A \eqn{1}{1} x \eqn{1}{1} matrix
+  \item{RE2.constraints}{A scalar or a \eqn{1}{1} x \eqn{1}{1} matrix
 	specifying the variance componets of the random effects. The default
 	is that the variance components is free. The format of this matrix
 	follows \code{\link[metaSEM]{as.mxMatrix}}. Elements of the variance
 	components can be constrained equally by using the same label. 
 }
-  \item{RE2.lbound}{A \eqn{1}{1} x \eqn{1}{1} matrix of lower bound on the level-2 variance component of the random effects. 
+  \item{RE2.lbound}{A scalar or a \eqn{1}{1} x \eqn{1}{1} matrix of lower bound on the level-2 variance component of the random effects. 
 }
-  \item{RE3.constraints}{A \eqn{1}{1} x \eqn{1}{1} matrix
+  \item{RE3.constraints}{A scalar of a \eqn{1}{1} x \eqn{1}{1} matrix
 	specifying the variance componets of the random effects at
 	level-3. The default is that the variance components is free. The format of this matrix
 	follows \code{\link[metaSEM]{as.mxMatrix}}. Elements of the variance
 	components can be constrained equally by using the same label. 
 }
-  \item{RE3.lbound}{A \eqn{1}{1} x \eqn{1}{1} matrix of lower bound on the level-3 variance component of the random effects. 
+  \item{RE3.lbound}{A scalar or a \eqn{1}{1} x \eqn{1}{1} matrix of lower bound on the level-3 variance component of the random effects. 
 }
   \item{intervals.type}{Either \code{z} (default if missing) or
 	\code{LB}. If it is \code{z}, it calculates the 95\% Wald confidence
@@ -85,10 +89,10 @@ meta3(y, v, cluster, x, data, intercept.constraints,
   \item{\dots}{Futher arguments to be passed to \code{\link[OpenMx]{mxRun}}}
 }
 \details{
-  \deqn{y_{ij} = \beta_0 + \mathbf{\beta'}*\mathbf{x_j} + u_{(2)ij} + u_{(3)j} + e_{ij}
+  \deqn{y_{ij} = \beta_0 + \mathbf{\beta'}*\mathbf{x}_{ij} + u_{(2)ij} + u_{(3)j} + e_{ij}
   } where \eqn{y_{ij}} is the effect size for the ith study in the jth cluster,
   \eqn{\beta_0} is the intercept, \eqn{\mathbf{\beta}} is the
-  regression coefficients, \eqn{\mathbf{x_{ij}}} is a vector of predictors, \eqn{u_{(2)ij} \sim N(0, \tau^2_2)}{u_{(2)ij}~ N(0,
+  regression coefficients, \eqn{\mathbf{x}_{ij}} is a vector of predictors, \eqn{u_{(2)ij} \sim N(0, \tau^2_2)}{u_{(2)ij}~ N(0,
 	  tau^2_2)} and \eqn{u_{(3)j} \sim N(0, \tau^2_3)}{u_{(3)j}~ N(0,
 	  tau^2_3)} are the level-2 and level-3 heterogeneity variances,
 	respectively, and \eqn{e_{ij} \sim N(0, v_{ij})}{e_{ij}~ N(0,

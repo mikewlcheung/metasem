@@ -13,7 +13,10 @@ reml3 <- function(y, v, cluster, x, data, RE2.startvalue=0.1, RE2.lbound=1e-10,
   my.y <- mf[[match("y", names(mf))]]
   my.v <- mf[[match("v", names(mf))]]
   my.cluster <- mf[[match("cluster", names(mf))]]  
-  cluster <- eval(my.cluster, data, enclos = sys.frame(sys.parent()))
+  cluster <- as.character(eval(my.cluster, data, enclos = sys.frame(sys.parent())))
+  ## check if there are missing data in cluster
+  if (any(is.na(cluster)))
+      stop("Missing values are not allowed in \"cluster\".\n")  
   cluster.order <- order(cluster)
   cluster <- cluster[cluster.order]
   y <- eval(my.y, data, enclos = sys.frame(sys.parent()))

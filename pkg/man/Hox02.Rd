@@ -32,7 +32,7 @@ data(Hox02)
 summary( meta(y=yi, v=vi, data=Hox02, I2=c("I2q", "I2hm"), intervals.type="LB") ) 
 
 ## Fixed-effects meta-analysis
-summary( meta(y=yi, v=vi, data=Hox02, RE.constraints=matrix(0, ncol=1, nrow=1),
+summary( meta(y=yi, v=vi, data=Hox02, RE.constraints=0,
               model.name="Fixed effects model") )
 
 ## Mixed-effects meta-analysis with "weeks" as a predictor

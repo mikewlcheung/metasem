@@ -11,9 +11,10 @@ intercepts, regression coefficients and variance components can be
 easily imposed by setting the same labels on the parameter estimates.
 }
 \usage{
-meta(y, v, x, data, intercept.constraints, coef.constraints, RE.constraints,
-RE.startvalues=0.1, RE.lbound = 1e-10, intervals.type = c("z", "LB"),
-I2="I2q", R2=TRUE, model.name="Meta analysis with ML", suppressWarnings = TRUE, ...)
+meta(y, v, x, data, intercept.constraints = NULL, coef.constraints = NULL,
+     RE.constraints = NULL, RE.startvalues=0.1, RE.lbound = 1e-10,
+     intervals.type = c("z", "LB"), I2="I2q", R2=TRUE,
+     model.name="Meta analysis with ML", suppressWarnings = TRUE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -35,20 +36,25 @@ I2="I2q", R2=TRUE, model.name="Meta analysis with ML", suppressWarnings = TRUE, 
 }  
   \item{intercept.constraints}{A \eqn{1}{1} x \eqn{p}{p} matrix
 	specifying whether the intercepts of the effect sizes are fixed or
-	free. The default is that the intercepts are free. When there is no predictor, these intercepts are the same as
+	free. If the input is not a matrix, the input is converted into a
+	\eqn{1}{1} x \eqn{p}{p} matrix with
+	\code{t(as.matrix(intercept.constraints))}. The default is that the intercepts are free. When there is no predictor, these intercepts are the same as
 	the pooled effect sizes. The format of this matrix follows
 	\code{\link[metaSEM]{as.mxMatrix}}. The intercepts can be
 	constrained equally by using the same labels.
 }
   \item{coef.constraints}{A \eqn{p}{p} x \eqn{m}{m} matrix
-	specifying how the predictors predict the effect sizes. The default
-	is that all \eqn{m}{m} predictors predict all \eqn{p}{p} effect sizes. The
+	specifying how the predictors predict the effect sizes. If the input
+	is not a matrix, it is converted into a matrix by
+	\code{as.matrix()}. The default is that all \eqn{m}{m} predictors predict all \eqn{p}{p} effect sizes. The
 	format of this matrix follows
 	\code{\link[metaSEM]{as.mxMatrix}}. The regression coefficients can be
 	constrained equally by using the same labels.
 }
   \item{RE.constraints}{A \eqn{p}{p} x \eqn{p}{p} matrix
-	specifying the variance componets of the random effects. The default is that all
+	specifying the variance componets of the random effects. If the input
+	is not a matrix, it is converted into a matrix by
+	\code{as.matrix()}. The default is that all
 	covariance/variance components are free. The format of this matrix
 	follows \code{\link[metaSEM]{as.mxMatrix}}. Elements of the variance
 	components can be constrained equally by using the same labels. If a zero matrix is

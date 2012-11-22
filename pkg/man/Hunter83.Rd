@@ -53,10 +53,10 @@ summary(random1)
 
 ## Second stage analysis
 ## Model with direct effect from Ability to Supervisor
-random2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, diag.constraints=TRUE,
+random2 <- tssem2(random1, Amatrix=A1, Smatrix=S1, diag.constraints=TRUE,
                   intervals.type="LB",
+                  mx.algebras=list( ind=mxAlgebra(A2J*J2S+A2J*J2W*W2S+A2W*W2S, name="ind") ),
                   model.name="TSSEM2 random effects model")
-random2 <- rerun(random2)
 summary(random2)
 }
 \keyword{datasets}

@@ -10,10 +10,10 @@
 }
 \usage{
 wls(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=FALSE,
-    cor.analysis=TRUE, intervals.type=c("z", "LB"), model.name=NULL,
+    cor.analysis=TRUE, intervals.type=c("z", "LB"), mx.algebras=NULL, model.name=NULL,
     suppressWarnings=TRUE, ...)
 tssem2(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=FALSE,
-       intervals.type=c("z", "LB"), model.name=NULL, suppressWarnings=TRUE, ...) 
+       intervals.type=c("z", "LB"), mx.algebras=NULL, model.name=NULL, suppressWarnings=TRUE, ...) 
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -51,6 +51,14 @@ tssem2(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=FA
 	parameter estimates. Please note that the z values and their
 	associated p values are based on the z statistic. They are not
 	related to the likelihood-based CIs.
+  }
+  \item{mx.algebras}{A list of \code{\link[OpenMx]{mxMatrix}} or  \code{\link[OpenMx]{mxAlgebra}} objects on the \code{Amatrix},
+	\code{Smatrix} and \code{Fmatrx}. It can be used to define functions
+	of parameters and their LBCIs. For example, if the regression
+	coefficients to calculate an indirect effect are in F[1,2] and
+	F[1,3], we may define
+	\code{list(ind=mxAlgebra(Fmatrix[1,2]*Fmatrix[1,3], name="ind"))}
+	See the example in \code{\link[metaSEM]{Becker92}} and \code{\link[metaSEM]{Hunter83}}.
   }
   \item{model.name}{A string for the model name in
 	\code{\link[OpenMx]{mxModel}}. If it is missing, the default is
@@ -103,7 +111,8 @@ McArdle, J. J., & MacDonald, R. P. (1984). Some algebraic properties of the Reti
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{ \code{\link[metaSEM]{tssem1}},
-  \code{\link[metaSEM]{Becker92}}, \code{\link[metaSEM]{Digman97}}, \code{\link[metaSEM]{issp89}}, \code{\link[metaSEM]{issp05}}
+  \code{\link[metaSEM]{Becker92}}, \code{\link[metaSEM]{Digman97}},
+  \code{\link[metaSEM]{Hunter83}}, \code{\link[metaSEM]{issp89}}, \code{\link[metaSEM]{issp05}}
 }
 \examples{
 #### Analysis of correlation structure

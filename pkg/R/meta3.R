@@ -1,6 +1,6 @@
-meta3 <- function(y, v, cluster, x, data, intercept.constraints, coef.constraints, 
-                  RE2.constraints, RE2.lbound=1e-10,
-                  RE3.constraints, RE3.lbound=1e-10,
+meta3 <- function(y, v, cluster, x, data, intercept.constraints=NULL, coef.constraints=NULL, 
+                  RE2.constraints=NULL, RE2.lbound=1e-10,
+                  RE3.constraints=NULL, RE3.lbound=1e-10,
                   intervals.type=c("z", "LB"), I2="I2q", R2=TRUE,
                   model.name="Meta analysis with ML",
                   suppressWarnings=TRUE, ...) {
@@ -17,7 +17,13 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints, coef.constraint
   my.cluster <- mf[[match("cluster", names(mf))]]  
   y <- eval(my.y, data, enclos = sys.frame(sys.parent()))
   v <- eval(my.v, data, enclos = sys.frame(sys.parent()))
+  ## Fixed factors with missing levels reported by David Stanley
   cluster <- eval(my.cluster, data, enclos = sys.frame(sys.parent()))
+  if (!is.character(cluster))
+    cluster <- as.character(cluster)
+  ## check if there are missing data in cluster
+  if (any(is.na(cluster)))
+      stop("Missing values are not allowed in \"cluster\".\n")
 
   ## data in long format
   my.long <- data.frame(y, v, cluster)
@@ -41,12 +47,13 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints, coef.constraint
   ## Remove missing x. Missing y is fine as it will be handled by OpenMx.
   my.long <- my.long[!miss.x, ]
   ## Reorder data according to clusters
-  my.long <- my.long[order(my.long$cluster), ]  
+  my.long <- my.long[order(my.long$cluster), ]
 
   ## Convert long format to wide format as SEM uses wide format
   ## c() is required to convert matrix to vector when the data are balanced.
   ## c() is not required when the data are unbalanced.
-  my.long$time <- c(unlist(sapply(split(my.long$y, my.long$cluster), function(x) 1:length(x))))
+  ## as.character() is required to null data with levels
+  my.long$time <- c(unlist(sapply(split(my.long$y, as.character(my.long$cluster)), function(x) 1:length(x))))
   my.wide <- reshape(my.long, timevar="time", idvar=c("cluster"), direction="wide")
 
   ## Replace "." with "_" since OpenMx does not allow "." as variable names
@@ -63,19 +70,23 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints, coef.constraint
   miss.y <- is.na(my.wide[, paste("y", 1:k, sep="_")])
   
   ## Prepare matrices
-  if (missing(intercept.constraints)) {
-    inter <- mxMatrix("Full", nrow=1, ncol=1, free=TRUE, values=0, labels="Intercept", name="inter")
+  if (is.null(intercept.constraints)) {
+    Inter <- mxMatrix("Full", nrow=1, ncol=1, free=TRUE, values=0, labels="Intercept", name="Inter")
   } else {
+    ## Convert intercept.constraints into a row matrix if it is not a matrix
+    if (!is.matrix(intercept.constraints))
+      intercept.constraints <- as.matrix(intercept.constraints)
+    
     if (!all(dim(intercept.constraints)==c(1, 1)))
       stop("Dimensions of \"intercept.constraints\" are incorrect.\n")
-    inter <- as.mxMatrix(intercept.constraints, name="inter")
+    Inter <- as.mxMatrix(intercept.constraints, name="Inter")
   }
   ## Row vector of ones
   oneRow <- mxMatrix("Unit", nrow=1, ncol=k, name="oneRow")
   
   if ( no.x==0 ) {
     ## matrices with all zeroes; not actually used in the calculations
-    coeff <- mxMatrix("Zero", nrow=1, ncol=1, name="coeff")
+    Beta <- mxMatrix("Zero", nrow=1, ncol=1, name="Beta")
     mydata <- mxMatrix("Zero", nrow=1, ncol=k, name="mydata")
   } else {
     ## NA is not available for definition variable even y is NA.
@@ -88,11 +99,14 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints, coef.constraint
     mydata <- mxMatrix("Full", nrow=no.x, ncol=k, free=FALSE, name="mydata",
                       labels=c(outer(1:no.x, 1:k, function(x, y) paste("data.x", x,"_", y, sep = ""))))
 
-    if (missing(coef.constraints)) {
-      coeff <- mxMatrix("Full", nrow=1, ncol=no.x, free=TRUE, values=0,
-                        labels=paste("Slope_", 1:no.x, sep=""), name="coeff")
+    if (is.null(coef.constraints)) {
+      Beta <- mxMatrix("Full", nrow=1, ncol=no.x, free=TRUE, values=0,
+                       labels=paste("Slope_", 1:no.x, sep=""), name="Beta")
     } else {
-      coeff <- as.mxMatrix(coef.constraints, name="coeff")
+    ## Convert coef.constraints into a row matrix if it is not a matrix
+    if (!is.matrix(coef.constraints))
+      coef.constraints <- t(as.matrix(coef.constraints))      
+      Beta <- as.mxMatrix(coef.constraints, name="Beta")
     }    
   }
   
@@ -105,30 +119,42 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints, coef.constraint
     RE3.lbound <- 1e-10
   }
 
-  if ( missing(RE2.constraints) ) {
-    Tau2 <- mxMatrix("Full", nrow=1, ncol=1, free=TRUE, values=0.01, labels="Tau2_2",                   
-                     lbound=RE2.lbound, name="Tau2")
+  if ( is.null(RE2.constraints) ) {
+    ## Tau2 <- mxMatrix("Full", nrow=1, ncol=1, free=TRUE, values=0.01, labels="Tau2_2",                   
+    ##                  lbound=RE2.lbound, name="Tau2")
+    tau2 <- "0.01*Tau2_2"
   } else {
-    Tau2 <- as.mxMatrix(RE2.constraints, name="Tau2", lbound=RE2.lbound)
+    ## Tau2 <- as.mxMatrix(RE2.constraints, name="Tau2", lbound=RE2.lbound)
+    if (length(RE2.constraints)!=1) 
+      stop("Length of \"RE2.constraints\" is not 1.\n")
+    tau2 <- RE2.constraints
   }
 
-  if ( missing(RE3.constraints) ) {
-    Tau3 <- mxMatrix("Full", nrow=1, ncol=1, free=TRUE, values=0.01, labels="Tau2_3",                   
-                     lbound=RE3.lbound, name="Tau3")
+  if ( is.null(RE3.constraints) ) {
+    ## Tau3 <- mxMatrix("Full", nrow=1, ncol=1, free=TRUE, values=0.01, labels="Tau2_3",                   
+    ##                  lbound=RE3.lbound, name="Tau3")
+    tau3 <- "0.01*Tau2_3"
   } else {
-    Tau3 <- as.mxMatrix(RE3.constraints, name="Tau3", lbound=RE3.lbound)
-  }  
+    ## Tau3 <- as.mxMatrix(RE3.constraints, name="Tau3", lbound=RE3.lbound)
+    if (length(RE3.constraints)!=1) 
+      stop("Length of \"RE3.constraints\" is not 1.\n")
+    tau3 <- RE3.constraints
+  }
+
+  Tau <- as.mxMatrix( diag(c(tau2, tau3)), lbound=matrix(c(RE2.lbound,NA,NA,RE3.lbound), nrow=2, ncol=2), name="Tau")
   
   Id <- mxMatrix("Iden", nrow=k, ncol=k, name="Id")
   Ones <- mxMatrix("Unit", nrow=k, ncol=k, name="Ones") 
   ## conditional sampling variances
   V <- mxMatrix("Diag", nrow=k, ncol=k, free=FALSE, labels=paste("data.v", 1:k, sep="_"), name="V")
   ## expMean <- mxAlgebra( oneRow %x% inter + coeff2 %*% data2 + coeff3 %*% data3, name="expMean")
-  expMean <- mxAlgebra( oneRow %x% inter + coeff %*% mydata, name="expMean")     
+  expMean <- mxAlgebra( oneRow %x% Inter + Beta %*% mydata, name="expMean")
+  Tau2 <- mxAlgebra(Tau[1,1], name="Tau2")
+  Tau3 <- mxAlgebra(Tau[2,2], name="Tau3")
   expCov <- mxAlgebra( Ones %x% Tau3 + Id %x% Tau2 + V, name="expCov")
-  
-  ## Assuming NA first
-  mx0.fit <- NA  
+
+  ## Assume NA first
+  mx0.fit <- NA
   if (no.x==0) {
 
     ## Calculate I2
@@ -159,30 +185,30 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints, coef.constraint
     I2 <- match.arg(I2, c("I2q", "I2hm", "I2am"), several.ok=TRUE)
     ci <- c(outer(I2, c("_2","_3"), paste, sep=""))
     
-    meta3 <- mxModel(model=model.name, mxData(observed=my.wide[,-1], type="raw"), oneRow, Id, Ones,
-                     inter, coeff, mydata, Tau2, Tau3, V, expMean, expCov,
-                     qV, hmV, amV, I2q_2, I2q_3, I2hm_2, I2hm_3, I2am_2, I2am_3, #ICC_2, ICC_3,
-                     mxFIMLObjective("expCov","expMean", dimnames=paste("y", 1:k, sep="_")),
-                     mxCI(c("inter","coeff","Tau2","Tau3", ci)))
+    mx.model <- mxModel(model=model.name, mxData(observed=my.wide[,-1], type="raw"), oneRow, Id, Ones,
+                        Inter, Beta, mydata, Tau, Tau2, Tau3, V, expMean, expCov,
+                        qV, hmV, amV, I2q_2, I2q_3, I2hm_2, I2hm_3, I2am_2, I2am_3, #ICC_2, ICC_3,
+                        mxFIMLObjective("expCov","expMean", dimnames=paste("y", 1:k, sep="_")),
+                        mxCI(c("Inter","Beta","Tau", ci)))
   } else {
     ## no.x > 0
-    meta3 <- mxModel(model=model.name, mxData(observed=my.wide[,-1], type="raw"), oneRow, Id, Ones,
-                     inter, coeff, mydata, Tau2, Tau3, V, expMean, expCov,
-                     mxFIMLObjective("expCov","expMean", dimnames=paste("y", 1:k, sep="_")),
-                     mxCI(c("inter","coeff","Tau2","Tau3")))
+    mx.model <- mxModel(model=model.name, mxData(observed=my.wide[,-1], type="raw"), oneRow, Id, Ones,
+                       Inter, Beta, mydata, Tau, Tau2, Tau3, V, expMean, expCov,
+                       mxFIMLObjective("expCov","expMean", dimnames=paste("y", 1:k, sep="_")),
+                       mxCI(c("Inter","Beta","Tau")))
 
     ## Calculate R2
     if (R2) mx0.fit <- tryCatch( meta3(y=y, v=v, cluster=cluster, data=my.long, model.name="No predictor",
-                                   suppressWarnings=TRUE, silent=TRUE), error = function(e) e )    
-  }
+                                       suppressWarnings=TRUE, silent=TRUE), error = function(e) e )
+   }
   
   intervals.type <- match.arg(intervals.type)
   # Default is z
   switch(intervals.type,
-    z = mx.fit <- tryCatch( mxRun(meta3, intervals=FALSE,
-                                    suppressWarnings = suppressWarnings, ...), error = function(e) e ),
-    LB = mx.fit <- tryCatch( mxRun(meta3, intervals=TRUE,
-                                     suppressWarnings = suppressWarnings, ...), error = function(e) e ) )
+    z = mx.fit <- tryCatch( mxRun(mx.model, intervals=FALSE,
+                                  suppressWarnings = suppressWarnings, ...), error = function(e) e ),
+    LB = mx.fit <- tryCatch( mxRun(mx.model, intervals=TRUE,
+                                   suppressWarnings = suppressWarnings, ...), error = function(e) e ) )
  
   if (inherits(mx.fit, "error")) {
     cat("Error in running the mxModel:\n")
@@ -192,7 +218,7 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints, coef.constraint
   ## my.long is complete data
   ## FIXME: remove miss.x (is it used by meta()?)
   out <- list(call=mf, I2=I2, R2=R2, data.wide=my.wide, data=my.long,
-              no.y=1, no.x=no.x, miss.x=rep(FALSE, nrow(my.long)), 
+              no.y=1, no.x=no.x, miss.x=rep(FALSE, nrow(my.long)), mx.model=mx.model,
               mx.fit=mx.fit, mx0.fit=mx0.fit, intervals.type=intervals.type)
   class(out) <- c("meta", "meta3")
   return(out)
