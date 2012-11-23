@@ -5,13 +5,14 @@
 \alias{vcov.wls}
 \alias{vcov.wls.cluster}
 \alias{vcov.meta}
+\alias{vcov.meta3X}
 \alias{vcov.reml}
 \title{Extract Covariance Matrix Parameter Estimates from Various Objects
 }
 \description{It extracts the variance-covariance matrix of the
   parameter estimates from either \code{tssem1FEM},
-  \code{tssem1FEM.cluster}, \code{tssem1REM}, \code{wls}, \code{wls.cluster}, \code{meta}
-  or \code{reml} objects.
+  \code{tssem1FEM.cluster}, \code{tssem1REM}, \code{wls},
+  \code{wls.cluster}, \code{meta}, \code{meta3X} or \code{reml} objects.
 }
 \usage{
 \method{vcov}{tssem1FEM}(object, \dots)
@@ -20,6 +21,7 @@
 \method{vcov}{wls}(object, \dots)
 \method{vcov}{wls.cluster}(object, \dots)
 \method{vcov}{meta}(object, select = c("all", "fixed", "random"), \dots)
+\method{vcov}{meta3X}(object, select = c("all", "fixed", "random", "allX"), \dots)
 \method{vcov}{reml}(object, \dots)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -29,7 +31,9 @@
 	class \code{wls}, class \code{wls.cluster}, class \code{meta} or class \code{reml}
   }
   \item{select}{Select \code{all} for both fixed- and random-effects parameters, \code{fixed} for the
-  fixed-effects parameters or \code{random} for the random-effects parameters.   
+  fixed-effects parameters or \code{random} for the random-effects
+  parameters. For \code{meta3X} objects, \code{allX} is used to extract
+  all parameters including the predictors and auxiliary variables.  
 }  
   \item{\dots}{Further arguments; currently none is used}
 }

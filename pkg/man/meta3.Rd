@@ -1,5 +1,6 @@
 \name{meta3}
 \alias{meta3}
+\alias{meta3X}
 \title{Three-Level Univariate Meta-Analysis with Maximum Likelihood Estimation
 }
 \description{
@@ -16,6 +17,10 @@ meta3(y, v, cluster, x, data, intercept.constraints = NULL,
       intervals.type = c("z", "LB"), I2="I2q",
       R2=TRUE, model.name = "Meta analysis with ML",
       suppressWarnings = TRUE, ...)
+meta3X(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=NULL,
+       coef.constraints=NULL, RE2.constraints=NULL, RE2.lbound=1e-10,
+       RE3.constraints=NULL, RE3.lbound=1e-10, intervals.type=c("z", "LB"),
+       R2=TRUE, model.name="Meta analysis with ML", suppressWarnings=TRUE, ...) 
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -29,6 +34,18 @@ meta3(y, v, cluster, x, data, intercept.constraints = NULL,
   \item{x}{A predictor or a \eqn{k}{k} x \eqn{m}{m} matrix of level-2
 	and level-3 predictors where \eqn{m}{m} is the number of predictors. 
 }
+  \item{x2}{A predictor or a \eqn{k}{k} x \eqn{m}{m} matrix of level-2
+	predictors where \eqn{m}{m} is the number of predictors. 
+}
+  \item{x3}{A predictor or a \eqn{k}{k} x \eqn{m}{m} matrix of level-3
+	predictors where \eqn{m}{m} is the number of predictors. 
+}
+  \item{av2}{A predictor or a \eqn{k}{k} x \eqn{m}{m} matrix of level-2
+	auxiliary variables where \eqn{m}{m} is the number of variables. 
+}
+  \item{av3}{A predictor or a \eqn{k}{k} x \eqn{m}{m} matrix of level-3
+	auxiliary variables where \eqn{m}{m} is the number of variables. 
+}    
   \item{data}{An optional data frame containing the variables in the model.
 }
   \item{intercept.constraints}{A \eqn{1}{1} x \eqn{1}{1} matrix
@@ -97,7 +114,18 @@ meta3(y, v, cluster, x, data, intercept.constraints = NULL,
 	  tau^2_3)} are the level-2 and level-3 heterogeneity variances,
 	respectively, and \eqn{e_{ij} \sim N(0, v_{ij})}{e_{ij}~ N(0,
 	  v_{ij})} is the conditional known sampling variance.
-	
+
+ \code{meta3()} does not differentiate between level-2 or level-3
+ variables in \code{x} because they are both treated as a design
+ matrix. When there are missing values in \code{x}, the data will be
+ deleted. \code{meta3X()} treats the predictors \code{x2} and \code{x3}
+ as level-2 and level-3 variables. Thus, their means and covariance
+ matrix will be estimated. Missing values in \code{x2} and \code{x3}
+ will handled by (full information) maximum likelihood (FIML). Moreover,
+ auxiliary variables at level-2 \code{av2} and at level-3 \code{av3} may
+ be included to improve the estimation. Although \code{meta3X()} is more
+ flexible in handling missing covariates, it is more likely to encounter
+ estimation problems. 	
 }
 \value{
 %%  ~Describe the value returned
@@ -110,7 +138,14 @@ meta3(y, v, cluster, x, data, intercept.constraints = NULL,
   Cheung, M. W. L. (2012). Three-level meta-analyses as structural
   equation models. \emph{Manuscript submitted for publication}.
 
-  Konstantopoulos, S. (2011). Fixed effects and variance components
+  Enders, C. K. (2010). \emph{Applied missing data analysis}. New York:
+  Guilford Press.
+
+  Graham, J. (2003). Adding missing-data-relevant variables to
+ FIML-based structural equation models. \emph{Structural Equation
+   Modeling: A Multidisciplinary Journal}, \bold{10(1)}, 80-100.
+
+ Konstantopoulos, S. (2011). Fixed effects and variance components
   estimation in three-level meta-analysis. \emph{Research Synthesis
   Methods}, \bold{2}, 61-76.
 }

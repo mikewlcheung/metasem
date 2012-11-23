@@ -62,5 +62,13 @@ summary( reml3(y=y, v=v, cluster=District, data=Cooper03,
 ## Year as a predictor
 summary( reml3(y=y, v=v, cluster=District, x=scale(Year, scale=FALSE),
                data=Cooper03, intervals.type="LB") )
+
+## Handling missing covariates with FIML
+## Create 20/56 MCAR data in Year
+set.seed(10000)
+Year_MCAR <- Cooper03$Year
+Year_MCAR[sample(56, 20)] <- NA
+summary( meta3X(y=y, v=v, cluster=District, x2=scale(Year_MCAR, scale=FALSE),
+                data=Cooper03, model.name="NA in Year_MCAR") )
 }
 \keyword{datasets}

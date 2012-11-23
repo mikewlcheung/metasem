@@ -5,14 +5,15 @@
 \alias{coef.wls}
 \alias{coef.wls.cluster}
 \alias{coef.meta}
+\alias{coef.meta3X}
 \alias{coef.reml}
 
 \title{Extract Parameter Estimates from tssem1FEM, tssem1FEM.cluster,
-  tssem1REM, wls, wls.cluster, meta and reml Objects
+  tssem1REM, wls, wls.cluster, meta, meta3X and reml Objects
 }
 \description{It extracts the parameter estimates from either
   \code{tssem1FEM}, \code{tssem1FEM.cluster}, \code{tssem1REM}, \code{wls}, \code{wls.cluster},
-  \code{meta} or \code{reml} objects.
+  \code{meta}, \code{meta3X} or \code{reml} objects.
 }
 \usage{
 \method{coef}{tssem1FEM}(object, \dots)
@@ -21,6 +22,7 @@
 \method{coef}{wls}(object, \dots)
 \method{coef}{wls.cluster}(object, \dots)
 \method{coef}{meta}(object, select = c("all", "fixed", "random"), \dots)
+\method{coef}{meta3X}(object, select = c("all", "fixed", "random", "allX"), \dots)
 \method{coef}{reml}(object, \dots)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -29,9 +31,10 @@
 	\code{tssem1FEM}, class \code{tssem1FEM.cluster}, class \code{tssem1REM}, 
 	class \code{wls}, class \code{wls.cluster}, class \code{meta} or class \code{reml}
   }
-  \item{select}{Select "all" for all parameters, "fixed" for the
-  fixed-effects parameters or "random" for the random-effects
-  parameters. 
+  \item{select}{Select \code{all} for both fixed- and random-effects parameters, \code{fixed} for the
+  fixed-effects parameters or \code{random} for the random-effects
+  parameters. For \code{meta3X} objects, \code{allX} is used to extract
+  all parameters including the predictors and auxiliary variables.  
 }  
   \item{\dots}{Further arguments; currently none is used}
 }

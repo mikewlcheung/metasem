@@ -1,26 +1,29 @@
 \name{anova}
 \alias{anova.wls}
 \alias{anova.meta}
+\alias{anova.meta3X}
 \alias{anova.reml}
 \title{Compare Nested Models with Likelihood Ratio Statistic
 }
-\description{It compares nested models with the likelihood ratio statistic from either \code{wls}, \code{meta} or
+\description{It compares nested models with the likelihood ratio
+  statistic from either \code{wls}, \code{meta}, \code{meta3X} or
   \code{reml} objects. It is a wrapper of \code{\link[OpenMx]{mxCompare}}.
 }
 \usage{
 \method{anova}{wls}(object, \dots, all=FALSE)
 \method{anova}{meta}(object, \dots, all=FALSE)
+\method{anova}{meta3X}(object, \dots, all=FALSE)
 \method{anova}{reml}(object, \dots, all=FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{object}{An object or a list of objects of either class
-	\code{\link[metaSEM]{wls}}, class \code{\link[metaSEM]{meta}} or
+	\code{\link[metaSEM]{wls}}, class \code{\link[metaSEM]{meta}}, class \code{\link[metaSEM]{meta3X}} or
 	class \code{\link[metaSEM]{reml}}. It will be passed to the
 	\code{base} argument in \code{\link[OpenMx]{mxCompare}}.
   }
   \item{\dots}{An object or a list of objects of either class
-	\code{\link[metaSEM]{wls}}, class \code{\link[metaSEM]{meta}} or
+	\code{\link[metaSEM]{wls}}, class \code{\link[metaSEM]{meta}}, class \code{\link[metaSEM]{meta3X}} or
 	class \code{\link[metaSEM]{reml}}. It will be passed to the
 	\code{comparison} argument in \code{\link[OpenMx]{mxCompare}}.
   }  

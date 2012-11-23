@@ -60,5 +60,21 @@ summary( reml3(y=logOR, v=v, x=(as.numeric(Type)-1),
 ## Centered Year as a predictor
 summary( reml3(y=logOR, v=v, x=scale(Year, scale=FALSE),
                cluster=Cluster, data=Bornmann07) )
+
+## Handling missing covariates with FIML
+## Create 33/66 MCAR data in Year
+set.seed(100000)
+Year_MCAR <- Bornmann07$Year
+Year_MCAR[sample(1:66, 33)] <- NA
+summary(meta3X(y=logOR, v=v, cluster=Cluster,
+               x2=scale(Year_MCAR, scale=FALSE), data=Bornmann07))
+
+## Create MAR data in Type that depends on Year
+Type_MAR <- ifelse(Bornmann07$Type=="Fellowship", yes=1, no=0)
+index_MAR <- ifelse(Bornmann07$Year<1996, yes=TRUE, no=FALSE)
+Type_MAR[ifelse(Bornmann07$Year<1996, yes=TRUE, no=FALSE)] <- NA
+
+summary(meta3X(y=logOR, v=v, cluster=Cluster, x2=Type_MAR,
+               av2=Year, data=Bornmann07))
 }
 \keyword{datasets}

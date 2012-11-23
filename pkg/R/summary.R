@@ -835,3 +835,159 @@ summary.wls.cluster <- function(object, df.adjustment=0, ...) {
     stop("\"object\" must be an object of class \"wls.cluster\".")
     lapply(object, summary.wls, df.adjustment=df.adjustment)
 }
+
+summary.meta3X <- function(object, allX=FALSE, ...) {
+    if (!is.element("meta3X", class(object)))
+      stop("\"object\" must be an object of class \"meta3X\".")
+
+    # calculate coefficients    
+    my.mx <- summary(object$mx.fit)
+    ## Exclude lbound ubound etc
+    my.para <- my.mx$parameters[, 1:6, drop=FALSE]   
+    ## OpenMx1.1: y1, y2 and x1 appear in col
+    ## my.para$col <- sub("[a-z]", "", my.para$col)  # Fixed for OpenMx1.1
+    # For example, P[1,2], L[1,2], ...
+    my.para$label <- my.para$name
+    my.para$name <- with(my.para, paste(matrix,"[",row,",",col,"]",sep=""))
+
+    if (!allX) {
+      index.label <- my.para$label[grep("Intercept|Slope|Tau2", my.para$label)]
+      index <- my.para$label %in% index.label
+      my.para <- my.para[index, ]
+    }
+    
+    my.ci <- my.mx$CI
+    # Determine if CIs on parameter estimates are present
+    if (is.null(dimnames(my.ci))) {
+      my.para$lbound <- my.para$Estimate - qnorm(.975)*my.para$Std.Error
+      my.para$ubound <- my.para$Estimate + qnorm(.975)*my.para$Std.Error
+      my.para <- my.para[order(my.para$label), , drop=FALSE]
+      # remove rows with missing labels
+      #my.para <- my.para[!is.na(my.para$label), ,drop=FALSE]
+      coefficients <- my.para[, c("Estimate","Std.Error","lbound","ubound"), drop=FALSE]
+    } else {
+      name <- sapply(unlist(dimnames(my.ci)[1]), function(x)
+                            {strsplit(x, ".", fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
+      my.ci <- data.frame(name, my.ci)
+      my.para <- merge(x=my.para, y=my.ci, by=c("name"), all.x=TRUE)
+      my.para <- my.para[order(my.para$label), , drop=FALSE]
+      # remove rows with missing labels
+      #my.para <- my.para[!is.na(my.para$label), , drop=FALSE]
+      coefficients <- cbind(Estimate=my.para[, "Estimate"], Std.Error=NA, my.para[, c("lbound","ubound")])
+      # NA for LBCI
+      ## coefficients$Std.Error <- NA                             
+    }
+    dimnames(coefficients)[[1]] <- my.para$label
+    coefficients$"z value" <- coefficients$Estimate/coefficients$Std.Error
+    coefficients$"Pr(>|z|)" <- 2*(1-pnorm(abs(coefficients$"z value")))
+
+    intervals.type <- object$call[[match("intervals.type", names(object$call))]]
+    # default
+    if (is.null(intervals.type))
+      intervals.type <- "z"
+
+    if (object$R2) {
+      R2.values <- .R2(object)
+    } else {
+      R2.values <- NA
+    }
+              
+    out <- list(call=object$call, intervals.type=intervals.type,
+                R2=object$R2, R2.values=R2.values, no.studies=my.mx$numObs,
+                obsStat=my.mx$observedStatistics, estPara=my.mx$estimatedParameters,
+                df=my.mx$degreesOfFreedom, Minus2LL=my.mx$Minus2LogLikelihood,
+                coefficients=coefficients, Mx.status1=object$mx.fit@output$status[[1]])
+    class(out) <- "summary.meta3X"
+    out
+}
+
+print.summary.meta3X <- function(x, ...) {
+    if (!is.element("summary.meta3X", class(x)))
+    stop("\"x\" must be an object of class \"summary.meta3X\".")
+
+    ## cat("Call:\n")
+    ## cat(deparse(x$call))
+    cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"), 
+        "\n\n", sep = "")
+    
+    cat("95% confidence intervals: ")
+    switch(x$intervals.type,
+           z = cat("z statistic approximation"),
+           LB = cat("Likelihood-based statistic") )
+
+    cat("\nCoefficients:\n")
+    printCoefmat(x$coefficients, P.values=TRUE, ...)
+
+    if (x$R2) {
+      cat("\nExplained variances (R2):\n")
+      printCoefmat(x$R2.values, ...) 
+    }
+     
+    cat("\nNumber of studies (or clusters):", x$no.studies)
+    cat("\nNumber of observed statistics:", x$obsStat)
+    cat("\nNumber of estimated parameters:", x$estPara)
+    cat("\nDegrees of freedom:", x$df)
+    cat("\n-2 log likelihood:", x$Minus2LL, "\n")        
+    
+    cat("OpenMx status1:", x$Mx.status1, "(\"0\" and \"1\": considered fine; other values indicate problems)\n")
+    ## cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")      
+}
+
+print.meta3X <- function(x, ...) {
+    if (!is.element("meta3X", class(x)))
+      stop("\"x\" must be an object of class \"meta3X\".")
+    ## cat("Call:\n")
+    ## cat(deparse(x$call))
+    cat("\nCall:\n", paste(deparse(x$call), sep = "\n", collapse = "\n"), 
+        "\n\n", sep = "")     
+    cat("Structure:\n")
+    print(summary.default(x), ...)
+}
+
+vcov.meta3X <- function(object, select=c("all", "fixed", "random", "allX"), ...) {
+    if (!is.element("meta3X", class(object)))
+    stop("\"object\" must be an object of class \"meta3X\".")
+
+    # labels of the parameters    
+    ## my.name <- summary(object$mx.fit)$parameters$name
+    my.name <- names( omxGetParameters(object$mx.fit) )
+    my.name <- my.name[!is.na(my.name)]
+    
+    select <- match.arg(select)
+    switch( select,
+         all = my.name <- my.name[ grep("Intercept|Slope|Tau2", my.name) ],
+         fixed =  my.name <- my.name[ grep("Intercept|Slope", my.name) ],
+         random = my.name <- my.name[ grep("Tau2", my.name) ]
+         )
+    
+    # Fixed a bug that all elements have to be inverted before selecting some of them
+    acov <- tryCatch( 2*solve(object$mx.fit@output$calculatedHessian)[my.name, my.name, drop=FALSE], error = function(e) e)
+    # Issue a warning instead of error message
+    if (inherits(acov, "error")) {
+      cat("Error in solving the Hessian matrix.\n")
+      warning(print(acov))
+    } else {
+      return(acov)
+    }
+}
+
+coef.meta3X <- function(object, select=c("all", "fixed", "random", "allX"), ...) {
+  if (!is.element("meta3X", class(object)))
+    stop("\"object\" must be an object of class \"meta3X\".")
+
+  my.para <- omxGetParameters(object$mx.fit)
+  select <- match.arg(select)
+  switch( select,
+         all =  my.para <- my.para[ grep("Intercept|Slope|Tau2", names(my.para)) ],
+         fixed =  my.para <- my.para[ grep("Intercept|Slope", names(my.para)) ],
+         random = my.para <- my.para[ grep("Tau2", names(my.para)) ]
+         )
+  my.para
+}
+
+anova.meta3X <- function(object, ..., all=FALSE) {
+  base <- lapply(list(object), function(x) x$mx.fit)
+  comparison <- lapply(list(...), function(x) x$mx.fit)
+  mxCompare(base=base, comparison=comparison, all=all)
+}
+
