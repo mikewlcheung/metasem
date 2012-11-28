@@ -1,10 +1,11 @@
-Release 0.8-1 (Nov 23, 2012)
+Release 0.8-1 (Nov 28, 2012)
 ====================================
-* Added meta3X() to handle missing covariates with FIML
+* Added automatic constraint on the diagonals when diag.constraints=FALSE argument in wls() for cor.analysis=TRUE. It is usually not necessary to set diag.constraints=TRUE unless there are mediators.
+* Added meta3X() to handle missing covariates with FIML for 3-level meta-analysis
 * Fixed the issue that there are missing levels in "cluster" in meta3() (and reml3()) reported by David Stanley
 * Modified meta(), reml(), meta3() and reml3() functions so that intercept.constraints, coef.constraints, RE.constraints, RE2.constraints and RE3.constraints may accept a scalar or vector as inputs
 * Added mx.algebras argument in wls() and tssem2()
-* Added dataset Hunter83 and Jaramillo05
+* Added datasets Hunter83 and Jaramillo05
 * Changed the default in as.mxMatrix. If 'x' is not a matrix, as.matrix(x) is applied on 'x' instead of throwing an error.
 
 Release 0.8-0 (Aug 30, 2012)

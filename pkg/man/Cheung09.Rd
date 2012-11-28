@@ -66,7 +66,7 @@ F1 <- create.Fmatrix(c(rep(1,9), rep(0,3)))
   
 #### Fixed-effects model: Stage 2 analysis
 fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, Fmatrix=F1,
-                 diag.constraints=TRUE, intervals.type="LB")
+                 intervals.type="LB")
 summary(fixed2)
 }
 \keyword{datasets}

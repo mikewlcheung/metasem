@@ -23,8 +23,8 @@
 \method{summary}{tssem1FEM}(object, \dots)
 \method{summary}{tssem1FEM.cluster}(object, \dots)
 \method{summary}{tssem1REM}(object, \dots)
-\method{summary}{wls}(object, df.adjustment=0, \dots)
-\method{summary}{wls.cluster}(object, df.adjustment=0, \dots)
+\method{summary}{wls}(object, df.adjustment=0, R=50, \dots)
+\method{summary}{wls.cluster}(object, df.adjustment=0, R=50, \dots)
 \method{summary}{meta}(object, homoStat=TRUE, \dots)
 \method{summary}{meta3X}(object, allX=FALSE, \dots)
 \method{summary}{reml}(object, \dots)
@@ -47,11 +47,14 @@
   \item{homoStat}{Logical. Whether to conduct a homogeneity test on the
 	effect sizes.}
   \item{allX}{Logical. Whether to report the predictors and the
-	auxiliary variables.}  
+	auxiliary variables.}
   \item{df.adjustment}{Numeric. Adjust the degrees of freedom
 	manually. It may be necessary if the df calculated is incorrect when
 	\code{diag.constraints=TRUE}.
-	}
+  }
+  \item{R}{Positive integer. The number of parameter bootstrap
+	replicates when \code{diag.constraints=TRUE}.
+}	
   \item{\dots}{Further arguments to be passed to \code{\link[stats]{printCoefmat}}
 }
 }

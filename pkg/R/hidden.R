@@ -37,9 +37,12 @@
                       free = FALSE, name = "invAcov")
   obj <- mxAlgebra(t(vecS) %&% invAcov, name = "obj")
   objective <- mxAlgebraObjective("obj")
+  mx.model <- mxModel(model = "Independent model", impliedS, sampleS,
+                      vecS, invAcov, obj, objective)
+  mx.model <- mxOption(mx.model, "Calculate Hessian", "No") 
+  mx.model <- mxOption(mx.model, "Standard Errors"  , "No")     
     
-  indep.out <- tryCatch(mxRun(mxModel(model = "Independent model", impliedS, sampleS,
-                                      vecS, invAcov, obj, objective), silent=TRUE,
+  indep.out <- tryCatch(mxRun(mx.model, silent=TRUE,
                               suppressWarnings=TRUE), error = function(e) e)
     
   if (inherits(indep.out, "error"))
@@ -77,8 +80,11 @@
     expCov <- mxMatrix("Diag", nrow=no.var, ncol=no.var, free=TRUE, 
                        values=diag(x), name="expCov")    
     objective <- mxMLObjective(covariance = "expCov", dimnames=vars)
-    fit <- tryCatch(mxRun(mxModel("model", expCov, obsCov, objective), silent=TRUE, 
-                    suppressWarnings=TRUE), error = function(e) e)
+    mx.model <- mxModel("model", expCov, obsCov, objective)
+    mx.model <- mxOption(mx.model, "Calculate Hessian", "No") 
+    mx.model <- mxOption(mx.model, "Standard Errors"  , "No")
+    
+    fit <- tryCatch(mxRun(mx.model, silent=TRUE, suppressWarnings=TRUE), error = function(e) e)
     if (inherits(fit, "error")) 
           stop(print(fit))
     #fit@output$Minus2LogLikelihood

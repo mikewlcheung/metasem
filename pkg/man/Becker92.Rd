@@ -37,9 +37,8 @@ summary(fixed1)
 ## Prepare a regression model using create.mxMatrix()
 A1 <- create.mxMatrix(c(0,0,0,"0.2*Spa2Apt",
                         0,0,"0.2*Ver2Apt",0,0), type="Full", ncol=3, nrow=3, name="A1")
-S1 <-
-create.mxMatrix(c("0.2*ErrorVarApt",0,0,1,"0.2*CorBetSpaVer",1),
-                type="Symm", name="S1")
+S1 <- create.mxMatrix(c("0.2*ErrorVarApt",0,0,1,"0.2*CorBetSpaVer",1),
+                        type="Symm", name="S1")
 
 ## An alternative method to create a regression model using mxMatrix()
 # A1 <- mxMatrix("Full", ncol=3, nrow=3, value=0, free=c(FALSE,FALSE,FALSE,TRUE,FALSE,
@@ -51,10 +50,10 @@ create.mxMatrix(c("0.2*ErrorVarApt",0,0,1,"0.2*CorBetSpaVer",1),
 #                label=c("ErrorVarApt",NA,NA,NA,"CorBetSpaVer",NA), name="S1")
 
 ## Fixed-effects model: Second stage analysis
-## Two equivalent versions in calculating the R2 and its 95\% LBCI
-fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, diag.constraints=TRUE, intervals="LB",
+## Two equivalent versions to calculate the R2 and its 95\% LBCI
+fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, intervals.type="LB",
                  mx.algebras=list(R1=mxAlgebra(Spa2Apt^2+Ver2Apt^2+2*CorBetSpaVer*Spa2Apt*Ver2Apt, name="R1"),
-                                  R2=mxAlgebra(One-Smatrix[1,1], name="R2"),
+                                  R2=mxAlgebra(One-Ematrix[1,1], name="R2"),
                                   One=mxMatrix("Iden", ncol=1, nrow=1, name="One")))
 summary(fixed2)
 
@@ -65,7 +64,7 @@ random1 <- tssem1(Becker92$data, Becker92$n, method="REM", RE.type="Diag")
 summary(random1)
 
 ## Random-effects model: Second stage analysis
-random2 <- tssem2(random1, Amatrix=A1, Smatrix=S1, diag.constraints=TRUE, intervals.type="LB")
+random2 <- tssem2(random1, Amatrix=A1, Smatrix=S1, intervals.type="z")
 summary(random2)
 
 #### Conventional fixed-effects GLS approach
@@ -77,7 +76,7 @@ gls1 <- tssem1(Becker92$data[1:4], Becker92$n[1:4], method="REM", RE.type="Zero"
 summary(gls1)
 
 ## Fixed-effects GLS model: Second stage analysis
-gls2 <- tssem2(gls1, Amatrix=A1, Smatrix=S1, diag.constraints=TRUE, intervals.type="LB",
+gls2 <- tssem2(gls1, Amatrix=A1, Smatrix=S1, intervals.type="z",
                model.name="Fixed effects GLS Stage 2")
 summary(gls2)
 }

@@ -116,13 +116,13 @@ meta3X(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=NULL,
 	  v_{ij})} is the conditional known sampling variance.
 
  \code{meta3()} does not differentiate between level-2 or level-3
- variables in \code{x} because they are both treated as a design
+ variables in \code{x} since both variables are treated as a design
  matrix. When there are missing values in \code{x}, the data will be
  deleted. \code{meta3X()} treats the predictors \code{x2} and \code{x3}
  as level-2 and level-3 variables. Thus, their means and covariance
  matrix will be estimated. Missing values in \code{x2} and \code{x3}
- will handled by (full information) maximum likelihood (FIML). Moreover,
- auxiliary variables at level-2 \code{av2} and at level-3 \code{av3} may
+ will be handled by (full information) maximum likelihood (FIML) in \code{meta3X()}. Moreover,
+ auxiliary variables \code{av2} at level-2 and \code{av3} at level-3 may
  be included to improve the estimation. Although \code{meta3X()} is more
  flexible in handling missing covariates, it is more likely to encounter
  estimation problems. 	

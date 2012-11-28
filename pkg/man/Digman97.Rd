@@ -57,7 +57,7 @@ A1 <- as.mxMatrix(A1)
 ## F matrix to select the observed variables
 F1 <- create.Fmatrix(c(1,1,1,1,1,0,0), name="F1")
 
-fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, Fmatrix=F1, diag.constraints=TRUE, intervals="LB",
+fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, Fmatrix=F1,
                  model.name="TSSEM2 Digman97")
 summary(fixed2)
 
@@ -76,8 +76,7 @@ fixed1.cluster <- tssem1(Digman97$data, Digman97$n, method="FEM",
                          cluster=sample)
 summary(fixed1.cluster)
 
-fixed2.cluster <- tssem2(fixed1.cluster, Amatrix=A1, Smatrix=S1, Fmatrix=F1, 
-                         diag.constraints=TRUE, intervals.type="LB")
+fixed2.cluster <- tssem2(fixed1.cluster, Amatrix=A1, Smatrix=S1, Fmatrix=F1)
 #### Please note that the estimates for the younger participants are problematic.
 summary(fixed2.cluster)
 
@@ -86,7 +85,7 @@ random1 <- tssem1(Digman97$data, Digman97$n, method="REM",
                   RE.type="Diag", I2="I2q")
 summary(random1)
 
-random2 <- tssem2(random1, Amatrix=A1, Smatrix=S1, Fmatrix=F1, diag.constraints=TRUE, intervals="LB")
+random2 <- tssem2(random1, Amatrix=A1, Smatrix=S1, Fmatrix=F1)
 summary(random2)
 }
 \keyword{datasets}

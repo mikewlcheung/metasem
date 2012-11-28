@@ -74,8 +74,7 @@ A1 <- as.mxMatrix(A1)
 F1 <- create.Fmatrix(c(rep(1,9), rep(0,3)))
   
 #### Fixed-effects model: Stage 2 analysis
-cor2 <- tssem2(cor1, Amatrix=A1, Smatrix=S1, Fmatrix=F1,
-               diag.constraints=TRUE, intervals.type="LB")
+cor2 <- tssem2(cor1, Amatrix=A1, Smatrix=S1, Fmatrix=F1, intervals.type="LB")
 summary(cor2)
 
 #### Analysis of covariance structure in Cheung and Chan (2009)

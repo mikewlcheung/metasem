@@ -13,52 +13,75 @@ wls(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=F
     cor.analysis=TRUE, intervals.type=c("z", "LB"), mx.algebras=NULL, model.name=NULL,
     suppressWarnings=TRUE, ...)
 tssem2(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=FALSE,
-       intervals.type=c("z", "LB"), mx.algebras=NULL, model.name=NULL, suppressWarnings=TRUE, ...) 
+    intervals.type=c("z", "LB"), mx.algebras=NULL, model.name=NULL,
+    suppressWarnings=TRUE, ...) 
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{tssem1.obj}{An object of either class
-	\code{tssem1FEM}, class \code{tssem1FEM.cluster} or class \code{tssem1REM}}
+	\code{tssem1FEM}, class \code{tssem1FEM.cluster} or class
+	\code{tssem1REM} returned from \code{tssem1()}}
   \item{Cov}{A \eqn{p}{p} x \eqn{p}{p} sample correlation/covariance matrix
 	where \eqn{p}{p} is the number of variables.
 }
   \item{asyCov}{A \eqn{p*}{p*} x \eqn{p*}{p*} asymptotic sampling covariance
-	matrix of either \code{\link[OpenMx]{vechs}} \code{(S)} or \code{\link[OpenMx]{vech}} \code{(S)} where \eqn{p* = p(p-1)/2 }{p* = p(p-1)/2} for correlation matrix and \eqn{p* = p(p+1)/2 }{p* = p(p+1)/2} for covariance matrix.
+	matrix of either \code{\link[OpenMx]{vechs}} \code{(Cov)} or
+	\code{\link[OpenMx]{vech}} \code{(Cov)} where \eqn{p* = p(p-1)/2 }{p*
+	  = p(p-1)/2} for correlation matrix and \eqn{p* = p(p+1)/2 }{p* = p(p+1)/2} for covariance matrix.
 }
   \item{n}{Sample size.
 }
   \item{Amatrix}{An asymmetric matrix in the RAM approach with
 	\code{\link[OpenMx]{MxMatrix-class}}. If it is \code{NULL}, a matrix
-	with zeros will be created.
+	of zero will be created.
 }
   \item{Smatrix}{A symmetric matrix in the RAM approach with \code{\link[OpenMx]{MxMatrix-class}}.
 }
   \item{Fmatrix}{A filter matrix in the RAM approach with
 	\code{\link[OpenMx]{MxMatrix-class}}. If it is \code{NULL} (the default), an
-	identity matrix with the same dimensions of \code{S} will be created.
+	identity matrix with the same dimensions of \code{Cov} will be
+	created. It is not required when there is no latent variable.
+  }
+  \item{diag.constraints}{Logical. This argument is ignored when
+	\code{cor.analysis=FALSE}. If \code{diag.constraints=TRUE}, the
+	diagonals of the model implied matrix will be constrained at 1 by nonlinear constraints. The drawback is that standard
+	error will not be generated. Parametric bootstrap is used to
+	estimate the standard error by drawing samples from N(vech(Cov),
+	asyCov) for covariance analysis and N(vechs(Cov), asyCov) for
+	correlation analysis while asyCov is treated as fixed. This process
+	is computational intensive. A better approach is to request likelihood-based
+	confidence intervals (CIs) by specifying \code{intervals.type="LB"}. 
+
+	If \code{diag.constraints=FALSE} and \code{cor.analysis=TRUE}, the diagonals are automatically constrained as ones by
+  treating the error variances as computed values rather than as
+  parameters. Since the error variances are not parameters, they are not reported. It is usually not necessary to set
+  \code{diag.constraints=TRUE} unless there are mediators (variables
+  acting as both a predictor and dependent variable) in the model. See
+  the examples in \code{\link[metaSEM]{Hunter83}}.
 }  
-\item{diag.constraints}{Logical. If \code{cor.analysis=TRUE}, this
-  argument constrains the diagonals at 1. The drawback is that standard
-  error will not be generated. Users may use \code{intervals.type="LB"}
-  to obtain the likelihood-based confidence intervals of the parameter estimates.
-}
   \item{cor.analysis}{Logical. Analysis of correlation or covariance structure. If \code{cor.analysis=TRUE}, \code{\link[OpenMx]{vechs}} is used to vectorize \code{S}; otherwise, \code{\link[OpenMx]{vech}} is used to vectorize \code{S}.
 }
   \item{intervals.type}{Either \code{z} (default if missing) or
-	\code{LB}. If it is \code{z}, it calculates the 95\% Wald confidence
-	intervals (CIs) based on the z statistic. If it is \code{LB}, it
+	\code{LB}. If it is \code{z}, it calculates the 95\% Wald CIs based on the z statistic. If it is \code{LB}, it
 	calculates the 95\% likelihood-based CIs on the
 	parameter estimates. Please note that the z values and their
 	associated p values are based on the z statistic. They are not
 	related to the likelihood-based CIs.
   }
   \item{mx.algebras}{A list of \code{\link[OpenMx]{mxMatrix}} or  \code{\link[OpenMx]{mxAlgebra}} objects on the \code{Amatrix},
-	\code{Smatrix} and \code{Fmatrx}. It can be used to define functions
+	\code{Smatrix} and \code{Fmatrx}. It can be used to define new functions
 	of parameters and their LBCIs. For example, if the regression
-	coefficients to calculate an indirect effect are in F[1,2] and
-	F[1,3], we may define
-	\code{list(ind=mxAlgebra(Fmatrix[1,2]*Fmatrix[1,3], name="ind"))}
-	See the example in \code{\link[metaSEM]{Becker92}} and \code{\link[metaSEM]{Hunter83}}.
+	coefficients to calculate an indirect effect are stored in A[1,2] and
+	A[1,3], we may define
+	\code{list(ind=mxAlgebra(Amatrix[1,2]*Amatrix[1,3], name="ind"))}
+	See the examples in \code{\link[metaSEM]{Becker92}} and
+	\code{\link[metaSEM]{Hunter83}}. It should be noted that Fmatrix,
+	Amatrix, Smatrix, Id (a \eqn{p}{p} x \eqn{p}{p} identity matrix), sampleS (sample correlation
+	or covariance matrix), impliedS1, impliedS (model implied
+	correlation or covariance matrix), vecS, invAcov, obj, One, select
+	and constraint and Ematrix (computed error variances when
+	\code{diag.constraints=FALSE}) have been defined internally. You
+	should not create new matrices using these names.
   }
   \item{model.name}{A string for the model name in
 	\code{\link[OpenMx]{mxModel}}. If it is missing, the default is
@@ -75,6 +98,8 @@ tssem2(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=FA
 }
 \value{An object of class \code{wls} with a list of
 \item{call}{The matched call}
+\item{Cov}{Input data of either a covariance or correlation matrix}
+\item{asyCov}{Asymptotic covariance matrix of the input data}
 \item{noObservedStat}{Number of observed statistics}
 \item{n}{Sample size}
 \item{cor.analysis}{logical}
@@ -135,7 +160,7 @@ S1 <- as.mxMatrix(S1)
 ## The first 4 variables are observed while the last one is latent.
 (F1 <- create.Fmatrix(c(1,1,1,1,0), name="F1"))
 wls.fit1 <- wls(Cov=R1, asyCov=acovR1, n=n, Fmatrix=F1, Smatrix=S1, Amatrix=A1,
-                 cor.analysis=TRUE, diag.constraints=TRUE, intervals="LB")
+                 cor.analysis=TRUE, intervals="LB")
 summary(wls.fit1)
 
 
@@ -165,7 +190,7 @@ acovR2 <- asyCov(R2, n)
 
 ## F may be ignored as there is no latent variable.
 wls.fit2 <- wls(Cov=R2, asyCov=acovR2, n=n, Amatrix=A2, Smatrix=S2,
-                cor.analysis=TRUE, diag.constraints=TRUE, intervals="LB")
+                cor.analysis=TRUE, intervals="LB")
 summary(wls.fit2)
 
 

@@ -1,4 +1,4 @@
-summary.wls <- function(object, df.adjustment=0, ...) {
+summary.wls <- function(object, df.adjustment=0, R=50, ...) {
     if (!is.element("wls", class(object)))
       stop("\"object\" must be an object of class \"wls\".")
 
@@ -6,8 +6,14 @@ summary.wls <- function(object, df.adjustment=0, ...) {
     tT <- object$mx.fit@output$Minus2LogLikelihood
     my.mx <- summary(object$mx.fit)
     ## Adjust the df by the no. of constraints on the diagonals
-    ## Adjust the df manually with df.adjustment 
-    dfT <- object$noObservedStat - my.mx$estimatedParameters + sum(object$Constraints) + df.adjustment
+    ## Adjust the df manually with df.adjustment
+    if (object$diag.constraints) {
+      dfT <- object$noObservedStat - my.mx$estimatedParameters + sum(object$Constraints) + df.adjustment
+      no.constraints <- sum(object$Constraints)
+    } else {
+      dfT <- object$noObservedStat - my.mx$estimatedParameters + df.adjustment
+      no.constraints <- 0
+    }
     tB <- object$indepModelChisq
     dfB <- object$indepModelDf
     p <- pchisq(tT, df=dfT, lower.tail=FALSE)
@@ -38,7 +44,7 @@ summary.wls <- function(object, df.adjustment=0, ...) {
       SRMR <- sqrt(mean(vech(stand %*% (sampleS-impliedS) %*% stand)^2))
     }
 
-    stat <- matrix(c(n, tT, dfT, p, sum(object$Constraints), df.adjustment, tB, dfB, 
+    stat <- matrix(c(n, tT, dfT, p, no.constraints, df.adjustment, tB, dfB,
                      RMSEA, SRMR, TLI, CFI, AIC, BIC), ncol=1)
 
     dimnames(stat) <- list( c("Sample size", "Chi-square of target model", "DF of target model",
@@ -59,6 +65,9 @@ summary.wls <- function(object, df.adjustment=0, ...) {
       my.para$ubound <- my.para$Estimate + qnorm(.975)*my.para$Std.Error
       my.para <- my.para[order(my.para$matrix, my.para$row, my.para$col), , drop=FALSE]
       coefficients <- my.para[, -c(1:4)]
+      ## parametric bootstrap is required
+      if (object$diag.constraints)
+        coefficients$Std.Error <- sqrt(diag(vcov.wls(object, R=R)))
 	  intervals.type="z"
     } else {
       ## # model.name: may vary in diff models
@@ -97,7 +106,9 @@ summary.wls <- function(object, df.adjustment=0, ...) {
     } else {
       if (intervals.type=="z") {
         mx.algebras <- object$mx.fit@algebras[object$mx.algebras]
-        mx.algebras <- lapply(mx.algebras, function(x) {x@result})
+        mx.algebras <- sapply(mx.algebras, function(x) { if (!is.null(x)) x@result})
+        ## remove lists with NA names
+        mx.algebras <- unlist(mx.algebras[!is.na(names(mx.algebras))])
       } else {
         my.ci  <- my.mx$CI
         ## name <- sapply(unlist(dimnames(my.ci)[1]), function(x)
@@ -692,11 +703,40 @@ vcov.tssem1REM <- function(object, select=c("all", "fixed", "random"), ...) {
   vcov.meta(object, select, ...)
 }
 
-vcov.wls <- function(object, ...) {
+vcov.wls <- function(object, R=50, ...) {
   if (!is.element("wls", class(object)))
     stop("\"object\" must be an object of class \"wls\".")
-  
-  if (sum(object$Constraints)==0) {
+
+  if (object$diag.constraints) {
+    ## Parametric bootstrap for vcov when there are nonlinear constraints
+    paraboot <- function(x) {
+      if (x$cor.analysis) {
+        sampleS <- mvrnorm(n=1, mu=vechs(x$Cov), Sigma=x$asyCov)
+      } else {
+        sampleS <- mvrnorm(n=1, mu=vech(x$Cov), Sigma=x$asyCov)
+      }
+      sampleS <- vec2symMat(sampleS, diag=!x$cor.analysis)
+      mx.model <- mxModel(x$mx.fit, sampleS <- as.mxMatrix(sampleS, name="sampleS"))
+      mx.model <- mxOption(mx.model, "Calculate Hessian", "No") 
+      mx.model <- mxOption(mx.model, "Standard Errors"  , "No")  
+      mx.fit <- tryCatch(mxRun(mx.model, intervals=FALSE, silent=TRUE, suppressWarnings=TRUE),
+                         error = function(e) e )
+      if (inherits(mx.fit, "error")) {
+        return(NA)
+      } else {
+        omxGetParameters(mx.fit)
+      }
+    }
+    #var(t(omxSapply(1:b, paraboot, simplify = TRUE)), na.rm=TRUE)
+    out <- var(t(replicate(R, paraboot(object))), na.rm=TRUE)
+    # need to make sure that the variable labels and the matrices are in the same order
+    my.mx <- summary(object$mx.fit)$parameters
+    # For example, P[1,2], L[1,2], ...
+    my.names <- with(my.mx[, 2:4], paste(matrix,"[",row,",",col,"]",sep=""))
+    dimnames(out) <- list(my.names, my.names)
+    out
+    
+  } else {
     ## Select the free parameters for inversion
     acovS <- tryCatch( 2*solve(object$mx.fit@output$calculatedHessian), error = function(e) e ) 
 
@@ -711,17 +751,13 @@ vcov.wls <- function(object, ...) {
       dimnames(acovS) <- list(my.names, my.names)
       acovS
     }
-    
-  } else {
-    ## No vcov when there are constraints
-    return(NA)
   }
 }
 
-vcov.wls.cluster <- function(object, ...) {
+vcov.wls.cluster <- function(object, R=50, ...) {
     if (!is.element("wls.cluster", class(object)))
     stop("\"object\" must be an object of class \"wls.cluster\".")
-    lapply(object, vcov.wls)
+    lapply(object, vcov.wls, R=R, ...)
 }
   
 vcov.reml <- function(object, ...) {
@@ -827,13 +863,13 @@ anova.reml <- function(object, ..., all=FALSE) {
 summary.tssem1FEM.cluster <- function(object, ...) {
     if (!is.element("tssem1FEM.cluster", class(object)))
     stop("\"object\" must be an object of class \"tssem1FEM.cluster\".")
-    lapply(object, summary.tssem1FEM)
+    lapply(object, summary.tssem1FEM, ...)
 }
 
-summary.wls.cluster <- function(object, df.adjustment=0, ...) {
+summary.wls.cluster <- function(object, df.adjustment=0, R=50, ...) {
     if (!is.element("wls.cluster", class(object)))
     stop("\"object\" must be an object of class \"wls.cluster\".")
-    lapply(object, summary.wls, df.adjustment=df.adjustment)
+    lapply(object, summary.wls, df.adjustment=0, R=R, ...)
 }
 
 summary.meta3X <- function(object, allX=FALSE, ...) {

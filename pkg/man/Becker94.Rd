@@ -52,7 +52,7 @@ create.mxMatrix(c("0.2*ErrorVarAptitude",0,0,1,"0.2*CorBetweenSpatialVerbal",1),
 #                label=c("ErrorVarAptitude",NA,NA,NA,"CorBetweenSpatialVerbal",NA), name="S1")
 
 ## Second stage analysis
-fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, diag.constraints=TRUE, intervals="LB")
+fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, intervals.type="LB")
 summary(fixed2)
 
 
@@ -62,7 +62,7 @@ cluster1 <- tssem1(Becker94$data, Becker94$n, method="FEM", cluster=Becker94$gen
 summary(cluster1)
 
 ## Second stage analysis  
-cluster2 <- tssem2(cluster1, Amatrix=A1, Smatrix=S1, diag.constraints=TRUE, intervals="LB")
+cluster2 <- tssem2(cluster1, Amatrix=A1, Smatrix=S1, intervals.type="LB")
 summary(cluster2)
 
 
@@ -75,7 +75,7 @@ gls1 <- tssem1(Becker92$data[1:4], Becker92$n[1:4], method="REM", RE.type="Zero"
 summary(gls1)
 
 ## Fixed-effects GLS model: Second stage analysis
-gls2 <- tssem2(gls1, Amatrix=A1, Smatrix=S1, diag.constraints=TRUE, intervals.type="LB",
+gls2 <- tssem2(gls1, Amatrix=A1, Smatrix=S1, intervals.type="LB",
                model.name="Fixed effects GLS Stage 2")
 summary(gls2)
 }

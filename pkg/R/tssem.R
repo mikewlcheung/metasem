@@ -359,37 +359,53 @@ wls <- function(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.c
     stop(print(invacovS))
   }
   invAcov <- as.mxMatrix(invacovS, name="invAcov")
-  impliedS <- mxAlgebra( (Fmatrix%*%solve(Id-Amatrix))%&%Smatrix, name="impliedS" )
+  impliedS1 <- mxAlgebra( (Fmatrix%*%solve(Id-Amatrix))%&%Smatrix, name="impliedS1" )
 
   ## Assuming no constraint
   Constraints <- 0
   if (cor.analysis) {
     if (is.null(model.name)) model.name <- "WLS Analysis of Correlation Structure"
     ps <- no.var * (no.var - 1)/2
-    vecS <- mxAlgebra(vechs(sampleS - impliedS), name="vecS")
-
+    
     ## Count no. of dependent variables including both observed and latent variables
     ## Since it is correlation structure, Smatrix@values=1 and Smatrix@free=FALSE on the diagonals.
     Constraints <- diag(Smatrix@free)
-    ## Setup constraints on diagonals
+    
+    ## Setup nonlinear constraints on diagonals
     if (diag.constraints & (sum(Constraints)>0)) {      
       One <- mxMatrix("Full", values=1, ncol=1, nrow=sum(Constraints), free=FALSE, name="One")
       select <- create.Fmatrix(Constraints, name="select")
       constraint <- mxConstraint( select%*%diag2vec(solve(Id-Amatrix)%&%Smatrix)==One, name="constraint" )
-    }    
+      impliedS <- mxAlgebra(impliedS1, name="impliedS")
+    } else {
+    ## Use 1-impliedS for error variances  
+      diag(Smatrix@free) <- FALSE
+      diag(Smatrix@values)[Constraints] <- 0
+      diag(Smatrix@labels)[Constraints] <- NA
+       
+    ## Error variances are computed rather than estimated
+    ## Ematrix = 1 - diag(impliedS)
+    ## If diag(Smatrix) are fixed at 1, Ematrix are 0.
+      Ematrix <- mxAlgebra(Fmatrix%&%Id - vec2diag(diag2vec(impliedS1)), name="Ematrix")
+      impliedS <- mxAlgebra( impliedS1 + Ematrix, name="impliedS")
+    }
+    vecS <- mxAlgebra(vechs(sampleS - impliedS), name="vecS")
+    
   } else {
     if (is.null(model.name)) model.name <- "WLS Analysis of Covariance Structure"
     ps <- no.var * (no.var + 1)/2
+    impliedS <- mxAlgebra(impliedS1, name="impliedS")
     vecS <- mxAlgebra(vech(sampleS - impliedS), name="vecS")
-  }
+  }  
+  
   if (ncol(asyCov) != ps) 
     stop("No. of dimension of \"Cov\" does not match the multiplier of the dimension of \"asyCov\"\n")
     
   obj <- mxAlgebra( t(vecS) %&% invAcov, name = "obj" )
   objective <- mxAlgebraObjective("obj")
 
-  mx.model <- mxModel(model=model.name, Fmatrix, Amatrix, Smatrix, Id, impliedS, vecS, invAcov,
-                     obj, objective, sampleS, mxCI(c("Amatrix", "Smatrix")))
+  mx.model <- mxModel(model=model.name, Fmatrix, Amatrix, Smatrix, Id, impliedS1, impliedS,
+                      vecS, invAcov, obj, objective, sampleS, mxCI(c("Amatrix", "Smatrix")))
 
   ## Add additional mxAlgebras
   if (!is.null(mx.algebras)) {
@@ -401,7 +417,13 @@ wls <- function(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.c
   ## mx.model <- eval(parse(text = text1))
 
   ## Add constraints on diagonals
-  if (diag.constraints) mx.model <- mxModel(mx.model, One, select, constraint) 
+  if (cor.analysis) {
+    if (diag.constraints) {
+      mx.model <- mxModel(mx.model, One, select, constraint)
+    } else {
+      mx.model <- mxModel(mx.model, Ematrix, mxCI(c("Amatrix")))
+    }
+  }
   
   ## if (diag.constraints) {
   ##   text1 <- paste("mxRun(mxModel(model=\"", model.name, "\", Fmatrix, Amatrix, Smatrix, Id, impliedS, vecS, invAcov, ",
@@ -420,7 +442,7 @@ wls <- function(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.c
       cat("Error in running the mxModel:\n")
       stop(print(mx.fit))
   } else {
-      out <- list(call=match.call(), noObservedStat=ps, n=n, cor.analysis=cor.analysis, Constraints=Constraints,
+      out <- list(call=match.call(), Cov=Cov, asyCov=asyCov, noObservedStat=ps, n=n, cor.analysis=cor.analysis, diag.constraints=diag.constraints, Constraints=Constraints,
                   indepModelChisq=.indepwlsChisq(S=Cov, acovS=asyCov, cor.analysis=cor.analysis),
                   indepModelDf=no.var*(no.var-1)/2, mx.model=mx.model, mx.fit=mx.fit, mx.algebras=names(mx.algebras), intervals.type=intervals.type)
       class(out) <- 'wls'

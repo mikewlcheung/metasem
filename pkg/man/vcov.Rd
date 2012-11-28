@@ -18,8 +18,8 @@
 \method{vcov}{tssem1FEM}(object, \dots)
 \method{vcov}{tssem1FEM.cluster}(object, \dots)
 \method{vcov}{tssem1REM}(object, select = c("all", "fixed", "random"), \dots)
-\method{vcov}{wls}(object, \dots)
-\method{vcov}{wls.cluster}(object, \dots)
+\method{vcov}{wls}(object, R=50, \dots)
+\method{vcov}{wls.cluster}(object, R=50, \dots)
 \method{vcov}{meta}(object, select = c("all", "fixed", "random"), \dots)
 \method{vcov}{meta3X}(object, select = c("all", "fixed", "random", "allX"), \dots)
 \method{vcov}{reml}(object, \dots)
@@ -34,7 +34,10 @@
   fixed-effects parameters or \code{random} for the random-effects
   parameters. For \code{meta3X} objects, \code{allX} is used to extract
   all parameters including the predictors and auxiliary variables.  
-}  
+}
+  \item{R}{Positive integer. The number of parameter bootstrap
+	replicates when \code{diag.constraints=TRUE}.
+}
   \item{\dots}{Further arguments; currently none is used}
 }
 \details{
@@ -50,7 +53,6 @@
 \note{\code{vcov} returns \code{NA} when \code{diag.constraints=TRUE}
   argument is used in \code{wls} objects.
 }
-
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 \seealso{ \code{\link[metaSEM]{tssem1}}, \code{\link[metaSEM]{wls}},
   \code{\link[metaSEM]{meta}}, \code{\link[metaSEM]{reml}}
