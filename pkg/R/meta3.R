@@ -54,10 +54,10 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints=NULL, coef.const
   ## c() is not required when the data are unbalanced.
   ## as.character() is required to null data with levels
   my.long$time <- c(unlist(sapply(split(my.long$y, as.character(my.long$cluster)), function(x) 1:length(x))))
-  my.wide <- reshape(my.long, timevar="time", idvar=c("cluster"), direction="wide")
+  my.wide <- reshape(my.long, timevar="time", idvar=c("cluster"), direction="wide", sep="_")
 
-  ## Replace "." with "_" since OpenMx does not allow "." as variable names
-  names(my.wide) <- sub("\\.", "_", names(my.wide))
+  ## ## Replace "." with "_" since OpenMx does not allow "." as variable names
+  ## names(my.wide) <- sub("\\.", "_", names(my.wide))
 
   ## maximum no. of data in level-2 unit
   k <- max(sapply( split(my.long$cluster, my.long$cluster), length))

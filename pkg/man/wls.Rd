@@ -46,8 +46,7 @@ tssem2(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=FA
 	\code{cor.analysis=FALSE}. If \code{diag.constraints=TRUE}, the
 	diagonals of the model implied matrix will be constrained at 1 by nonlinear constraints. The drawback is that standard
 	error will not be generated. Parametric bootstrap is used to
-	estimate the standard error by drawing samples from N(vech(Cov),
-	asyCov) for covariance analysis and N(vechs(Cov), asyCov) for
+	estimate the standard error by drawing samples from \eqn{\mathcal{N}(vech(Cov), asyCov)}{N(vech(Cov), asyCov)} for covariance analysis and \eqn{\mathcal{N}(vechs(Cov), asyCov)}{N(vechs(Cov), asyCov)} for
 	correlation analysis while asyCov is treated as fixed. This process
 	is computational intensive. A better approach is to request likelihood-based
 	confidence intervals (CIs) by specifying \code{intervals.type="LB"}. 
@@ -76,7 +75,7 @@ tssem2(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=FA
 	\code{list(ind=mxAlgebra(Amatrix[1,2]*Amatrix[1,3], name="ind"))}
 	See the examples in \code{\link[metaSEM]{Becker92}} and
 	\code{\link[metaSEM]{Hunter83}}. It should be noted that Fmatrix,
-	Amatrix, Smatrix, Id (a \eqn{p}{p} x \eqn{p}{p} identity matrix), sampleS (sample correlation
+	Amatrix, Smatrix, Iden (a \eqn{p}{p} x \eqn{p}{p} identity matrix), sampleS (sample correlation
 	or covariance matrix), impliedS1, impliedS (model implied
 	correlation or covariance matrix), vecS, invAcov, obj, One, select
 	and constraint and Ematrix (computed error variances when

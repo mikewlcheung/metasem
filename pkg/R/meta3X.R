@@ -146,10 +146,11 @@ meta3X <- function(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=
   ## c() is not required when the data are unbalanced.
   my.long$time <- c(unlist(sapply(split(my.long$y, my.long$cluster), function(x) 1:length(x))))
   long.labels <- names(my.long)
-  my.wide <- reshape(my.long, timevar="time", idvar=c("cluster"), direction="wide", v.names=c("y", "v", x2.labels, av2.labels))
+  my.wide <- reshape(my.long, timevar="time", idvar=c("cluster"), direction="wide",
+                     v.names=c("y", "v", x2.labels, av2.labels), sep="_")
   
-  ## Replace "." with "_" since OpenMx does not allow "." as variable names
-  names(my.wide) <- sub("\\.", "_", names(my.wide))
+  ## ## Replace "." with "_" since OpenMx does not allow "." as variable names
+  ## names(my.wide) <- sub("\\.", "_", names(my.wide))
 
   ## maximum no. of data in level-2 unit
   k <- max(sapply( split(my.long$cluster, my.long$cluster), length))
