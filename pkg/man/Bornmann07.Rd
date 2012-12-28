@@ -62,19 +62,27 @@ summary( reml3(y=logOR, v=v, x=scale(Year, scale=FALSE),
                cluster=Cluster, data=Bornmann07) )
 
 ## Handling missing covariates with FIML
-## Create 33/66 MCAR data in Year
-set.seed(100000)
-Year_MCAR <- Bornmann07$Year
-Year_MCAR[sample(1:66, 33)] <- NA
-summary(meta3X(y=logOR, v=v, cluster=Cluster,
-               x2=scale(Year_MCAR, scale=FALSE), data=Bornmann07))
+## MCAR
+## Set seed for replication
+set.seed(1000000)
 
-## Create MAR data in Type that depends on Year
+## Copy Bornmann07 to my.df
+my.df <- Bornmann07
+## "Fellowship": 1; "Grant": 0
+my.df$Type_MCAR <- ifelse(Bornmann07$Type=="Fellowship", yes=1, no=0)
+
+## Create 17 out of 66 missingness with MCAR
+my.df$Type_MCAR[sample(1:66, 17)] <- NA
+summary(meta3X(y=logOR, v=v, cluster=Cluster, x2=Type_MCAR, data=my.df))
+
+## MAR
 Type_MAR <- ifelse(Bornmann07$Type=="Fellowship", yes=1, no=0)
-index_MAR <- ifelse(Bornmann07$Year<1996, yes=TRUE, no=FALSE)
-Type_MAR[ifelse(Bornmann07$Year<1996, yes=TRUE, no=FALSE)] <- NA
 
-summary(meta3X(y=logOR, v=v, cluster=Cluster, x2=Type_MAR,
-               av2=Year, data=Bornmann07))
+## Create 27 out of 66 missingness with MAR for cases Year<1996
+index_MAR <- ifelse(Bornmann07$Year<1996, yes=TRUE, no=FALSE)
+Type_MAR[index_MAR] <- NA
+
+## Include auxiliary variable
+summary(meta3X(y=logOR, v=v, cluster=Cluster, x2=Type_MAR, av2=Year, data=my.df))
 }
 \keyword{datasets}

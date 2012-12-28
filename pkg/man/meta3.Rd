@@ -89,11 +89,11 @@ meta3X(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=NULL,
 	associated p values are based on the z statistic. They are not
 	related to the likelihood-based CIs.
 }
-  \item{I2}{Possible options are \code{"I2q"}, \code{"I2hm"} and
-	\code{"I2am"}. They represent the \code{I2} calculated by using a
+  \item{I2}{Possible options are \code{"I2q"}, \code{"I2hm"},
+	\code{"I2am"} and \code{"ICC"}. They represent the \code{I2} calculated by using a
 	typical within-study sampling variance from the Q statistic, the
-	harmonic mean and the arithmatic mean of the within-study sampling
-	variances. More than one options are possible. If \code{intervals.type="LB"}, 95\% confidence intervals on the heterogeneity indices will be constructed. 
+	harmonic mean, the arithmatic mean of the within-study sampling
+	variances, and the intra-class correlation. More than one options are possible. If \code{intervals.type="LB"}, 95\% confidence intervals on the heterogeneity indices will be constructed. 
   }
   \item{R2}{Logical. If \code{TRUE} and there are predictors, R2 is
 	calculated. 

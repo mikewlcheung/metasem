@@ -177,17 +177,18 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints=NULL, coef.const
     I2hm_2 <- mxAlgebra( Tau2/(Tau2+Tau3+hmV), name="I2hm_2")
     I2hm_3 <- mxAlgebra( Tau3/(Tau2+Tau3+hmV), name="I2hm_3")  
     I2am_2 <- mxAlgebra( Tau2/(Tau2+Tau3+amV), name="I2am_2")
-    I2am_3 <- mxAlgebra( Tau3/(Tau2+Tau3+amV), name="I2am_3") 
-    ## ICC_2 <- mxAlgebra( Tau2/(Tau2+Tau3), name="ICC_2")
-    ## ICC_3 <- mxAlgebra( Tau3/(Tau2+Tau3), name="ICC_3")
-    ## I2 <- match.arg(I2, c("I2q", "I2hm", "I2am", "ICC"), several.ok=TRUE)
+    I2am_3 <- mxAlgebra( Tau3/(Tau2+Tau3+amV), name="I2am_3")
+    
+    ICC_2 <- mxAlgebra( Tau2/(Tau2+Tau3), name="ICC_2")
+    ICC_3 <- mxAlgebra( Tau3/(Tau2+Tau3), name="ICC_3")
+    I2 <- match.arg(I2, c("I2q", "I2hm", "I2am", "ICC"), several.ok=TRUE)
 
-    I2 <- match.arg(I2, c("I2q", "I2hm", "I2am"), several.ok=TRUE)
+    ## I2 <- match.arg(I2, c("I2q", "I2hm", "I2am"), several.ok=TRUE)
     ci <- c(outer(I2, c("_2","_3"), paste, sep=""))
     
     mx.model <- mxModel(model=model.name, mxData(observed=my.wide[,-1], type="raw"), oneRow, Id, Ones,
                         Inter, Beta, mydata, Tau, Tau2, Tau3, V, expMean, expCov,
-                        qV, hmV, amV, I2q_2, I2q_3, I2hm_2, I2hm_3, I2am_2, I2am_3, #ICC_2, ICC_3,
+                        qV, hmV, amV, I2q_2, I2q_3, I2hm_2, I2hm_3, I2am_2, I2am_3, ICC_2, ICC_3,
                         mxFIMLObjective("expCov","expMean", dimnames=paste("y", 1:k, sep="_")),
                         mxCI(c("Inter","Beta","Tau", ci)))
   } else {
