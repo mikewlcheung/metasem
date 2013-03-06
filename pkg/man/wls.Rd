@@ -115,7 +115,8 @@ Bentler, P.M., & Savalei, V. (2010). Analysis of correlation structures: current
 
 Cheung, M. W. L. (2010). Fixed-effects meta-analyses as multiple-group structural equation models. \emph{Structural Equation Modeling}, \bold{17}, 481-509.
 
-Cheung, M. W. L. (2011). Applications of meta-analytic structural equation modeling. \emph{Manuscript in preparation.}
+Cheung, M. W. L. (2013). Fixed- and random-effects meta-analytic
+structural equation modeling: Examples and analyses in R. \emph{Manuscript submitted for publication.}
 
 Cheung, M. W. L., & Chan, W. (2005). Meta-analytic structural equation modeling: A two-stage approach. \emph{Psychological Methods}, \bold{10}, 40-64.
 

@@ -14,8 +14,8 @@
 \tabular{ll}{
 Package: \tab metaSEM\cr
 Type: \tab Package\cr
-Version: \tab 0.8-2\cr
-Date: \tab 2012-12-28\cr
+Version: \tab 0.8-3\cr
+Date: \tab 2013-01-15\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }
@@ -31,11 +31,11 @@ Cheung, M. W. L. (2009). Constructing approximate confidence intervals for param
 
 Cheung, M. W. L. (2010). Fixed-effects meta-analyses as multiple-group structural equation models. \emph{Structural Equation Modeling}, \bold{17}, 481-509.
 
-Cheung, M. W. L. (2012a). Applications of meta-analytic structural equation modeling. \emph{Manuscript in preparation.}
+Cheung, M. W. L. (2012a). Three-level meta-analyses as structural equation models. \emph{Manuscript submitted for publication}.
 
-Cheung, M. W. L. (2012b). Three-level meta-analyses as structural equation models. \emph{Manuscript submitted for publication}.
+Cheung, M. W. L. (2012b). metaSEM: An R package for meta-analysis using strutural equation modeling. \emph{Manuscript submitted for publication}.
 
-Cheung, M. W. L. (2012c). metaSEM: An R package for meta-analysis using strutural equation modeling. \emph{Manuscript submitted for publication}.
+Cheung, M. W. L. (2013). Fixed- and random-effects meta-analytic structural equation modeling: Examples and analyses in R. \emph{Manuscript submitted for publication.}
 
 Cheung, M. W. L. (in press). Multivariate meta-analysis as structural equation models. \emph{Structural Equation Modeling.}
 
