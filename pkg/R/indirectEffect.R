@@ -8,7 +8,7 @@ indirectEffect <- function(x, n, standardized=TRUE, direct.effect=TRUE) {
 
   if (standardized) {
     ## starting values for standard deviations
-    stvalues <- sqrt(diag(x))
+    stvalues <- sqrt(Diag(x))
     myMod <- mxModel("Standardized indirect effect", type="RAM", mxData(observed=x, type="cov", numObs=n),
                      manifestVars=c("y","m","x"),
                      ## Im: imaginary variables

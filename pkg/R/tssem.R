@@ -40,13 +40,13 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
     } else {
       ## Set lower bound on variances
       lbound <- matrix(NA, nrow=no.var, ncol=no.var)
-      diag(lbound) <- 0.00001
+      Diag(lbound) <- 0.00001
       S <- mxMatrix(type="Symm", nrow=no.var, ncol=no.var, free=TRUE, values=vech(sv),
                     labels=vech(ps.labels), lbound=lbound, name="S")      
     }
        
     ## Index for missing variables: only check the diagonals only!!!
-    miss.index <- lapply(my.df, function(x) { is.na(diag(x)) })
+    miss.index <- lapply(my.df, function(x) { is.na(Diag(x)) })
     
     ## complete.index <- NULL
     ## for (i in no.groups:1) {
@@ -68,13 +68,13 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
         # Prepare matrices for calculations
         if (cor.analysis) {
             if (is.null(model.name)) model.name <- "TSSEM1 Analysis of Correlation Matrix"
-            SD <- diag(paste(sqrt(diag(sv)), "*sd", i, "_", 1:no.var, sep=""))
+            SD <- Diag(paste(sqrt(Diag(sv)), "*sd", i, "_", 1:no.var, sep=""))
             # Fixed a bug when SD is a scalar
             SD <- SD[!miss.index.i, , drop=FALSE]
             SD <- as.mxMatrix(SD)   
         } else {
             if (is.null(model.name)) model.name <- "TSSEM1 Analysis of Covariance Matrix"
-            SD <- diag(rep(1, no.var))
+            SD <- Diag(rep(1, no.var))
             SD <- SD[!miss.index.i, , drop=FALSE]
             SD <- as.mxMatrix(SD)
         }
@@ -174,7 +174,7 @@ tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Ze
   ## Missing values are indicated by the missing effect sizes.
   
   ## Replace diagonals with 1.0
-  my.complete <- lapply(my.df, function (x) { diag(x)[is.na(diag(x))] <- 1; x })
+  my.complete <- lapply(my.df, function (x) { Diag(x)[is.na(Diag(x))] <- 1; x })
   ## Replace missing variables with 0.0
   my.complete <- lapply(my.complete, function (x) { x[is.na(x)] <- 0; x })
   
@@ -206,9 +206,13 @@ tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Ze
   switch( RE.type,
          Symm = mx.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2, RE.startvalues=RE.startvalues,
                                RE.lbound=RE.lbound),
+## Prior to R-3.0.0
+##       Diag = mx.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2,
+##                             RE.constraints=Diag(x=paste(RE.startvalues, "*Tau2_", 1:no.es, "_", 1:no.es, sep=""),
+##                                            nrow=no.es, ncol=no.es), RE.lbound=RE.lbound),
          Diag = mx.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2,
-                               RE.constraints=diag(x=paste(RE.startvalues, "*Tau2_", 1:no.es, "_", 1:no.es, sep=""),
-                                              nrow=no.es, ncol=no.es), RE.lbound=RE.lbound),
+                               RE.constraints=Diag(x=paste(RE.startvalues, "*Tau2_", 1:no.es, "_", 1:no.es, sep="")),
+                               RE.lbound=RE.lbound),
          Zero = mx.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2, RE.constraints=matrix(0, ncol=no.es, nrow=no.es)) )
   
   ## if (RE.diag.only==TRUE) {
@@ -325,12 +329,12 @@ wls <- function(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.c
   }
 
   if (is.null(Fmatrix)) {
-    Fmatrix <- as.mxMatrix(diag(rep(p,1)), name="Fmatrix")
+    Fmatrix <- as.mxMatrix(Diag(rep(p,1)), name="Fmatrix")
   } else {
     Fmatrix@name <- "Fmatrix"
   }
 
-  Id <- as.mxMatrix(diag(rep(p,1)), name="Id")
+  Id <- as.mxMatrix(Diag(rep(p,1)), name="Id")
 
   ## No. of observed variables
   no.var <- ncol(Cov)
@@ -369,7 +373,7 @@ wls <- function(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.c
     
     ## Count no. of dependent variables including both observed and latent variables
     ## Since it is correlation structure, Smatrix@values=1 and Smatrix@free=FALSE on the diagonals.
-    Constraints <- diag(Smatrix@free)
+    Constraints <- Diag(Smatrix@free)
     
     ## Setup nonlinear constraints on diagonals
     if (diag.constraints & (sum(Constraints)>0)) {      
@@ -379,9 +383,9 @@ wls <- function(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.c
       impliedS <- mxAlgebra(impliedS1, name="impliedS")
     } else {
     ## Use 1-impliedS for error variances  
-      diag(Smatrix@free) <- FALSE
-      diag(Smatrix@values)[Constraints] <- 0
-      diag(Smatrix@labels)[Constraints] <- NA
+      Diag(Smatrix@free) <- FALSE
+      Diag(Smatrix@values)[Constraints] <- 0
+      Diag(Smatrix@labels)[Constraints] <- NA
        
     ## Error variances are computed rather than estimated
     ## Ematrix = 1 - diag(impliedS)

@@ -21,7 +21,7 @@
     ps <- no.var * (no.var - 1)/2
     vecS <- mxAlgebra(vechs(sampleS - impliedS), name = "vecS")
   } else {
-    impliedS <- mxMatrix("Diag", ncol = no.var, nrow = no.var, values = diag(S),
+    impliedS <- mxMatrix("Diag", ncol = no.var, nrow = no.var, values = Diag(S),
                          free = TRUE, name = "impliedS")
     ps <- no.var * (no.var + 1)/2
     vecS <- mxAlgebra(vech(sampleS - impliedS), name = "vecS")
@@ -60,7 +60,7 @@
     names(out) <- c("SaturatedLikelihood", "IndependenceLikelihood", "independenceDoF")
     out
   } else {
-    miss.index <- is.na(diag(x))
+    miss.index <- is.na(Diag(x))
     x <- x[!miss.index, !miss.index]
     if (!is.pd(x))
       stop("\"x\" is not positive definite.\n")
@@ -78,7 +78,7 @@
     ##                                         values=diag(x), name="expCov")
     ##  )
     expCov <- mxMatrix("Diag", nrow=no.var, ncol=no.var, free=TRUE, 
-                       values=diag(x), name="expCov")    
+                       values=Diag(x), name="expCov")    
     objective <- mxMLObjective(covariance = "expCov", dimnames=vars)
     mx.model <- mxModel("model", expCov, obsCov, objective)
     mx.model <- mxOption(mx.model, "Calculate Hessian", "No") 

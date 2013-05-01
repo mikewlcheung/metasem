@@ -40,7 +40,7 @@ summary.wls <- function(object, df.adjustment=0, R=50, ...) {
       SRMR <- sqrt(mean(vechs(sampleS-impliedS)^2))
     } else {
       # standardize it according to Hu & Bentler (1998)
-      stand <- diag(1/sqrt(diag(sampleS)))
+      stand <- Diag(1/sqrt(Diag(sampleS)))
       SRMR <- sqrt(mean(vech(stand %*% (sampleS-impliedS) %*% stand)^2))
     }
 
@@ -67,7 +67,7 @@ summary.wls <- function(object, df.adjustment=0, R=50, ...) {
       coefficients <- my.para[, -c(1:4)]
       ## parametric bootstrap is required
       if (object$diag.constraints)
-        coefficients$Std.Error <- sqrt(diag(vcov.wls(object, R=R)))
+        coefficients$Std.Error <- sqrt(Diag(vcov.wls(object, R=R)))
 	  intervals.type="z"
     } else {
       ## # model.name: may vary in diff models
@@ -223,15 +223,15 @@ summary.tssem1FEM <- function(object, ...) {
     ## Index for missing variables: only check the diagonals only!!!
     #miss.index <- lapply(x$data, function(x) { is.na(diag(x)) })
     srmr <- function(sampleS, pooledS, cor.analysis) {
-      index <- is.na(diag(sampleS))
+      index <- is.na(Diag(sampleS))
       # Selection matrix to select complete data
-      Sel <- diag(rep(1, ncol(pooledS)))
+      Sel <- Diag(rep(1, ncol(pooledS)))
       Sel <- Sel[!index, ]
       sampleS <- sampleS[!index, !index]
       if (cor.analysis) {
         vechs( cov2cor(sampleS)- Sel %*% pooledS %*% t(Sel) )^2
       } else {
-        stand <- diag(1/sqrt(diag(sampleS)))
+        stand <- Diag(1/sqrt(Diag(sampleS)))
         vech( stand %*% (sampleS - Sel %*% pooledS %*% t(Sel) ) %*% stand )^2
       }
     }

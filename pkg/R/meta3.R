@@ -141,7 +141,7 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints=NULL, coef.const
     tau3 <- RE3.constraints
   }
 
-  Tau <- as.mxMatrix( diag(c(tau2, tau3)), lbound=matrix(c(RE2.lbound,NA,NA,RE3.lbound), nrow=2, ncol=2), name="Tau")
+  Tau <- as.mxMatrix( Diag(c(tau2, tau3)), lbound=matrix(c(RE2.lbound,NA,NA,RE3.lbound), nrow=2, ncol=2), name="Tau")
   
   Id <- mxMatrix("Iden", nrow=k, ncol=k, name="Id")
   Ones <- mxMatrix("Unit", nrow=k, ncol=k, name="Ones") 

@@ -247,9 +247,9 @@ meta3X <- function(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=
   beta2 <- matrix(0, nrow=length(beta.labels), ncol=length(beta.labels), dimnames=list(beta.labels, beta.labels))
   ## Indicators for latent variables to observed variables
   if (no.x2!=0)
-    beta2[x2.labels, l2.labels] <- diag(no.x2)
+    beta2[x2.labels, l2.labels] <- Diag(no.x2)
   if (no.x3!=0)
-    beta2[x3.labels, l3.labels] <- diag(no.x3)
+    beta2[x3.labels, l3.labels] <- Diag(no.x3)
   ## Beta without y
   Beta2 <- as.mxMatrix(beta2[-1,-1], name="Beta2")
   Zeroall1 <- mxMatrix("Zero", nrow=length(beta.labels), ncol=1, name="Zeroall1")
@@ -317,7 +317,7 @@ meta3X <- function(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=
   }
 
   ## Tau for both tau2 and tau3
-  Tau <- as.mxMatrix( diag(c(tau2, tau3)), lbound=matrix(c(RE2.lbound,NA,NA,RE3.lbound), nrow=2, ncol=2), name="Tau")
+  Tau <- as.mxMatrix( Diag(c(tau2, tau3)), lbound=matrix(c(RE2.lbound,NA,NA,RE3.lbound), nrow=2, ncol=2), name="Tau")
 
   if ((no.x2+no.av2)==0) {
     ## ZeroW1 and ZeroW2 are dummies, not used
@@ -365,9 +365,9 @@ meta3X <- function(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=
     covB["y", c(av2.labels, av3.labels)] <- covB[c(av2.labels, av3.labels), "y"] <- paste("0*Bcovy", c(av2.labels, av3.labels), sep="")
 
   covW.lbound <- matrix(NA, nrow=dim(covW)[[1]], ncol=dim(covW)[[1]])
-  diag(covW.lbound) <- 1e-10
+  Diag(covW.lbound) <- 1e-10
   covB.lbound <- matrix(NA, nrow=dim(covB)[[1]], ncol=dim(covB)[[1]])
-  diag(covB.lbound) <- 1e-10  
+  Diag(covB.lbound) <- 1e-10  
   covW <- as.mxMatrix(covW, lbound=covW.lbound)
   covB <- as.mxMatrix(covB, lbound=covB.lbound)
   

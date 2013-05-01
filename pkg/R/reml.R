@@ -83,7 +83,7 @@ reml <- function(y, v, x, data, RE.constraints=NULL, RE.startvalues=0.1, RE.lbou
   # 1 0 2 0 3 0
   # 0 1 0 2 0 3
   fn1 <- function(x, no.y) {
-    temp <- lapply(x, function(x, k){diag(x=x, nrow=k, ncol=k)}, k=no.y)
+    temp <- lapply(x, function(x, k){Diag(x=x, nrow=k, ncol=k)}, k=no.y)
     do.call(cbind, temp)
   }
   # temp: a list of design matrix per study
@@ -117,7 +117,7 @@ reml <- function(y, v, x, data, RE.constraints=NULL, RE.startvalues=0.1, RE.lbou
     } else {
 
       lbound <- matrix(NA, nrow=no.y, ncol=no.y)
-      diag(lbound) <- RE.lbound
+      Diag(lbound) <- RE.lbound
     }  
   ## Convert it into a large matrix
   lbound <- bdiagRep(lbound, no.studies)
@@ -139,7 +139,7 @@ reml <- function(y, v, x, data, RE.constraints=NULL, RE.startvalues=0.1, RE.lbou
         stop("Dimensions of \"RE.startvalues\" are incorrect.")                    
       #values <- matrix(c(RE.startvalues), nrow=no.y, ncol=no.y)
     } else {      
-      values <- diag(x=RE.startvalues, nrow=no.y, ncol=no.y)
+      values <- Diag(x=RE.startvalues, nrow=no.y, ncol=no.y)
     }    
     # Large matrix
     values <- bdiagRep(values, no.studies)
@@ -169,7 +169,7 @@ reml <- function(y, v, x, data, RE.constraints=NULL, RE.startvalues=0.1, RE.lbou
 
   ## Known sampling variance matrix
   if (no.y==1) {
-    V <- diag(x=v, nrow=no.studies, ncol=no.studies)
+    V <- Diag(x=v, nrow=no.studies, ncol=no.studies)
   } else {
     V <- matrix2bdiag(v)
   }

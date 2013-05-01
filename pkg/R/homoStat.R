@@ -18,7 +18,7 @@ homoStat <- function(y, v) {
     Y <- matrix( c(t(y)), ncol=1 )
     miss.index <- is.na(Y)
     Y <- matrix( Y[!miss.index], ncol=1 )
-    X <- matrix( rep(diag(no.y), nrow(y)), ncol=no.y, byrow=TRUE )
+    X <- matrix( rep(Diag(no.y), nrow(y)), ncol=no.y, byrow=TRUE )
 
     X <- X[!miss.index, , drop=FALSE]
     V <- matrix2bdiag(v)

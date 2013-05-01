@@ -47,11 +47,11 @@ reml3 <- function(y, v, cluster, x, data, RE2.startvalue=0.1, RE2.lbound=1e-10,
   k <- lapply( split(cluster, cluster), length )
 
   ## Prepare V: fixed and known
-  V <- as.mxMatrix( diag(v), name="V" )
+  V <- as.mxMatrix( Diag(v), name="V" )
 
   ## Prepare Tau2 
-  Tau_2 <- diag(paste(RE2.startvalue,"*Tau2_2", sep=""), ncol=no.studies, nrow=no.studies)
-  re2.lbound <- diag(RE2.lbound, nrow=no.studies, ncol=no.studies)
+  Tau_2 <- Diag(rep(paste(RE2.startvalue,"*Tau2_2", sep=""), no.studies))
+  re2.lbound <- Diag(RE2.lbound, nrow=no.studies, ncol=no.studies)
   re2.lbound[re2.lbound==0] <- NA
   Tau_2 <- as.mxMatrix(Tau_2, name="Tau_2", lbound=re2.lbound)
   

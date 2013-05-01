@@ -1,5 +1,7 @@
-Release 0.8-3 (Jan 15, 2013)
+Release 0.8-4 (May 1, 2013)
 ====================================
+* Fixed an issue in diag() that breaks the metaSEM in R-3.0.0
+* Added Diag() that preserves the same functions as diag() prior to R-3.0.0
 * Added dataset Craft03
 
 Release 0.8-2 (Dec 28, 2012)

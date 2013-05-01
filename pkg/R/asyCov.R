@@ -44,7 +44,7 @@ asyCov <- function(x, n, cor.analysis = TRUE, dropNA = FALSE, as.matrix = TRUE,
     } else {
       
         # Assumption: check the diagonals for missing data only
-        miss.index <- is.na(diag(x))
+        miss.index <- is.na(Diag(x))
         x.new <- x[!miss.index, !miss.index]
         if (!is.pd(x.new)) 
             stop("x is not positive definite!\n")
@@ -66,7 +66,7 @@ asyCov <- function(x, n, cor.analysis = TRUE, dropNA = FALSE, as.matrix = TRUE,
             acovName <- vechs(psMatnames)
             S <- mxMatrix("Stand", nrow = p, ncol = p, free = TRUE, values = jitter(vechs(cov2cor(x.new))), 
                 name = "S", labels = acovName)
-            D <- mxMatrix("Diag", nrow = p, ncol = p, free = TRUE, values = sqrt(diag(x.new)), 
+            D <- mxMatrix("Diag", nrow = p, ncol = p, free = TRUE, values = sqrt(Diag(x.new)), 
                 name = "D")
             modelName <- "Asymptotic covariance matrix of correlation matrix"
         } else {

@@ -64,12 +64,12 @@ create.mxMatrix <- function(x, type=c("Full","Symm","Diag","Stand"), ncol=NA, nr
                     untitled1[lower.tri(untitled1, diag = TRUE)] <- x
                     untitled1[upper.tri(untitled1)] <- t(untitled1)[upper.tri(untitled1)]
                   },
-           Diag = { untitled1 <- diag(x)                                         
+           Diag = { untitled1 <- Diag(x)                                         
                    },
            Stand = { no.var <- (sqrt(1 + 8 * length(x)) + 1)/2
                      if (abs(no.var - round(no.var)) > .Machine$double.eps^0.5)
                        stop("Length of \"x\" does not match the no. of elements for a standardized matrix.\n")
-                     untitled1 <- diag(rep(1,no.var))
+                     untitled1 <- Diag(rep(1,no.var))
                      untitled1[lower.tri(untitled1, diag = FALSE)] <- x
                      untitled1[upper.tri(untitled1)] <- t(untitled1)[upper.tri(untitled1)]  
                   })    

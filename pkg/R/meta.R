@@ -38,7 +38,7 @@ meta <- function(y, v, x, data, intercept.constraints=NULL, coef.constraints=NUL
   } else {
     index <- matrix(0, nrow=no.y, ncol=no.y)
     index[lower.tri(index, diag=TRUE)] <- seq(1, no.y*(no.y+1)/2)
-    index <- diag(index)
+    index <- Diag(index)
     y[is.na(v[, index])] <- NA
   }
     v[is.na(v)] <- 1e10
@@ -128,7 +128,7 @@ meta <- function(y, v, x, data, intercept.constraints=NULL, coef.constraints=NUL
       ## lbound is a matrix
     } else {
       lbound <- matrix(NA, nrow=no.y, ncol=no.y)
-      diag(lbound) <- RE.lbound
+      Diag(lbound) <- RE.lbound
       ## lbound is a matrix      
   }  
  
@@ -141,7 +141,7 @@ meta <- function(y, v, x, data, intercept.constraints=NULL, coef.constraints=NUL
         warning("Dimensions of \"RE.startvalues\" are incorrect.")
       values <- vech(RE.startvalues)
     } else {
-      values <- vech(diag(x=RE.startvalues, nrow=no.y, ncol=no.y))
+      values <- vech(Diag(x=RE.startvalues, nrow=no.y, ncol=no.y))
     }
     Tau.labels <- vech(outer(1:no.y, 1:no.y, function(x,y) { paste("Tau2_",x,"_",y,sep="")}))
     Tau <- mxMatrix("Symm", ncol=no.y, nrow=no.y, free=TRUE, labels=Tau.labels,

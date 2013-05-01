@@ -135,8 +135,7 @@ meta3X(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=NULL,
 %% ...
 }
 \references{
-  Cheung, M. W. L. (2012). Three-level meta-analyses as structural
-  equation models. \emph{Manuscript submitted for publication}.
+  Cheung, M. W. L. (in press). Modeling dependent effect sizes with three-level meta-analyses: A structural equation modeling approach. \emph{Psychological Methods}.
 
   Enders, C. K. (2010). \emph{Applied missing data analysis}. New York:
   Guilford Press.

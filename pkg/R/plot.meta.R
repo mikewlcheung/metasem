@@ -36,7 +36,7 @@ plot.meta <- function(x, effect.sizes, add.margin=0.1, interval=0.95,
      } else {
       mat <- vec2symMat(seq(1, no.y*(no.y-1)/2), diag=FALSE)
       mat[upper.tri(mat)] <- 0
-      diag(mat) <- seq(no.y*(no.y-1)/2+1, no.y*(no.y+1)/2) 
+      Diag(mat) <- seq(no.y*(no.y-1)/2+1, no.y*(no.y+1)/2) 
     }
     layout(mat, respect=TRUE)
     
@@ -84,7 +84,7 @@ plot.meta <- function(x, effect.sizes, add.margin=0.1, interval=0.95,
     RE[my.rand %in% para.names] <- coef(x)[my.rand[my.rand %in% para.names]]
     RE <- vec2symMat(RE)
     #### Fixme
-    if (all(!is.na(diag(RE))) & is.na(RE[2,1]) ) RE[2,1] <- RE[1,2] <- 0.0
+    if (all(!is.na(Diag(RE))) & is.na(RE[2,1]) ) RE[2,1] <- RE[1,2] <- 0.0
     dimnames(RE) <- list(my.effects, my.effects)
 
     ## y, x, var(y), cov(x,y), var(x)
@@ -132,7 +132,7 @@ plot.meta <- function(x, effect.sizes, add.margin=0.1, interval=0.95,
              lty=estimate.ellipse.lty, lwd=estimate.ellipse.lwd)
     }  
     ## Plot ellipse for random effects only if no missing in RE
-    if ( randeff.ellipse.plot==TRUE && all(!is.na(diag(RE))) ) {
+    if ( randeff.ellipse.plot==TRUE && all(!is.na(Diag(RE))) ) {
       points(ellipse(RE, centre=ES), type="l", col=randeff.ellipse.col,
              lty=randeff.ellipse.lty, lwd=randeff.ellipse.lwd)
     }
