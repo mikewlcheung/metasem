@@ -135,6 +135,9 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
     if (inherits(acovS, "error")) {
       cat("Error in solving the Hessian matrix.\n")
       warning(print(acovS))
+    } else {
+      # Fixed a bug in a few lines later in dimnames(acovS) when acovS is a scalar
+      acovS <- as.matrix(acovS)
     }
     
     # check dimnames

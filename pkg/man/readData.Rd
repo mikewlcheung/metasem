@@ -50,8 +50,8 @@ readLowTriMat(file, no.var, ...)
 # 1.0 NA 0.4
 # NA NA NA
 # 0.4 NA 1.0
-cat("1.0 0.3 0.4\n0.3 1.0 0.5\n0.4 0.5 1.0\n1.0 NA 0.4\nNA NA NA\n0.4 NA
-1.0",
+cat("1.0 0.3 0.4\n0.3 1.0 0.5\n0.4 0.5 1.0
+1.0 NA 0.4\nNA NA NA\n0.4 NA 1.0",
 file="fullmat.dat", sep="")
 
 ## Read the correlation matrices
@@ -104,7 +104,7 @@ my.lowertri
 ## The content of "stackvec.dat" is
 # 1.0 0.3 0.4 1.0 0.5 1.0
 # 1.0 NA 0.4 NA NA 1.0
-cat("1.0 0.3 0.4 1.0 0.5 1.0\n1.0 NA 0.4 NA NA 1.0",
+cat("1.0 0.3 0.4 1.0 0.5 1.0\n1.0 NA 0.4 NA NA 1.0\n",
     file="stackvec.dat", sep="")
 
 my.vec <- readStackVec("stackvec.dat")

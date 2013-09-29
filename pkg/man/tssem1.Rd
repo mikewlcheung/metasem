@@ -71,10 +71,11 @@ tssem1REM(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Zero"),
 \references{
   % Cheung, M. W. L. (2011). Applications of meta-analytic structural
   % equation modeling. \emph{Manuscript in preparation.}
-  Cheung, M. W. L. (2013). Fixed- and random-effects meta-analytic
-  structural equation modeling: Examples and analyses in R. \emph{Manuscript submitted for publication.}
+  Cheung, M. W. L. (in press). Fixed- and random-effects meta-analytic structural equation modeling: Examples and analyses in R. \emph{Behavior Research Methods}.  
 
-  Cheung, M. W. L. (in press). Multivariate meta-analysis as structural equation models. \emph{Structural Equation Modeling.}
+  Cheung, M. W. L. (2013). Multivariate meta-analysis as structural
+equation models. \emph{Structural Equation Modeling}, \bold{20},
+429-454.
 
   Cheung, M. W. L., & Chan, W. (2005). Meta-analytic structural equation modeling: A two-stage approach. \emph{Psychological Methods}, \bold{10}, 40-64.
 

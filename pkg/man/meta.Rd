@@ -122,9 +122,8 @@ meta(y, v, x, data, intercept.constraints = NULL, coef.constraints = NULL,
   Cheung, M. W. L. (2009). Constructing approximate confidence intervals
   for parameters with structural equation models. \emph{Structural
 	Equation Modeling}, \bold{16}, 267-294.
-  
-  Cheung, M. W. L. (in press). Multivariate meta-analysis as structural
-	equation models. \emph{Structural Equation Modeling.}
+
+  Cheung, M. W. L. (2013). Multivariate meta-analysis as structural equation models. \emph{Structural Equation Modeling}, \bold{20}, 429-454.
   
   Hardy, R. J., & Thompson, S. G. (1996). A likelihood approach to
   meta-analysis with random effects. \emph{Statistics in Medicine},

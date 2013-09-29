@@ -14,8 +14,8 @@
 \tabular{ll}{
 Package: \tab metaSEM\cr
 Type: \tab Package\cr
-Version: \tab 0.8-4\cr
-Date: \tab 2013-05-1\cr
+Version: \tab 0.8-5\cr
+Date: \tab 2013-07-26\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }
@@ -33,13 +33,13 @@ Cheung, M. W. L. (2010). Fixed-effects meta-analyses as multiple-group structura
 
 Cheung, M. W. L. (2012b). metaSEM: An R package for meta-analysis using strutural equation modeling. \emph{Manuscript submitted for publication}.
 
-Cheung, M. W. L. (2013). Fixed- and random-effects meta-analytic structural equation modeling: Examples and analyses in R. \emph{Manuscript submitted for publication.}
-
 Cheung, M. W. L. (2013). Implementing restricted maximum likelihood estimation in structural equation models. \emph{Structural Equation Modeling}, \bold{20}, 157-167. 
+
+Cheung, M. W. L. (2013). Multivariate meta-analysis as structural equation models. \emph{Structural Equation Modeling}, \bold{20}, 429-454.
 
 Cheung, M. W. L. (in press). Modeling dependent effect sizes with three-level meta-analyses: A structural equation modeling approach. \emph{Psychological Methods}.
 
-Cheung, M. W. L. (in press). Multivariate meta-analysis as structural equation models. \emph{Structural Equation Modeling.}
+Cheung, M. W. L. (in press). Fixed- and random-effects meta-analytic structural equation modeling: Examples and analyses in R. \emph{Behavior Research Methods}. 
 
 Cheung, M. W. L., & Chan, W. (2004). Testing dependent correlation coefficients via structural equation modeling. \emph{Organizational Research Methods}, \bold{7}, 206-223.
 
