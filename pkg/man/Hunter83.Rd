@@ -20,9 +20,7 @@ A list of data with the following structure:
 \source{
   Hunter, J. E. (1983). A causal analysis of cognitive ability, job knowledge, job performance, and supervisor ratings. In F. Landy, S. Zedeck, & J. Cleveland (Eds.), \emph{Performance Measurement and Theory} (pp. 257-266). Hillsdale, NJ: Erlbaum.
 }
-\references{
-%%  ~~ possibly secondary sources and usages ~~
-}
+
 \examples{
 data(Hunter83)
 

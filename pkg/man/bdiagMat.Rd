@@ -12,9 +12,7 @@ bdiagMat(x)
   \item{x}{A list of numeric or character matrices (or values)
 }
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+
 \value{A numeric or character block diagonal matrix
 %%  ~Describe the value returned
 %%  If it is a LIST, use
@@ -26,9 +24,6 @@ bdiagMat(x)
 %% ~put references to the literature/web site here ~
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
-}
-\note{
-%%  ~~further notes~~
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

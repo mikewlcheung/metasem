@@ -40,14 +40,10 @@
 }
   \item{\dots}{Further arguments; currently none is used}
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+
 \value{A variance-covariance matrix of the parameter estimates.
 }
-\references{
-%% ~put references to the literature/web site here ~
-}
+
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
 \note{\code{vcov} returns \code{NA} when \code{diag.constraints=TRUE}

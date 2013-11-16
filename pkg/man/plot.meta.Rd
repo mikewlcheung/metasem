@@ -128,9 +128,7 @@ diag.panel = FALSE, ...)
   \item{\dots}{Further arguments to be passed to the plot function.
 }
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+
 
 \references{
   Cheung, M. W. L. (in press). Multivariate meta-analysis as structural equation models. \emph{Structural Equation Modeling.}
@@ -143,9 +141,7 @@ diag.panel = FALSE, ...)
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
+
 \examples{
 \dontrun{
 ## Multivariate meta-analysis

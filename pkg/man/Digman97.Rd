@@ -6,8 +6,7 @@
 The data set includes fourteen studies of the factor correlation matrices of the Five-Factor Model of personality reported by Digman (1997). 
 }
 \usage{data(Digman97)}
-\format{
-}
+
 \details{
 A list of data with the following structure:
 \describe{

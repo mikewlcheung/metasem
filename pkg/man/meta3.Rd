@@ -50,9 +50,7 @@ meta3X(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=NULL,
 }
   \item{intercept.constraints}{A \eqn{1}{1} x \eqn{1}{1} matrix
 	specifying whether the intercept of the effect size is fixed or
-	constrained. If the input is not a matrix, the input is converted into a
-	\eqn{1}{1} x \eqn{p}{p} matrix with
-	\code{t(as.matrix(intercept.constraints))}. The format of this matrix follows
+	constrained. The format of this matrix follows
 	\code{\link[metaSEM]{as.mxMatrix}}. The intercept can be
 	constrained with other parameters by using the same label.
 }
@@ -127,13 +125,7 @@ meta3X(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=NULL,
  flexible in handling missing covariates, it is more likely to encounter
  estimation problems. 	
 }
-\value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
-}
+
 \references{
   Cheung, M. W. L. (in press). Modeling dependent effect sizes with three-level meta-analyses: A structural equation modeling approach. \emph{Psychological Methods}.
 
@@ -151,17 +143,12 @@ meta3X(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=NULL,
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 %%  ~~who you are~~
 }
-\note{
-%%  ~~further notes~~
-}
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{\code{\link[metaSEM]{reml3}}, \code{\link[metaSEM]{Cooper03}}, \code{\link[metaSEM]{Bornmann07}}
 }
-\examples{
 
-}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{ meta-analysis }

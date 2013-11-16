@@ -21,21 +21,9 @@ matrix2bdiag(x, ...)
   Chasalow posted at \url{http://www.math.yorku.ca/Who/Faculty/Monette/pub/stmp/0827.html}.
 %%  ~~ If necessary, more details than the description above ~~
 }
-\value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
-}
-\references{
-%% ~put references to the literature/web site here ~
-}
+
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 %%  ~~who you are~~
-}
-\note{
-%%  ~~further notes~~
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

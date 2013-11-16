@@ -6,8 +6,6 @@
   Fifty-six effect sizes from 11 districts from Cooper et al. (2003) were reported by Konstantopoulos (2011).
 }
 \usage{data(Cooper03)}
-\format{
-}
 \details{
     The variables are:
   \describe{

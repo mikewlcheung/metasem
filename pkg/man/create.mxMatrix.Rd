@@ -43,12 +43,8 @@ nrow=NA, as.mxMatrix=TRUE, ...)
 \value{A \code{\link[OpenMx]{MxMatrix-class}} object with the same
   dimensions as \code{x}
 }
-\references{
-}
+
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
-}
-\note{
-%%  ~~further notes~~
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

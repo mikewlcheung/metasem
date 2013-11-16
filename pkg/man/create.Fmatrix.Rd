@@ -18,15 +18,10 @@ create.Fmatrix(x, name, as.mxMatrix=TRUE, ...)
   \code{MxMatrix-class}. If it is \code{FALSE}, it is a numeric matrix.}
 \item{\dots}{Not used.}
 }
-\details{
-}
-\references{
-}
+
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
-\note{
-%%  ~~further notes~~
-}
+
 \seealso{ \code{\link[metaSEM]{as.mxMatrix}}, \code{\link[metaSEM]{create.mxMatrix}}, \code{\link[metaSEM]{wls}}
 }
 

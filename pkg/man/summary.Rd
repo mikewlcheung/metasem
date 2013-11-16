@@ -58,19 +58,6 @@
   \item{\dots}{Further arguments to be passed to \code{\link[stats]{printCoefmat}}
 }
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
-\value{
-%%  ~Describe the value returned
-%%  If it is a LIST, use
-%%  \item{comp1 }{Description of 'comp1'}
-%%  \item{comp2 }{Description of 'comp2'}
-%% ...
-}
-\references{
-%% ~put references to the literature/web site here ~
-}
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 %%  ~~who you are~~
 }
@@ -84,8 +71,7 @@
 \seealso{ \code{\link[metaSEM]{tssem1}}, \code{\link[metaSEM]{wls}},
   \code{\link[metaSEM]{meta}}, \code{\link[metaSEM]{reml}}
 }
-\examples{
-}
+
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{ methods }

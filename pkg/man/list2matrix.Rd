@@ -18,27 +18,16 @@ list2matrix(x, diag = FALSE)
 	is used to vectorize the (correlation) matrices.
 }
 }
-\details{
-}
 \value{A \eqn{k}{k} x \eqn{p*}{p*} stacked matrix where \eqn{p* = p(p-1)/2 }{p*
 	= p(p-1)/2} for \code{diag}=\code{FALSE} or \eqn{p* = p(p+1)/2
   }{p* = p(p+1)/2} for \code{diag}=\code{TRUE}.
 
 }
-\references{
-%% ~put references to the literature/web site here ~
-}
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
-}
-\note{
-%%  ~~further notes~~
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
 \examples{
 C1 <- matrix(c(1,0.5,0.4,0.5,1,0.2,0.4,0.2,1), ncol=3)  
 C2 <- matrix(c(1,0.4,NA,0.4,1,NA,NA,NA,NA), ncol=3)  

@@ -92,9 +92,7 @@ tssem2(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=FA
   \item{\dots}{Futher arguments to be passed to \code{\link[OpenMx]{mxRun}}.
 }
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+
 \value{An object of class \code{wls} with a list of
 \item{call}{The matched call}
 \item{Cov}{Input data of either a covariance or correlation matrix}
@@ -115,8 +113,9 @@ Bentler, P.M., & Savalei, V. (2010). Analysis of correlation structures: current
 
 Cheung, M. W. L. (2010). Fixed-effects meta-analyses as multiple-group structural equation models. \emph{Structural Equation Modeling}, \bold{17}, 481-509.
 
-Cheung, M. W. L. (2013). Fixed- and random-effects meta-analytic
-structural equation modeling: Examples and analyses in R. \emph{Manuscript submitted for publication.}
+Cheung, M. W. L. (in press). Fixed- and random-effects meta-analytic
+structural equation modeling: Examples and analyses in R. \emph{Behavior
+  Research Methods}.
 
 Cheung, M. W. L., & Chan, W. (2005). Meta-analytic structural equation modeling: A two-stage approach. \emph{Psychological Methods}, \bold{10}, 40-64.
 

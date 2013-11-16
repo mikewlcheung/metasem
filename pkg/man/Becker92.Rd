@@ -6,8 +6,7 @@
 This data set includes six studies of correlation matrices reported by Becker (1992; 1995).
 }
 \usage{data(Becker92)}
-\format{
-}
+
 \details{
 A list of data with the following structure:
 \describe{
@@ -23,8 +22,7 @@ A list of data with the following structure:
 
   Becker, B. J. (1995). Corrections to "Using Results from Replicated Studies to Estimate Linear Models." \emph{Journal of Educational and Behavioral Statistics}, \bold{20(1)}, 100-102. doi:10.2307/1165390
 }
-\references{
-}
+
 \examples{
 data(Becker92)
 

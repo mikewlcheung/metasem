@@ -13,8 +13,7 @@
   other people (JN3), and useful to society (JN4); and \emph{Time Demand} measured by flexible working hours (TD1) and lots of leisure time (TD2).
 }
 \usage{data(issp89)}
-\format{
-}
+
 \details{
 A list of data with the following structure:
 \describe{

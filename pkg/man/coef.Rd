@@ -38,21 +38,12 @@
 }  
   \item{\dots}{Further arguments; currently none is used}
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+
 \value{Parameter estimates for both fixed-effects (if any) and random-effects (if any)
 }
-\references{
-%% ~put references to the literature/web site here ~
-}
+
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
-\note{
-%%  ~~further notes~~
-}
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{ \code{\link[metaSEM]{tssem1}}, \code{\link[metaSEM]{wls}},
   \code{\link[metaSEM]{meta}}, \code{\link[metaSEM]{reml}}

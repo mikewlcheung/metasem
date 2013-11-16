@@ -16,9 +16,7 @@ vec2symMat(x, diag = TRUE)
 %   \item{byrow}{Logical. If it is \code{FALSE} (the default), the created matrix is filled by columns; otherwise, the matrix is filled by rows.
 % }
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+
 \value{A symmetric square matrix based on column major
 %%  ~Describe the value returned
 %%  If it is a LIST, use
@@ -26,13 +24,8 @@ vec2symMat(x, diag = TRUE)
 %%  \item{comp2 }{Description of 'comp2'}
 %% ...
 }
-\references{
-%% ~put references to the literature/web site here ~
-}
+
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
-}
-\note{
-%%  ~~further notes~~
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

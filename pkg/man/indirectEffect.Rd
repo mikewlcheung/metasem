@@ -42,17 +42,8 @@ indirectEffect(x, n, standardized = TRUE, direct.effect = TRUE)
   approach. \emph{Behavior Research Methods}, \emph{43}, 730-745.
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
-
-}
-\note{
-%%  ~~further notes~~
 }
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
 \examples{
 ## A correlation matrix as input
 x <- matrix(c(1, 0.4, 0.2, 0.4, 1, 0.3, 0.2, 0.3, 1), ncol=3)

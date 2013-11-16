@@ -7,8 +7,7 @@
   for medium-severity periodontal disease, one year after treatment. 
 }
 \usage{data(Berkey98)}
-\format{
-}
+
 \details{
     The variables are:
   \describe{

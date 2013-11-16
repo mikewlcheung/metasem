@@ -9,8 +9,6 @@
 %%  ~~ A concise (1-5 lines) description of the dataset. ~~
 }
 \usage{data(Cheung09)}
-\format{
-}
 \details{
 A list of data with the following structure:
 \describe{

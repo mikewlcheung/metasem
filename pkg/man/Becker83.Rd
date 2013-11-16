@@ -8,8 +8,7 @@ The data set includes studies on sex differences in conformity using the fictiti
 paradigm reported by Becker (1983).
 }
 \usage{data(Becker83)}
-\format{
-}
+
 \details{
       The variables are:
   \describe{

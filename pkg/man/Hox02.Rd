@@ -7,8 +7,7 @@ Twenty stimulated studies on standardized mean difference and one
 continuous study characteristic reported by Hox (2002).
 }
 \usage{data(Hox02)}
-\format{
-}
+
 \details{
   The variables are:
   \describe{

@@ -38,9 +38,7 @@ asyCov(x, n, cor.analysis = TRUE, dropNA = FALSE, as.matrix = TRUE,
 
   \item{\dots}{Futher arguments to be passed to \code{\link[OpenMx]{mxRun}}}
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+
 \value{An asymptotic covariance matrix of the vectorized
   correlation/covariance matrix or a list of these matrices. If
   \code{as.matrix}=\code{TRUE} and \code{x} is a list of matrices, the output
@@ -50,15 +48,8 @@ Cheung, M. W. L., & Chan, W. (2004). Testing dependent correlation coefficients 
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
-\note{
-%%  ~~further notes~~
-}
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
 \examples{
 C1 <- matrix(c(1,0.5,0.4,0.5,1,0.2,0.4,0.2,1), ncol=3)  
 asyCov(C1, n=100)

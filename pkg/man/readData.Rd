@@ -20,25 +20,13 @@ readLowTriMat(file, no.var, ...)
   \item{\dots}{Further arguments to be passed to \code{\link[base]{scan}} for \code{readLowTriMat} and to \code{\link[utils]{read.table}} for \code{readFullMat} and \code{readStackVec}.
 }
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+
 \value{A list of correlation/covariance matrices.
 }
-\references{
-%% ~put references to the literature/web site here ~
-}
+
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
-\note{
-%%  ~~further notes~~
-}
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
-\seealso{
-%% ~~objects to See Also as \code{\link{help}}, ~~~
-}
 \examples{
 \dontrun{
 ## Write two full correlation matrices into a file named "fullmat.dat".

@@ -18,23 +18,12 @@ is.pd(x, tol = 1e-06)
 	\code{tol}. See \code{\link[Matrix]{nearPD}}
 }
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
 \value{\code{TRUE} or \code{FALSE} or a list of it.
 }
-\references{
-%% ~put references to the literature/web site here ~
-}
+
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
-\note{
-}
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
-\seealso{
-}
 \examples{
 A <- diag(1,3)
 is.pd(A)

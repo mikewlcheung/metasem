@@ -1,5 +1,6 @@
-Release 0.8-5 (Jul 26, 2013)
+Release 0.8-5 (Nov 16, 2013)
 ====================================
+* Added pattern.na() to display the pattern of missing data in TSSEM
 * Fixed a bug reported by Andre Plamondon that tssem1FEM() returns an error when acovS is a scalar 
 
 Release 0.8-4 (May 1, 2013)

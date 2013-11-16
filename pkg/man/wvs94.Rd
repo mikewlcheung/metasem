@@ -11,8 +11,7 @@ satisfaction and on life control in each country were calculated as the effect s
 %%  ~~ A concise (1-5 lines) description of the dataset. ~~
 }
 \usage{data(wvs94)}
-\format{
-}
+
 \details{
     The variables are:
   \describe{

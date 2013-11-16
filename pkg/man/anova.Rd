@@ -44,12 +44,8 @@
 % }
 \value{A table of comparisons between the models in base and comparison.
 }
-\references{
-%% ~put references to the literature/web site here ~
-}
+
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
-}
-\note{
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

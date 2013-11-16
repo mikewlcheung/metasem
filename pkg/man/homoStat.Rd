@@ -24,9 +24,7 @@ homoStat(y, v)
 	\code{v} will be removed automatically.
 }
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+
 \value{A list of
   \item{Q}{Q statistic on the null hypothesis of homogeneity of effect
 	sizes. It has an approximate chi-square distribution under the null
@@ -47,11 +45,6 @@ Cochran, W. G. (1954). The combination of estimates from different experiments. 
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
-\note{It is usually called internally by \code{\link[metaSEM]{meta}}.
-%%  ~~further notes~~
-}
-
-%% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{  \code{\link[metaSEM]{meta}}
 }

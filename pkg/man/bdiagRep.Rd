@@ -16,9 +16,6 @@ bdiagRep(x, times)
 %%     ~~Describe \code{times} here~~
 }
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
 \value{A numeric or character block diagonal matrix
 %%  ~Describe the value returned
 %%  If it is a LIST, use
@@ -26,16 +23,9 @@ bdiagRep(x, times)
 %%  \item{comp2 }{Description of 'comp2'}
 %% ...
 }
-\references{
-%% ~put references to the literature/web site here ~
-}
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 %%  ~~who you are~~
 }
-\note{
-%%  ~~further notes~~
-}
-
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{ \code{\link[metaSEM]{bdiagMat}}, \code{\link[metaSEM]{matrix2bdiag}}

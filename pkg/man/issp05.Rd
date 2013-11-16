@@ -14,8 +14,7 @@
   people (CS1) and a job useful to society (CS2).
 }
 \usage{data(issp05)}
-\format{
-}
+
 \details{
 A list of data with the following structure:
 \describe{
@@ -25,8 +24,7 @@ A list of data with the following structure:
 }
 \source{ISSP Research Group (2007): \emph{International Social Survey Programme 2005: Work Orientation III (ISSP 2005)}. GESIS Data Archive, Cologne. ZA4350 Data file Version 1.0.0, doi:10.4232/1.4350}
 
-\references{
-}
+
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
 \seealso{ \code{\link[metaSEM]{issp89}}

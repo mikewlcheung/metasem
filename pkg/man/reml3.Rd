@@ -77,10 +77,10 @@ An alternative but equivalent approach is to minimize the
   \item{mx.fit}{A fitted object returned from	\code{\link[OpenMx]{mxRun}}}
 }
 \references{
-  Cheung, M. W. L. (in press). Implementing restricted maximum likelihood (REML) estimation in structural equation models. \emph{Structural Equation Modeling.}
+  Cheung, M. W. L. (2013). Implementing restricted maximum likelihood estimation in structural equation models. \emph{Structural Equation Modeling}, \bold{20(1)}, 157-167.
 
-  Cheung, M. W. L. (2012). Three-level meta-analyses as structural equation models. \emph{Manuscript in preparation}.
-	
+  Cheung, M. W. L. (in press). Modeling dependent effect sizes with three-level meta-analyses: A structural equation modeling approach. \emph{Psychological Methods}.
+
   Mehta, P. D., & Neale, M. C. (2005). People Are Variables Too: Multilevel Structural Equations Modeling. \emph{Psychological
   	Methods}, \bold{10(3)}, 259-284.
 
@@ -102,9 +102,7 @@ An alternative but equivalent approach is to minimize the
 \seealso{ \code{\link[metaSEM]{meta3}}, \code{\link[metaSEM]{reml}}, \code{\link[metaSEM]{Cooper03}}, \code{\link[metaSEM]{Bornmann07}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
 
-}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{ meta-analysis }

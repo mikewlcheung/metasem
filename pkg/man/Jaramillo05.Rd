@@ -24,14 +24,10 @@
     \item{\code{r.v}}{sampling variance of r}
   }
 }
-\details{
-%%  ~~ If necessary, more details than the __description__ above ~~
-}
+
 \source{Jaramillo, F., Mulki, J. P., & Marshall, G. W. (2005). A meta-analysis of the relationship between organizational commitment and salesperson job performance: 25 years of research. \emph{Journal of Business Research}, \bold{58(6)}, 705-714. doi:10.1016/j.jbusres.2003.10.004
 }
-\references{
-%%  ~~ possibly secondary sources and usages ~~
-}
+
 \examples{
 ## Research question 4.4.1
 summary(meta(r, r.v, data=Jaramillo05))

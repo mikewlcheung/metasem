@@ -6,8 +6,7 @@
   A dataset from Bornmann et al. (2007) for three-level meta-analysis.
 }
 \usage{data(Bornmann07)}
-\format{
-}
+
 \details{
     The variables are:
   \describe{

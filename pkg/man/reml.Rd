@@ -92,7 +92,9 @@ reml(y, v, x, data, RE.constraints = NULL, RE.startvalues = 0.1,
   \item{mx.fit}{A fitted object returned from	\code{\link[OpenMx]{mxRun}}}
 }
 \references{
-  Cheung, M. W. L. (in press). Implementing restricted maximum likelihood (REML) estimation in structural equation models. \emph{Structural Equation Modeling.}
+  Cheung, M. W. L. (2013). Implementing restricted maximum likelihood
+  estimation in structural equation models. \emph{Structural Equation
+	Modeling}, \bold{20(1)}, 157-167.
 
   Mehta, P. D., & Neale, M. C. (2005). People Are Variables Too: Multilevel Structural Equations Modeling. \emph{Psychological
   	Methods}, \bold{10(3)}, 259-284.
@@ -117,9 +119,7 @@ reml(y, v, x, data, RE.constraints = NULL, RE.startvalues = 0.1,
 \seealso{ \code{\link[metaSEM]{meta}}, \code{\link[metaSEM]{reml3}}, \code{\link[metaSEM]{Hox02}}, \code{\link[metaSEM]{Berkey98}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
-\examples{
 
-}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{ meta-analysis }

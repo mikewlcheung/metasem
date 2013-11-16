@@ -7,8 +7,7 @@
   Effects of open education on attitude toward school and on reading achievement reported by Hedges and Olkin (1985).
 }
 \usage{data(HedgesOlkin85)}
-\format{
-}
+
 \details{
         The variables are:
   \describe{

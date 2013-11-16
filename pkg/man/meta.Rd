@@ -96,9 +96,7 @@ meta(y, v, x, data, intercept.constraints = NULL, coef.constraints = NULL,
   \item{\dots}{Futher arguments to be passed to \code{\link[OpenMx]{mxRun}}
 }
 }
-\details{
-%%  ~~ If necessary, more details than the description above ~~
-}
+
 \value{An object of class \code{meta} with a list of
   \item{call}{Object returned by \code{\link[base]{match.call}}}
   \item{data}{A data matrix of y, v and x  }
@@ -150,9 +148,7 @@ meta(y, v, x, data, intercept.constraints = NULL, coef.constraints = NULL,
 \seealso{\code{\link[metaSEM]{reml}}, \code{\link[metaSEM]{Hox02}},
   \code{\link[metaSEM]{Berkey98}}, \code{\link[metaSEM]{wvs94}}
 }
-\examples{
 
-}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{ meta-analysis }

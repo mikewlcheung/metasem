@@ -9,8 +9,7 @@
   al. (2003), whereas a subset of them were illustrated in Becker (2009).
 }
 \usage{data(Craft03)}
-\format{
-}
+
 \details{
 A list of data with the following structure:
 \describe{

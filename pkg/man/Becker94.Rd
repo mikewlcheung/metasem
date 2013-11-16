@@ -9,8 +9,7 @@
   reported by Becker and Schram (1994). 
 }
 \usage{data(Becker94)}
-\format{
-}
+
 \details{
 A list of data with the following structure:
 \describe{
@@ -24,9 +23,7 @@ A list of data with the following structure:
 \source{
   Becker, B. J., & Schram, C. M. (1994). Examining explanatory models through research synthesis. In H. Cooper & L. V. Hedges (Eds.), \emph{The handbook of research synthesis} (pp. 357-381). New York: Russell Sage Foundation.
 }
-\references{
-%%  ~~ possibly secondary sources and usages ~~
-}
+
 \examples{
 data(Becker94)
 
