@@ -67,15 +67,15 @@ tssem1REM(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Zero"),
   for random-effects TSSEM. 
 }
 \references{
-  Cheung, M. W. L. (in press). Fixed- and random-effects meta-analytic structural equation modeling: Examples and analyses in R. \emph{Behavior Research Methods}.  
+  Cheung, M. W.-L. (in press). Fixed- and random-effects meta-analytic structural equation modeling: Examples and analyses in R. \emph{Behavior Research Methods}.  
 
-  Cheung, M. W. L. (2013). Multivariate meta-analysis as structural
+  Cheung, M. W.-L. (2013). Multivariate meta-analysis as structural
 equation models. \emph{Structural Equation Modeling}, \bold{20},
 429-454.
 
- Cheung, M. W. L., & Chan, W. (2005). Meta-analytic structural equation modeling: A two-stage approach. \emph{Psychological Methods}, \bold{10}, 40-64.
+ Cheung, M. W.-L., & Chan, W. (2005). Meta-analytic structural equation modeling: A two-stage approach. \emph{Psychological Methods}, \bold{10}, 40-64.
 
- Cheung, M. W. L., & Chan, W. (2009). A two-stage approach to synthesizing covariance matrices in meta-analytic structural equation modeling. \emph{Structural Equation Modeling}, \bold{16}, 28-53.
+ Cheung, M. W.-L., & Chan, W. (2009). A two-stage approach to synthesizing covariance matrices in meta-analytic structural equation modeling. \emph{Structural Equation Modeling}, \bold{16}, 28-53.
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }

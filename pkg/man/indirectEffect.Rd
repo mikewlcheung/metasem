@@ -34,7 +34,7 @@ indirectEffect(x, n, standardized = TRUE, direct.effect = TRUE)
   asymptotic sampling covariance matrices
 }
 \references{
-  Cheung, M. W. L. (2009). Comparison of methods for constructing confidence intervals of standardized indirect effects. \emph{Behavior
+  Cheung, M. W.-L. (2009). Comparison of methods for constructing confidence intervals of standardized indirect effects. \emph{Behavior
   Research Methods}, \emph{41}, 425-438.
   
   Kwan, J., & Chan, W. (2011). Comparing standardized coefficients in

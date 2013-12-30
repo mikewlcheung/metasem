@@ -24,9 +24,9 @@ A list of data with the following structure:
 \source{Inter-University Consortium for Political and Social Research. (1989). \emph{International Social Survey Program: Work orientation}. Ann Arbor, MI: Author.}
 
 \references{
-  Cheung, M. W. L., & Chan, W. (2005). Meta-analytic structural equation modeling: A two-stage approach. \emph{Psychological Methods}, \bold{10}, 40-64.
+  Cheung, M. W.-L., & Chan, W. (2005). Meta-analytic structural equation modeling: A two-stage approach. \emph{Psychological Methods}, \bold{10}, 40-64.
 
-Cheung, M. W. L., & Chan, W. (2009). A two-stage approach to synthesizing covariance matrices in meta-analytic structural equation modeling. \emph{Structural Equation Modeling}, \bold{16}, 28-53.
+Cheung, M. W.-L., & Chan, W. (2009). A two-stage approach to synthesizing covariance matrices in meta-analytic structural equation modeling. \emph{Structural Equation Modeling}, \bold{16}, 28-53.
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }

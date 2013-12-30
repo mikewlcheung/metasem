@@ -24,14 +24,14 @@
 }
 
 \source{
-  Mak, A., Cheung, M. W. L., Ho, R. C. M., Cheak, A. A. C., & Lau,
+  Mak, A., Cheung, M. W.-L., Ho, R. C. M., Cheak, A. A. C., & Lau,
   C. S. (2009). Bisphosphonate and atrial fibrillation: Bayesian
   meta-analyses of randomized controlled trials and observational
   studies. \emph{BMC Musculoskeletal Disorders},
   \bold{10(113)}. doi:10.1186/1471-2474-10-113 Available at \url{http://www.biomedcentral.com/1471-2474/10/113}.
 }
 \references{
- Cheung, M. W. L., Ho, R. C. M., Lim, Y., & Mak, A. (2012). Conducting a
+ Cheung, M. W.-L., Ho, R. C. M., Lim, Y., & Mak, A. (2012). Conducting a
  meta-analysis: Basics and good practices. \emph{International Journal
    of Rheumatic Diseases}, \bold{15(2)}, 129-135. doi: 10.1111/j.1756-185X.2012.01712.x
 }

@@ -44,7 +44,7 @@ asyCov(x, n, cor.analysis = TRUE, dropNA = FALSE, as.matrix = TRUE,
   \code{as.matrix}=\code{TRUE} and \code{x} is a list of matrices, the output
   is a stacked matrix. }
 \references{
-Cheung, M. W. L., & Chan, W. (2004). Testing dependent correlation coefficients via structural equation modeling. \emph{Organizational Research Methods}, \bold{7}, 206-223. 
+Cheung, M. W.-L., & Chan, W. (2004). Testing dependent correlation coefficients via structural equation modeling. \emph{Organizational Research Methods}, \bold{7}, 206-223. 
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }

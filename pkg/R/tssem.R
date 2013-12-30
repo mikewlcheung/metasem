@@ -14,6 +14,7 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
     class(out) <- "tssem1FEM.cluster"
     out
   } else {
+    ## Check whether all studies have the same dimensions  
     my.range <- range(sapply(my.df, function(x) {ncol(x)}))
     if ( !all.equal(my.range[1], my.range[2]) )
       stop("Dimensions of groups are not the same!\n")
@@ -208,15 +209,16 @@ tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Ze
   RE.type <- match.arg(RE.type)
   switch( RE.type,
          Symm = mx.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2, RE.startvalues=RE.startvalues,
-                               RE.lbound=RE.lbound),
+                               RE.lbound=RE.lbound, suppressWarnings=TRUE, ...),
 ## Prior to R-3.0.0
 ##       Diag = mx.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2,
 ##                             RE.constraints=Diag(x=paste(RE.startvalues, "*Tau2_", 1:no.es, "_", 1:no.es, sep=""),
 ##                                            nrow=no.es, ncol=no.es), RE.lbound=RE.lbound),
          Diag = mx.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2,
                                RE.constraints=Diag(x=paste(RE.startvalues, "*Tau2_", 1:no.es, "_", 1:no.es, sep="")),
-                               RE.lbound=RE.lbound),
-         Zero = mx.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2, RE.constraints=matrix(0, ncol=no.es, nrow=no.es)) )
+                               RE.lbound=RE.lbound, suppressWarnings=TRUE, ...),
+         Zero = mx.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2, RE.constraints=matrix(0, ncol=no.es, nrow=no.es),
+                               suppressWarnings=TRUE, ...) ) 
   
   ## if (RE.diag.only==TRUE) {
   ##   ## No covariance between random effects

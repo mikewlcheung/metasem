@@ -37,7 +37,7 @@ Becker, B. J. (1992). Using results from replicated studies to
   estimate linear models. \emph{Journal of Educational Statistics},
   \bold{17}, 341-362. 
   
-Cheung, M. W. L. (2010). Fixed-effects meta-analyses as multiple-group
+Cheung, M. W.-L. (2010). Fixed-effects meta-analyses as multiple-group
 structural equation models. \emph{Structural Equation Modeling},
 \bold{17}, 481-509.
 

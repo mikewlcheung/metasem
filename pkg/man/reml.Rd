@@ -92,7 +92,7 @@ reml(y, v, x, data, RE.constraints = NULL, RE.startvalues = 0.1,
   \item{mx.fit}{A fitted object returned from	\code{\link[OpenMx]{mxRun}}}
 }
 \references{
-  Cheung, M. W. L. (2013). Implementing restricted maximum likelihood
+  Cheung, M. W.-L. (2013). Implementing restricted maximum likelihood
   estimation in structural equation models. \emph{Structural Equation
 	Modeling}, \bold{20(1)}, 157-167.
 

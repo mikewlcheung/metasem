@@ -27,7 +27,7 @@ paradigm reported by Becker (1983).
   Hedges, L. V., & Olkin, I. (1985). \emph{Statistical methods for meta-analysis.} Orlando, FL: Academic Press. 
 }
 \references{
-  Cheung, M. W. L. (2010). Fixed-effects meta-analyses as multiple-group structural equation models. \emph{Structural Equation Modeling}, \bold{17}, 481-509.
+  Cheung, M. W.-L. (2010). Fixed-effects meta-analyses as multiple-group structural equation models. \emph{Structural Equation Modeling}, \bold{17}, 481-509.
 }
 \examples{
 data(Becker83)

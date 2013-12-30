@@ -113,15 +113,15 @@ meta(y, v, x, data, intercept.constraints = NULL, coef.constraints = NULL,
 	\code{\link[OpenMx]{mxRun}}}
 }
 \references{
-  Cheung, M. W. L. (2008). A model for integrating fixed-, random-, and
+  Cheung, M. W.-L. (2008). A model for integrating fixed-, random-, and
   mixed-effects meta-analyses into structural equation
   modeling. \emph{Psychological Methods}, \bold{13}, 182-202.
 
-  Cheung, M. W. L. (2009). Constructing approximate confidence intervals
+  Cheung, M. W.-L. (2009). Constructing approximate confidence intervals
   for parameters with structural equation models. \emph{Structural
 	Equation Modeling}, \bold{16}, 267-294.
 
-  Cheung, M. W. L. (2013). Multivariate meta-analysis as structural equation models. \emph{Structural Equation Modeling}, \bold{20}, 429-454.
+  Cheung, M. W.-L. (2013). Multivariate meta-analysis as structural equation models. \emph{Structural Equation Modeling}, \bold{20}, 429-454.
   
   Hardy, R. J., & Thompson, S. G. (1996). A likelihood approach to
   meta-analysis with random effects. \emph{Statistics in Medicine},

@@ -131,7 +131,7 @@ diag.panel = FALSE, ...)
 
 
 \references{
-  Cheung, M. W. L. (in press). Multivariate meta-analysis as structural equation models. \emph{Structural Equation Modeling.}
+  Cheung, M. W.-L. (2013). Multivariate meta-analysis as structural equation models. \emph{Structural Equation Modeling}, \bold{20}, 429-454.
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }

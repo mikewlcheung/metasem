@@ -77,9 +77,9 @@ An alternative but equivalent approach is to minimize the
   \item{mx.fit}{A fitted object returned from	\code{\link[OpenMx]{mxRun}}}
 }
 \references{
-  Cheung, M. W. L. (2013). Implementing restricted maximum likelihood estimation in structural equation models. \emph{Structural Equation Modeling}, \bold{20(1)}, 157-167.
+  Cheung, M. W.-L. (2013). Implementing restricted maximum likelihood estimation in structural equation models. \emph{Structural Equation Modeling}, \bold{20(1)}, 157-167.
 
-  Cheung, M. W. L. (in press). Modeling dependent effect sizes with three-level meta-analyses: A structural equation modeling approach. \emph{Psychological Methods}.
+  Cheung, M. W.-L. (in press). Modeling dependent effect sizes with three-level meta-analyses: A structural equation modeling approach. \emph{Psychological Methods}.
 
   Mehta, P. D., & Neale, M. C. (2005). People Are Variables Too: Multilevel Structural Equations Modeling. \emph{Psychological
   	Methods}, \bold{10(3)}, 259-284.
