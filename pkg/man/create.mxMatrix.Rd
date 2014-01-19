@@ -6,7 +6,7 @@
 }
 \usage{
 create.mxMatrix(x, type=c("Full","Symm","Diag","Stand"), ncol=NA,
-nrow=NA, as.mxMatrix=TRUE, ...) 
+nrow=NA, as.mxMatrix=TRUE, byrow=FALSE, ...) 
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -25,11 +25,12 @@ nrow=NA, as.mxMatrix=TRUE, ...)
 }
 \item{as.mxMatrix}{Logical. If it is \code{TRUE}, the output is a matrix of
   \code{MxMatrix-class}. If it is \code{FALSE}, it is a numeric matrix.}
-  \item{\dots}{Further arguments to be passed to
+\item{byrow}{Logical. If \code{FALSE} (the default) the matrix is filled by columns, otherwise the matrix is filled by rows.
+}
+\item{\dots}{Further arguments to be passed to
 	\code{\link[OpenMx]{mxMatrix}}. Please note that \code{type},
 	  \code{nrow}, \code{ncol}, \code{values}, \code{free} and \code{labels} will be created automatically. Thus, these arguments
 	  excepts labels should be avoided in \dots 
-%%     ~~Describe \code{\dots} here~~
 }
 }
 \details{If there are non-numeric values in \code{x}, they are treated
@@ -57,14 +58,20 @@ nrow=NA, as.mxMatrix=TRUE, ...)
 ## a and b are free parameters with starting values and labels
 (a1 <- c(1:4, "5*a", 6, "7*b", 8, 9))
 
-mat1 <- create.mxMatrix(a1, ncol=3, nrow=3, name="mat1")
+(mat1 <- create.mxMatrix(a1, ncol=3, nrow=3, name="mat1"))
 
-(a2 <- c(1:3, "4*f4", "5*f5", "6*f6"))
+## Arrange by row
+(mat2 <- create.mxMatrix(a1, ncol=3, nrow=3, as.mxMatrix=FALSE, byrow=TRUE))
 
-mat2 <- create.mxMatrix(a2, type="Symm", name="mat2")
+(a3 <- c(1:3, "4*f4", "5*f5", "6*f6"))
 
-a3 <- create.mxMatrix(a2, type="Symm", as.mxMatrix=FALSE)
+(mat3 <- create.mxMatrix(a3, type="Symm", name="mat3"))
 
-mat4 <- create.mxMatrix(a2, type="Diag", lbound=1:6, name="mat4")
+(mat4 <- create.mxMatrix(a3, type="Symm", as.mxMatrix=FALSE))
+
+(mat5 <- create.mxMatrix(a3, type="Diag", lbound=6:1, name="mat5"))
 }
+
+
+
 \keyword{utilities}

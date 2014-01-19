@@ -30,6 +30,7 @@ asyCov <- function(x, n, cor.analysis = TRUE, dropNA = FALSE, as.matrix = TRUE,
           out.list <- mapply(asyCov, x, n = n, cor.analysis = cor.analysis, silent = silent,
                              suppressWarnings = suppressWarnings, dropNA = FALSE, ..., SIMPLIFY=FALSE)          
           #output
+          # BUG when 2x2 matrices of correlation
           out <- t(sapply(out.list, function(x) {(vech(x))}))
           dimnames(out)[[2]] <- psCovNames
           out

@@ -1,4 +1,4 @@
-create.mxMatrix <- function(x, type=c("Full","Symm","Diag","Stand"), ncol=NA, nrow=NA, as.mxMatrix=TRUE, ...) {
+create.mxMatrix <- function(x, type=c("Full","Symm","Diag","Stand"), ncol=NA, nrow=NA, as.mxMatrix=TRUE, byrow=FALSE, ...) {
   my.mx <- function(y) {
     # suppress warnings
     ## warn <- options()$warn
@@ -29,7 +29,7 @@ create.mxMatrix <- function(x, type=c("Full","Symm","Diag","Stand"), ncol=NA, nr
     switch(type,
            Full = { if (length(x) != ncol*nrow)
                       stop("Length of \"x\" does not match the dimensions of \"ncol\" and \"nrow\".\n")
-                    untitled1 <- matrix(x, ncol=ncol, nrow=nrow)
+                    untitled1 <- matrix(x, ncol=ncol, nrow=nrow, byrow=byrow)
                     untitled1 <- as.mxMatrix(untitled1, ...)
                   },
            Symm = { no.var <- (sqrt(1 + 8 * length(x)) - 1)/2
@@ -55,7 +55,7 @@ create.mxMatrix <- function(x, type=c("Full","Symm","Diag","Stand"), ncol=NA, nr
         switch(type,
            Full = { if (length(x) != ncol*nrow)
                       stop("Length of \"x\" does not match the dimensions of \"ncol\" and \"nrow\".\n")
-                    untitled1 <- matrix(x, ncol=ncol, nrow=nrow)                    
+                    untitled1 <- matrix(x, ncol=ncol, nrow=nrow, byrow)                    
                   },
            Symm = { no.var <- (sqrt(1 + 8 * length(x)) - 1)/2
                     if (abs(no.var - round(no.var)) > .Machine$double.eps^0.5)
@@ -76,3 +76,4 @@ create.mxMatrix <- function(x, type=c("Full","Symm","Diag","Stand"), ncol=NA, nr
   }
   untitled1
 }
+
