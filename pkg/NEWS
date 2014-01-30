@@ -1,7 +1,8 @@
-Release 0.8-5 (Jan 19, 2014)
+Release 0.8-5 (Jan 30, 2014)
 ====================================
 * Added byrow argument in create.mxMatrix()
 * Added pattern.na() to display the pattern of missing data in TSSEM
+* Fixed a bug in asyCov() returning an error in diffferent dimensions when the input is a list of 2x2 matrices
 * Fixed a bug reported by Andre Plamondon that tssem1FEM() returns an error when acovS is a scalar 
 
 Release 0.8-4 (May 1, 2013)

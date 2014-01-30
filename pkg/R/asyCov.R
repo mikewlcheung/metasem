@@ -30,9 +30,15 @@ asyCov <- function(x, n, cor.analysis = TRUE, dropNA = FALSE, as.matrix = TRUE,
           out.list <- mapply(asyCov, x, n = n, cor.analysis = cor.analysis, silent = silent,
                              suppressWarnings = suppressWarnings, dropNA = FALSE, ..., SIMPLIFY=FALSE)          
           #output
-          # BUG when 2x2 matrices of correlation
           out <- t(sapply(out.list, function(x) {(vech(x))}))
-          dimnames(out)[[2]] <- psCovNames
+          
+          ## http://stackoverflow.com/questions/17772916/using-correlation-matrices-for-meta-analytic-sem
+          # Fixed a BUG when 2x2 matrices of correlation
+          # The output are incorrectly arranged in a row rather than in a column.
+          if (dim(out)[1]==1) out <- t(out)
+          ## A list(NULL, psCovNames) is required
+          dimnames(out) <- list(NULL, psCovNames)
+          
           out
         } else {
           #output
@@ -114,4 +120,3 @@ asyCov <- function(x, n, cor.analysis = TRUE, dropNA = FALSE, as.matrix = TRUE,
     }
     
 }
-

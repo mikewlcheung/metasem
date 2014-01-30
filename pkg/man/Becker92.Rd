@@ -50,9 +50,9 @@ S1 <- create.mxMatrix(c("0.2*ErrorVarApt",0,0,1,"0.2*CorBetSpaVer",1),
 ## Fixed-effects model: Second stage analysis
 ## Two equivalent versions to calculate the R2 and its 95\% LBCI
 fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, intervals.type="LB",
-                 mx.algebras=list(R1=mxAlgebra(Spa2Apt^2+Ver2Apt^2+2*CorBetSpaVer*Spa2Apt*Ver2Apt, name="R1"),
-                                  R2=mxAlgebra(One-Ematrix[1,1], name="R2"),
-                                  One=mxMatrix("Iden", ncol=1, nrow=1, name="One")))
+       mx.algebras=list(R1=mxAlgebra(Spa2Apt^2+Ver2Apt^2+2*CorBetSpaVer*Spa2Apt*Ver2Apt, name="R1"),
+                        R2=mxAlgebra(One-Ematrix[1,1], name="R2"),
+                        One=mxMatrix("Iden", ncol=1, nrow=1, name="One")))
 summary(fixed2)
 
 #### Random-effects model

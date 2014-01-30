@@ -64,6 +64,8 @@ asyCov(list(C1,C2,C3), n=c(100,50,50), dropNA=TRUE, as.matrix=FALSE)
 ## Output is a stacked matrix of asymptotic covariance matrices
 asyCov(list(C1,C2), n=c(100,50), as.matrix=TRUE)
 
+## Output is a stacked matrix of asymptotic covariance matrices
+asyCov(list(C3,C3), n=c(100,50), as.matrix=TRUE)
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
