@@ -3,9 +3,11 @@
 \title{Test Positive Definiteness of a List of Square Matrices
 }
 \description{It tests the positive definiteness of a square matrix or a
-  list of square matrices. It returns \code{FALSE} if the matrix is not
-  symmetric. Variables with NA in the diagonals will be removed
-  before testing.
+  list of square matrices. It returns \code{TRUE} if the matrix is
+  positive definite. It returns \code{FALSE} if the matrix is either
+  non-positive definite or not symmetric. Variables with \code{NA} in the diagonals will be removed
+  before testing. It returns \code{NA} when there are missing correlations even after deleting
+  the missing variables.
 }
 \usage{
 is.pd(x, tol = 1e-06)
@@ -18,7 +20,9 @@ is.pd(x, tol = 1e-06)
 	\code{tol}. See \code{\link[Matrix]{nearPD}}
 }
 }
-\value{\code{TRUE} or \code{FALSE} or a list of it.
+\value{If the input is a matrix, it returns \code{TRUE}, \code{FALSE}
+  or \code{NA}. If the input is a list of matrices, it returns
+  a list of \code{TRUE}, \code{FALSE} or \code{NA}.
 }
 
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
@@ -35,6 +39,11 @@ is.pd(B)
 
 is.pd(list(A, B))
 # TRUE FALSE
+
+C <- A
+C[2,1] <- C[1,2] <- NA
+is.pd(C)
+# NA
 }
 \keyword{utilities}
 

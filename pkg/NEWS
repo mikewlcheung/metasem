@@ -1,5 +1,6 @@
 Release 0.8-5 (Jan 30, 2014)
 ====================================
+* Revised is.pd() so that it returns NA rather than throws an error when there are NA in the input matrices
 * Added byrow argument in create.mxMatrix()
 * Added pattern.na() to display the pattern of missing data in TSSEM
 * Fixed a bug in asyCov() returning an error in diffferent dimensions when the input is a list of 2x2 matrices

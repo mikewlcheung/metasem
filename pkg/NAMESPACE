@@ -1,5 +1,6 @@
 exportPattern("^[^\\.]")
 import(Matrix)
+import(OpenMx)
 
 importFrom(ellipse, ellipse)
 importFrom(MASS, mvrnorm)

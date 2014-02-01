@@ -460,7 +460,7 @@ print.summary.meta <- function(x, ...) {
     cat("\nCoefficients:\n")
     printCoefmat(x$coefficients, P.values=TRUE, ...)
 
-    cat("\nQ statistic on homogeneity of effect sizes:", x$Q.stat[["Q"]])
+    cat("\nQ statistic on the homogeneity of effect sizes:", x$Q.stat[["Q"]])
     cat("\nDegrees of freedom of the Q statistic:", x$Q.stat[["Q.df"]])
     cat("\nP value of the Q statistic:", x$Q.stat[["pval"]])
 

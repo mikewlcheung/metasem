@@ -218,3 +218,28 @@
     grad <- t(sapply(fn, function(x) as.numeric(attr(eval(deriv(x, variables)), "gradient"))))
     grad %*% Cov %*% t(grad)
 }
+
+.asyCov <- function(x, n, cor.analysis=TRUE, type=c("individual", "fixed", "random")) {
+    type <- match.arg(type)
+    switch( type,
+           individual = {
+               ## Diagonals of starting values
+               my.start <- diag(.startValues(x, cor.analysis=TRUE))
+               ## Replace diagonals with 1.0
+               my.cor <- lapply(x, function (x) { my.na <- is.na(Diag(x))
+                                                  Diag(x)[my.na] <- my.start[my.na]
+                                                  x })
+               ## Replace missing variables with 0.0
+               my.cor <- lapply(my.cor, function (x) { x[is.na(x)] <- 0; x }) },
+           fixed = {
+               my.fixed <- tssem1REM(my.df=x, n=n, cor.analysis=cor.analysis, RE.type="Zero", silent=TRUE)
+               my.cor <- vec2symMat(coef(my.fixed, select="fixed"), diag=!cor.analysis)
+               my.cor <- rep(list(my.cor), length(n)) },
+           random = {
+               my.random <- tssem1REM(my.df=x, n=n, cor.analysis=cor.analysis, RE.type="Diag", silent=TRUE)
+               my.cor <- vec2symMat(coef(my.random, select="fixed"), diag=!cor.analysis)
+               my.cor <- rep(list(my.cor), length(n)) })
+
+    ## Calculate the asymptotic sampling covariance matrix of the correlation matrix
+    asyCov(x=my.cor, n=n, cor.analysis=cor.analysis)
+}
