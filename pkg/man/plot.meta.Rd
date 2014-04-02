@@ -25,7 +25,7 @@ univariate.lines.lty = 3,
 univariate.lines.lwd = 1, univariate.polygon.width = 0.02,
 univariate.polygon.col = "red", univariate.arrows.col = "green",
 univariate.arrows.lwd = 2,
-diag.panel = FALSE, ...)
+diag.panel = FALSE, xlim=NULL, ylim=NULL, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -125,6 +125,10 @@ diag.panel = FALSE, ...)
   \item{diag.panel}{Logical. If \code{TRUE}, diagonal panels will be
 	created. They can then be used for forrest plots for univariate meta-analysis.
 }
+  \item{xlim}{NULL or a numeric vector of length 2; if it is NULL, it
+	provides defaults estimated from the data.}
+  \item{ylim}{NULL or a numeric vector of length 2; if it is NULL, it
+	provides defaults estimated from the data.}
   \item{\dots}{Further arguments to be passed to the plot function.
 }
 }

@@ -13,7 +13,8 @@ plot.meta <- function(x, effect.sizes, add.margin=0.1, interval=0.95,
                       univariate.plot=TRUE, univariate.lines.col="gray",
                       univariate.lines.lty=3, univariate.lines.lwd=1,
                       univariate.polygon.width=0.02, univariate.polygon.col="red",
-                      univariate.arrows.col="green", univariate.arrows.lwd=2, diag.panel=FALSE, ...) {
+                      univariate.arrows.col="green", univariate.arrows.lwd=2, diag.panel=FALSE,
+                      xlim=NULL, ylim=NULL, ...) {
 
   if (!is.element("meta", class(x)))
     stop("\"x\" must be a class of \"meta\".")
@@ -45,6 +46,7 @@ plot.meta <- function(x, effect.sizes, add.margin=0.1, interval=0.95,
       for (j in (i+1):length(effect.sizes)) {
         my.effects <- effect.sizes[c(i,j)]
         ## Pass everything except effect.sizes=my.effects and main=main[n.plots]
+        ## Added xlim and ylim arguments in v0.8-5. 
         plot.meta(x, effect.sizes=my.effects,
                   add.margin=add.margin, interval=interval, main=main[n.plots], axis.labels=axis.labels[c(i,j)],
                   study.col=study.col, study.pch=study.pch, study.min.cex=study.min.cex,
@@ -61,7 +63,7 @@ plot.meta <- function(x, effect.sizes, add.margin=0.1, interval=0.95,
                   univariate.polygon.width=univariate.polygon.width,
                   univariate.polygon.col=univariate.polygon.col,
                   univariate.arrows.col=univariate.arrows.col, univariate.arrows.lwd=univariate.arrows.lwd,
-                  diag.panel=FALSE, ...)
+                  diag.panel=FALSE, xlim=xlim, ylim=ylim, ...)
         n.plots <- n.plots+1
       }
   ## End of procedure for length(effect.sizes)>2   
@@ -109,10 +111,17 @@ plot.meta <- function(x, effect.sizes, add.margin=0.1, interval=0.95,
     } else {
       study.cex <- study.min.cex
     }
-    xlim <- sapply(ellipse.pt, function (x) { x <- data.frame(x); x$x })
-    xlim <- c(min(xlim, na.rm=TRUE), max(xlim, na.rm=TRUE)) + c(-add.margin, 0)
-    ylim <- sapply(ellipse.pt, function (x) { x <- data.frame(x); x$y })
-    ylim <- c(min(ylim, na.rm=TRUE), max(ylim, na.rm=TRUE)) + c(-add.margin, 0)
+
+    ## Added xlim and ylim arguments in v0.8-5
+    if (is.null(xlim)) {
+        xlim <- sapply(ellipse.pt, function (x) { x <- data.frame(x); x$x })
+        xlim <- c(min(xlim, na.rm=TRUE), max(xlim, na.rm=TRUE)) + c(-add.margin, 0)
+    }
+    if (is.null(ylim)) {
+        ylim <- sapply(ellipse.pt, function (x) { x <- data.frame(x); x$y })
+        ylim <- c(min(ylim, na.rm=TRUE), max(ylim, na.rm=TRUE)) + c(-add.margin, 0)
+    }
+    
     # remove incomplete x or y
     complete <- with(x, complete.cases(data[, effect.sizes[1]], data[, effect.sizes[2]]))
     my.x <- x$data[complete, effect.sizes[1]]

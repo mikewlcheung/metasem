@@ -1,5 +1,11 @@
-Release 0.8-5 (Jan 30, 2014)
+Release 0.8-5 (Apr 2, 2014)
 ====================================
+* Added a function deltaMethod() to calculate approximate sampling variance or covariance matrix
+* Added methods for coef.MxRAMModel and vcov.MxRAMModel
+* Modified the formula to calculate SRMR in summary.tssem1FEM()
+* Added xlim and ylim arguments in plot.meta()
+* Added datasets wvs94b and BCG
+* Renamed the dataset wvs94 to wvs94a
 * Revised is.pd() so that it returns NA rather than throws an error when there are NA in the input matrices
 * Added byrow argument in create.mxMatrix()
 * Added pattern.na() to display the pattern of missing data in TSSEM

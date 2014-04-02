@@ -163,7 +163,7 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
     baseMinus2LL <- tryCatch(.minus2LL(x=my.df, n=n), error = function(e) e)   
 
     out <- list(call = match.call(), cor.analysis=cor.analysis, data=my.df, pooledS = pooledS,
-                acovS = acovS, total.n = total.n, 
+                acovS = acovS, n = n, 
                 modelMinus2LL = mx.fit@output$Minus2LogLikelihood,
                 baseMinus2LL = baseMinus2LL, mx.fit = mx.fit)
     class(out) <- "tssem1FEM"
@@ -482,7 +482,7 @@ tssem2 <- function(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.co
                       # to handle symbolic F(T) vs. logical FALSE(TRUE)
                       ## cor.analysis <- as.logical(as.character(cor.analysis))
                       }
-                      out <- wls(Cov=tssem1.obj$pooledS, asyCov=tssem1.obj$acovS, n=tssem1.obj$total.n,
+                      out <- wls(Cov=tssem1.obj$pooledS, asyCov=tssem1.obj$acovS, n=sum(tssem1.obj$n),
                                  Amatrix=Amatrix, Smatrix=Smatrix, Fmatrix=Fmatrix,
                                  diag.constraints=diag.constraints, cor.analysis=cor.analysis,
                                  intervals.type=intervals.type, mx.algebras=mx.algebras,

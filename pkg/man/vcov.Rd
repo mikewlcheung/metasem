@@ -7,12 +7,13 @@
 \alias{vcov.meta}
 \alias{vcov.meta3X}
 \alias{vcov.reml}
+\alias{vcov.MxRAMModel}
 \title{Extract Covariance Matrix Parameter Estimates from Various Objects
 }
 \description{It extracts the variance-covariance matrix of the
   parameter estimates from either \code{tssem1FEM},
   \code{tssem1FEM.cluster}, \code{tssem1REM}, \code{wls},
-  \code{wls.cluster}, \code{meta}, \code{meta3X} or \code{reml} objects.
+  \code{wls.cluster}, \code{meta}, \code{meta3X}, \code{reml} or \code{MxRAMModel} objects.
 }
 \usage{
 \method{vcov}{tssem1FEM}(object, \dots)
@@ -23,12 +24,14 @@
 \method{vcov}{meta}(object, select = c("all", "fixed", "random"), \dots)
 \method{vcov}{meta3X}(object, select = c("all", "fixed", "random", "allX"), \dots)
 \method{vcov}{reml}(object, \dots)
+\method{vcov}{MxRAMModel}(object, \dots)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{object}{An object returned from either class
 	\code{tssem1FEM}, class \code{tssem1FEM.cluster}, class \code{tssem1REM},
-	class \code{wls}, class \code{wls.cluster}, class \code{meta} or class \code{reml}
+	class \code{wls}, class \code{wls.cluster}, class \code{meta}, class
+	\code{reml} or class \code{MxRAMModel}
   }
   \item{select}{Select \code{all} for both fixed- and random-effects parameters, \code{fixed} for the
   fixed-effects parameters or \code{random} for the random-effects

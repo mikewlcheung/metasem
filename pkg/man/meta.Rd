@@ -146,7 +146,7 @@ meta(y, v, x, data, intercept.constraints = NULL, coef.constraints = NULL,
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{\code{\link[metaSEM]{reml}}, \code{\link[metaSEM]{Hox02}},
-  \code{\link[metaSEM]{Berkey98}}, \code{\link[metaSEM]{wvs94}}
+  \code{\link[metaSEM]{Berkey98}}, \code{\link[metaSEM]{wvs94a}}
 }
 
 % Add one or more standard keywords, see file 'KEYWORDS' in the

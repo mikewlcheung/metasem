@@ -190,9 +190,10 @@ summary.tssem1FEM <- function(object, ...) {
     # Fixed if there are incomplete data in the first group
     ## no.var <- ncol(mxEval(S1, object$mx.fit))
     if (cor.analysis)
-      ps <- no.var*(no.var-1)/2
-    else ps <- no.var*(no.var+1)/2
-    n <- object$total.n
+      ps <- no.var*(no.var-1)/2 else ps <- no.var*(no.var+1)/2
+
+    ## A vector of sample sizes
+    n <- object$n
 
     ## Check error in running independence model
     if (inherits(object$baseMinus2LL, "error")) {
@@ -213,14 +214,15 @@ summary.tssem1FEM <- function(object, ...) {
 
     no.groups <- length(object$mx.fit@submodels)
     ## Steiger (1998, Eq. 24) A note on multiple sample extensions of the RMSEA fit indices. SEM, 5(4), 411-419.
-    RMSEA <- sqrt(no.groups)*sqrt(max((tT-dfT)/(n-1),0)/dfT)
+    RMSEA <- sqrt(no.groups)*sqrt(max((tT-dfT)/(sum(n)-1),0)/dfT)
     ## Hu and Bentler (1998)
     TLI <- (tB/dfB - tT/dfT)/(tB/dfB-1)
     CFI <- 1 - max((tT-dfT),0)/max((tT-dfT),(tB-dfB),0)
     ## FIXME: definitions of AIC
     AIC <- tT-2*dfT
-    BIC <- tT-log(n)*dfT
-    
+    BIC <- tT-log(sum(n))*dfT
+
+    ## SRMR per study
     ## Index for missing variables: only check the diagonals only!!!
     #miss.index <- lapply(x$data, function(x) { is.na(diag(x)) })
     srmr <- function(sampleS, pooledS, cor.analysis) {
@@ -230,17 +232,22 @@ summary.tssem1FEM <- function(object, ...) {
       Sel <- Sel[!index, ]
       sampleS <- sampleS[!index, !index]
       if (cor.analysis) {
-        vechs( cov2cor(sampleS)- Sel %*% pooledS %*% t(Sel) )^2
+        sqrt(mean( vechs( cov2cor(sampleS)- Sel %*% pooledS %*% t(Sel) )^2 ))
       } else {
         stand <- Diag(1/sqrt(Diag(sampleS)))
-        vech( stand %*% (sampleS - Sel %*% pooledS %*% t(Sel) ) %*% stand )^2
+        sqrt(mean( vech( stand %*% (sampleS - Sel %*% pooledS %*% t(Sel) ) %*% stand )^2 ))
       }
     }
-    SRMR <- sqrt(mean(unlist(sapply(object$data, srmr, pooledS=object$pooledS, cor.analysis=cor.analysis))))
+
+    ## weight to calculate SRMR
+    n.weight <- (n-1)/sum(n-1)
+    SRMR <- sapply(object$data, srmr, pooledS=object$pooledS, cor.analysis=cor.analysis)
+    SRMR <- sum(n.weight*SRMR)
+    ## SRMR <- sqrt(mean(unlist(sapply(object$data, srmr, pooledS=object$pooledS, cor.analysis=cor.analysis))))
     #SRMR <- sqrt(mean(mapply(srmr, x$data, miss.index,
     #                         MoreArgs=list(pooledS=x$pooledS, cor.analysis=cor.analysis))))
     
-    stat <- matrix(c(n, tT, dfT, p, tB, dfB, RMSEA, SRMR, TLI, CFI, AIC, BIC), ncol=1)
+    stat <- matrix(c(sum(n), tT, dfT, p, tB, dfB, RMSEA, SRMR, TLI, CFI, AIC, BIC), ncol=1)
     rownames(stat) <- c("Sample size", "Chi-square of target model", "DF of target model",
                         "p value of target model", "Chi-square of independence model",
                         "DF of independence model", "RMSEA", "SRMR", "TLI", "CFI", "AIC", "BIC")
@@ -1029,3 +1036,27 @@ anova.meta3X <- function(object, ..., all=FALSE) {
   mxCompare(base=base, comparison=comparison, all=all)
 }
 
+coef.MxRAMModel <- function(object, ...) {
+  if (!is.element("MxRAMModel", class(object)))
+    stop("\"object\" must be an object of class \"MxRAMModel\".")
+  omxGetParameters(object, ...)
+}
+
+vcov.MxRAMModel <- function(object, ...) {
+    if (!is.element("MxRAMModel", class(object)))
+    stop("\"object\" must be an object of class \"MxRAMModel\".")
+
+    # labels of the parameters    
+    my.name <- names( omxGetParameters(object) )
+    # Remove NA labels
+    my.name <- my.name[!is.na(my.name)]
+    
+    acov <- tryCatch( 2*solve(object@output$calculatedHessian)[my.name, my.name, drop=FALSE], error = function(e) e)
+    # Issue a warning instead of error message
+    if (inherits(acov, "error")) {
+      cat("Error in solving the Hessian matrix.\n")
+      warning(print(acov))
+    } else {
+      return(acov)
+    }
+}
