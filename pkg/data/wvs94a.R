@@ -48,7 +48,7 @@ c(-0.037603022,-0.030487011,0.004041305,0.001757647,0.004118119,19490,
 0.101282579,0.182666714,0.004058874,0.001233074,0.004152001,3830,
 -0.006700282,0.193170718,0.002140248,0.000635116,0.002228264,3220),
 ncol=6, byrow=TRUE)
-dimnames(wvs94a) <- list(NULL, c("lifesat","lifecon","lifesat.var","inter.cov","lifecon.var","gnp"))
+dimnames(wvs94a) <- list(NULL, c("lifesat","lifecon","lifesat_var","inter_cov","lifecon_var","gnp"))
 wvs94a <- data.frame(country, wvs94a)
 wvs94a <- wvs94a[order(wvs94a$country), ]
 rownames(wvs94a) <- NULL

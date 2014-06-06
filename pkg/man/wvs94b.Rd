@@ -35,8 +35,8 @@ indirect1 <- indirectEffect(wvs94b$data, wvs94b$n)
 indirect1
 
 ## Multivariate meta-analysis on the indirect and direct effects
-indirect2 <- meta(indirect1[, c("ind.eff", "dir.eff")],
-                  indirect1[, c("ind.var", "ind.dir.cov", "dir.var")])
+indirect2 <- meta(indirect1[, c("ind_eff", "dir_eff")],
+                  indirect1[, c("ind_var", "ind_dir_cov", "dir_var")])
 
 summary(indirect2)  
 }

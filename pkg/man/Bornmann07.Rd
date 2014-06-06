@@ -16,7 +16,7 @@
   \item{logOR}{Effect size: log odds ratio}
   \item{v}{Sampling variance of logOR}
   \item{Year}{Year of publication}
-  \item{Type}{Type of proposal: either \bold{Grants} or \bold{Fellowship}}
+  \item{Type}{Type of proposal: either \bold{Grant} or \bold{Fellowship}}
   \item{Discipline}{Discipline of proposal: either \bold{Physical sciences}, \bold{Life sciences/biology}, 
 	\bold{Social sciences/humanities} or \bold{Multidisciplinary})}
   \item{Country}{Country of proposal: either \bold{United States},
@@ -37,7 +37,7 @@ data(Bornmann07)
 summary( meta3(y=logOR, v=v, cluster=Cluster, data=Bornmann07) )
 
 ## Type as a predictor
-## Grants: 0
+## Grant: 0
 ## Fellowship: 1
 summary( meta3(y=logOR, v=v, x=(as.numeric(Type)-1),
                cluster=Cluster, data=Bornmann07) ) 

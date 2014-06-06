@@ -1,5 +1,7 @@
-Release 0.8-5 (Apr 2, 2014)
+Release 0.8-5 (Jun 6, 2014)
 ====================================
+* Change "." to "_" in datasets Jaramillo05 and wvs94a, and indirectEffect.R
+* Added pattern.n() to display the accumulative sample sizes of the matrices
 * Added a function deltaMethod() to calculate approximate sampling variance or covariance matrix
 * Added methods for coef.MxRAMModel and vcov.MxRAMModel
 * Modified the formula to calculate SRMR in summary.tssem1FEM()

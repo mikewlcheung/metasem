@@ -17,9 +17,9 @@ satisfaction and on life control in each country were calculated as the effect s
   \item{country}{Country}
   \item{lifesat}{SMD on life satisfaction}
   \item{lifecon}{SMD on life control}
-  \item{lifesat.var}{Sampling variance of lifesat}
-  \item{inter.cov}{Sampling covariance between lifesat and lifecon}
-  \item{lifecon.var}{Sampling variance of lifecon}
+  \item{lifesat_var}{Sampling variance of lifesat}
+  \item{inter_cov}{Sampling covariance between lifesat and lifecon}
+  \item{lifecon_var}{Sampling variance of lifecon}
   \item{gnp}{Gross National Product}
 }
 
@@ -38,13 +38,13 @@ data(wvs94a)
 
 ## Random-effects model
 random.ma1 <- meta(y=cbind(lifesat, lifecon),
-                   v=cbind(lifesat.var, inter.cov, lifecon.var), data=wvs94a,
+                   v=cbind(lifesat_var, inter_cov, lifecon_var), data=wvs94a,
                    model.name="Random effects model")
 summary(random.ma1)
 
 ## Random-effects model with both population effect sizes fixed at 0
 random.ma2 <- meta(y=cbind(lifesat, lifecon),
-                   v=cbind(lifesat.var, inter.cov, lifecon.var), data=wvs94a,
+                   v=cbind(lifesat_var, inter_cov, lifecon_var), data=wvs94a,
                    intercept.constraints=matrix(0, nrow=1, ncol=2),
                    model.name="Effect sizes are fixed at 0")
 summary(random.ma2)
@@ -54,7 +54,7 @@ anova(random.ma1, random.ma2)
 
 ## Fixed-effects model by fixing the variance component at 0 
 fixed.ma <- meta(y=cbind(lifesat, lifecon),
-                 v=cbind(lifesat.var, inter.cov, lifecon.var), data=wvs94a,
+                 v=cbind(lifesat_var, inter_cov, lifecon_var), data=wvs94a,
                  RE.constraints=matrix(0, ncol=2, nrow=2),
                  model.name="Fixed effects model")
 summary(fixed.ma)
@@ -63,14 +63,14 @@ summary(fixed.ma)
 ## gnp is divided by 10000 and centered by using 
 ## scale(gnp/10000, scale=FALSE)
 mixed.ma1 <- meta(y=cbind(lifesat, lifecon),
-                  v=cbind(lifesat.var, inter.cov, lifecon.var),
+                  v=cbind(lifesat_var, inter_cov, lifecon_var),
                   x=scale(gnp/10000, scale=FALSE), data=wvs94a,
                   model.name="GNP as a predictor")
 summary(mixed.ma1)
 
 ## Mixed-effects model with equal regression coefficients
 mixed.ma2 <- meta(y=cbind(lifesat, lifecon),
-                  v=cbind(lifesat.var, inter.cov, lifecon.var),
+                  v=cbind(lifesat_var, inter_cov, lifecon_var),
                   x=scale(gnp/10000, scale=FALSE), data=wvs94a,
                   coef.constraints=matrix(c("0.0*Eq_slope",
                                             "0.0*Eq_slope"), nrow=2),

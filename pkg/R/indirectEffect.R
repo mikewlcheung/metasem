@@ -74,10 +74,10 @@ indirectEffect <- function(x, n, standardized=TRUE, direct.effect=TRUE) {
   acovES <- esDiff %*% acovS %*% t(esDiff)
 
   if (direct.effect) {
-     c(ind.eff=indirect, dir.eff=mxEval(c, my.fit), ind.var=acovES[1,1], ind.dir.cov=acovES[2,1],
-       dir.var=acovES[2,2])
+     c(ind_eff=indirect, dir_eff=mxEval(c, my.fit), ind_var=acovES[1,1], ind_dir_cov=acovES[2,1],
+       dir_var=acovES[2,2])
   } else {
-     c(ind.eff=indirect, ind.var=acovES[1,1])
+     c(ind_eff=indirect, ind_var=acovES[1,1])
   }
 
   }  ## mapply
