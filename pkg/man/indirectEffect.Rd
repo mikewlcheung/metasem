@@ -6,7 +6,7 @@
   and their asymptotic sampling covariance matrix.
 }
 \usage{
-indirectEffect(x, n, standardized = TRUE, direct.effect = TRUE)
+indirectEffect(x, n, standardized = TRUE, direct.effect = TRUE, run = TRUE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -22,7 +22,8 @@ indirectEffect(x, n, standardized = TRUE, direct.effect = TRUE)
 }
   \item{direct.effect}{Logical. Whether the direct effect is
   estimated. If it is \code{FALSE}, the direct effect is fixed at zero.
-  }
+}
+  \item{run}{Logical. If \code{FALSE}, only return the mx model without running the analysis.}
 }
 \details{Cheung (2009) estimated the standardized indirect effect and
   its standard error with non-linear constraints. Since \code{OpenMx} does not generate standard errors when there

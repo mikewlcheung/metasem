@@ -1,7 +1,10 @@
 exportPattern("^[^\\.]")
-import(Matrix)
+import(OpenMx)
 
-importFrom(ellipse, ellipse)
+# import(Matrix)
+importFrom(Matrix, nearPD)
+
+# importFrom(ellipse, ellipse)
 importFrom(MASS, mvrnorm)
 
 S3method(plot, meta)

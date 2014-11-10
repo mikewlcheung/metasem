@@ -53,22 +53,35 @@ summary.wls <- function(object, df.adjustment=0, R=50, ...) {
                         "DF of independence model",  "RMSEA", "SRMR", "TLI", "CFI", "AIC", "BIC"), "Value" )
    
     ## my.para <- my.mx$parameters       # Worked up to OpenMx1.0.6
-    my.para <- my.mx$parameters[, 1:6]   # Fixed for OpenMx1.1 
-    # For example, P[1,2], L[1,2], ...
-    my.para$name <- with(my.para, paste(matrix,"[",row,",",col,"]",sep=""))
-    dimnames(my.para)[[1]] <- my.para$name
+    my.para <- my.mx$parameters[, 1:6]   # Fixed for OpenMx1.1
+    
+    ## ## Names in matrix, e.g., P[1,2], L[1,2], ...
+    ## my.matrices <- with(my.para, paste(matrix,"[",row,",",col,"]",sep=""))
+    ## ## Names in labels
+    ## my.labels <- my.para$name
+    ## ## Remove "model.name". in my.labels
+    ## my.labels <- gsub(paste(object$mx.model$name, ".", sep=""), "", my.labels)
 
-    my.ci <- my.mx$CI
-    # Check if CIs on parameter estimates are present
-    if (is.null(dimnames(my.ci))) {
+    ## Check if CIs on parameter estimates are present
+    ## Unsafe to check my.mx$CI
+    if (object$intervals.type=="z") {
+        
+      ## Since no SE, parametric bootstrap is used
+      if (object$diag.constraints)
+        my.para$Std.Error <- sqrt(Diag(vcov.wls(object, R=R)))
+        
       my.para$lbound <- my.para$Estimate - qnorm(.975)*my.para$Std.Error
       my.para$ubound <- my.para$Estimate + qnorm(.975)*my.para$Std.Error
+
+      ## Order the parameters according to matrices, row and col
       my.para <- my.para[order(my.para$matrix, my.para$row, my.para$col), , drop=FALSE]
-      coefficients <- my.para[, -c(1:4)]
-      ## parametric bootstrap is required
-      if (object$diag.constraints)
-        coefficients$Std.Error <- sqrt(Diag(vcov.wls(object, R=R)))
-	  intervals.type="z"
+      
+      ## Remove "model.name". in my.labels in case no labels are given 
+      my.labels <- gsub(paste(object$mx.model$name, ".", sep=""), "", my.para$name)
+      ## Report labels, not matrices
+      dimnames(my.para)[[1]] <- my.labels     
+      
+      coefficients <- my.para[, -c(1:4)]      
     } else {
       ## # model.name: may vary in diff models
       ## model.name <- object$call[[match("model.name", names(object$call))]]
@@ -82,20 +95,32 @@ summary.wls <- function(object, df.adjustment=0, R=50, ...) {
       ##                  {strsplit(x, model.name, fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
 
       ## Simply remove the part before "."
-      name <- sapply(unlist(dimnames(my.ci)[1]), function(x)
-                       {strsplit(x, ".", fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)      
+      ## name <- sapply(unlist(dimnames(my.ci)[1]), function(x)
+      ##                  {strsplit(x, ".", fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
 
+      ## Convert a data frame with length of 0 in my.mx$CI and remove the last column "note"
+      my.ci <- my.mx$CI
+      if (length(my.ci)==0) my.ci <- NULL else my.ci <- my.ci[,1:3, drop=FALSE]        
+
+      ## Labels, not matrices  
+      name <- dimnames(my.ci)[[1]]
+        
       my.ci <- data.frame(name, my.ci)
-      coefficients <- merge(my.para, my.ci, by=c("name"))
-      dimnames(coefficients)[[1]] <- coefficients$name
-      coefficients <- coefficients[order(coefficients$matrix, coefficients$row, coefficients$col), ]
-      coefficients <- coefficients[, -c(1:4, 8)]
-	  intervals.type="LB"
-
+      my.para <- merge(my.para, my.ci, by=c("name"))
+      
+      ## Order the parameters according to matrices, row and col
+      my.para <- my.para[order(my.para$matrix, my.para$row, my.para$col), , drop=FALSE]
+      
+      ## Remove "model.name". in my.labels in case no labels are given
+      my.labels <- gsub(paste(object$mx.model$name, ".", sep=""), "", my.para$name)
+      
+      ## Report labels, not matrices
+      dimnames(my.para)[[1]] <- my.labels
+      
       # NA for LBCI
-      coefficients$Std.Error <- NA
-      ## coefficients$"z value" <- NA
-      ## coefficients$"Pr(>|z|)" <- NA        
+      my.para$Std.Error <- NA
+      
+      coefficients <- my.para[, -c(1:4, 8)] 
     }
     coefficients$"z value" <- coefficients$Estimate/coefficients$Std.Error
     coefficients$"Pr(>|z|)" <- 2*(1-pnorm(abs(coefficients$"z value")))
@@ -104,24 +129,36 @@ summary.wls <- function(object, df.adjustment=0, R=50, ...) {
     if (is.null(object$mx.algebras)) {
       mx.algebras <- NULL
     } else {
-      if (intervals.type=="z") {
+      if (object$intervals.type=="z") {
         mx.algebras <- object$mx.fit@algebras[object$mx.algebras]
         mx.algebras <- sapply(mx.algebras, function(x) { if (!is.null(x)) x@result})
         ## remove lists with NA names
         mx.algebras <- unlist(mx.algebras[!is.na(names(mx.algebras))])
       } else {
-        my.ci  <- my.mx$CI
-        ## name <- sapply(unlist(dimnames(my.ci)[1]), function(x)
-        ##                {strsplit(x, ".", fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
-        dimnames(my.ci)[[1]] <- name
-        my.matches <- grep(paste("^", object$mx.algebras,"\\[",sep="",collapse="|"), 
-                                 name, value=TRUE)
-        mx.algebras <- my.ci[row.names(my.ci) %in% my.matches, ,drop=FALSE]
+          
+        ## Convert a data frame with length of 0 in my.mx$CI and remove the last column "note"
+        my.ci <- my.mx$CI
+        if (length(my.ci)==0) my.ci <- NULL else my.ci <- my.ci[,1:3, drop=FALSE]
+          
+        ## Remove the first part of "model name"."algebra" in row names
+        ## return NA is no "model name". in row names
+        name <- sapply(unlist(dimnames(my.ci)[1]), function(x)
+                        {strsplit(x, ".", fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
+
+        # dimnames(my.ci)[[1]] <- name
+        ## my.matches <- grep(paste(object$mx.algebras, 
+        ##         "\\[", sep = "", collapse = "|"), row.names(my.ci), value = TRUE)
+        # mx.algebras <- my.ci[!is.na(name), , drop = FALSE]
+        
+        ## Exclude the parameters and keep the functions
+        mx.algebras <- my.ci[!is.na(name), , drop=FALSE]
+        dimnames(mx.algebras)[[1]] <- name[!is.na(name)]
+        
         dimnames(mx.algebras)[[2]] <- c("lbound", "Estimate", "ubound")
       }
     }
 
-    out <- list(call=object$call, coefficients=coefficients, stat=stat, intervals.type=intervals.type,
+    out <- list(call=object$call, coefficients=coefficients, stat=stat, intervals.type=object$intervals.type,
                 Mx.status1=object$mx.fit@output$status[[1]], mx.algebras=mx.algebras)
     class(out) <- "summary.wls"
     out
@@ -361,21 +398,19 @@ summary.meta <- function(object, homoStat=TRUE, ...) {
     ## Exclude lbound ubound etc
     my.para <- my.mx$parameters[, 1:6, drop=FALSE]   
     ## OpenMx1.1: y1, y2 and x1 appear in col
-    my.para$col <- sub("[a-z]", "", my.para$col)  # Fixed for OpenMx1.1
-    # For example, P[1,2], L[1,2], ...
-    my.para$label <- my.para$name
-    my.para$name <- with(my.para, paste(matrix,"[",row,",",col,"]",sep=""))
+    ## my.para$col <- sub("[a-z]", "", my.para$col)  # Fixed for OpenMx1.1
+    ## For example, P[1,2], L[1,2], ...
+    ## my.para$name <- with(my.para, paste(matrix,"[",row,",",col,"]",sep=""))
     
-    my.ci <- my.mx$CI
     # Determine if CIs on parameter estimates are present
-    if (is.null(dimnames(my.ci))) {
+    if (object$intervals.type=="z") {
       my.para$lbound <- my.para$Estimate - qnorm(.975)*my.para$Std.Error
       my.para$ubound <- my.para$Estimate + qnorm(.975)*my.para$Std.Error
       # remove rows with missing labels
-      my.para <- my.para[!is.na(my.para$label), ,drop=FALSE]
-      my.para <- my.para[order(my.para$label), , drop=FALSE]
-      coefficients <- my.para[, -c(1:4,7), drop=FALSE]
-      dimnames(coefficients)[[1]] <- my.para$label 
+      ## my.para <- my.para[!is.na(my.para$label), ,drop=FALSE]
+      ## my.para <- my.para[order(my.para$label), , drop=FALSE]
+      coefficients <- my.para[, -c(1:4), drop=FALSE]
+      dimnames(coefficients)[[1]] <- my.para$name
     } else {
       ## # model.name: may vary in diff models
       ## ## FIXME: it may break down when model.name is a variable.
@@ -388,15 +423,23 @@ summary.meta <- function(object, homoStat=TRUE, ...) {
       ## }
       ## name <- sapply(unlist(dimnames(my.ci)[1]), function(x)
       ##                  {strsplit(x, model.name, fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
-      name <- sapply(unlist(dimnames(my.ci)[1]), function(x) {strsplit(x, ".", fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
+        
+      ## name <- sapply(unlist(dimnames(my.ci)[1]), function(x) {strsplit(x, ".", fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
+
+      ## Convert a data frame with length of 0 in my.mx$CI and remove the last column "note"
+      my.ci <- my.mx$CI
+      if (length(my.ci)==0) my.ci <- NULL else my.ci <- my.ci[,1:3, drop=FALSE]        
+        
+      ## Select the elements matched my.para (excluded I2)  
+      my.ci <- my.ci[row.names(my.ci) %in% my.para$name, ]
       
-      my.ci <- data.frame(name, my.ci)
+      my.ci <- data.frame(name=row.names(my.ci), my.ci)
       my.para <- merge(my.para, my.ci, by=c("name"))      
-      # remove rows with missing labels
-      my.para <- my.para[!is.na(my.para$label), , drop=FALSE]
-      my.para <- my.para[order(my.para$label), , drop=FALSE]
-      coefficients <- my.para[, -c(1:4,7,9)]
-      dimnames(coefficients)[[1]] <- my.para$label
+      ## # remove rows with missing labels
+      ## my.para <- my.para[!is.na(my.para$label), , drop=FALSE]
+      ## my.para <- my.para[order(my.para$label), , drop=FALSE]
+      coefficients <- my.para[, -c(1:4,8)]
+      dimnames(coefficients)[[1]] <- my.para$name
       # NA for LBCI
       coefficients$Std.Error <- NA
       ## coefficients$"z value" <- NA
@@ -474,14 +517,14 @@ print.summary.meta <- function(x, ...) {
     ## Print heterogeneity indices if no x in the call
     if ( is.null(x$call[[match("x", names(x$call))]]) ) {
       switch(x$intervals.type,
-             z =  { cat("\nHeterogeneity indices (based on the estimated Tau2):\n")
+             z =  { cat("\n\nHeterogeneity indices (based on the estimated Tau2):\n")
                     printCoefmat(x$I2.values[,2, drop=FALSE], ...) },
-             LB = { cat("\nHeterogeneity indices (I2) and their 95% likelihood-based CIs:\n")
+             LB = { cat("\n\nHeterogeneity indices (I2) and their 95% likelihood-based CIs:\n")
                     printCoefmat(x$I2.values, ...) } )
     } else {
       ## There are predictors
       if (x$R2) {
-        cat("\nExplained variances (R2):\n")
+        cat("\n\nExplained variances (R2):\n")
         printCoefmat(x$R2.values, ...) 
       }
     }    
@@ -563,67 +606,70 @@ summary.reml <- function(object, ...) {
     my.mx <- summary(object$mx.fit)
     ## my.para <- my.mx$parameters       # Worked up to OpenMx1.0.6
     my.para <- my.mx$parameters[, 1:6]   # Fixed for OpenMx1.1 
-    # For example, P[1,2], L[1,2], ...
-    my.para$label <- my.para$name   
+    ## # For example, P[1,2], L[1,2], ...
+    ## my.para$label <- my.para$name   
     
-    my.ci <- my.mx$CI
     # Determine if CIs on parameter estimates are present
-    if (is.null(dimnames(my.ci))) {
+    if (object$intervals.type=="z") {
       my.para$lbound <- my.para$Estimate - qnorm(.975)*my.para$Std.Error
       my.para$ubound <- my.para$Estimate + qnorm(.975)*my.para$Std.Error      
       # remove rows with missing labels
-      my.para <- my.para[!is.na(my.para$label), ]
-      my.para <- my.para[order(my.para$matrix, my.para$row, my.para$col), ]
-      coefficients <- my.para[, -c(1:4,7)]
-      dimnames(coefficients)[[1]] <- my.para$label 
+      ## my.para <- my.para[!is.na(my.para$label), ]
+      ## my.para <- my.para[order(my.para$matrix, my.para$row, my.para$col), ]
+      coefficients <- my.para[, -c(1:4)]
+      dimnames(coefficients)[[1]] <- my.para$name
     } else {
 
-      if ( "reml3" %in% class(object) ) {
-        name.sel <- my.para$name
-      } else {
-        my.para$name <- with(my.para, paste(matrix,"[",row,",",col,"]",sep=""))
-        ## # model.name: may vary in diff models
-        ## model.name <- object$call[[match("model.name", names(object$call))]]
-        ## # if not specified, the default in meta() is "Variance component with REML"
-        ## if (is.null(model.name)) {
-        ##   model.name <- "Variance component with REML."
-        ## } else { # reml2
-        ##   model.name <- paste(model.name, ".", sep="")
-        ## }      
-        ## name <- sapply(unlist(dimnames(my.ci)[1]), function(x)
-        ##                  {strsplit(x, model.name, fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
-        name <- sapply(unlist(dimnames(my.ci)[1]), function(x)
-                             {strsplit(x, ".", fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
+      ## if ( "reml3" %in% class(object) ) {
+      ##   name.sel <- my.para$name
+      ## } else {
+      ##   my.para$name <- with(my.para, paste(matrix,"[",row,",",col,"]",sep=""))
+      ##   ## # model.name: may vary in diff models
+      ##   ## model.name <- object$call[[match("model.name", names(object$call))]]
+      ##   ## # if not specified, the default in meta() is "Variance component with REML"
+      ##   ## if (is.null(model.name)) {
+      ##   ##   model.name <- "Variance component with REML."
+      ##   ## } else { # reml2
+      ##   ##   model.name <- paste(model.name, ".", sep="")
+      ##   ## }      
+      ##   ## name <- sapply(unlist(dimnames(my.ci)[1]), function(x)
+      ##   ##                  {strsplit(x, model.name, fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
+      ##   name <- sapply(unlist(dimnames(my.ci)[1]), function(x)
+      ##                        {strsplit(x, ".", fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
         
-        # remove duplicate elements in my.ci from my.para$name
-        name.sel <- name %in% my.para$name
-      } # reml2
+      ##   # remove duplicate elements in my.ci from my.para$name
+      ##   name.sel <- name %in% my.para$name
+      ## } # reml2
 
-      my.ci <- data.frame(name=my.para$name, my.ci[name.sel, ,drop=FALSE])
-      my.para <- merge(my.para, my.ci, by=c("name"))
-      # remove rows with missing labels
-      my.para <- my.para[!is.na(my.para$label), ]
-      my.para <- my.para[order(my.para$matrix, my.para$row, my.para$col), ]
-      coefficients <- my.para[, -c(1:4,7,9)]
-      dimnames(coefficients)[[1]] <- my.para$label
+      ## Convert a data frame with length of 0 in my.mx$CI and remove the last column "note"
+      my.ci <- my.mx$CI
+      if (length(my.ci)==0) my.ci <- NULL else my.ci <- my.ci[,1:3, drop=FALSE]        
 
+      my.ci <- data.frame(name=row.names(my.ci), my.ci)
+      my.para <- merge(my.para, my.ci, by=c("name"))      
+      ## # remove rows with missing labels
+      ## my.para <- my.para[!is.na(my.para$label), , drop=FALSE]
+      ## my.para <- my.para[order(my.para$label), , drop=FALSE]
+      coefficients <- my.para[, -c(1:4,8)]
+      dimnames(coefficients)[[1]] <- my.para$name
       # NA for LBCI
       coefficients$Std.Error <- NA
-      ## coefficients$"z value" <- NA
-      ## coefficients$"Pr(>|z|)" <- NA     
-    } # is.null(dimnames(my.ci))
+    } 
       
     coefficients$"z value" <- coefficients$Estimate/coefficients$Std.Error
     coefficients$"Pr(>|z|)" <- 2*(1-pnorm(abs(coefficients$"z value")))
 
-    intervals.type <- object$call[[match("intervals.type", names(object$call))]]
-    # default
-    if (is.null(intervals.type))
-      intervals.type <- "z"
+    ## intervals.type <- object$call[[match("intervals.type", names(object$call))]]
+    ## # default
+    ## if (is.null(intervals.type))
+    ##   intervals.type <- "z"
 
-    out <- list(call=object$call, intervals.type=intervals.type, no.studies=my.mx$numObs,
-                obsStat=my.mx$observedStatistics, estPara=my.mx$estimatedParameters,
-                df=my.mx$degreesOfFreedom, Minus2LL=my.mx$Minus2LogLikelihood,
+    obsStat=object$numStats
+    estPara=my.mx$estimatedParameters
+    df=obsStat-estPara
+    out <- list(call=object$call, intervals.type=object$intervals.type, no.studies=object$numObs,
+                obsStat=obsStat, estPara=estPara,
+                df=df, Minus2LL=my.mx$Minus2LogLikelihood,
                 coefficients=coefficients, Mx.status1=object$mx.fit@output$status[[1]])
     class(out) <- "summary.reml"
     out
@@ -737,14 +783,10 @@ vcov.wls <- function(object, R=50, ...) {
       }
     }
     #var(t(omxSapply(1:b, paraboot, simplify = TRUE)), na.rm=TRUE)
-    out <- var(t(replicate(R, paraboot(object))), na.rm=TRUE)
-    # need to make sure that the variable labels and the matrices are in the same order
-    my.mx <- summary(object$mx.fit)$parameters
-    # For example, P[1,2], L[1,2], ...
-    my.names <- with(my.mx[, 2:4], paste(matrix,"[",row,",",col,"]",sep=""))
-    dimnames(out) <- list(my.names, my.names)
-    out
+    acovS <- var(t(replicate(R, paraboot(object))), na.rm=TRUE)
     
+    warning("Parametric bootstrap with ",R," replications was used to approximate the sampling covariance matrix of the parameter estimates. A better approach is to use likelihood-based confidence interval by including the intervals.type=\"LB\" argument in the analysis.\n")
+        
   } else {
     ## Select the free parameters for inversion
     acovS <- tryCatch( 2*solve(object$mx.fit@output$calculatedHessian), error = function(e) e ) 
@@ -752,15 +794,18 @@ vcov.wls <- function(object, R=50, ...) {
     # Issue a warning instead of error message
     if (inherits(acovS, "error")) {
       cat("Error in solving the Hessian matrix.\n")
-      warning(print(acovS))
-    } else {
-      my.mx <- summary(object$mx.fit)
-      # For example, P[1,2], L[1,2], ...
-      my.names <- with(my.mx$parameters[, 2:4], paste(matrix,"[",row,",",col,"]",sep=""))
-      dimnames(acovS) <- list(my.names, my.names)
-      acovS
-    }
+      stop(print(acovS))
+    } 
   }
+
+  my.para <- summary(object$mx.fit)$parameters[, 1:4]
+  my.labels <- my.para$name
+  my.order <- with(my.para, order(matrix, row, col))
+
+  acovS <- acovS[my.labels[my.order], my.labels[my.order]]
+  my.labels <- my.labels <- gsub(paste(object$mx.model$name, ".", sep=""), "", row.names(acovS))
+  dimnames(acovS) <- list(my.labels, my.labels)
+  acovS
 }
 
 vcov.wls.cluster <- function(object, R=50, ...) {
@@ -830,8 +875,11 @@ coef.wls <- function(object, ...) {
     ## object$mx.fit@output$estimate
     my.mx <- summary(object$mx.fit)
     my.coef <- my.mx$parameters$Estimate
-    # For example, P[1,2], L[1,2], ...
-    names(my.coef) <- with(my.mx$parameters[, 2:4], paste(matrix,"[",row,",",col,"]",sep=""))
+    ## # For example, P[1,2], L[1,2], ...
+    ## names(my.coef) <- with(my.mx$parameters[, 2:4], paste(matrix,"[",row,",",col,"]",sep=""))
+    my.labels <- my.mx$parameters$name
+    my.labels <- gsub(paste(object$mx.model$name, ".", sep=""), "", my.labels)
+    names(my.coef) <- my.labels    
     my.coef
 }
 
@@ -900,8 +948,11 @@ summary.meta3X <- function(object, allX=FALSE, ...) {
       index <- my.para$label %in% index.label
       my.para <- my.para[index, ]
     }
-    
+
+    ## Convert a data frame with length of 0 in my.mx$CI and remove the last column "note"
     my.ci <- my.mx$CI
+    if (length(my.ci)==0) my.ci <- NULL else my.ci <- my.ci[,1:3, drop=FALSE]    
+    
     # Determine if CIs on parameter estimates are present
     if (is.null(dimnames(my.ci))) {
       my.para$lbound <- my.para$Estimate - qnorm(.975)*my.para$Std.Error

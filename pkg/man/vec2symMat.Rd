@@ -5,16 +5,17 @@
 \description{It converts a vector into a symmetric matrix. 
 }
 \usage{
-vec2symMat(x, diag = TRUE)
+vec2symMat(x, diag = TRUE, byrow = FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{A vector of numerics or characters
 }
-  \item{diag}{Logical. If it is \code{TRUE} (the default), the diagonals of the created matrix are replaced by elements of \code{x}; otherwise, the diagonals of the created matrix are replaced by "1".
+  \item{diag}{Logical. If it is \code{TRUE} (the default), the diagonals
+	of the created matrix are replaced by elements of \code{x};
+	otherwise, the diagonals of the created matrix are replaced by "1".}
+  \item{byrow}{Logical. If it is \code{FALSE} (the default), the created matrix is filled by columns; otherwise, the matrix is filled by rows.
 }
-%   \item{byrow}{Logical. If it is \code{FALSE} (the default), the created matrix is filled by columns; otherwise, the matrix is filled by rows.
-% }
 }
 
 \value{A symmetric square matrix based on column major

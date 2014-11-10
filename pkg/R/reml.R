@@ -1,6 +1,6 @@
 reml <- function(y, v, x, data, RE.constraints=NULL, RE.startvalues=0.1, RE.lbound=1e-10,
                  intervals.type=c("z", "LB"), model.name="Variance component with REML",
-                 suppressWarnings = TRUE, ...) {
+                 suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
   mf <- match.call()
   if (missing(data)) {
     data <- sys.frame(sys.parent())
@@ -186,15 +186,18 @@ reml <- function(y, v, x, data, RE.constraints=NULL, RE.startvalues=0.1, RE.lbou
   # Creat model for REML
   reml.model <- mxModel(model=model.name, X, Y, V, W, Tau, alpha, obj,
                    #mxData(observed=y_star, type="raw"),
-                   mxAlgebraObjective("obj"), mxCI("Tau"))
+                   mxFitFunctionAlgebra(algebra="obj", numObs=no.studies, numStats=numStats), mxCI("Tau"))
+
+  ## Return mx model without running the analysis
+  if (run==FALSE) return(reml.model)
   
   intervals.type <- match.arg(intervals.type)
   # Default is z
   switch(intervals.type,
     z = mx.fit <- tryCatch( mxRun(reml.model, intervals=FALSE,
-                                    suppressWarnings = suppressWarnings, ...), error = function(e) e ),
+                                    suppressWarnings = suppressWarnings, silent=silent, ...), error = function(e) e ),
     LB = mx.fit <- tryCatch( mxRun(reml.model, intervals=TRUE,
-                                     suppressWarnings = suppressWarnings, ...), error = function(e) e ) )
+                                     suppressWarnings = suppressWarnings, silent=silent, ...), error = function(e) e ) )
  
   if (inherits(mx.fit, "error")) {
     cat("Error in running the mxModel:\n")
@@ -202,11 +205,11 @@ reml <- function(y, v, x, data, RE.constraints=NULL, RE.startvalues=0.1, RE.lbou
   }
 
   ## Ad-hoc: Add no. of studies and no. of observed statistics
-  mx.fit@runstate$objectives[[1]]@numObs <- no.studies
-  mx.fit@runstate$objectives[[1]]@numStats <- numStats
+  ## mx.fit@runstate$objectives[[1]]@numObs <- no.studies
+  ## mx.fit@runstate$objectives[[1]]@numStats <- numStats
   
-  out <- list(call = mf, data=input.df, no.y=no.y, no.x=no.x, miss.vec=miss.vec,
-              mx.fit=mx.fit, intervals.type=intervals.type)
+  out <- list(call = mf, data=input.df, no.y=no.y, no.x=no.x, miss.vec=miss.vec, mx.model=reml.model,
+              mx.fit=mx.fit, intervals.type=intervals.type, numObs=no.studies, numStats=numStats)
   class(out) <- "reml"
   return(out)
 }

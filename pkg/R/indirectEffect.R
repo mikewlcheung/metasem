@@ -1,4 +1,4 @@
-indirectEffect <- function(x, n, standardized=TRUE, direct.effect=TRUE) {
+indirectEffect <- function(x, n, standardized=TRUE, direct.effect=TRUE, run=TRUE) {
   
   if (is.list(x)) {
     t(mapply(indirectEffect, x, n=n, MoreArgs=list(standardized=standardized, direct.effect=direct.effect)))
@@ -47,6 +47,9 @@ indirectEffect <- function(x, n, standardized=TRUE, direct.effect=TRUE) {
   }
   ## No direct effect by setting c=0
   if (!direct.effect) myMod <- omxSetParameters(myMod, labels="c", free=FALSE, values=0) 
+
+  ## Return mx model without running the analysis
+  if (run==FALSE) return(myMod)
   
   my.fit <- mxRun(myMod, silent=TRUE, suppressWarnings=TRUE)
   ## my.parameters <- summary(my.fit)$parameters

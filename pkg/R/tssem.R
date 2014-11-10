@@ -1,5 +1,6 @@
 tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
-                     cluster=NULL, suppressWarnings=TRUE, ...) {
+                     cluster=NULL, suppressWarnings=TRUE, silent=TRUE,
+                     run=TRUE, ...) {
   if (!is.null(cluster)) {
     data.cluster <- tapply(my.df, cluster, function(x) {x})
     n.cluster <- tapply(n, cluster, function(x) {x})
@@ -87,9 +88,11 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
         ##                      mxData(observed=my.df.i, type="cov", numObs=n[i]),
         ##                      mxMLObjective(expC, dimnames=var.names[!miss.index[[i]]]))
 
+        fitFunction <- mxFitFunctionML()
+        
         ## Fixed a bug when my.df[[i]][, , ] is a scalar
         g.model <- paste("g", i, " <- mxModel(\"g", i, "\", S, SD, expC, mxData(observed=my.df[[",i,"]][!miss.index[[",i,"]],!miss.index[[",i,"]], drop=FALSE], type=\"cov\", numObs=n[", i,
-                "]), mxMLObjective(\"expC\", dimnames=var.names[!miss.index[[", i, "]]]))", sep = "")
+                "]), fitFunction, mxExpectationNormal(covariance=\"expC\", means=NA, dimnames=var.names[!miss.index[[", i, "]]]))", sep = "")
         eval(parse(text = g.model))       
     }
     
@@ -110,15 +113,18 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
     tssem1.model <- paste("tssem1 <- mxModel(\"", model.name, "\", S, ",
                           paste("g", 1:no.groups, sep = "", collapse = ","),
                           ", mxAlgebra(", paste("g", 1:no.groups, ".objective", sep = "", collapse = "+"),
-                          ", name=\"obj\"), mxAlgebraObjective(\"obj\"))", sep = "")
+                          ", name=\"obj\"), mxFitFunctionAlgebra(algebra =\"obj\"))", sep = "")
     eval(parse(text = tssem1.model))
-    
+
+    ## Return mx model without running the analysis
+    if (run==FALSE) return(tssem1)
+        
     # try to run it with error message as output
     ## mx.fit <- mxRun(tssem1)
-    mx.fit <- tryCatch(mxRun(tssem1, suppressWarnings = suppressWarnings, ...),
+    mx.fit <- tryCatch(mxRun(tssem1, suppressWarnings = suppressWarnings, silent=silent, ...),
                            error = function(e) e)
     if (inherits(mx.fit, "error")) 
-        stop(print(mx.fit))
+        warning(print(mx.fit))
     
     pooledS <- eval(parse(text = "mxEval(S, mx.fit)"))
 
@@ -165,14 +171,14 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
     out <- list(call = match.call(), cor.analysis=cor.analysis, data=my.df, pooledS = pooledS,
                 acovS = acovS, n = n, 
                 modelMinus2LL = mx.fit@output$Minus2LogLikelihood,
-                baseMinus2LL = baseMinus2LL, mx.fit = mx.fit)
+                baseMinus2LL = baseMinus2LL, mx.model=tssem1, mx.fit = mx.fit)
     class(out) <- "tssem1FEM"
     return(out)
   }
 }
 
 tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Zero"), RE.startvalues=0.1, RE.lbound = 1e-10,
-                      I2="I2q", model.name=NULL, suppressWarnings=TRUE, ...) {
+                      I2="I2q", model.name=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
   ## It handles missing effect sizes rather than missing correlations. Thus, it is more flexible than tssem1FEM().
   ## ACOV is calculated without missing data by assuming 1 and 0 for the missing variances and covariances.
   ## Missing values are indicated by the missing effect sizes.
@@ -209,16 +215,19 @@ tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Ze
   RE.type <- match.arg(RE.type)
   switch( RE.type,
          Symm = mx.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2, RE.startvalues=RE.startvalues,
-                               RE.lbound=RE.lbound, suppressWarnings=TRUE, ...),
+                               RE.lbound=RE.lbound, suppressWarnings=TRUE, silent=silent, run=run, ...),
 ## Prior to R-3.0.0
 ##       Diag = mx.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2,
 ##                             RE.constraints=Diag(x=paste(RE.startvalues, "*Tau2_", 1:no.es, "_", 1:no.es, sep=""),
 ##                                            nrow=no.es, ncol=no.es), RE.lbound=RE.lbound),
          Diag = mx.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2,
                                RE.constraints=Diag(x=paste(RE.startvalues, "*Tau2_", 1:no.es, "_", 1:no.es, sep="")),
-                               RE.lbound=RE.lbound, suppressWarnings=TRUE, ...),
+                               RE.lbound=RE.lbound, suppressWarnings=TRUE, silent=silent, run=run, ...),
          Zero = mx.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2, RE.constraints=matrix(0, ncol=no.es, nrow=no.es),
-                               suppressWarnings=TRUE, ...) ) 
+                               suppressWarnings=TRUE, silent=silent, run=run, ...) )
+
+  ## Return mx model without running the analysis
+  if (run==FALSE) return(mx.fit)
   
   ## if (RE.diag.only==TRUE) {
   ##   ## No covariance between random effects
@@ -237,14 +246,14 @@ tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Ze
 
 tssem1 <- function(my.df, n, method=c("FEM", "REM"), cor.analysis=TRUE, cluster=NULL,
                    RE.type=c("Symm", "Diag", "Zero"), RE.startvalues=0.1, RE.lbound=1e-10, I2="I2q",
-                   model.name=NULL, suppressWarnings=TRUE, ...) {
+                   model.name=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
   method <- match.arg(method)
   switch(method,
     FEM = out <- tssem1FEM(my.df=my.df, n=n, cor.analysis=cor.analysis, model.name=model.name,
-                          cluster=cluster, suppressWarnings=suppressWarnings, ...),
+                          cluster=cluster, suppressWarnings=suppressWarnings, silent=silent, run=run, ...),
     REM = out <- tssem1REM(my.df=my.df, n=n, cor.analysis=cor.analysis, RE.type=RE.type,
                           RE.startvalues=RE.startvalues, RE.lbound=RE.lbound, I2=I2,
-                          model.name=model.name, suppressWarnings=suppressWarnings, ...) )
+                          model.name=model.name, suppressWarnings=suppressWarnings, silent=silent, run=run, ...) )
   out  
 }
   
@@ -319,7 +328,8 @@ tssem1 <- function(my.df, n, method=c("FEM", "REM"), cor.analysis=TRUE, cluster=
 ## }
 
 wls <- function(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=FALSE,
-                cor.analysis=TRUE, intervals.type=c("z", "LB"), mx.algebras=NULL, model.name=NULL, suppressWarnings=TRUE, ...) {
+                cor.analysis=TRUE, intervals.type=c("z", "LB"), mx.algebras=NULL, model.name=NULL,
+                suppressWarnings=TRUE, silent=TRUE, run=TRUE,...) {
   if (is.null(Smatrix)) {
     stop("\"Smatrix\" matrix is not specified.\n")
   } else {
@@ -411,7 +421,7 @@ wls <- function(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.c
     stop("No. of dimension of \"Cov\" does not match the multiplier of the dimension of \"asyCov\"\n")
     
   obj <- mxAlgebra( t(vecS) %&% invAcov, name = "obj" )
-  objective <- mxAlgebraObjective("obj")
+  objective <- mxFitFunctionAlgebra(algebra="obj")
 
   mx.model <- mxModel(model=model.name, Fmatrix, Amatrix, Smatrix, Id, impliedS1, impliedS,
                       vecS, invAcov, obj, objective, sampleS, mxCI(c("Amatrix", "Smatrix")))
@@ -444,12 +454,15 @@ wls <- function(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.c
   ##                   intervals, ", suppressWarnings = ", suppressWarnings, ", ...)", sep="")
   ## }
 
-  mx.fit <- tryCatch( mxRun(mx.model, intervals=intervals, suppressWarnings=suppressWarnings, ...), error = function(e) e)
+  ## Return mx model without running the analysis
+  if (run==FALSE) return(mx.model)
+  
+  mx.fit <- tryCatch( mxRun(mx.model, intervals=intervals, suppressWarnings=suppressWarnings, silent=silent, ...), error = function(e) e)
 
   # try to run it with error message as output
   if (inherits(mx.fit, "error")) {
       cat("Error in running the mxModel:\n")
-      stop(print(mx.fit))
+      warning(print(mx.fit))
   } else {
       out <- list(call=match.call(), Cov=Cov, asyCov=asyCov, noObservedStat=ps, n=n, cor.analysis=cor.analysis, diag.constraints=diag.constraints, Constraints=Constraints,
                   indepModelChisq=.indepwlsChisq(S=Cov, acovS=asyCov, cor.analysis=cor.analysis),
@@ -461,7 +474,8 @@ wls <- function(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.c
 
 
 tssem2 <- function(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=FALSE,
-                   intervals.type = c("z", "LB"), mx.algebras=NULL, model.name=NULL, suppressWarnings = TRUE, ...) {
+                   intervals.type = c("z", "LB"), mx.algebras=NULL, model.name=NULL, suppressWarnings=TRUE,
+                   silent=TRUE, run=TRUE, ...) {
   if ( !is.element( class(tssem1.obj)[1], c("tssem1FEM.cluster", "tssem1FEM", "tssem1REM")) )
       stop("\"tssem1.obj\" must be of neither class \"tssem1FEM.cluster\", class \"tssem1FEM\" or \"tssem1REM\".")
       
@@ -469,7 +483,7 @@ tssem2 <- function(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.co
          tssem1FEM.cluster = { out <- lapply(tssem1.obj, tssem2, Amatrix=Amatrix, Smatrix=Smatrix, Fmatrix=Fmatrix,
                                              diag.constraints=diag.constraints, intervals.type=intervals.type,
                                              mx.algebras=mx.algebras, 
-                                             model.name=model.name, suppressWarnings=suppressWarnings, ...)
+                                             model.name=model.name, suppressWarnings=suppressWarnings, silent=silent, run=run, ...)
                               class(out) <- "wls.cluster" },
          tssem1FEM = { cor.analysis <- tssem1.obj$cor.analysis
                       # check the call to determine whether it is a correlation or covariance analysis
@@ -486,8 +500,8 @@ tssem2 <- function(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.co
                                  Amatrix=Amatrix, Smatrix=Smatrix, Fmatrix=Fmatrix,
                                  diag.constraints=diag.constraints, cor.analysis=cor.analysis,
                                  intervals.type=intervals.type, mx.algebras=mx.algebras,
-                                 model.name=model.name,
-                                 suppressWarnings = suppressWarnings, ...) },
+                                 model.name=model.name, suppressWarnings=suppressWarnings,
+                                 silent=silent, run=run, ...) },
          tssem1REM = { cor.analysis <- tssem1.obj$cor.analysis
                      ## Extract the pooled correlation matrix
                       pooledS <- vec2symMat( coef(tssem1.obj, select="fixed"), diag=!cor.analysis)
@@ -502,7 +516,7 @@ tssem2 <- function(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.co
                       out <- wls(Cov=pooledS, asyCov=asyCov, n=tssem1.obj$total.n,
                                  Amatrix=Amatrix, Smatrix=Smatrix, Fmatrix=Fmatrix, diag.constraints=diag.constraints,
                                  cor.analysis=cor.analysis, intervals.type=intervals.type, mx.algebras=mx.algebras,
-                                 model.name=model.name, suppressWarnings = suppressWarnings, ...) })
+                                 model.name=model.name, suppressWarnings = suppressWarnings, silent=silent, run=run, ...) })
   out
 }
     

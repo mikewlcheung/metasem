@@ -1,3 +1,13 @@
+Release 0.9-0 (Nov 10, 2014)
+====================================
+* Added byrow argument in vec2symMat()
+* Added datasets Aloe14 and Becker09
+* Removed ellipse package in the dependence
+* Added silent=TRUE and run=TRUE arguments in most functions
+* Fixed the package to work in OpenMx 2.0
+* Used labels rather than Amatrix and Smatrix in wls() and tssem2()
+* Fixed a bug in create.mxMatrix() to respect byrow=TRUE for "Symm" and "Stand" types 
+
 Release 0.8-5 (Jun 6, 2014)
 ====================================
 * Change "." to "_" in datasets Jaramillo05 and wvs94a, and indirectEffect.R

@@ -40,7 +40,8 @@ Psi <- create.mxMatrix( paste("0.2*e", 1:9, sep=""), type="Diag",
 
 ## Create Smatrix
 S1 <- bdiagMat(list(Psi, Phi))
-## dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c(paste("x",1:9,sep=""), paste("f",1:3,sep=""))
+## dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c(paste("x",1:9,sep=""),
+##                                             paste("f",1:3,sep=""))
 ## S1
 S1 <- as.mxMatrix(S1)
 
@@ -55,7 +56,8 @@ Zero2 <- matrix(0, nrow=3, ncol=12)
 ## Create Amatrix
 A1 <- rbind( cbind(Zero1, Lambda),
              Zero2 )
-## dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- c(paste("x",1:9,sep=""), paste("f",1:3,sep=""))
+## dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- c(paste("x",1:9,sep=""),
+##                                             paste("f",1:3,sep=""))
 ## A1
 A1 <- as.mxMatrix(A1)
 

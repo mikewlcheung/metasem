@@ -12,7 +12,7 @@ multivariate meta-analysis with restricted (residual) maximum likelihood
 reml(y, v, x, data, RE.constraints = NULL, RE.startvalues = 0.1,
      RE.lbound = 1e-10, intervals.type = c("z", "LB"),
      model.name="Variance component with REML",
-     suppressWarnings = TRUE, ...)
+     suppressWarnings = TRUE, silent = TRUE, run = TRUE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -65,7 +65,9 @@ reml(y, v, x, data, RE.constraints = NULL, RE.startvalues = 0.1,
 	}  
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
 	suppressed. Argument to be passed to \code{\link[OpenMx]{mxRun}}.
-}
+  }
+  \item{silent}{Logical. Argument to be passed to \code{\link[OpenMx]{mxRun}}}
+  \item{run}{Logical. If \code{FALSE}, only return the mx model without running the analysis.}  
   \item{\dots}{Futher arguments to be passed to \code{\link[OpenMx]{mxRun}}
 }
 }

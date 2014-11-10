@@ -1,6 +1,6 @@
 #### Generate asymptotic covariance matrix of correlation/covariance matrix by *column major*
-asyCov <- function(x, n, cor.analysis = TRUE, dropNA = FALSE, as.matrix = TRUE,
-                   silent = TRUE, suppressWarnings = TRUE, ...) {
+asyCov <- function(x, n, cor.analysis=TRUE, dropNA=FALSE, as.matrix=TRUE,
+                   suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
     if (is.list(x)) {
       
         # Check if it returns a matrix or a list
@@ -85,12 +85,16 @@ asyCov <- function(x, n, cor.analysis = TRUE, dropNA = FALSE, as.matrix = TRUE,
             modelName <- "Asymptotic covariance matrix of covariance matrix"
         }
         expCov <- mxAlgebra(D %&% S, name = "expCov", dimnames = list(cNames, cNames))
-        objective <- mxMLObjective("expCov", dimnames = cNames)
+
         cModel <- mxModel(model = modelName, mxData(x.new, "cov", numObs = n), S, 
-            D, expCov, objective)
+                          D, expCov, mxFitFunctionML(),
+                          mxExpectationNormal("expCov", means=NA, dimnames = cNames))
+
+        ## Return mx model without running the analysis
+        if (run==FALSE) return(cModel)
         
         # try to run it with error message as output
-        mxFit <- tryCatch(mxRun(cModel, silent = silent, suppressWarnings = suppressWarnings, ...), 
+        mxFit <- tryCatch(mxRun(cModel, silent=silent, suppressWarnings=suppressWarnings, ...), 
                           error = function(e) e)
         if (inherits(mxFit, "error")) {
             stop(print(mxFit))

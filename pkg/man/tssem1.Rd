@@ -12,12 +12,12 @@
 \usage{
 tssem1(my.df, n, method=c("FEM","REM"), cor.analysis = TRUE, cluster=NULL,
        RE.type=c("Symm", "Diag", "Zero"), RE.startvalues=0.1, RE.lbound=1e-10, I2="I2q",
-       model.name=NULL, suppressWarnings=TRUE, ...)
+       model.name=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...)
 tssem1FEM(my.df, n, cor.analysis=TRUE, model.name=NULL,
-          cluster = NULL, suppressWarnings = TRUE, ...)
+          cluster=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...)
 tssem1REM(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Zero"),
           RE.startvalues=0.1, RE.lbound=1e-10, I2="I2q", model.name=NULL,
-          suppressWarnings=TRUE, ...)
+          suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...)
 }
 \arguments{
   \item{my.df}{A list of correlation/covariance matrices
@@ -58,6 +58,8 @@ tssem1REM(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Zero"),
   }  
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
 	suppressed. Argument to be passed to \code{\link[OpenMx]{mxRun}}.}
+  \item{silent}{Logical. Argument to be passed to \code{\link[OpenMx]{mxRun}}}
+  \item{run}{Logical. If \code{FALSE}, only return the mx model without running the analysis.}  
   \item{\dots}{Further arguments to be passed to \code{\link[OpenMx]{mxRun}}
 }
 }
@@ -67,7 +69,7 @@ tssem1REM(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Zero"),
   for random-effects TSSEM. 
 }
 \references{
-  Cheung, M. W.-L. (in press). Fixed- and random-effects meta-analytic structural equation modeling: Examples and analyses in R. \emph{Behavior Research Methods}.  
+  Cheung, M. W.-L. (2014). Fixed- and random-effects meta-analytic structural equation modeling: Examples and analyses in R. \emph{Behavior Research Methods}, \bold{46}, 29-40.
 
   Cheung, M. W.-L. (2013). Multivariate meta-analysis as structural
 equation models. \emph{Structural Equation Modeling}, \bold{20},

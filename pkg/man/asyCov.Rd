@@ -7,7 +7,7 @@
 }
 \usage{
 asyCov(x, n, cor.analysis = TRUE, dropNA = FALSE, as.matrix = TRUE,
-       silent = TRUE, suppressWarnings = TRUE,  ...)
+       suppressWarnings = TRUE,  silent = TRUE, run = TRUE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -32,10 +32,12 @@ asyCov(x, n, cor.analysis = TRUE, dropNA = FALSE, as.matrix = TRUE,
 	matrices. Note that if it is \code{TRUE}, \code{dropNA} will be
 	\code{FALSE} automatically. This option is useful when passing the
 	asymptotic covariance matrices to \code{\link[metaSEM]{meta}} }  
-  \item{silent}{Logical. Argument to be passed to \code{\link[OpenMx]{mxRun}}}
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
 	suppressed. Argument to be passed to \code{\link[OpenMx]{mxRun}}.}
-
+  \item{silent}{Logical. Argument to be passed to
+	\code{\link[OpenMx]{mxRun}}}
+  \item{run}{Logical. If \code{FALSE}, only return the mx model without
+	running the analysis.}
   \item{\dots}{Futher arguments to be passed to \code{\link[OpenMx]{mxRun}}}
 }
 

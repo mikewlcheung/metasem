@@ -9,11 +9,11 @@ rerun <- function(object, ...) {
     out <- object   
     # No LB option
     if (is.null(object$intervals.type)) {
-      out$mx.fit <- mxRun(object$mx.fit, ...)
+      out$mx.fit <- mxTryHard(object$mx.fit, ...)
     } else {
       switch(object$intervals.type,
-             z = out$mx.fit <- mxRun(object$mx.fit, ...),
-             LB =out$mx.fit <- mxRun(object$mx.fit, intervals=TRUE, ...))
+             z = out$mx.fit <- mxTryHard(object$mx.fit, ...),
+             LB =out$mx.fit <- mxTryHard(object$mx.fit, intervals=TRUE, ...))
     }
   }
   out

@@ -14,7 +14,8 @@ easily imposed by setting the same labels on the parameter estimates.
 meta(y, v, x, data, intercept.constraints = NULL, coef.constraints = NULL,
      RE.constraints = NULL, RE.startvalues=0.1, RE.lbound = 1e-10,
      intervals.type = c("z", "LB"), I2="I2q", R2=TRUE,
-     model.name="Meta analysis with ML", suppressWarnings = TRUE, ...)
+     model.name="Meta analysis with ML", suppressWarnings = TRUE,
+     silent = TRUE, run = TRUE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -93,8 +94,10 @@ meta(y, v, x, data, intercept.constraints = NULL, coef.constraints = NULL,
 	}
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
 	suppressed. Argument to be passed to \code{\link[OpenMx]{mxRun}}.}
-  \item{\dots}{Futher arguments to be passed to \code{\link[OpenMx]{mxRun}}
-}
+  \item{silent}{Logical. Argument to be passed to \code{\link[OpenMx]{mxRun}}}
+  \item{run}{Logical. If \code{FALSE}, only return the mx model without
+	running the analysis.} 
+  \item{\dots}{Futher arguments to be passed to \code{\link[OpenMx]{mxRun}}}    
 }
 
 \value{An object of class \code{meta} with a list of

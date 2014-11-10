@@ -140,7 +140,10 @@ diag.panel = FALSE, xlim=NULL, ylim=NULL, ...)
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
 \note{The estimated effect sizes and random effects are based on the
-  labels Intercept1, Intercept2, ... and Tau2_1_1, Tau2_2_1, Tau2_2_2, etc. At least two effect sizes are required for this function.
+  labels Intercept1, Intercept2, ... and Tau2_1_1, Tau2_2_1, Tau2_2_2,
+  etc. At least two effect sizes are required for this function. The
+  .ellipse() function is adopted from the ellipse package written by
+  Duncan Murdoch and E. D. Chow.  
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

@@ -34,7 +34,8 @@ summary(fixed1)
 
 ## Prepare a regression model using create.mxMatrix()
 A1 <- create.mxMatrix(c(0,0,0,"0.2*Spatial2Aptitude",
-                        0,0,"0.2*Verbal2Aptitude",0,0), type="Full", ncol=3, nrow=3, name="A1")
+                        0,0,"0.2*Verbal2Aptitude",0,0), type="Full",
+                      ncol=3, nrow=3, name="A1")
 S1 <-
 create.mxMatrix(c("0.2*ErrorVarAptitude",0,0,1,"0.2*CorBetweenSpatialVerbal",1),
                 type="Symm", name="S1")
@@ -44,9 +45,10 @@ create.mxMatrix(c("0.2*ErrorVarAptitude",0,0,1,"0.2*CorBetweenSpatialVerbal",1),
 #                                                        FALSE,TRUE,FALSE,FALSE),
 #                label=c(NA,NA,NA,"Spatial2Aptitude",NA,NA,"Verbal2Aptitude",NA,NA),
 #                name="A1")
-# S1 <- mxMatrix("Symm", ncol=3, nrow=3, value=c(0.5,0,0,1,0.2,1), free=c(TRUE,FALSE,FALSE,
-#                                                                         FALSE,TRUE,FALSE),
-#                label=c("ErrorVarAptitude",NA,NA,NA,"CorBetweenSpatialVerbal",NA), name="S1")
+# S1 <- mxMatrix("Symm", ncol=3, nrow=3, value=c(0.5,0,0,1,0.2,1),
+#                free=c(TRUE,FALSE,FALSE,FALSE,TRUE,FALSE),
+#                label=c("ErrorVarAptitude",NA,NA,NA,"CorBetweenSpatialVerbal",NA),
+#                        name="S1")
 
 ## Second stage analysis
 fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, intervals.type="LB")

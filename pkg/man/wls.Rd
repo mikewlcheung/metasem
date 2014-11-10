@@ -9,12 +9,13 @@
   analysis of the two-stage strutural equation modeling (TSSEM). \code{tssem2} is a wrapper of \code{wls}.
 }
 \usage{
-wls(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=FALSE,
-    cor.analysis=TRUE, intervals.type=c("z", "LB"), mx.algebras=NULL, model.name=NULL,
-    suppressWarnings=TRUE, ...)
-tssem2(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=FALSE,
-    intervals.type=c("z", "LB"), mx.algebras=NULL, model.name=NULL,
-    suppressWarnings=TRUE, ...) 
+wls(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
+    diag.constraints=FALSE, cor.analysis=TRUE, intervals.type=c("z","LB"),
+    mx.algebras=NULL, model.name=NULL, suppressWarnings=TRUE,
+    silent=TRUE, run=TRUE, ...)
+tssem2(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
+    diag.constraints=FALSE, intervals.type=c("z", "LB"), mx.algebras=NULL,
+    model.name=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) 
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -43,8 +44,8 @@ tssem2(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=FA
 	created. It is not required when there is no latent variable.
   }
   \item{diag.constraints}{Logical. This argument is ignored when
-	\code{cor.analysis=FALSE}. If \code{diag.constraints=TRUE}, the
-	diagonals of the model implied matrix will be constrained at 1 by nonlinear constraints. The drawback is that standard
+	\code{cor.analysis=FALSE}. If
+	\code{diag.constraints=TRUE}, the diagonals of the model implied matrix will be constrained at 1 by nonlinear constraints. The drawback is that standard
 	error will not be generated. Parametric bootstrap is used to
 	estimate the standard error by drawing samples from \eqn{\mathcal{N}(vech(Cov), asyCov)}{N(vech(Cov), asyCov)} for covariance analysis and \eqn{\mathcal{N}(vechs(Cov), asyCov)}{N(vechs(Cov), asyCov)} for
 	correlation analysis while asyCov is treated as fixed. This process
@@ -89,6 +90,8 @@ tssem2(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=FA
 	}
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
 	suppressed. Argument to be passed to \code{\link[OpenMx]{mxRun}}.}
+  \item{silent}{Logical. Argument to be passed to \code{\link[OpenMx]{mxRun}}}
+  \item{run}{Logical. If \code{FALSE}, only return the mx model without running the analysis.}  
   \item{\dots}{Futher arguments to be passed to \code{\link[OpenMx]{mxRun}}.
 }
 }
@@ -113,9 +116,7 @@ Bentler, P.M., & Savalei, V. (2010). Analysis of correlation structures: current
 
 Cheung, M. W.-L. (2010). Fixed-effects meta-analyses as multiple-group structural equation models. \emph{Structural Equation Modeling}, \bold{17}, 481-509.
 
-Cheung, M. W.-L. (in press). Fixed- and random-effects meta-analytic
-structural equation modeling: Examples and analyses in R. \emph{Behavior
-  Research Methods}.
+Cheung, M. W.-L. (2014). Fixed- and random-effects meta-analytic structural equation modeling: Examples and analyses in R. \emph{Behavior Research Methods}, \bold{46}, 29-40.
 
 Cheung, M. W.-L., & Chan, W. (2005). Meta-analytic structural equation modeling: A two-stage approach. \emph{Psychological Methods}, \bold{10}, 40-64.
 
@@ -201,7 +202,8 @@ R3 <- matrix(c(1.50, 0.22, 0.24, 0.18,
 n <- 1000
 acovS3 <- asyCov(R3, n, cor.analysis=FALSE)
 
-(A3 <- cbind(matrix(0, nrow=5, ncol=4), matrix(c("0.2*a1","0.2*a2","0.2*a3","0.2*a4",0),ncol=1)))
+(A3 <- cbind(matrix(0, nrow=5, ncol=4),
+             matrix(c("0.2*a1","0.2*a2","0.2*a3","0.2*a4",0),ncol=1)))
 A3 <- as.mxMatrix(A3)
 
 (S3 <- Diag(c("0.2*e1","0.2*e2","0.2*e3","0.2*e4",1)))

@@ -12,7 +12,7 @@ univariate meta-analysis with restricted (residual) maximum likelihood (REML) es
 reml3(y, v, cluster, x, data, RE2.startvalue=0.1, RE2.lbound=1e-10,
       RE3.startvalue=RE2.startvalue, RE3.lbound=RE2.lbound, RE.equal=FALSE,
       intervals.type=c("z", "LB"), model.name="Variance component with REML",
-      suppressWarnings = TRUE, ...) 
+      suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) 
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -51,7 +51,9 @@ reml3(y, v, cluster, x, data, RE2.startvalue=0.1, RE2.lbound=1e-10,
 }
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
 	suppressed. Argument to be passed to \code{\link[OpenMx]{mxRun}}.
-}
+  }
+  \item{silent}{Logical. Argument to be passed to \code{\link[OpenMx]{mxRun}}}
+  \item{run}{Logical. If \code{FALSE}, only return the mx model without running the analysis.}  
   \item{\dots}{Futher arguments to be passed to \code{\link[OpenMx]{mxRun}}}
 }
 \details{
@@ -79,7 +81,7 @@ An alternative but equivalent approach is to minimize the
 \references{
   Cheung, M. W.-L. (2013). Implementing restricted maximum likelihood estimation in structural equation models. \emph{Structural Equation Modeling}, \bold{20(1)}, 157-167.
 
-  Cheung, M. W.-L. (in press). Modeling dependent effect sizes with three-level meta-analyses: A structural equation modeling approach. \emph{Psychological Methods}.
+  Cheung, M. W.-L. (2014). Modeling dependent effect sizes with three-level meta-analyses: A structural equation modeling approach. \emph{Psychological Methods}, \bold{19}, 211-229.
 
   Mehta, P. D., & Neale, M. C. (2005). People Are Variables Too: Multilevel Structural Equations Modeling. \emph{Psychological
   	Methods}, \bold{10(3)}, 259-284.

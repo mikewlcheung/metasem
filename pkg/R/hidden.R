@@ -36,9 +36,9 @@
   invAcov <- mxMatrix("Full", ncol = ps, nrow = ps, values = c(invacovS),
                       free = FALSE, name = "invAcov")
   obj <- mxAlgebra(t(vecS) %&% invAcov, name = "obj")
-  objective <- mxAlgebraObjective("obj")
+
   mx.model <- mxModel(model = "Independent model", impliedS, sampleS,
-                      vecS, invAcov, obj, objective)
+                      vecS, invAcov, obj, mxFitFunctionAlgebra("obj"))
   mx.model <- mxOption(mx.model, "Calculate Hessian", "No") 
   mx.model <- mxOption(mx.model, "Standard Errors"  , "No")     
     
@@ -79,8 +79,9 @@
     ##  )
     expCov <- mxMatrix("Diag", nrow=no.var, ncol=no.var, free=TRUE, 
                        values=Diag(x), name="expCov")    
-    objective <- mxMLObjective(covariance = "expCov", dimnames=vars)
-    mx.model <- mxModel("model", expCov, obsCov, objective)
+    objective <- mxExpectationNormal(covariance = "expCov", dimnames=vars)
+   
+    mx.model <- mxModel("model", expCov, obsCov, objective, mxFitFunctionML())
     mx.model <- mxOption(mx.model, "Calculate Hessian", "No") 
     mx.model <- mxOption(mx.model, "Standard Errors"  , "No")
     
@@ -137,8 +138,11 @@
   if (missing(my.mx)) {
     my.mx <- summary(object$mx.fit)
   }
+
+  ## Convert a data frame with length of 0 in my.mx$CI and remove the last column "note"
   my.ci <- my.mx$CI
-   
+  if (length(my.ci)==0) my.ci <- NULL else my.ci <- my.ci[,1:3, drop=FALSE]
+      
   ## meta3 class
   if ( "meta3" %in% class(object) ) {
     I2.names <- c("I2q","I2hm","I2am")
@@ -151,15 +155,20 @@
       I2.values <- matrix(NA, nrow=length(I2.names), ncol=3)
       I2.values[,2] <- eval(parse(text = paste("mxEval(c(", paste(I2.names, collapse=","), "), object$mx.fit)", sep="")))
     } else {
-      dimnames(my.ci)[[1]] <- sapply(unlist(dimnames(my.ci)[1]), function(x)
-                                    {strsplit(x, ".", fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
-      I2.values <- my.ci[paste(I2.names, "[1,1]", sep=""), , drop=FALSE]
-
+      name <- sapply(unlist(dimnames(my.ci)[1]), function(x)
+                           {strsplit(x, ".", fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
+      my.ci <- my.ci[!is.na(name), , drop=FALSE]
+      dimnames(my.ci)[[1]] <- name[!is.na(name)]
+      I2.values <- my.ci
+      ## I2.values <- my.ci[paste(I2.names, "[1,1]", sep=""), , drop=FALSE]
     }
     ## Truncate within 0 and 1
+    I2.values[I2.values<0] <- 0
+    I2.values[I2.values>1] <- 1    
     ## I2.values <- apply(I2.values, c(1,2), function(x) max(x,0))
-    I2.values <- ifelse(I2.values<0, 0, I2.values)
-    I2.values <- ifelse(I2.values>1, 1, I2.values)        
+    ## I2.values <- ifelse(I2.values<0, 0, I2.values)
+    ## I2.values <- ifelse(I2.values>1, 1, I2.values) 
+  
     I2.names <- sub("I2q_2", "I2_2 (Typical v: Q statistic)", I2.names)
     I2.names <- sub("I2q_3", "I2_3 (Typical v: Q statistic)", I2.names)
     I2.names <- sub("I2hm_2", "I2_2 (Typical v: harmonic mean)", I2.names)
@@ -182,14 +191,21 @@
       I2.values <- matrix(NA, nrow=length(I2.names)*no.y, ncol=3)
       I2.values[,2] <- eval(parse(text = paste("mxEval(I2_values, object$mx.fit)", sep="")))
     } else {## LB CI  model.name <- "Meta analysis with ML."
-      dimnames(my.ci)[[1]] <- sapply(unlist(dimnames(my.ci)[1]), function(x)
-                                    {strsplit(x, ".", fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
-      I2.values <- my.ci[paste("I2_values[", 1:(length(I2.names)*no.y), ",1]", sep=""), ,drop=FALSE]
+        ## modified to remove NA in row names
+      name <- sapply(unlist(dimnames(my.ci)[1]), function(x)
+                           {strsplit(x, ".", fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
+      my.ci <- my.ci[!is.na(name), , drop=FALSE]
+      dimnames(my.ci)[[1]] <- name[!is.na(name)]
+      I2.values <- my.ci
+      #I2.values <- my.ci[paste("I2_values[", 1:(length(I2.names)*no.y), ",1]", sep=""), ,drop=FALSE]
     }    
     ## Truncate into 0
-    ## I2.values <- apply(I2.values, c(1,2), function(x) max(x,0))
-    I2.values <- ifelse(I2.values<0, 0, I2.values)
-    I2.values <- ifelse(I2.values>1, 1, I2.values) 
+    I2.values[I2.values<0] <- 0
+    I2.values[I2.values>1] <- 1
+
+    ## I2.values <- ifelse(I2.values<0, 0, I2.values)
+    ## I2.values <- ifelse(I2.values>1, 1, I2.values)
+    
     I2.names <- paste(": ", I2.names, sep="")
     I2.names <- paste("Intercept", c( outer(1:no.y, I2.names, paste, sep="")), sep="")
     I2.names <- sub("I2q", "I2 (Q statistic)", I2.names)
@@ -242,4 +258,27 @@
 
     ## Calculate the asymptotic sampling covariance matrix of the correlation matrix
     asyCov(x=my.cor, n=n, cor.analysis=cor.analysis)
+}
+
+.ellipse <- function (x, scale=c(1, 1), centre=c(0, 0), level=0.95,
+                      t=sqrt(qchisq(level, 2)), which=c(1, 2), npoints=100, ...) {
+    names <- c("x", "y")
+    if (is.matrix(x)) {
+        xind <- which[1]
+        yind <- which[2]
+        r <- x[xind, yind]
+        if (missing(scale)) {
+            scale <- sqrt(c(x[xind, xind], x[yind, yind]))
+        if (scale[1] > 0) r <- r/scale[1]
+        if (scale[2] > 0) r <- r/scale[2]
+        }
+    if (!is.null(dimnames(x)[[1]]))
+        names <- dimnames(x)[[1]][c(xind, yind)]
+    }
+    else r <- x
+    r <- min(max(r,-1),1)  # clamp to -1..1, in case of rounding errors
+    d <- acos(r)
+    a <- seq(0, 2 * pi, len = npoints)
+    matrix(c(t*scale[1] * cos(a + d/2) + centre[1], t * scale[2] *
+             cos(a - d/2)+centre[2]), npoints, 2, dimnames=list(NULL, names))
 }

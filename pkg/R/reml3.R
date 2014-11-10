@@ -1,7 +1,7 @@
 reml3 <- function(y, v, cluster, x, data, RE2.startvalue=0.1, RE2.lbound=1e-10,
                   RE3.startvalue=RE2.startvalue, RE3.lbound=RE2.lbound, RE.equal=FALSE,
                   intervals.type=c("z", "LB"), model.name="Variance component with REML",
-                  suppressWarnings = TRUE, ...) {
+                  suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
   mf <- match.call()
   if (missing(data)) {
     data <- sys.frame(sys.parent())
@@ -77,12 +77,12 @@ reml3 <- function(y, v, cluster, x, data, RE2.startvalue=0.1, RE2.lbound=1e-10,
   # Constrain equal variances
   if (RE.equal) {
     reml.model <- mxModel(model=model.name, X, Y, V, Tau_2, Tau_3, W, alpha, obj,
-                          mxAlgebraObjective("obj"), mxCI(c("Tau2")))
+                          mxFitFunctionAlgebra("obj"), mxCI(c("Tau2")))
     reml.model <- omxSetParameters(reml.model, labels=c("Tau2_2", "Tau2_3"), newlabels=c("Tau2", "Tau2"),
                                    values=c(RE2.startvalue, RE2.startvalue), lbound=c(RE2.lbound, RE2.lbound))
   } else {
     reml.model <- mxModel(model=model.name, X, Y, V, Tau_2, Tau_3, W, alpha, obj,
-                          mxAlgebraObjective("obj"), mxCI(c("Tau2_2","Tau2_3")))
+                          mxFitFunctionAlgebra(algebra="obj", numObs=no.studies, numStats=numStats), mxCI(c("Tau2_2","Tau2_3")))
   }
 
   ## ## Assuming NA first
@@ -137,26 +137,29 @@ reml3 <- function(y, v, cluster, x, data, RE2.startvalue=0.1, RE2.lbound=1e-10,
   ##   if (R2) reml0.fit <- tryCatch( reml3(y=y, v=v, cluster=cluster, data=my.long, model.name="No predictor",
   ##                                  suppressWarnings=TRUE, silent=TRUE), error = function(e) e )    
   ## }
+
+  ## Return mx model without running the analysis
+  if (run==FALSE) return(reml.model)
   
   intervals.type <- match.arg(intervals.type)
   # Default is z
   switch(intervals.type,
     z = mx.fit <- tryCatch( mxRun(reml.model, intervals=FALSE,
-                                    suppressWarnings = suppressWarnings, ...), error = function(e) e ),
+                                    suppressWarnings = suppressWarnings, silent=silent, ...), error = function(e) e ),
     LB = mx.fit <- tryCatch( mxRun(reml.model, intervals=TRUE,
-                                     suppressWarnings = suppressWarnings, ...), error = function(e) e ) )
+                                     suppressWarnings = suppressWarnings, silent=silent, ...), error = function(e) e ) )
  
   if (inherits(mx.fit, "error")) {
     cat("Error in running the mxModel:\n")
     warning(print(mx.fit))
   }
 
-  ## Ad-hoc: Add no. of studies and no. of observed statistics
-  mx.fit@runstate$objectives[[1]]@numObs <- no.studies
-  ## Ad-hoc: no. of observed statistics after removing the fixed-effects (p)
-  mx.fit@runstate$objectives[[1]]@numStats <- numStats
+  ## ## Ad-hoc: Add no. of studies and no. of observed statistics
+  ## mx.fit@runstate$objectives[[1]]@numObs <- no.studies
+  ## ## Ad-hoc: no. of observed statistics after removing the fixed-effects (p)
+  ## mx.fit@runstate$objectives[[1]]@numStats <- numStats
   
-  out <- list(call = mf, data=data, mx.fit=mx.fit, intervals.type=intervals.type)
+  out <- list(call = mf, data=data, mx.model=reml.model, mx.fit=mx.fit, intervals.type=intervals.type, numObs=no.studies, numStats=numStats)
   class(out) <- c("reml", "reml3")
   return(out)
 }

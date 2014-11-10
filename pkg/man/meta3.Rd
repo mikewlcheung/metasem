@@ -16,11 +16,12 @@ meta3(y, v, cluster, x, data, intercept.constraints = NULL,
       RE2.lbound = 1e-10, RE3.constraints = NULL, RE3.lbound = 1e-10,
       intervals.type = c("z", "LB"), I2="I2q",
       R2=TRUE, model.name = "Meta analysis with ML",
-      suppressWarnings = TRUE, ...)
+      suppressWarnings = TRUE, silent = TRUE, run = TRUE, ...)
 meta3X(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=NULL,
        coef.constraints=NULL, RE2.constraints=NULL, RE2.lbound=1e-10,
        RE3.constraints=NULL, RE3.lbound=1e-10, intervals.type=c("z", "LB"),
-       R2=TRUE, model.name="Meta analysis with ML", suppressWarnings=TRUE, ...) 
+       R2=TRUE, model.name="Meta analysis with ML",
+       suppressWarnings=TRUE, silent = TRUE, run = TRUE, ...) 
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -100,8 +101,11 @@ meta3X(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=NULL,
 }
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
 	suppressed. Argument to be passed to \code{\link[OpenMx]{mxRun}}.
-}
-  \item{\dots}{Futher arguments to be passed to \code{\link[OpenMx]{mxRun}}}
+  }
+  \item{silent}{Logical. Argument to be passed to \code{\link[OpenMx]{mxRun}}}
+  \item{run}{Logical. If \code{FALSE}, only return the mx model without running the analysis.}
+  \item{\dots}{Futher arguments to be passed to
+	\code{\link[OpenMx]{mxRun}}}  
 }
 \details{
   \deqn{y_{ij} = \beta_0 + \mathbf{\beta'}*\mathbf{x}_{ij} + u_{(2)ij} + u_{(3)j} + e_{ij}
@@ -127,7 +131,7 @@ meta3X(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=NULL,
 }
 
 \references{
-  Cheung, M. W.-L. (in press). Modeling dependent effect sizes with three-level meta-analyses: A structural equation modeling approach. \emph{Psychological Methods}.
+  Cheung, M. W.-L. (2014). Modeling dependent effect sizes with three-level meta-analyses: A structural equation modeling approach. \emph{Psychological Methods}, \bold{19}, 211-229.
 
   Enders, C. K. (2010). \emph{Applied missing data analysis}. New York:
   Guilford Press.

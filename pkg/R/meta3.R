@@ -3,7 +3,7 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints=NULL, coef.const
                   RE3.constraints=NULL, RE3.lbound=1e-10,
                   intervals.type=c("z", "LB"), I2="I2q", R2=TRUE,
                   model.name="Meta analysis with ML",
-                  suppressWarnings=TRUE, ...) {
+                  suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
   mf <- match.call()
   if (missing(data)) {
     data <- sys.frame(sys.parent())
@@ -185,31 +185,38 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints=NULL, coef.const
 
     ## I2 <- match.arg(I2, c("I2q", "I2hm", "I2am"), several.ok=TRUE)
     ci <- c(outer(I2, c("_2","_3"), paste, sep=""))
-    
+
+    ## Modified for OpenMx 2.0
     mx.model <- mxModel(model=model.name, mxData(observed=my.wide[,-1], type="raw"), oneRow, Id, Ones,
                         Inter, Beta, mydata, Tau, Tau2, Tau3, V, expMean, expCov,
                         qV, hmV, amV, I2q_2, I2q_3, I2hm_2, I2hm_3, I2am_2, I2am_3, ICC_2, ICC_3,
-                        mxFIMLObjective("expCov","expMean", dimnames=paste("y", 1:k, sep="_")),
+                        mxExpectationNormal("expCov","expMean", dimnames=paste("y", 1:k, sep="_")),
+                        mxFitFunctionML(),
                         mxCI(c("Inter","Beta","Tau", ci)))
   } else {
     ## no.x > 0
+    ## Modified for OpenMx 2.0  
     mx.model <- mxModel(model=model.name, mxData(observed=my.wide[,-1], type="raw"), oneRow, Id, Ones,
-                       Inter, Beta, mydata, Tau, Tau2, Tau3, V, expMean, expCov,
-                       mxFIMLObjective("expCov","expMean", dimnames=paste("y", 1:k, sep="_")),
+                       Inter, Beta, mydata, Tau, Tau2, Tau3, V, expMean, expCov,                        
+                       mxExpectationNormal("expCov","expMean", dimnames=paste("y", 1:k, sep="_")),
+                       mxFitFunctionML(),
                        mxCI(c("Inter","Beta","Tau")))
 
     ## Calculate R2
     if (R2) mx0.fit <- tryCatch( meta3(y=y, v=v, cluster=cluster, data=my.long, model.name="No predictor",
                                        suppressWarnings=TRUE, silent=TRUE), error = function(e) e )
    }
+
+  ## Return mx model without running the analysis
+  if (run==FALSE) return(mx.model)
   
   intervals.type <- match.arg(intervals.type)
   # Default is z
   switch(intervals.type,
-    z = mx.fit <- tryCatch( mxRun(mx.model, intervals=FALSE,
-                                  suppressWarnings = suppressWarnings, ...), error = function(e) e ),
-    LB = mx.fit <- tryCatch( mxRun(mx.model, intervals=TRUE,
-                                   suppressWarnings = suppressWarnings, ...), error = function(e) e ) )
+    z = mx.fit <- tryCatch( mxRun(mx.model, intervals=FALSE, suppressWarnings=suppressWarnings,
+                                  silent=silent, ...), error = function(e) e ),
+    LB = mx.fit <- tryCatch( mxRun(mx.model, intervals=TRUE, suppressWarnings=suppressWarnings,
+                                   silent=silent, ...), error = function(e) e ) )
  
   if (inherits(mx.fit, "error")) {
     cat("Error in running the mxModel:\n")

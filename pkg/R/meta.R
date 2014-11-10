@@ -2,7 +2,7 @@ meta <- function(y, v, x, data, intercept.constraints=NULL, coef.constraints=NUL
                  RE.constraints=NULL, RE.startvalues=0.1, RE.lbound=1e-10,
                  intervals.type=c("z", "LB"), I2="I2q", R2=TRUE,
                  model.name="Meta analysis with ML",
-                 suppressWarnings=TRUE, ...) {
+                 suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
   mf <- match.call()
   if (missing(data)) {
     data <- sys.frame(sys.parent())
@@ -80,7 +80,7 @@ meta <- function(y, v, x, data, intercept.constraints=NULL, coef.constraints=NUL
     X <- mxMatrix("Unit", nrow=1, ncol=1, name="X")
     ## No predictor
     Beta1 <- mxAlgebra(Inter, name="Beta1")
-    ## Not used
+    ## Not used; just make sure Beta is present in mxModel()
     Beta <- mxMatrix("Zero", nrow=1, ncol=1, name="Beta")
   } else {
     
@@ -160,7 +160,7 @@ meta <- function(y, v, x, data, intercept.constraints=NULL, coef.constraints=NUL
   V <- mxMatrix("Symm", ncol=no.y, nrow=no.y, free=FALSE,
                  labels=paste("data.", v.labels, sep=""), name="V")
   expCov <- mxAlgebra(V+Tau, name="expCov")
-
+                
   ## Assuming NA first
   mx0.fit <- NA
   if (no.x==0) {
@@ -193,16 +193,20 @@ meta <- function(y, v, x, data, intercept.constraints=NULL, coef.constraints=NUL
     One <- mxMatrix("Unit", nrow=length(I2), ncol=1, name="One")
     Tau_het <- mxAlgebra( One %x% diag2vec(Tau), name="Tau_het")    
     I2_values <- mxAlgebra( Tau_het/(Tau_het+V_het), name="I2_values")
-    
+
+    ## Modified for OpenMx 2.0
     mx.model <- mxModel(model=model.name, mxData(observed=my.df, type="raw"),
-                        mxFIMLObjective( covariance="expCov", means="expMean", dimnames=y.labels),
+                        mxExpectationNormal(covariance="expCov", means="expMean", dimnames=y.labels),
+                        mxFitFunctionML(),
                         Inter, Beta, Beta1, expMean, X, expCov, Tau, V, One, V_het, Tau_het, I2_values,
                         mxCI(c("Tau","Inter","I2_values")))
   } else {
     ## no.x > 0
-
+      
+    ## Modified for OpenMx 2.0
     mx.model <- mxModel(model=model.name, mxData(observed=my.df, type="raw"),
-                        mxFIMLObjective( covariance="expCov", means="expMean", dimnames=y.labels),
+                        mxExpectationNormal(covariance="expCov", means="expMean", dimnames=y.labels),
+                        mxFitFunctionML(),
                         Inter, Beta, Beta1, expMean, X, expCov, Tau, V, mxCI(c("Tau","Inter","Beta")))
 
     ## Calculate R2
@@ -215,13 +219,16 @@ meta <- function(y, v, x, data, intercept.constraints=NULL, coef.constraints=NUL
   ##                 mxFIMLObjective( covariance="S", means="M", dimnames=y.labels),
   ##                 Beta1, M, X, S, Tau, V, mxCI(c("Tau","Beta1")))
 
+  ## Return mx model without running the analysis
+  if (run==FALSE) return(mx.model)
+  
   intervals.type <- match.arg(intervals.type)
   # Default is z
   switch(intervals.type,
-    z = mx.fit <- tryCatch( mxRun(mx.model, intervals=FALSE,
-                                  suppressWarnings = suppressWarnings, ...), error = function(e) e ),
-    LB = mx.fit <- tryCatch( mxRun(mx.model, intervals=TRUE,
-                                   suppressWarnings = suppressWarnings, ...), error = function(e) e ) )
+    z = mx.fit <- tryCatch( mxRun(mx.model, intervals=FALSE, suppressWarnings=suppressWarnings,
+                                  silent=silent, ...), error = function(e) e ),
+    LB = mx.fit <- tryCatch( mxRun(mx.model, intervals=TRUE, suppressWarnings=suppressWarnings,
+                                   silent=silent, ...), error = function(e) e ) )
  
   if (inherits(mx.fit, "error")) {
     cat("Error in running mxModel:\n")

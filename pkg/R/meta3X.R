@@ -1,7 +1,7 @@
 meta3X <- function(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=NULL,
                    coef.constraints=NULL, RE2.constraints=NULL, RE2.lbound=1e-10,
                    RE3.constraints=NULL, RE3.lbound=1e-10, intervals.type=c("z", "LB"), R2=TRUE,
-                   model.name="Meta analysis with ML", suppressWarnings=TRUE, ...) {
+                   model.name="Meta analysis with ML", suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
   mf <- match.call()
   if (missing(data)) {
     data <- sys.frame(sys.parent())
@@ -425,7 +425,8 @@ meta3X <- function(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=
                       ZeroB1, ZeroB2, TauB, covW, covB,
                       expCW, expCB, Idenkk, TauT1, TauT2, Smatrix, V,
                       Amatrix, Smatrix, Imatrix, Fmatrix,                      
-                      mxRAMObjective(A="Amatrix", S="Smatrix", F="Fmatrix", M="Imatrix", dimnames=all.labels),
+                      mxExpectationRAM(A="Amatrix", S="Smatrix", F="Fmatrix", M="Imatrix", dimnames=all.labels),
+                      mxFitFunctionML(),
                       mxCI(c("Inter","Beta","Tau")))
 
   ## V <- mxMatrix(type="Diag", nrow=no.all, ncol=no.all, free=FALSE, values=0,
@@ -469,25 +470,28 @@ meta3X <- function(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=
   } else {
     mx0.fit <- NA
   }
+
+  ## Return mx model without running the analysis
+  if (run==FALSE) return(mx.model)
   
   intervals.type <- match.arg(intervals.type)
   # Default is z
   switch(intervals.type,
-    z = mx.fit <- tryCatch( mxRun(mx.model, intervals=FALSE,
-                                    suppressWarnings = suppressWarnings, ...), error = function(e) e ),
-    LB = mx.fit <- tryCatch( mxRun(mx.model, intervals=TRUE,
-                                     suppressWarnings = suppressWarnings, ...), error = function(e) e ) )
+    z = mx.fit <- tryCatch( mxRun(mx.model, intervals=FALSE, suppressWarnings=suppressWarnings,
+                                  silent=silent, ...), error = function(e) e ),
+    LB = mx.fit <- tryCatch( mxRun(mx.model, intervals=TRUE, suppressWarnings=suppressWarnings,
+                                   silent=silent, ...), error = function(e) e ) )
  
   if (inherits(mx.fit, "error")) {
     cat("Error in running the mxModel:\n")
-    stop(print(mx.fit))
+    warning(print(mx.fit))
   }
 
   ## ## my.long is complete data
   ## ## FIXME: remove miss.x (is it used by meta()?)
   out <- list(call=mf, R2=R2, data.wide=my.wide, data=my.long,
               no.y=1, no.x2=no.x2, no.x3=no.x3, no.av2=no.av2, no.av3=no.av3,
-              miss.x=rep(FALSE, nrow(my.long)), 
+              miss.x=rep(FALSE, nrow(my.long)), mx.model=mx.model,
               mx.fit=mx.fit, mx0.fit=mx0.fit, intervals.type=intervals.type)
   class(out) <- "meta3X"
   out
