@@ -34,14 +34,14 @@ tssem2(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
 }
   \item{Amatrix}{An asymmetric matrix in the RAM approach with
 	\code{\link[OpenMx]{MxMatrix-class}}. If it is \code{NULL}, a matrix
-	of zero will be created.
+	of zero will be created. If it is a matrix, it will be converted into \code{\link[OpenMx]{MxMatrix-class}} by the \code{as.mxMatrix} function.
 }
-  \item{Smatrix}{A symmetric matrix in the RAM approach with \code{\link[OpenMx]{MxMatrix-class}}.
+  \item{Smatrix}{A symmetric matrix in the RAM approach with \code{\link[OpenMx]{MxMatrix-class}}. If it is a matrix, it will be converted into \code{\link[OpenMx]{MxMatrix-class}} by the \code{as.mxMatrix} function.
 }
   \item{Fmatrix}{A filter matrix in the RAM approach with
 	\code{\link[OpenMx]{MxMatrix-class}}. If it is \code{NULL} (the default), an
 	identity matrix with the same dimensions of \code{Cov} will be
-	created. It is not required when there is no latent variable.
+	created. If it is a matrix, it will be converted into \code{\link[OpenMx]{MxMatrix-class}} by the \code{as.mxMatrix} function. It is not required when there is no latent variable.
   }
   \item{diag.constraints}{Logical. This argument is ignored when
 	\code{cor.analysis=FALSE}. If
@@ -152,10 +152,10 @@ acovR1 <- asyCov(R1, n)
 (A1 <- cbind(matrix(0, nrow=5, ncol=4),
              matrix(c("0.2*a1","0.2*a2","0.2*a3","0.2*a4",0),
              ncol=1)))
-A1 <- as.mxMatrix(A1)
+# A1 <- as.mxMatrix(A1)
 
 (S1 <- Diag(c("0.2*e1","0.2*e2","0.2*e3","0.2*e4",1)))
-S1 <- as.mxMatrix(S1)
+# S1 <- as.mxMatrix(S1)
 
 ## The first 4 variables are observed while the last one is latent.
 (F1 <- create.Fmatrix(c(1,1,1,1,0), name="F1"))
@@ -204,13 +204,13 @@ acovS3 <- asyCov(R3, n, cor.analysis=FALSE)
 
 (A3 <- cbind(matrix(0, nrow=5, ncol=4),
              matrix(c("0.2*a1","0.2*a2","0.2*a3","0.2*a4",0),ncol=1)))
-A3 <- as.mxMatrix(A3)
+# A3 <- as.mxMatrix(A3)
 
 (S3 <- Diag(c("0.2*e1","0.2*e2","0.2*e3","0.2*e4",1)))
-S3 <- as.mxMatrix(S3)
+# S3 <- as.mxMatrix(S3)
 
 F3 <- c(TRUE,TRUE,TRUE,TRUE,FALSE)
-(F3 <- create.Fmatrix(F3, name="F3"))
+(F3 <- create.Fmatrix(F3, name="F3", as.mxMatrix=FALSE))
 
 wls.fit3 <- wls(Cov=R3, asyCov=acovS3, n=n, Amatrix=A3, Smatrix=S3,
                 Fmatrix=F3, cor.analysis=FALSE)

@@ -22,6 +22,10 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
     
     no.groups <- length(my.df)
     no.var <- ncol(my.df[[1]])
+
+    ## Get the original variable names
+    original.names <- colnames(my.df[[1]])
+    
     var.names <- paste("x", 1:no.var, sep = "")
     ## Convert variable labels to x1, x2, ...
     my.df <- lapply(my.df, function(x) {dimnames(x) <- list(var.names, var.names); x})
@@ -171,7 +175,8 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
     out <- list(call = match.call(), cor.analysis=cor.analysis, data=my.df, pooledS = pooledS,
                 acovS = acovS, n = n, 
                 modelMinus2LL = mx.fit@output$Minus2LogLikelihood,
-                baseMinus2LL = baseMinus2LL, mx.model=tssem1, mx.fit = mx.fit)
+                baseMinus2LL = baseMinus2LL, mx.model=tssem1, mx.fit = mx.fit,
+                original.names=original.names)
     class(out) <- "tssem1FEM"
     return(out)
   }
@@ -182,7 +187,10 @@ tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Ze
   ## It handles missing effect sizes rather than missing correlations. Thus, it is more flexible than tssem1FEM().
   ## ACOV is calculated without missing data by assuming 1 and 0 for the missing variances and covariances.
   ## Missing values are indicated by the missing effect sizes.
-  
+
+  ## Get the original variable names
+  original.names <- colnames(my.df[[1]])
+    
   ## Replace diagonals with 1.0
   my.complete <- lapply(my.df, function (x) { Diag(x)[is.na(Diag(x))] <- 1; x })
   ## Replace missing variables with 0.0
@@ -238,7 +246,7 @@ tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Ze
   ##   mx.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2, RE.startvalues=RE.startvalues, RE.lbound=RE.lbound)
   ## }
 
-  out <- list(total.n=sum(n), cor.analysis=cor.analysis, RE.type=RE.type, no.es=no.es)
+  out <- list(total.n=sum(n), cor.analysis=cor.analysis, RE.type=RE.type, no.es=no.es, original.names=original.names)
   out <- c(out, mx.fit)
   class(out) <- c("tssem1REM", "meta")
   return(out)
@@ -333,6 +341,7 @@ wls <- function(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.c
   if (is.null(Smatrix)) {
     stop("\"Smatrix\" matrix is not specified.\n")
   } else {
+    if (is.matrix(Smatrix)) Smatrix <- as.mxMatrix(Smatrix)
     p <- nrow(Smatrix@values)
     Smatrix@name <- "Smatrix"  
   }
@@ -340,12 +349,14 @@ wls <- function(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.c
   if (is.null(Amatrix)) {
     Amatrix <- as.mxMatrix(matrix(0, nrow=p, ncol=p), name="Amatrix")
   } else {
+    if (is.matrix(Amatrix)) Amatrix <- as.mxMatrix(Amatrix)  
     Amatrix@name <- "Amatrix"
   }
 
   if (is.null(Fmatrix)) {
     Fmatrix <- as.mxMatrix(Diag(rep(p,1)), name="Fmatrix")
   } else {
+    if (is.matrix(Fmatrix)) Fmatrix <- as.mxMatrix(Fmatrix)  
     Fmatrix@name <- "Fmatrix"
   }
 
@@ -496,16 +507,19 @@ tssem2 <- function(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.co
                       # to handle symbolic F(T) vs. logical FALSE(TRUE)
                       ## cor.analysis <- as.logical(as.character(cor.analysis))
                       }
-                      out <- wls(Cov=tssem1.obj$pooledS, asyCov=tssem1.obj$acovS, n=sum(tssem1.obj$n),
+                      ## Use the original varible names for the observed covariance matrix 
+                      pooledS <- tssem1.obj$pooledS
+                      dimnames(pooledS) <- list(tssem1.obj$original.names, tssem1.obj$original.names)
+                      out <- wls(Cov=pooledS, asyCov=tssem1.obj$acovS, n=sum(tssem1.obj$n),
                                  Amatrix=Amatrix, Smatrix=Smatrix, Fmatrix=Fmatrix,
                                  diag.constraints=diag.constraints, cor.analysis=cor.analysis,
                                  intervals.type=intervals.type, mx.algebras=mx.algebras,
                                  model.name=model.name, suppressWarnings=suppressWarnings,
                                  silent=silent, run=run, ...) },
          tssem1REM = { cor.analysis <- tssem1.obj$cor.analysis
-                     ## Extract the pooled correlation matrix
+                      ## Extract the pooled correlation matrix
                       pooledS <- vec2symMat( coef(tssem1.obj, select="fixed"), diag=!cor.analysis)
-                     ## Extract the asymptotic covariance matrix of the pooled correlations
+                      ## Extract the asymptotic covariance matrix of the pooled correlations
                       asyCov <- vcov(tssem1.obj, select="fixed")
                       
                       if (cor.analysis==TRUE) {
@@ -513,6 +527,8 @@ tssem2 <- function(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.co
                       } else {
                         if (is.null(model.name)) model.name <- "TSSEM2 (Random Effects Model) Analysis of Covariance Structure"
                       }
+                      ## Use the original varible names for the observed covariance matrix
+                      dimnames(pooledS) <- list(tssem1.obj$original.names, tssem1.obj$original.names)                       
                       out <- wls(Cov=pooledS, asyCov=asyCov, n=tssem1.obj$total.n,
                                  Amatrix=Amatrix, Smatrix=Smatrix, Fmatrix=Fmatrix, diag.constraints=diag.constraints,
                                  cor.analysis=cor.analysis, intervals.type=intervals.type, mx.algebras=mx.algebras,

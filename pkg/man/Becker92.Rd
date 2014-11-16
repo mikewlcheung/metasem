@@ -33,25 +33,30 @@ fixed1 <- tssem1(Becker92$data[1:4], Becker92$n[1:4], method="FEM")
 summary(fixed1)
 
 ## Prepare a regression model using create.mxMatrix()
-A1 <- create.mxMatrix(c(0,0,0,"0.2*Spa2Apt",
-                        0,0,"0.2*Ver2Apt",0,0), type="Full", ncol=3, nrow=3, name="A1")
-S1 <- create.mxMatrix(c("0.2*ErrorVarApt",0,0,1,"0.2*CorBetSpaVer",1),
-                        type="Symm", name="S1")
+A1 <- create.mxMatrix(c(0,0,0,"0.2*Spatial2Math",
+                        0,0,"0.2*Verbal2Math",0,0), type="Full",
+                        ncol=3, nrow=3, as.mxMatrix=FALSE)
 
-## An alternative method to create a regression model using mxMatrix()
-# A1 <- mxMatrix("Full", ncol=3, nrow=3, value=0, free=c(FALSE,FALSE,FALSE,TRUE,FALSE,
-#                                                        FALSE,TRUE,FALSE,FALSE),
-#                label=c(NA,NA,NA,"Spa2Apt",NA,NA,"Ver2Apt",NA,NA),
-#                name="A1")
-# S1 <- mxMatrix("Symm", ncol=3, nrow=3, value=c(0.5,0,0,1,0.2,1),
-#                free=c(TRUE,FALSE,FALSE,FALSE,TRUE,FALSE),
-#                label=c("ErrorVarApt",NA,NA,NA,"CorBetSpaVer",NA), name="S1")
+## This step is not necessary but it is useful for inspecting the model.
+dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- c("Math","Spatial","Verbal") 
+
+## Display A1
+A1
+
+S1 <- create.mxMatrix(c("0.2*ErrorVarMath",0,0,1,"0.2*CorSpatialVerbal",1),
+                        type="Symm", as.mxMatrix=FALSE)
+
+## This step is not necessary but it is useful for inspecting the model.
+dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c("Math","Spatial","Verbal") 
+
+## Display S1
+S1
 
 ## Fixed-effects model: Second stage analysis
 ## Two equivalent versions to calculate the R2 and its 95\% LBCI
 fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, intervals.type="LB",
-       mx.algebras=list(R1=mxAlgebra(Spa2Apt^2+Ver2Apt^2+2*CorBetSpaVer*Spa2Apt*Ver2Apt,
-                        name="R1"),
+       mx.algebras=list(R1=mxAlgebra(Spatial2Math^2+Verbal2Math^2
+                        +2*CorSpatialVerbal*Spatial2Math*Verbal2Math, name="R1"),
                         R2=mxAlgebra(One-Ematrix[1,1], name="R2"),
                         One=mxMatrix("Iden", ncol=1, nrow=1, name="One")))
 summary(fixed2)
@@ -78,5 +83,17 @@ summary(gls1)
 gls2 <- tssem2(gls1, Amatrix=A1, Smatrix=S1, intervals.type="z",
                model.name="Fixed effects GLS Stage 2")
 summary(gls2)
+
+## Load the library
+library("semPlot")
+
+## Convert the model to semPlotModel object
+my.plot <- meta2semPlot(gls2)
+
+## Plot the model with labels
+semPaths(my.plot, whatLabels="path", nCharEdges=10, nCharNodes=10, color="red")
+
+## Plot the parameter estimates
+semPaths(my.plot, whatLabels="est", nCharNodes=10, color="green")
 }
 \keyword{datasets}

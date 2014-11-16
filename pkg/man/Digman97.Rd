@@ -35,10 +35,10 @@ Phi <- matrix(c(1,"0.3*cor","0.3*cor",1), ncol=2, nrow=2)
 S1 <- bdiagMat(list(Diag(c("0.2*e1","0.2*e2","0.2*e3","0.2*e4","0.2*e5")), Phi))
 
 ## This step is not necessary but it is useful for inspecting the model.
-## dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c("A","C","ES","E","I","Alpha","Beta") 
-## S1
+dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c("A","C","ES","E","I","Alpha","Beta") 
 
-S1 <- as.mxMatrix(S1)
+## Display S1
+S1
 
 ## A matrix
 Lambda <-
@@ -48,13 +48,16 @@ A1 <- rbind( cbind(matrix(0,ncol=5,nrow=5), Lambda),
              matrix(0, ncol=7, nrow=2) )
 
 ## This step is not necessary but it is useful for inspecting the model.
-## dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- c("A","C","ES","E","I","Alpha","Beta") 
-## A1
+dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- c("A","C","ES","E","I","Alpha","Beta") 
 
-A1 <- as.mxMatrix(A1)
+## Display A1
+A1
 
 ## F matrix to select the observed variables
-F1 <- create.Fmatrix(c(1,1,1,1,1,0,0), name="F1")
+F1 <- create.Fmatrix(c(1,1,1,1,1,0,0), as.mxMatrix=FALSE)
+
+## Display F1
+F1
 
 fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, Fmatrix=F1,
                  model.name="TSSEM2 Digman97")
@@ -64,20 +67,31 @@ summary(fixed2)
 #### Create a variable for different samples
 #### Younger participants: Children and Adolescents
 #### Older participants: others
-sample <- ifelse(Digman97$cluster \%in\% c("Children","Adolescents"),
-                 yes="Younger participants", no="Older participants")
+cluster <- ifelse(Digman97$cluster \%in\% c("Children","Adolescents"),
+                  yes="Younger participants", no="Older participants")
 
-#### Show the sample
-sample
+#### Show the cluster
+cluster
 
 ## Example of Fixed-effects TSSEM with several clusters
 fixed1.cluster <- tssem1(Digman97$data, Digman97$n, method="FEM", 
-                         cluster=sample)
+                         cluster=cluster)
 summary(fixed1.cluster)
 
 fixed2.cluster <- tssem2(fixed1.cluster, Amatrix=A1, Smatrix=S1, Fmatrix=F1)
 #### Please note that the estimates for the younger participants are problematic.
 summary(fixed2.cluster)
+
+## Load the library
+library("semPlot")
+
+## Convert the model to semPlotModel object with 2 plots
+my.plots <- lapply(X=fixed2.cluster, FUN=meta2semPlot, latNames=c("Alpha","Beta"))
+
+## Setup two plots
+layout(t(1:2))
+semPaths(my.plots[[1]], whatLabels="est", nCharNodes=10, color="green")
+semPaths(my.plots[[2]], whatLabels="est", nCharNodes=10, color="green")
 
 #### Random-effects TSSEM with random effects on the diagonals
 random1 <- tssem1(Digman97$data, Digman97$n, method="REM",
@@ -86,5 +100,14 @@ summary(random1)
 
 random2 <- tssem2(random1, Amatrix=A1, Smatrix=S1, Fmatrix=F1)
 summary(random2)
+
+## Convert the model to semPlotModel object
+my.plot <- meta2semPlot(random2, latNames=c("Alpha","Beta"))
+
+## Plot the model with labels
+semPaths(my.plot, whatLabels="path", nCharEdges=10, nCharNodes=10, color="red")
+
+## Plot the parameter estimates
+semPaths(my.plot, whatLabels="est", nCharNodes=10, color="green")
 }
 \keyword{datasets}

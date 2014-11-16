@@ -34,8 +34,16 @@ summary(fixed1)
 ## Model without direct effect from Ability to Supervisor
 A1 <- create.mxMatrix(c(0,"0.1*A2J","0.1*A2W",0,0,0,"0.1*J2W","0.1*J2S",
                         0,0,0,"0.1*W2S",0,0,0,0),
-                        type="Full", ncol=4, nrow=4)
-S1 <- create.mxMatrix(c(1,"0.1*Var_e_J", "0.1*Var_e_W", "0.1*Var_e_S"), type="Diag")
+                        type="Full", ncol=4, nrow=4, as.mxMatrix=FALSE)
+
+## This step is not necessary but it is useful for inspecting the model.
+dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- c("Ability","Job","Work","Supervisor") 
+A1
+
+S1 <- create.mxMatrix(c(1,"0.1*Var_e_J", "0.1*Var_e_W", "0.1*Var_e_S"),
+                      type="Diag", as.mxMatrix=FALSE)
+dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c("Ability","Job","Work","Supervisor") 
+S1
 
 ## diag.constraints=TRUE is required as there are mediators  
 fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, intervals.type="LB",
@@ -67,5 +75,17 @@ random2 <- tssem2(random1, Amatrix=A1, Smatrix=S1, intervals.type="LB",
                   list( ind=mxAlgebra(A2J*J2S+A2J*J2W*W2S+A2W*W2S, name="ind") ),
                   model.name="TSSEM2 random effects model")
 summary(random2)
+
+## Load the library
+library("semPlot")
+
+## Convert the model to semPlotModel object
+my.plot <- meta2semPlot(random2)
+
+## Plot the model with labels
+semPaths(my.plot, whatLabels="path", nCharEdges=10, nCharNodes=10, color="red")
+
+## Plot the parameter estimates
+semPaths(my.plot, whatLabels="est", nCharNodes=10, color="green")
 }
 \keyword{datasets}

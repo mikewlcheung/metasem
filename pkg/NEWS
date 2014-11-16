@@ -1,5 +1,7 @@
-Release 0.9-0 (Nov 10, 2014)
+Release 0.9-0 (Nov 16, 2014)
 ====================================
+* Added semPlot package in Suggests and meta2semPlot() to convert wls objects to semPlotModel objects
+* Fixed a bug in tssem1REM() that may throw away correlation coefficients when there are missing correlations (not missing variables)
 * Added byrow argument in vec2symMat()
 * Added datasets Aloe14 and Becker09
 * Removed ellipse package in the dependence
