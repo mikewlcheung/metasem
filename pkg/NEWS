@@ -1,3 +1,9 @@
+Release 0.9-1 (Dec 22, 2014)
+====================================
+* Added citation in "Frontiers in Psychology"
+* Released after the official release of OpenMx 2.0
+* Removed dataset Craft03 which is duplicated of Becker09
+
 Release 0.9-0 (Nov 16, 2014)
 ====================================
 * Added semPlot package in Suggests and meta2semPlot() to convert wls objects to semPlotModel objects

@@ -18,12 +18,12 @@
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{object}{An object or a list of objects of either class
-	\code{\link[metaSEM]{wls}}, class \code{\link[metaSEM]{meta}}, class \code{\link[metaSEM]{meta3X}} or
+	\code{\link[metaSEM]{wls}}, class \code{\link[metaSEM]{meta}}, class \code{\link[metaSEM]{meta3}} or
 	class \code{\link[metaSEM]{reml}}. It will be passed to the
 	\code{base} argument in \code{\link[OpenMx]{mxCompare}}.
   }
   \item{\dots}{An object or a list of objects of either class
-	\code{\link[metaSEM]{wls}}, class \code{\link[metaSEM]{meta}}, class \code{\link[metaSEM]{meta3X}} or
+	\code{\link[metaSEM]{wls}}, class \code{\link[metaSEM]{meta}}, class \code{\link[metaSEM]{meta3}} or
 	class \code{\link[metaSEM]{reml}}. It will be passed to the
 	\code{comparison} argument in \code{\link[OpenMx]{mxCompare}}.
   }  

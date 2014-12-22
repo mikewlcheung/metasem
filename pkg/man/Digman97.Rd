@@ -30,9 +30,14 @@ Digman97
 fixed1 <- tssem1(Digman97$data, Digman97$n, method="FEM")
 summary(fixed1)
 
-## S matrix
+## Factor covariance among latent factors
 Phi <- matrix(c(1,"0.3*cor","0.3*cor",1), ncol=2, nrow=2)
-S1 <- bdiagMat(list(Diag(c("0.2*e1","0.2*e2","0.2*e3","0.2*e4","0.2*e5")), Phi))
+
+## Error covariance matrix
+Psi <- Diag(c("0.2*e1","0.2*e2","0.2*e3","0.2*e4","0.2*e5"))
+
+## S matrix
+S1 <- bdiagMat(list(Psi, Phi))
 
 ## This step is not necessary but it is useful for inspecting the model.
 dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c("A","C","ES","E","I","Alpha","Beta") 

@@ -14,8 +14,8 @@
 \tabular{ll}{
 Package: \tab metaSEM\cr
 Type: \tab Package\cr
-Version: \tab 0.9-0\cr
-Date: \tab 2014-11-10\cr
+Version: \tab 0.9-1\cr
+Date: \tab 2014-12-22\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }
@@ -38,6 +38,8 @@ Cheung, M. W.-L. (2013). Multivariate meta-analysis as structural equation model
 Cheung, M. W.-L. (2014). Modeling dependent effect sizes with three-level meta-analyses: A structural equation modeling approach. \emph{Psychological Methods}, \bold{19}, 211-229.
 
 Cheung, M. W.-L. (2014). Fixed- and random-effects meta-analytic structural equation modeling: Examples and analyses in R. \emph{Behavior Research Methods}, \bold{46}, 29-40. 
+
+Cheung, M. W.-L. (2014). metaSEM: An R package for meta-analysis using structural equation modeling. \emph{Frontiers in Psychology}, \bold{5}, 1521.
 
 Cheung, M. W.-L. (2015). \emph{Meta-Analysis: A Structural Equation Modeling Approach}. Wiley.
 

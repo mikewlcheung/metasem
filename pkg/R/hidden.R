@@ -3,9 +3,17 @@
 ## http://tolstoy.newcastle.edu.au/R/e10/help/10/04/2866.html
 # a <- array(unlist(X), c(9,9,11))
 # apply(a, c(1,2),mean, na.rm=TRUE)
-.startValues <- function(x, cor.analysis = TRUE) {
+.startValues <- function(x, cor.analysis=TRUE, n=NULL) {
   no.var <- max(sapply(x, ncol))
-  my.start <- matrix(rowMeans(sapply(x, as.vector), na.rm = TRUE), nrow = no.var)
+  my.data <- sapply(x, as.vector)
+  if (is.null(n)) {
+      ## Unweighted mean
+      my.start <- apply(my.data, 1, weighted.mean, na.rm=TRUE)
+  } else {
+      ## Weigted mean by sample sizes
+      my.start <- apply(my.data, 1, weighted.mean, w=n, na.rm=TRUE)
+  }
+  my.start <- matrix(my.start, nrow = no.var)
   out <- as.matrix(nearPD(my.start, corr = cor.analysis)$mat)
   dimnames(out) <- dimnames(x[[1]])
   out

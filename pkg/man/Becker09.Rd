@@ -3,9 +3,9 @@
 \docType{data}
 \title{Ten Studies of Correlation Matrices used by Becker (2009) 
 }
-\description{
-This data set includes ten studies of correlation matrices used by
-Becker (2009).
+\description{This data set includes ten studies on the relationships between CSAI
+  subscales and sport behavior. The original data were used in Craft et
+  al. (2003), whereas a subset of them were illustrated in Becker (2009).
 }
 \usage{data("Becker09")}
 
@@ -89,6 +89,21 @@ cluster2 <- tssem2(cluster1, Amatrix=A1, Smatrix=S1, diag.constraints=TRUE,
                                    name="Cog_SO")) )
 summary(cluster2)
 
+## Convert the model to semPlotModel object with 2 plots
+## Use the short forms of the variable names
+my.plots <- lapply(X=cluster2, FUN=meta2semPlot, manNames=c("Per","Cog","SO","SC") )
+
+## Setup two plots
+layout(t(1:2))
+## The labels are overlapped. We may modify it by using layout="spring"
+semPaths(my.plots[[1]], whatLabels="est", nCharNodes=10, color="orange",
+         layout="spring", edge.label.cex=0.8)
+title("Individual sport")
+semPaths(my.plots[[2]], whatLabels="est", nCharNodes=10, color="skyblue",
+         layout="spring", edge.label.cex=0.8)
+title("Team sport")
+
+
 #### Random-effects model
 ## First stage analysis
 random1 <- tssem1(Becker09$data, Becker09$n, method="REM", RE.type="Diag")
@@ -107,7 +122,7 @@ summary(random2)
 library("semPlot")
 
 ## Convert the model to semPlotModel object
-my.plot <- meta2semPlot(random2)
+my.plot <- meta2semPlot(random2, manNames=c("Per","Cog","SO","SC"))
 
 ## Plot the model with labels
 ## The labels are overlapped.

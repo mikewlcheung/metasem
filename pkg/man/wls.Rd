@@ -152,10 +152,8 @@ acovR1 <- asyCov(R1, n)
 (A1 <- cbind(matrix(0, nrow=5, ncol=4),
              matrix(c("0.2*a1","0.2*a2","0.2*a3","0.2*a4",0),
              ncol=1)))
-# A1 <- as.mxMatrix(A1)
 
 (S1 <- Diag(c("0.2*e1","0.2*e2","0.2*e3","0.2*e4",1)))
-# S1 <- as.mxMatrix(S1)
 
 ## The first 4 variables are observed while the last one is latent.
 (F1 <- create.Fmatrix(c(1,1,1,1,0), name="F1"))
@@ -204,10 +202,8 @@ acovS3 <- asyCov(R3, n, cor.analysis=FALSE)
 
 (A3 <- cbind(matrix(0, nrow=5, ncol=4),
              matrix(c("0.2*a1","0.2*a2","0.2*a3","0.2*a4",0),ncol=1)))
-# A3 <- as.mxMatrix(A3)
 
 (S3 <- Diag(c("0.2*e1","0.2*e2","0.2*e3","0.2*e4",1)))
-# S3 <- as.mxMatrix(S3)
 
 F3 <- c(TRUE,TRUE,TRUE,TRUE,FALSE)
 (F3 <- create.Fmatrix(F3, name="F3", as.mxMatrix=FALSE))
