@@ -32,8 +32,8 @@ meta2semPlot <- function(object, manNames=NULL, latNames=NULL, labels=c("labels"
          if (no.latent > 0) latNames <- paste("L", seq(1,no.latent), sep="")
        }
     
-       out <- ramModel(A=A, S=S, F=F, manNames=manNames, latNames=latNames, ObsCovs=ObsCovs, 
-                       ImpCovs=ImpCovs, ...)
+       out <- semPlot::ramModel(A=A, S=S, F=F, manNames=manNames, latNames=latNames, ObsCovs=ObsCovs, 
+                                ImpCovs=ImpCovs, ...)
     
        labels <- match.arg(labels)    
        if (labels=="labels") {

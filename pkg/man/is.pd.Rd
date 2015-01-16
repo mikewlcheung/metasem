@@ -10,10 +10,14 @@
   the missing variables.
 }
 \usage{
-is.pd(x, tol = 1e-06)
+is.pd(x, check.asyCov=FALSE, cor.analysis=TRUE, tol=1e-06)
 }
 \arguments{
   \item{x}{A square matrix or a list of square matrices}
+  \item{check.asyCov}{If it is \code{TRUE}, it mirrors the checking in
+	\code{\link[metaSEM]{asyCov}}.}
+  \item{cor.analysis}{Whether the input matrix is a correlation or a
+	covariance matrix. It is ignored when \code{check.asyCov=FALSE}.}
   \item{tol}{Relative tolerance of positiveness of smallest eigenvalue compared
 	to largest eigenvalue. The matrix is considered positive definite if the
 	ratio of the smallest eigenvalue to the largest eigenvalue is larger than

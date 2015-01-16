@@ -190,10 +190,15 @@ tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Ze
 
   ## Get the original variable names
   original.names <- colnames(my.df[[1]])
-    
-  ## Replace diagonals with 1.0
-  my.complete <- lapply(my.df, function (x) { Diag(x)[is.na(Diag(x))] <- 1; x })
-  ## Replace missing variables with 0.0
+
+  if (cor.analysis) {
+      ## Replace diagonals with 1.0
+      my.complete <- lapply(my.df, function (x) { Diag(x)[is.na(Diag(x))] <- 1; x })
+  } else {
+      ## Replace diagonals with the mean of diagonals
+      my.complete <- lapply(my.df, function (x) { Diag(x)[is.na(Diag(x))] <- mean(Diag(x), na.rm=TRUE); x })
+  }      
+  ## Replace missing variables with 0.0 regardless of cor.analysis
   my.complete <- lapply(my.complete, function (x) { x[is.na(x)] <- 0; x })
   
   ## Calculate the asymptotic sampling covariance matrix of the correlation matrix
