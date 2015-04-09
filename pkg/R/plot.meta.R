@@ -18,7 +18,7 @@ plot.meta <- function(x, effect.sizes, add.margin=0.1, interval=0.95,
 
   if (!is.element("meta", class(x)))
     stop("\"x\" must be a class of \"meta\".")
-  
+
   no.y <- x$no.y
   if (no.y==1) stop("There must be at least TWO effect sizes.\n")
   if (x$no.x!=0) warning("There are predictors in the model.\nThe plot is based on the intercepts.\n")
@@ -39,6 +39,9 @@ plot.meta <- function(x, effect.sizes, add.margin=0.1, interval=0.95,
       mat[upper.tri(mat)] <- 0
       Diag(mat) <- seq(no.y*(no.y-1)/2+1, no.y*(no.y+1)/2) 
     }
+
+    ## Save the default par
+    par.defaults <- par(no.readonly = TRUE) 
     layout(mat, respect=TRUE)
     
     n.plots <- 1
@@ -66,6 +69,9 @@ plot.meta <- function(x, effect.sizes, add.margin=0.1, interval=0.95,
                   diag.panel=FALSE, xlim=xlim, ylim=ylim, ...)
         n.plots <- n.plots+1
       }
+    ## Reset the default par
+    par(par.defaults)
+    
   ## End of procedure for length(effect.sizes)>2   
   } else {
     ## Only two effect sizes
@@ -175,4 +181,5 @@ plot.meta <- function(x, effect.sizes, add.margin=0.1, interval=0.95,
       }
     }
   }
+
 }
