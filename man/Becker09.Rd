@@ -93,6 +93,9 @@ summary(cluster2)
 ## Use the short forms of the variable names
 my.plots <- lapply(X=cluster2, FUN=meta2semPlot, manNames=c("Per","Cog","SO","SC") )
 
+## Load the library
+library("semPlot")
+
 ## Setup two plots
 layout(t(1:2))
 ## The labels are overlapped. We may modify it by using layout="spring"

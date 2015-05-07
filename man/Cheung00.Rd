@@ -64,6 +64,9 @@ summary(random_1)
 random_2 <- tssem2(random_1, Amatrix=A, Smatrix=S, intervals.type="LB", diag.constraints=TRUE)
 summary(random_2)
 
+## Load the library
+library("semPlot")
+
 my.plot1 <- meta2semPlot(random_2)
 semPaths(my.plot1, whatLabels="est", col="yellow")
 }

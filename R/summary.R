@@ -221,7 +221,7 @@ summary.tssem1FEM <- function(object, ...) {
     mx.fit <- summary(object$mx.fit)
 
     ## Fixed a warning in R CMD check
-    ## summary.tssem1: no visible binding for global variable ‘S1’
+    ## summary.tssem1: no visible binding for global variable "S1"
     no.var <- ncol(object$pooledS)
 
     # Fixed if there are incomplete data in the first group
@@ -486,8 +486,8 @@ summary.meta <- function(object, homoStat=TRUE, ...) {
     out
 }
 
-## Magee, L. (1990). R2 Measures Based on Wald and Likelihood Ratio Joint Significance Tests. The American Statistician, 44(3), 250–253. doi:10.2307/2685352
-## Nagelkerke, N. J. D. (1991). A note on a general definition of the coefficient of determination. Biometrika, 78(3), 691–692. doi:10.2307/2337038
+## Magee, L. (1990). R2 Measures Based on Wald and Likelihood Ratio Joint Significance Tests. The American Statistician, 44(3), 250-253. doi:10.2307/2685352
+## Nagelkerke, N. J. D. (1991). A note on a general definition of the coefficient of determination. Biometrika, 78(3), 691-692. doi:10.2307/2337038
 ## Minus2LLbase <- summary(object$mx0.fit$mx.fit)$Minus2LogLikelihood 
 ## Minus2LLmodel <- my.mx$Minus2LogLikelihood           
 ## Minus2LLbase, Minus2LLmodel, (1 - exp((Minus2LLmodel-Minus2LLbase)/no.studies))
