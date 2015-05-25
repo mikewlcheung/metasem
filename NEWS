@@ -1,4 +1,12 @@
-Release 0.9.3-1 (May 12, 2015)
+Release 0.9.3-2 (May 25, 2015)
+====================================
+* Changed the lbound from 1e10 to NA in meta() and meta3()
+* Added trunction (0 and 1) in calculating R2 in summary.meta()
+* Changed the default optimizer from "NPSOL" to "SLSQP" (default in OpenMx)
+* Added "central" as the default "Gradient algorithm"
+* Added metaSEM.Rnw in vignettes
+
+Release 0.9.3-1 (May 12, 2015)====================================
 ====================================
 * Corrected a typo in the example of Aloe14 (reported by Fred Li)
 * Modified to fit R-3.2.0

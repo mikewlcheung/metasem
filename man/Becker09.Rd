@@ -67,10 +67,6 @@ fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, diag.constraints=TRUE,
                                    SO=mxAlgebra(SO2SC*SC2Per, name="SO"),
                                    Cog_SO=mxAlgebra(Cog2SC*SC2Per+SO2SC*SC2Per,
                                    name="Cog_SO")) )
-
-## Rerun to clear the condition code
-fixed2 <- rerun(fixed2)
-
 summary(fixed2)
 
 

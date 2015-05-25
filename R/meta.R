@@ -1,5 +1,5 @@
 meta <- function(y, v, x, data, intercept.constraints=NULL, coef.constraints=NULL,
-                 RE.constraints=NULL, RE.startvalues=0.1, RE.lbound=1e-10,
+                 RE.constraints=NULL, RE.startvalues=0.1, RE.lbound=NA,
                  intervals.type=c("z", "LB"), I2="I2q", R2=TRUE,
                  model.name="Meta analysis with ML",
                  suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {

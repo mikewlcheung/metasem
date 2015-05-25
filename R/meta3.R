@@ -1,6 +1,6 @@
 meta3 <- function(y, v, cluster, x, data, intercept.constraints=NULL, coef.constraints=NULL, 
-                  RE2.constraints=NULL, RE2.lbound=1e-10,
-                  RE3.constraints=NULL, RE3.lbound=1e-10,
+                  RE2.constraints=NULL, RE2.lbound=NA,
+                  RE3.constraints=NULL, RE3.lbound=NA,
                   intervals.type=c("z", "LB"), I2="I2q", R2=TRUE,
                   model.name="Meta analysis with ML",
                   suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {

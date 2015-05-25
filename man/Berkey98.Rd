@@ -31,8 +31,7 @@ data(Berkey98)
 #### ML estimation method
 ## Multivariate meta-analysis
 summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
-              data=Berkey98, I2=c("I2q", "I2hm", "I2am"),
-              intervals.type="LB") )
+              data=Berkey98, I2=c("I2q", "I2hm", "I2am")) )
 
 ## Multivariate meta-analysis with "publication year-1979" as the predictor
 summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
@@ -46,7 +45,7 @@ summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
 
 #### REML estimation method
 ## Multivariate meta-analysis
-summary( reml(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL,var_AL),
+summary( reml(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
               data=Berkey98,
               model.name="Multivariate meta analysis with REML") )
 

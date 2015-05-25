@@ -472,6 +472,9 @@ summary.meta <- function(object, homoStat=TRUE, ...) {
       I2.values <- NA
       if (object$R2) {
         R2.values <- .R2(object)
+        ## Ensure R2 is within 0 and 1
+        R2.values <- ifelse(R2.values < 0, 0, R2.values)
+        R2.values <- ifelse(R2.values > 1, 1, R2.values)
       } else {
         R2.values <- NA
       }

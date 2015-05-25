@@ -8,17 +8,12 @@
 ## }
 
 .onAttach <- function(lib, pkg){
-        ## Use NPSOL as the default optimizer "CSOLNP"
-        default <- "NPSOL"
-        mxOption(NULL, "Default optimizer", default)
+        ## SLSQP (not NPSOL) is used as the default optimizer.
+        ## "central" (not "forward") is used as the default "Gradient algorithm".
+        mxOption(NULL, "Gradient algorithm", "central")
 
-        if (default=="NPSOL") {
-                packageStartupMessage("\"NPSOL\" is set as the default optimizer in OpenMx.")
-                packageStartupMessage("You may change it to \"CSOLNP\" by calling:")
-                packageStartupMessage("mxOption(NULL, \"Default optimizer\", \"CSOLNP\")\n")
-        } else {
-                packageStartupMessage("\"CSOLNP\" is set as the default optimizer in OpenMx.")
-                packageStartupMessage("You may change it to \"NPSOL\" by calling:")
-                packageStartupMessage("mxOption(NULL, \"Default optimizer\", \"NPSOL\")\n")
-        }
+        packageStartupMessage("\"SLSQP\" is set as the default optimizer in OpenMx.")
+        packageStartupMessage("If \"SLSQP\" does not work well for you, e.g., there are many error codes,")
+        packageStartupMessage("you may install the \"NPSOL\" optimizer from the OpenMx website and use it by calling:")
+        packageStartupMessage("mxOption(NULL, \"Default optimizer\", \"NPSOL\")\n")
 }
