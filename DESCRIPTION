@@ -1,20 +1,19 @@
 Package: metaSEM
 Type: Package
 Title: Meta-Analysis using Structural Equation Modeling
-Version: 0.9.3-2
-Date: 2015-05-25
-Depends: R (>= 3.1.0), OpenMx (>= 2.1.0)  
+Version: 0.9.4
+Date: 2015-06-07
+Depends: R (>= 3.2.0), OpenMx (>= 2.2.4)  
 Imports: Matrix, MASS
-Suggests: metafor, semPlot, knitr
+Suggests: metafor, semPlot
 Author: Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 Maintainer: Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
-Description: The metaSEM package conducts univariate and multivariate meta-analyses using 
-             a structural equation modeling (SEM) approach via the OpenMx package. 
-             It also implements the two-stage SEM approach to conduct meta-analytic 
-             structural equation modeling on correlation/covariance matrices.    
+Description: A collection of functions for conducting meta-analysis using a
+             structural equation modeling (SEM) approach via the 'OpenMx' package.
+             It also implements the two-stage SEM approach to conduct meta-analytic
+             structural equation modeling on correlation and covariance matrices.  
 License: GPL (>=2)
 LazyLoad: yes
 LazyData: yes
 ByteCompile: yes
-VignetteBuilder: knitr
 URL: https://github.com/mikewlcheung/metasem

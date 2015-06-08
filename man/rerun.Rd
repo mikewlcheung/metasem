@@ -19,9 +19,11 @@ rerun(object, ...)
 }
 
 \examples{
+\dontrun{
 random1 <- tssem1(Digman97$data, Digman97$n, method="REM", RE.type="Diag")
 random1_rerun <- rerun(random1)
 summary(random1_rerun)
+}
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.

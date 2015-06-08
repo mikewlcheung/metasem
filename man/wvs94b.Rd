@@ -27,6 +27,7 @@ covariance matrices among Life Satisfaction, Job Satisfaction, and Job Autonomy 
   countries. \emph{Organization Studies}, \bold{25}, 1339-1362.
 }
 \examples{
+\dontrun{
 data(wvs94b)
 
 ## Get the indirect and the direct effects and
@@ -39,5 +40,6 @@ indirect2 <- meta(indirect1[, c("ind_eff", "dir_eff")],
                   indirect1[, c("ind_var", "ind_dir_cov", "dir_var")])
 
 summary(indirect2)  
+}
 }
 \keyword{datasets}

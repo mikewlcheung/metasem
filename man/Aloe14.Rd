@@ -32,6 +32,7 @@
 \source{Aloe, A. M., Amo, L. C., & Shanahan, M. E. (2014). Classroom management self-efficacy and burnout: A multivariate meta-analysis. \emph{Educational Psychology Review}, \bold{26(1)}, 101-126. doi:10.1007/s10648-013-9244-0
 }
 \examples{
+\dontrun{
 data(Aloe14)
 
 ## Random-effects meta-analysis
@@ -50,5 +51,6 @@ cov2cor(my.cov)
 
 ## Plot the multivariate effect sizes
 plot(meta1)
+}
 }
 \keyword{datasets}

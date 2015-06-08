@@ -12,7 +12,7 @@ easily imposed by setting the same labels on the parameter estimates.
 }
 \usage{
 meta(y, v, x, data, intercept.constraints = NULL, coef.constraints = NULL,
-     RE.constraints = NULL, RE.startvalues=0.1, RE.lbound = NA,
+     RE.constraints = NULL, RE.startvalues=0.1, RE.lbound = 1e-10,
      intervals.type = c("z", "LB"), I2="I2q", R2=TRUE,
      model.name="Meta analysis with ML", suppressWarnings = TRUE,
      silent = TRUE, run = TRUE, ...)

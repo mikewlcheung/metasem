@@ -17,7 +17,7 @@
   \item{v}{Sampling variance of logOR}
   \item{Year}{Year of publication}
   \item{Type}{Type of proposal: either \bold{Grant} or \bold{Fellowship}}
-  \item{Discipline}{Discipline of proposal: either \bold{Physical sciences}, \bold{Life sciences/biology}, 
+  \item{Discipline}{Discipline of proposal: either \bold{Physical sciences}, \bold{Life sciences/biology},
 	\bold{Social sciences/humanities} or \bold{Multidisciplinary})}
   \item{Country}{Country of proposal: either \bold{United States},
 	\bold{Canada}, \bold{Australia}, \bold{United Kingdom} or \bold{Europe}}
@@ -28,10 +28,11 @@
 }
 \references{
   Cheung, M. W.-L. (2014). Modeling dependent effect sizes with three-level meta-analyses: A structural equation modeling approach. \emph{Psychological Methods}, \bold{19}, 211-229.
-  
+
   Marsh, H. W., Bornmann, L., Mutz, R., Daniel, H.-D., & O'Mara, A. (2009). Gender Effects in the Peer Reviews of Grant Proposals: A Comprehensive Meta-Analysis Comparing Traditional and Multilevel Approaches. \emph{Review of Educational Research}, \bold{79(3)}, 1290-1326. doi:10.3102/0034654309334143
 }
 \examples{
+\dontrun{
 data(Bornmann07)
 
 #### ML estimation method
@@ -42,7 +43,7 @@ summary( meta3(y=logOR, v=v, cluster=Cluster, data=Bornmann07) )
 ## Grant: 0
 ## Fellowship: 1
 summary( meta3(y=logOR, v=v, x=(as.numeric(Type)-1),
-               cluster=Cluster, data=Bornmann07) ) 
+               cluster=Cluster, data=Bornmann07) )
 
 ## Centered Year as a predictor
 summary( meta3(y=logOR, v=v, x=scale(Year, scale=FALSE),
@@ -56,7 +57,7 @@ summary( reml3(y=logOR, v=v, cluster=Cluster, data=Bornmann07) )
 ## Grants: 0
 ## Fellowship: 1
 summary( reml3(y=logOR, v=v, x=(as.numeric(Type)-1),
-               cluster=Cluster, data=Bornmann07) ) 
+               cluster=Cluster, data=Bornmann07) )
 
 ## Centered Year as a predictor
 summary( reml3(y=logOR, v=v, x=scale(Year, scale=FALSE),
@@ -85,5 +86,6 @@ Type_MAR[index_MAR] <- NA
 
 ## Include auxiliary variable
 summary(meta3X(y=logOR, v=v, cluster=Cluster, x2=Type_MAR, av2=Year, data=my.df))
+}
 }
 \keyword{datasets}

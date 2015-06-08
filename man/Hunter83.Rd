@@ -22,6 +22,7 @@ A list of data with the following structure:
 }
 
 \examples{
+\dontrun{
 data(Hunter83)
 
 #### Fixed-effects model
@@ -61,8 +62,6 @@ vcov(fixed2)
 ## First stage analysis
 random1 <- tssem1(Hunter83$data, Hunter83$n, method="REM", RE.type="Diag", 
                   model.name="TSSEM1 random effects model")
-## rerun to remove error code
-random1 <- rerun(random1)
 summary(random1)
 
 ## Second stage analysis
@@ -87,5 +86,6 @@ semPaths(my.plot, whatLabels="path", nCharEdges=10, nCharNodes=10, color="red")
 
 ## Plot the parameter estimates
 semPaths(my.plot, whatLabels="est", nCharNodes=10, color="green")
+}
 }
 \keyword{datasets}

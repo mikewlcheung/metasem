@@ -25,6 +25,7 @@ A list of data with the following structure:
 }
 
 \examples{
+\dontrun{
 data(Becker94)
 
 #### Fixed-effects model
@@ -77,5 +78,6 @@ summary(gls1)
 gls2 <- tssem2(gls1, Amatrix=A1, Smatrix=S1, intervals.type="LB",
                model.name="Fixed effects GLS Stage 2")
 summary(gls2)
+}
 }
 \keyword{datasets}

@@ -24,6 +24,7 @@ A list of data with the following structure:
 Cheung, M. W.-L., & Chan, W. (2009). A two-stage approach to synthesizing covariance matrices in meta-analytic structural equation modeling. \emph{Structural Equation Modeling}, \bold{16}, 28-53.
 }
 \examples{
+\dontrun{
 data(Cheung09)
 
 #### Fixed-effects model: Stage 1 analysis
@@ -68,5 +69,6 @@ F1 <- create.Fmatrix(c(rep(1,9), rep(0,3)))
 fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, Fmatrix=F1,
                  intervals.type="LB")
 summary(fixed2)
+}
 }
 \keyword{datasets}

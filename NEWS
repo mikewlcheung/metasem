@@ -1,12 +1,21 @@
+Release 0.9.4 (June 7, 2015)
+====================================
+* Modified to fit the CRAN policies
+* Removed deltaMethod()
+* Reverted the RE.lbound from NA to 1e10 in meta() and meta3()
+* Changed the default "Optimality tolerance" to "6.3e-14" in OpenMx
+* Changed the default "Gradient iterations" to "2" in OpenMx
+* Changed the default arguments in rerun()
+
 Release 0.9.3-2 (May 25, 2015)
 ====================================
-* Changed the lbound from 1e10 to NA in meta() and meta3()
+* Changed the RE.lbound from 1e10 to NA in meta() and meta3()
 * Added trunction (0 and 1) in calculating R2 in summary.meta()
 * Changed the default optimizer from "NPSOL" to "SLSQP" (default in OpenMx)
-* Added "central" as the default "Gradient algorithm"
+* Changed the default "Gradient algorithm" to "central" in OpenMx
 * Added metaSEM.Rnw in vignettes
 
-Release 0.9.3-1 (May 12, 2015)====================================
+Release 0.9.3-1 (May 12, 2015)
 ====================================
 * Corrected a typo in the example of Aloe14 (reported by Fred Li)
 * Modified to fit R-3.2.0

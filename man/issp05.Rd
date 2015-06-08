@@ -31,6 +31,8 @@ A list of data with the following structure:
 }
 
 \examples{
+
+\dontrun{
 data(issp05)
 
 #### Fixed-effects TSSEM
@@ -76,4 +78,6 @@ fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, Fmatrix=F1,
                  intervals.type="LB")
 summary(fixed2)
 }
+}
+
 \keyword{datasets}

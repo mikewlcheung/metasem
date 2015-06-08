@@ -24,6 +24,7 @@ Hox, J. J. (2002). \emph{Multilevel analysis: Techniques and applications.} Mahw
 Cheung, M. W.-L. (2008). A model for integrating fixed-, random-, and mixed-effects meta-analyses into structural equation modeling. \emph{Psychological Methods}, \bold{13}, 182-202. 
 }
 \examples{
+\dontrun{
 data(Hox02)
 
 #### ML estimation method
@@ -54,5 +55,6 @@ summary( meta(y=yi, v=vi, data=Hox02, RE.constraints=VarComp_REML) )
 ## Request likelihood-based CI
 summary( reml(y=yi, v=vi, x=weeks, intervals.type="LB",
               data=Hox02, model.name="REML with LB CI") )
+}
 }
 \keyword{datasets}

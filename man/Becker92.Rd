@@ -24,6 +24,7 @@ A list of data with the following structure:
 }
 
 \examples{
+\dontrun{
 data(Becker92)
 
 #### Fixed-effects model
@@ -95,5 +96,6 @@ semPaths(my.plot, whatLabels="path", nCharEdges=10, nCharNodes=10, color="red")
 
 ## Plot the parameter estimates
 semPaths(my.plot, whatLabels="est", nCharNodes=10, color="green")
+}
 }
 \keyword{datasets}

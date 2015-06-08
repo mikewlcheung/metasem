@@ -26,6 +26,7 @@
   Methods}, \bold{2}, 61-76. doi:10.1002/jrsm.35
 }
 \examples{
+\dontrun{
 data(Cooper03)
 
 #### ML estimation method
@@ -68,5 +69,6 @@ Year_MCAR <- Cooper03$Year
 Year_MCAR[sample(56, 20)] <- NA
 summary( meta3X(y=y, v=v, cluster=District, x2=scale(Year_MCAR, scale=FALSE),
                 data=Cooper03, model.name="NA in Year_MCAR") )
+}
 }
 \keyword{datasets}

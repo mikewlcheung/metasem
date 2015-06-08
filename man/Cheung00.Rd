@@ -32,6 +32,7 @@ A list of data with the following structure:
   coefficients were also excluded.
   }
 \examples{
+\dontrun{
 data(Cheung00)
 
 ## Variable labels
@@ -69,5 +70,6 @@ library("semPlot")
 
 my.plot1 <- meta2semPlot(random_2)
 semPaths(my.plot1, whatLabels="est", col="yellow")
+}
 }
 \keyword{datasets}

@@ -34,6 +34,7 @@ satisfaction and on life control in each country were calculated as the effect s
   Cheung, M. W.-L. (2013). Multivariate meta-analysis as structural equation models. \emph{Structural Equation Modeling}, \bold{20}, 429-454. 
 }
 \examples{
+\dontrun{
 data(wvs94a)
 
 ## Random-effects model
@@ -84,5 +85,6 @@ anova(mixed.ma1, mixed.ma2)
 plot(random.ma1, main="Estimated effect sizes and their 95\% confidence ellipses",
      axis.label=c("Gender difference on life satisfaction",
                   "Gender difference on life control"))
+}
 }
 \keyword{datasets}

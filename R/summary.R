@@ -325,7 +325,7 @@ print.summary.tssem1FEM <- function(x, ...) {
     ## cat("\nOpenMx version:", x$OpenMx.version)
     ## cat("\nmetaSEM version:", x$metaSEM.version)
     ## cat("\nDate of analysis:", x$date)
-    cat("OpenMx status1:", x$Mx.status1, "(\"0\" or \"1\": The optimization is considered fine.\nOther values indicate problems.)\n")
+    cat("OpenMx status1:", x$Mx.status1, "(\"0\" or \"1\": The optimization is considered fine.\nOther values may indicate problems.)\n")
     ## cat("OpenMx status:", x$Mx.status1, "(\"0\" and \"1\": considered fine; other values indicate problems)\n")
     ## cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")    
 }
@@ -536,7 +536,7 @@ print.summary.meta <- function(x, ...) {
     cat("\nNumber of estimated parameters:", x$estPara)
     cat("\nDegrees of freedom:", x$df)
     cat("\n-2 log likelihood:", x$Minus2LL, "\n")        
-    cat("OpenMx status1:", x$Mx.status1, "(\"0\" or \"1\": The optimization is considered fine.\nOther values indicate problems.)\n")
+    cat("OpenMx status1:", x$Mx.status1, "(\"0\" or \"1\": The optimization is considered fine.\nOther values may indicate problems.)\n")
     ## cat("OpenMx status1:", x$Mx.status1, "(\"0\" and \"1\": considered fine; other values indicate problems)\n")
     ## cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")      
 }
@@ -699,7 +699,7 @@ print.summary.reml <- function(x, ...) {
     cat("\nNumber of estimated parameters:", x$estPara)
     cat("\nDegrees of freedom:", x$df)
     cat("\n-2 log likelihood:", x$Minus2LL, "\n")        
-    cat("OpenMx status1:", x$Mx.status1, "(\"0\" or \"1\": The optimization is considered fine.\nOther values indicate problems.)\n")
+    cat("OpenMx status1:", x$Mx.status1, "(\"0\" or \"1\": The optimization is considered fine.\nOther values may indicate problems.)\n")
     ## cat("OpenMx status:", x$Mx.status1, "(\"0\" and \"1\": considered fine; other values indicate problems)\n")
     ## cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")      
 }
@@ -1027,7 +1027,7 @@ print.summary.meta3X <- function(x, ...) {
     cat("\nNumber of estimated parameters:", x$estPara)
     cat("\nDegrees of freedom:", x$df)
     cat("\n-2 log likelihood:", x$Minus2LL, "\n")        
-    cat("OpenMx status1:", x$Mx.status1, "(\"0\" or \"1\": The optimization is considered fine.\nOther values indicate problems.)\n")    
+    cat("OpenMx status1:", x$Mx.status1, "(\"0\" or \"1\": The optimization is considered fine.\nOther values may indicate problems.)\n")    
     ## cat("OpenMx status1:", x$Mx.status1, "(\"0\" and \"1\": considered fine; other values indicate problems)\n")
     ## cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")      
 }

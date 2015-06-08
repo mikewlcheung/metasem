@@ -35,7 +35,8 @@ summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
 
 ## Multivariate meta-analysis with "publication year-1979" as the predictor
 summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
-              x=scale(pub_year, center=1979), data=Berkey98) )
+              x=scale(pub_year, center=1979), data=Berkey98,
+              RE.lbound=NA) )
 
 ## Multivariate meta-analysis with equality constraint on the regression coefficients
 summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),

@@ -1,7 +1,7 @@
 \name{Becker09}
 \alias{Becker09}
 \docType{data}
-\title{Ten Studies of Correlation Matrices used by Becker (2009) 
+\title{Ten Studies of Correlation Matrices used by Becker (2009)
 }
 \description{This data set includes ten studies on the relationships between CSAI
   subscales and sport behavior. The original data were used in Craft et
@@ -27,6 +27,7 @@ Craft, L. L., Magyar, T. M., Becker, B. J., & Feltz, D. L. (2003). The relations
 Becker, B. J. (2009). Model-based meta-analysis. In H. Cooper, L. V. Hedges, & J. C. Valentine (Eds.), \emph{The handbook of research synthesis and meta-analysis} (2nd ed., pp. 377-395). New York: Russell Sage Foundation.
 }
 \examples{
+\dontrun{
 data(Becker09)
 
 #### Fixed-effects model
@@ -43,7 +44,7 @@ A1 <- create.mxMatrix(c(0, "0.1*Cog2Per", "0.1*SO2Per", "0.1*SC2Per",
                       as.mxMatrix=FALSE)
 
 ## This step is not necessary but it is useful for inspecting the model.
-dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- c("Per","Cog","SO","SC") 
+dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- c("Per","Cog","SO","SC")
 
 ## Display A1
 A1
@@ -55,7 +56,7 @@ S1 <- create.mxMatrix(c("0.1*var_Per",
                       as.mxMatrix=FALSE)
 
 ## This step is not necessary but it is useful for inspecting the model.
-dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c("Per","Cog","SO","SC") 
+dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c("Per","Cog","SO","SC")
 
 ## Display S1
 S1
@@ -63,12 +64,11 @@ S1
 ## Second stage analysis
 fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, diag.constraints=TRUE,
                  intervals.type="LB", model.name="TSSEM2 Becker09",
-                 mx.algebras=list( Cog=mxAlgebra(Cog2SC*SC2Per, name="Cog"), 
+                 mx.algebras=list( Cog=mxAlgebra(Cog2SC*SC2Per, name="Cog"),
                                    SO=mxAlgebra(SO2SC*SC2Per, name="SO"),
                                    Cog_SO=mxAlgebra(Cog2SC*SC2Per+SO2SC*SC2Per,
                                    name="Cog_SO")) )
 summary(fixed2)
-
 
 #### Fixed-effects model: with type of sport as cluster
 ## First stage analysis
@@ -76,10 +76,10 @@ cluster1 <- tssem1(Becker09$data, Becker09$n, method="FEM",
                    cluster=Becker09$Type_of_sport)
 summary(cluster1)
 
-## Second stage analysis  
+## Second stage analysis
 cluster2 <- tssem2(cluster1, Amatrix=A1, Smatrix=S1, diag.constraints=TRUE,
                  intervals.type="LB", model.name="TSSEM2 Becker09",
-                 mx.algebras=list( Cog=mxAlgebra(Cog2SC*SC2Per, name="Cog"), 
+                 mx.algebras=list( Cog=mxAlgebra(Cog2SC*SC2Per, name="Cog"),
                                    SO=mxAlgebra(SO2SC*SC2Per, name="SO"),
                                    Cog_SO=mxAlgebra(Cog2SC*SC2Per+SO2SC*SC2Per,
                                    name="Cog_SO")) )
@@ -111,7 +111,7 @@ summary(random1)
 ## Second stage analysis
 random2 <- tssem2(random1, Amatrix=A1, Smatrix=S1, diag.constraints=TRUE,
                   intervals.type="LB", model.name="TSSEM2 Becker09",
-                  mx.algebras=list( Cog=mxAlgebra(Cog2SC*SC2Per, name="Cog"), 
+                  mx.algebras=list( Cog=mxAlgebra(Cog2SC*SC2Per, name="Cog"),
                                     SO=mxAlgebra(SO2SC*SC2Per, name="SO"),
                                     Cog_SO=mxAlgebra(Cog2SC*SC2Per+SO2SC*SC2Per,
                                     name="Cog_SO")) )
@@ -130,5 +130,6 @@ semPaths(my.plot, whatLabels="path", nCharEdges=10,  nCharNodes=10, layout="spri
 
 ## Plot the parameter estimates
 semPaths(my.plot, whatLabels="est", nCharNodes=10, layout="spring", color="green")
+}
 }
 \keyword{datasets}

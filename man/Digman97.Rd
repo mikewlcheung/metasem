@@ -3,7 +3,7 @@
 \docType{data}
 \title{Factor Correlation Matrices of Big Five Model from Digman (1997)}
 \description{
-The data set includes fourteen studies of the factor correlation matrices of the Five-Factor Model of personality reported by Digman (1997). 
+The data set includes fourteen studies of the factor correlation matrices of the Five-Factor Model of personality reported by Digman (1997).
 }
 \usage{data(Digman97)}
 
@@ -24,6 +24,7 @@ Digman, J.M. (1997). Higher-order factors of the Big Five. \emph{Journal of Pers
  Cheung, M. W.-L., & Chan, W. (2005). Classifying correlation matrices into relatively homogeneous subgroups: A cluster analytic approach. \emph{Educational and Psychological Measurement}, \bold{65}, 954-979.
 }
 \examples{
+\dontrun{
 Digman97
 
 ##### Fixed-effects TSSEM
@@ -40,7 +41,7 @@ Psi <- Diag(c("0.2*e1","0.2*e2","0.2*e3","0.2*e4","0.2*e5"))
 S1 <- bdiagMat(list(Psi, Phi))
 
 ## This step is not necessary but it is useful for inspecting the model.
-dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c("A","C","ES","E","I","Alpha","Beta") 
+dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c("A","C","ES","E","I","Alpha","Beta")
 
 ## Display S1
 S1
@@ -53,7 +54,7 @@ A1 <- rbind( cbind(matrix(0,ncol=5,nrow=5), Lambda),
              matrix(0, ncol=7, nrow=2) )
 
 ## This step is not necessary but it is useful for inspecting the model.
-dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- c("A","C","ES","E","I","Alpha","Beta") 
+dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- c("A","C","ES","E","I","Alpha","Beta")
 
 ## Display A1
 A1
@@ -79,7 +80,7 @@ cluster <- ifelse(Digman97$cluster \%in\% c("Children","Adolescents"),
 cluster
 
 ## Example of Fixed-effects TSSEM with several clusters
-fixed1.cluster <- tssem1(Digman97$data, Digman97$n, method="FEM", 
+fixed1.cluster <- tssem1(Digman97$data, Digman97$n, method="FEM",
                          cluster=cluster)
 summary(fixed1.cluster)
 
@@ -100,7 +101,7 @@ semPaths(my.plots[[2]], whatLabels="est", nCharNodes=10, color="green")
 
 #### Random-effects TSSEM with random effects on the diagonals
 random1 <- tssem1(Digman97$data, Digman97$n, method="REM",
-                  RE.type="Diag", I2="I2q")
+                  RE.type="Diag")
 summary(random1)
 
 random2 <- tssem2(random1, Amatrix=A1, Smatrix=S1, Fmatrix=F1)
@@ -114,5 +115,6 @@ semPaths(my.plot, whatLabels="path", nCharEdges=10, nCharNodes=10, color="red")
 
 ## Plot the parameter estimates
 semPaths(my.plot, whatLabels="est", nCharNodes=10, color="green")
+}
 }
 \keyword{datasets}

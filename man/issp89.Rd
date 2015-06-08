@@ -33,6 +33,7 @@ Cheung, M. W.-L., & Chan, W. (2009). A two-stage approach to synthesizing covari
 \seealso{ \code{\link[metaSEM]{issp05}}
 }
 \examples{
+\dontrun{
 data(issp89)
 
 #### Analysis of correlation structure in Cheung and Chan (2005)
@@ -86,5 +87,6 @@ summary(cov1)
 #### Fixed-effects model: Stage 2 analysis
 cov2 <- tssem2(cov1, Amatrix=A1, Smatrix=S1, Fmatrix=F1)              
 summary(cov2)
+}
 }
 \keyword{datasets}

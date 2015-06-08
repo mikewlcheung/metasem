@@ -29,6 +29,7 @@
 }
 
 \examples{
+\dontrun{
 ## Research question 4.4.1
 summary(meta(r, r_v, data=Jaramillo05))
 
@@ -44,5 +45,6 @@ summary( meta(y = r, v = r_v, x = predictor, data = Jaramillo05) )
 
 ## Research question 4.4.3
 summary(meta(r, r_v, x=IDV, data=Jaramillo05))
+}
 }
 \keyword{datasets}
