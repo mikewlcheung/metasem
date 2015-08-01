@@ -25,6 +25,10 @@ covariance matrices among Life Satisfaction, Job Satisfaction, and Job Autonomy 
 \references{
   Au, K., & Cheung, M. W.-L. (2004). Intra-cultural variation and job autonomy in 42
   countries. \emph{Organization Studies}, \bold{25}, 1339-1362.
+
+  Cheung, M.W.-L., & Cheung, S.-F. (in press). Random-effects models for
+  meta-analytic structural equation modeling: Review, issues, and
+  illustrations. \emph{Research Synthesis Methods.}
 }
 \examples{
 \dontrun{

@@ -1,8 +1,8 @@
 \name{rerun}
 \alias{rerun}
-\title{Rerun models via mxRun()
+\title{Rerun models via mxTryHard()
 }
-\description{It reruns models via mxRun().
+\description{It reruns models via mxTryHard().
 }
 \usage{
 rerun(object, ...)
@@ -12,7 +12,7 @@ rerun(object, ...)
   \item{object}{An object of either class \code{tssem1FEM},
   class \code{tssem1REM}, class \code{wls}, class \code{meta} or class \code{reml}.
 }
-  \item{\dots}{{Futher arguments to be passed to \code{\link[OpenMx]{mxRun}}}}
+  \item{\dots}{{Futher arguments to be passed to \code{\link[OpenMx]{mxTryHard}}}}
 }
 
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>

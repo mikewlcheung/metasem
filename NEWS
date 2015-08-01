@@ -1,3 +1,8 @@
+Release 0.9.5-0 (August 1, 2015)
+====================================
+* Changed default model.name in tssem1REM(), tssem1FEM() and wls() to avoid potential error code with OpenMx 2.2.6
+* Added RE.constraints argument and "User" option in RE.type argument in tssem1() and tssem1REM()
+
 Release 0.9.4 (June 7, 2015)
 ====================================
 * Modified to fit the CRAN policies

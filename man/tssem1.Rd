@@ -11,13 +11,15 @@
 }
 \usage{
 tssem1(my.df, n, method=c("FEM","REM"), cor.analysis = TRUE, cluster=NULL,
-       RE.type=c("Symm", "Diag", "Zero"), RE.startvalues=0.1, RE.lbound=1e-10, I2="I2q",
+       RE.type=c("Symm", "Diag", "Zero", "User"), RE.startvalues=0.1,
+       RE.lbound=1e-10, RE.constraints=NULL, I2="I2q",
        model.name=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...)
 tssem1FEM(my.df, n, cor.analysis=TRUE, model.name=NULL,
           cluster=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...)
-tssem1REM(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Zero"),
-          RE.startvalues=0.1, RE.lbound=1e-10, I2="I2q", model.name=NULL,
-          suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...)
+tssem1REM(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Zero","User"),
+          RE.startvalues=0.1, RE.lbound=1e-10, RE.constraints=NULL,
+          I2="I2q", model.name=NULL, suppressWarnings=TRUE,
+          silent=TRUE, run=TRUE, ...)
 }
 \arguments{
   \item{my.df}{A list of correlation/covariance matrices
@@ -42,12 +44,24 @@ tssem1REM(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Zero"),
 	meaning that the random effects are independent. If it is
 	\code{"Zero"}, there is no random effects which is similar to the
 	conventional Generalized Least Squares (GLS) approach to
-	fixed-effects analysis. This argument will be ignored when \code{method="FEM"}.}
+	fixed-effects analysis.
+    \code{"User"}, user has to specific the variance component via the
+	\code{RE.constraints} argument. This argument will be ignored when \code{method="FEM"}.}
   \item{RE.startvalues}{Starting values on the
 	diagonals of the variance component of the random effects. It will be ignored when \code{method="FEM"}.}
   \item{RE.lbound}{Lower bounds on the diagonals of the variance
 	component of the random effects. It will be ignored when
 	\code{method="FEM"}.}
+  \item{RE.constraints}{A \eqn{p*}{p*} x \eqn{p*}{p*} matrix
+	specifying the variance componets of the random effects, where
+	\eqn{p*}{p*} is the number of effect sizes. If the input
+	is not a matrix, it is converted into a matrix by
+	\code{as.matrix()}. The default is that all
+	covariance/variance components are free. The format of this matrix
+	follows \code{\link[metaSEM]{as.mxMatrix}}. Elements of the variance
+	components can be constrained equally by using the same labels. If a zero matrix is
+	specified, it becomes a fixed-effects meta-analysis.
+  }  
   \item{I2}{Possible options are \code{"I2q"}, \code{"I2hm"} and
 	\code{"I2am"}. They represent the \code{I2} calculated by using a
 	typical within-study sampling variance from the Q statistic, the
