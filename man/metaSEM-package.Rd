@@ -14,8 +14,8 @@
 \tabular{ll}{
 Package: \tab metaSEM\cr
 Type: \tab Package\cr
-Version: \tab 0.9.5-0\cr
-Date: \tab 2015-08-01\cr
+Version: \tab 0.9.5-1\cr
+Date: \tab 2015-08-20\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }
@@ -47,7 +47,11 @@ Cheung, M. W.-L., & Chan, W. (2004). Testing dependent correlation coefficients 
 
 Cheung, M. W.-L., & Chan, W. (2005). Meta-analytic structural equation modeling: A two-stage approach. \emph{Psychological Methods}, \bold{10}, 40-64.
 
-Cheung, M. W.-L., & Chan, W. (2009). A two-stage approach to synthesizing covariance matrices in meta-analytic structural equation modeling. \emph{Structural Equation Modeling}, \bold{16}, 28-53.
+Cheung, M. W.-L., & Chan, W. (2009). A two-stage approach to
+synthesizing covariance matrices in meta-analytic structural equation modeling. \emph{Structural Equation Modeling}, \bold{16}, 28-53.
+
+Cheung, M.W.-L., & Cheung, S.-F. (in press). Random-effects models for meta-analytic structural equation modeling: Review, issues, and
+  illustrations. \emph{Research Synthesis Methods.}
 }
 \keyword{ package }
 

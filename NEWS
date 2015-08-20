@@ -1,3 +1,7 @@
+Release 0.9.5-1 (August 20, 2015)
+====================================
+* Added datasets Norton13 and Roorda11
+
 Release 0.9.5-0 (August 1, 2015)
 ====================================
 * Changed default model.name in tssem1REM(), tssem1FEM() and wls() to avoid potential error code with OpenMx 2.2.6
