@@ -1,3 +1,7 @@
+Release 0.9.5-2 (September 17, 2015)
+====================================
+* Modified wls(diag.constraints=FALSE) so that "mediators" are properly handled 
+
 Release 0.9.5-1 (August 20, 2015)
 ====================================
 * Added datasets Norton13 and Roorda11

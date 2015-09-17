@@ -58,7 +58,7 @@ S1
 fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, intervals.type="LB",
        mx.algebras=list(R1=mxAlgebra(Spatial2Math^2+Verbal2Math^2
                         +2*CorSpatialVerbal*Spatial2Math*Verbal2Math, name="R1"),
-                        R2=mxAlgebra(One-Ematrix[1,1], name="R2"),
+                        R2=mxAlgebra(One-Smatrix[1,1], name="R2"),
                         One=mxMatrix("Iden", ncol=1, nrow=1, name="One")))
 summary(fixed2)
 

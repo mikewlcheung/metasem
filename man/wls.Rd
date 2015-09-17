@@ -51,13 +51,9 @@ tssem2(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
 	correlation analysis while asyCov is treated as fixed. This process
 	is computational intensive. A better approach is to request likelihood-based
 	confidence intervals (CIs) by specifying \code{intervals.type="LB"}. 
-
 	If \code{diag.constraints=FALSE} and \code{cor.analysis=TRUE}, the diagonals are automatically constrained as ones by
   treating the error variances as computed values rather than as
-  parameters. Since the error variances are not parameters, they are not reported. It is usually not necessary to set
-  \code{diag.constraints=TRUE} unless there are mediators (variables
-  acting as both a predictor and dependent variable) in the model. See
-  the examples in \code{\link[metaSEM]{Hunter83}}.
+  parameters. Since the error variances are not parameters, they are not reported. 
 }  
   \item{cor.analysis}{Logical. Analysis of correlation or covariance structure. If \code{cor.analysis=TRUE}, \code{\link[OpenMx]{vechs}} is used to vectorize \code{S}; otherwise, \code{\link[OpenMx]{vech}} is used to vectorize \code{S}.
 }

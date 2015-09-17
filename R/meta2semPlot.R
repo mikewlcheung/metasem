@@ -10,6 +10,8 @@ meta2semPlot <- function(object, manNames=NULL, latNames=NULL, labels=c("labels"
     ## F <- mxEval(Fmatrix, object$mx.fit)
        A <- object$mx.fit@matrices$Amatrix$values
        S <- object$mx.fit@matrices$Smatrix$values
+       ## S may be calculated when diag.constraints=FALSE
+       if (is.null(S)) S <- object$mx.fit$algebras$Smatrix$result      
        F <- object$mx.fit@matrices$Fmatrix$values
        Id <- diag(nrow(S))
        ObsCovs <- object$Cov

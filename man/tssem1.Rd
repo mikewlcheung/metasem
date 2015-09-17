@@ -36,8 +36,8 @@ tssem1REM(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Zero","User"),
 	clusters. Analyses will be conducted for each cluster. It will be
 	ignored when \code{method="REM"}.
   }
-  \item{RE.type}{Either \code{"Symm"}, \code{"Diag"} or
-	\code{"Zero"}. If it is \code{"Symm"} (default if missing), a
+  \item{RE.type}{Either \code{"Symm"}, \code{"Diag"}, 
+	\code{"Zero"} or \code{"User"}. If it is \code{"Symm"} (default if missing), a
 	symmetric matrix is used for the random effects on the covariances
 	among the correlation (or covariance) vectors. If it is
 	\code{"Diag"}, a diagonal matrix is used for the random effects

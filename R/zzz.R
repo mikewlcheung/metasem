@@ -19,7 +19,7 @@
         packageStartupMessage('mxOption(NULL, "Gradient iterations") is set at "', mxOption(NULL, "Gradient iterations"), '".')
 
         packageStartupMessage('"SLSQP" is set as the default optimizer in OpenMx.')
-        packageStartupMessage('If "SLSQP" does not work well for you, e.g., there are many error codes,')
-        packageStartupMessage('you may install the "NPSOL" optimizer from the OpenMx website and use it by calling:')
-        packageStartupMessage('mxOption(NULL, "Default optimizer", "NPSOL")')
+        ## packageStartupMessage('If "SLSQP" does not work well for you, e.g., there are many error codes,')
+        ## packageStartupMessage('you may install the "NPSOL" optimizer from the OpenMx website and use it by calling:')
+        ## packageStartupMessage('mxOption(NULL, "Default optimizer", "NPSOL")')
 }

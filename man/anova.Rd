@@ -50,6 +50,14 @@
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
+\note{When the objects are class \code{\link[metaSEM]{wls}}, the degrees
+  of freedom in the base and comparison models are incorrect, while the degrees of
+  freedom on the difference between them is correct. If users want to
+  obtain the correct degrees of freedom in the base and comparison
+  models, they may individually apply the \code{\link[metaSEM]{summary}} function on
+  the base and comparison models.
+}
+  
 \examples{
 ## Test the significance of a predictor with likelihood ratio test
 ## Model0: No predictor

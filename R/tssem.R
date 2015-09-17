@@ -274,83 +274,16 @@ tssem1 <- function(my.df, n, method=c("FEM", "REM"), cor.analysis=TRUE, cluster=
   out
 }
 
-## wls <- function(S, acovS, n, impliedS, matrices, cor.analysis = TRUE,
-##                 intervals.type =c("z", "LB"), model.name, suppressWarnings = TRUE, ...) {
-##     impliedS@name <- "impliedS"
-##     no.var <- ncol(S)
-##     sampleS <- mxMatrix("Full", ncol = no.var, nrow = no.var, values = c(S), free = FALSE,
-##         name = "sampleS")
 
-##     intervals.type <- match.arg(intervals.type)
-##     # Default is z
-##     switch(intervals.type,
-##            z = intervals <- FALSE,
-##            LB = intervals <- TRUE)
-
-##     if (cor.analysis) {
-##         if (missing(model.name)) model.name <- "WLS Analysis of Correlation Structure"
-##         ps <- no.var * (no.var - 1)/2
-##         vecS <- mxAlgebra(vechs(sampleS - impliedS), name = "vecS")
-##     } else {
-##         if (missing(model.name)) model.name <- "WLS Analysis of Covariance Structure"
-##         ps <- no.var * (no.var + 1)/2
-##         vecS <- mxAlgebra(vech(sampleS - impliedS), name = "vecS")
-##     }
-##     if (ncol(acovS) != ps)
-##         stop("No. of dimension of \"S\" does not match the dimension of \"acovS\"\n")
-
-##     # Inverse of asymptotic covariance matrix
-##     invacovS <- tryCatch(solve(acovS), error = function(e) e)
-##     if (inherits(invacovS, "error")) {
-##         cat("Error in inverting \"acovS\":\n")
-##         stop(print(invacovS))
-##     }
-
-##     invAcov <- mxMatrix("Full", ncol = ps, nrow = ps, values = c(invacovS), free = FALSE,
-##         name = "invAcov")
-##     obj <- mxAlgebra(t(vecS) %&% invAcov, name = "obj")
-##     objective <- mxAlgebraObjective("obj")
-
-##     if (missing(matrices)) {
-##         text1 <- paste("mxRun(mxModel(model=\"", model.name, "\", ", "impliedS",
-##             ", sampleS, vecS, invAcov, obj, objective, mxCI(\"impliedS\")), intervals=",
-##             intervals, ", suppressWarnings = ", suppressWarnings, ", ...)", sep = "")
-##     } else {
-##         matName1 <- sapply(matrices, function(x) {
-##             x@name
-##         })
-##         matName2 <- sapply(matName1, function(x) {
-##             paste("\"", x, "\"", sep = "")
-##         })
-
-##         text1 <- paste("mxRun(mxModel(model=\"", model.name, "\", ", "impliedS",
-##             ", sampleS, vecS, invAcov, obj, objective, ", paste(matName1, collapse = ", "),
-##             ", mxCI(c(", paste(matName2, collapse = ", "), "))", "), intervals=",
-##             intervals, ", suppressWarnings = ", suppressWarnings, ", ... )", sep = "")
-##     }
-
-##     mx.fit <- tryCatch(eval(parse(text = text1)), error = function(e) e)
-
-##     # try to run it with error message as output
-##     if (inherits(mx.fit, "error")) {
-##         cat("Error in running the mxModel:\n")
-##         stop(print(mx.fit))
-##     } else {
-##         out <- list(call = match.call(), noObservedStat=ps, n=n, cor.analysis=cor.analysis,
-##                     indepModelChisq=.indepwlsChisq(S=S, acovS=acovS, cor.analysis=cor.analysis),
-##                     indepModelDf=no.var*(no.var-1)/2, mx.fit=mx.fit)
-##         class(out) <- 'wls'
-##     }
-##     out
-## }
-
-wls <- function(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=FALSE,
-                cor.analysis=TRUE, intervals.type=c("z", "LB"), mx.algebras=NULL, model.name=NULL,
-                suppressWarnings=TRUE, silent=TRUE, run=TRUE,...) {
+wls <- function(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, 
+                diag.constraints=FALSE, cor.analysis=TRUE, intervals.type=c("z", "LB"), 
+                mx.algebras=NULL, model.name=NULL, suppressWarnings=TRUE, 
+                silent=TRUE, run=TRUE, ...) {
   if (is.null(Smatrix)) {
     stop("\"Smatrix\" matrix is not specified.\n")
   } else {
     if (is.matrix(Smatrix)) Smatrix <- as.mxMatrix(Smatrix)
+    ## No. of observed and latent variables
     p <- nrow(Smatrix@values)
     Smatrix@name <- "Smatrix"
   }
@@ -369,7 +302,8 @@ wls <- function(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.c
     Fmatrix@name <- "Fmatrix"
   }
 
-  Id <- as.mxMatrix(Diag(rep(p,1)), name="Id")
+  ## A pxp identity matrix
+  Id <- as.mxMatrix(Diag(rep(p, 1)), name="Id")
 
   ## No. of observed variables
   no.var <- ncol(Cov)
@@ -388,63 +322,164 @@ wls <- function(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.c
   # Inverse of asymptotic covariance matrix
   if (is.pd(asyCov)) {
     invacovS <- tryCatch(solve(asyCov), error = function(e) e)
+    ## It appears that solve() does not fail
+    if (inherits(invacovS, "error")) {
+      cat("Error in inverting \"asyCov\":\n")
+      stop(print(invacovS))
+    }
+    invAcov <- as.mxMatrix(invacovS, name="invAcov")
   } else {
     stop("\"asyCov\" is not positive definite.\n")
   }
 
-  ## It appears that solve() does not fail
-  if (inherits(invacovS, "error")) {
-    cat("Error in inverting \"asyCov\":\n")
-    stop(print(invacovS))
-  }
-  invAcov <- as.mxMatrix(invacovS, name="invAcov")
-  impliedS1 <- mxAlgebra( (Fmatrix%*%solve(Id-Amatrix))%&%Smatrix, name="impliedS1" )
-
-  ## Assuming no constraint
-  Constraints <- 0
   if (cor.analysis) {
     if (is.null(model.name)) model.name <- "WLS Correlation"
     ps <- no.var * (no.var - 1)/2
-
-    ## Count no. of dependent variables including both observed and latent variables
-    ## Since it is correlation structure, Smatrix@values=1 and Smatrix@free=FALSE on the diagonals.
-    Constraints <- Diag(Smatrix@free)
-
-    ## Setup nonlinear constraints on diagonals
-    if (diag.constraints & (sum(Constraints)>0)) {
-      One <- mxMatrix("Full", values=1, ncol=1, nrow=sum(Constraints), free=FALSE, name="One")
-      select <- create.Fmatrix(Constraints, name="select")
-      constraint <- mxConstraint( select%*%diag2vec(solve(Id-Amatrix)%&%Smatrix)==One, name="constraint" )
-      impliedS <- mxAlgebra(impliedS1, name="impliedS")
-    } else {
-    ## Use 1-impliedS for error variances
-      Diag(Smatrix@free) <- FALSE
-      Diag(Smatrix@values)[Constraints] <- 0
-      Diag(Smatrix@labels)[Constraints] <- NA
-
-    ## Error variances are computed rather than estimated
-    ## Ematrix = 1 - diag(impliedS)
-    ## If diag(Smatrix) are fixed at 1, Ematrix are 0.
-      Ematrix <- mxAlgebra(Fmatrix%&%Id - vec2diag(diag2vec(impliedS1)), name="Ematrix")
-      impliedS <- mxAlgebra( impliedS1 + Ematrix, name="impliedS")
-    }
-    vecS <- mxAlgebra(vechs(sampleS - impliedS), name="vecS")
-
   } else {
     if (is.null(model.name)) model.name <- "WLS Covariance"
     ps <- no.var * (no.var + 1)/2
-    impliedS <- mxAlgebra(impliedS1, name="impliedS")
-    vecS <- mxAlgebra(vech(sampleS - impliedS), name="vecS")
   }
-
+  
   if (ncol(asyCov) != ps)
     stop("No. of dimension of \"Cov\" does not match the multiplier of the dimension of \"asyCov\"\n")
+  
+  ## Assuming no constraint
+  Constraints <- 0
+  
+  if (cor.analysis) {
+    
+    ## Count no. of dependent variables including both observed and latent variables
+    ## Since it is correlation structure, Smatrix@values=1 and Smatrix@free=FALSE on the diagonals.
+    Constraints <- Diag(Smatrix@free)
+    ## Use nonlinear constraints to impose diagonals as 1
+    if (diag.constraints & (sum(Constraints)>0)) {
+      
+      One <- mxMatrix("Full", values=1, ncol=1, nrow=sum(Constraints), free=FALSE, name="One")
+      select <- create.Fmatrix(Constraints, name="select")
+      constraint <- mxConstraint( select%*%diag2vec(solve(Id-Amatrix)%&%Smatrix)==One, 
+                                  name="constraint" )
+      impliedS <- mxAlgebra( (Fmatrix%*%solve(Id-Amatrix))%&%Smatrix, name="impliedS" )
+      
+      vecS <- mxAlgebra(vechs(sampleS - impliedS), name="vecS")
+      obj <- mxAlgebra( t(vecS) %&% invAcov, name = "obj" )
+      objective <- mxFitFunctionAlgebra(algebra="obj")
+      
+      mx.model <- mxModel(model=model.name, Fmatrix, Amatrix, Smatrix, Id, impliedS,
+                          vecS, invAcov, obj, objective, sampleS, One, select, 
+                          constraint, mxCI(c("Amatrix", "Smatrix")))
+    } else {
+    ## Consider error variances as functions of parameters  
+      ## check types of variables
+      ## dv: variables pointed by some variables
+      dv <- apply(Amatrix$free, 1, any)
+#       ## iv: variables pointed towards other variables
+#       iv <- apply(Amatrix$free, 2, any)
+#       ## med: mediators
+#       med <- iv & dv
+      
+      ## S1: Smatrix without error variances on the dependent variables
+      ## Fix the diagonal elements associated with dv to 0
+      S1 <- Smatrix
+      S1$name <- "S1"
+      diag(S1$labels)[dv] <- NA
+      diag(S1$values)[dv] <- 0
+      diag(S1$free)[dv] <- FALSE
 
-  obj <- mxAlgebra( t(vecS) %&% invAcov, name = "obj" )
-  objective <- mxFitFunctionAlgebra(algebra="obj")
+      ## Use it rather than Smatrix in mxCI()
+      S1_labels <- S1$labels
+      diag(S1_labels) <- NA
+      S1_labels <- c(na.omit(unique(c(S1_labels))))
 
-  mx.model <- mxModel(model=model.name, Fmatrix, Amatrix, Smatrix, Id, impliedS1, impliedS,
-                      vecS, invAcov, obj, objective, sampleS, mxCI(c("Amatrix", "Smatrix")))
+      ## A function to extract levels of path directions started from IVs to DVs
+      path <- function(Amatrix) {
+        ## assuming non-recursive models
+        if (is.matrix(Amatrix)) Amatrix <- as.mxMatrix(Amatrix)
+        A <- Amatrix$free
+        
+        if (any(Diag(A))) stop("Diagonals on 'A' must be zeros\n")
+        ## no. of variables
+        p <- ncol(A)
+        dv <- apply(A, 1, any)
+        ## iv: variables pointed towards other variables
+        iv <- apply(A, 2, any)
+        
+        Level <- list()
+        ## IVs
+        Level[[1]] <- iv==TRUE&dv==FALSE
+        ## no. of variables counted
+        count <- length((1:p)[Level[[1]]])
+        
+        ## do until all p variables are countered 
+        while(p > count) {
+          level <- length(Level)
+          ## predicated by previous level
+          cand1 <- A[, Level[[level]], drop=FALSE]
+          cand1 <- apply(cand1, 1, any)
+          ## predicted by cand1
+          cand2 <- A[, cand1, drop=FALSE]
+          cand2 <- apply(cand2, 1, any)
+          Level[[level+1]] <- cand1==TRUE&cand2==FALSE
+          ## no. of elements counted
+          count <- count + length((1:p)[Level[[level+1]]])
+        }
+        Level
+      }
+      
+      ## Levels of directions
+      Level <- path(Amatrix)
+
+      ## no error variance involved for ALL variables
+      impliedS1 <- mxAlgebra( solve(Id-Amatrix)%&%S1, name="impliedS1")
+      
+      ## setup for error variances for mediators and dvs
+      ## Excluded level1 as they are ivs (started with i=2)
+      for (i in 2:length(Level)) {
+        ## filter the diagonals of mediators
+        text1 <- paste("sel",i, " <- as.mxMatrix(diag(Level[[",i,"]]), name='sel",i,"')", sep="" )
+        eval(parse(text=text1))
+        ## extract the error variances of mediators based on the previous model implied covariance matrix (i-1)
+        text2 <- paste("E",i, " <- mxAlgebra(vec2diag(diag2vec(Id-impliedS",i-1,"))*sel",i,", name='E",i,"')", sep="" )
+        eval(parse(text=text2))
+        ## Implied covariance matrix with estimated error variances on mediators for (i)
+        text3 <- paste("E", 2:i, sep="", collapse="+")
+        text4 <- paste("impliedS",i, " <- mxAlgebra(solve(Id-Amatrix)%&%(S1+",text3,"), name='impliedS",i,"')", sep="")
+        eval(parse(text=text4))
+      }
+      
+      ## Final Smatrix including all error variances
+      text5 <- paste("E", 2:length(Level), sep="", collapse="+")
+      ## Smatrix=S1+E2+E3...
+      text6 <- paste("Smatrix <- mxAlgebra(S1+", text5, ", name='Smatrix')", sep="")
+      eval(parse(text=text6))
+      
+      impliedS <- mxAlgebra((Fmatrix%*%solve(Id-Amatrix))%&%Smatrix, name="impliedS")
+      
+      vecS <- mxAlgebra(vechs(sampleS - impliedS), name="vecS")
+      obj <- mxAlgebra( t(vecS) %&% invAcov, name = "obj" )
+      objective <- mxFitFunctionAlgebra(algebra="obj")
+      
+      mx.model <- mxModel(model=model.name, Fmatrix, Amatrix, Smatrix, Id, impliedS1, 
+                          impliedS, vecS, invAcov, obj, objective, sampleS, 
+                          S1, mxCI(c("Amatrix", S1_labels)))
+      
+      ## Add the matrices into mx.model
+      text6a <- paste(",sel",2:length(Level), sep="", collapse="")
+      text6b <- paste(",E",2:length(Level), sep="", collapse="")
+      text6c <- paste(",impliedS",2:length(Level), sep="", collapse="")
+      text7 <- paste("mx.model <- mxModel(mx.model",text6a, text6b, text6c, ")", sep="")
+      eval(parse(text=text7))
+    }  ## if (diag.constraints & (sum(Constraints)>0))
+  } else {
+    ## analysis of covariance rather than correlation matrix
+    impliedS <- mxAlgebra( (Fmatrix%*%solve(Id-Amatrix))%&%Smatrix, name="impliedS" )
+    vecS <- mxAlgebra(vech(sampleS - impliedS), name="vecS")
+    
+    obj <- mxAlgebra( t(vecS) %&% invAcov, name = "obj" )
+    objective <- mxFitFunctionAlgebra(algebra="obj")
+    
+    mx.model <- mxModel(model=model.name, Fmatrix, Amatrix, Smatrix, Id, impliedS,
+                        vecS, invAcov, obj, objective, sampleS, mxCI(c("Amatrix", "Smatrix")))  
+  }
 
   ## Add additional mxAlgebras
   if (!is.null(mx.algebras)) {
@@ -453,40 +488,23 @@ wls <- function(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.c
     }
     mx.model <- mxModel(mx.model, mxCI(names(mx.algebras)))
   }
-  ## mx.model <- eval(parse(text = text1))
-
-  ## Add constraints on diagonals
-  if (cor.analysis) {
-    if (diag.constraints) {
-      mx.model <- mxModel(mx.model, One, select, constraint)
-    } else {
-      mx.model <- mxModel(mx.model, Ematrix, mxCI(c("Amatrix")))
-    }
-  }
-
-  ## if (diag.constraints) {
-  ##   text1 <- paste("mxRun(mxModel(model=\"", model.name, "\", Fmatrix, Amatrix, Smatrix, Id, impliedS, vecS, invAcov, ",
-  ##                  "obj, objective, One, select, constraint, sampleS, mxCI(c(\"Amatrix\", \"Smatrix\"))), intervals=",
-  ##                   intervals, ", suppressWarnings = ", suppressWarnings, ", ...)", sep="")
-  ## } else {
-  ##   text1 <- paste("mxRun(mxModel(model=\"", model.name, "\", Fmatrix, Amatrix, Smatrix, Id, impliedS, vecS, invAcov, ",
-  ##                  "obj, objective, sampleS, mxCI(c(\"Amatrix\", \"Smatrix\"))), intervals=",
-  ##                   intervals, ", suppressWarnings = ", suppressWarnings, ", ...)", sep="")
-  ## }
 
   ## Return mx model without running the analysis
   if (run==FALSE) return(mx.model)
 
-  mx.fit <- tryCatch( mxRun(mx.model, intervals=intervals, suppressWarnings=suppressWarnings, silent=silent, ...), error = function(e) e)
+  mx.fit <- tryCatch( mxRun(mx.model, intervals=intervals, suppressWarnings=suppressWarnings, silent=silent, ...), 
+                      error = function(e) e)
 
   # try to run it with error message as output
   if (inherits(mx.fit, "error")) {
       cat("Error in running the mxModel:\n")
       warning(print(mx.fit))
   } else {
-      out <- list(call=match.call(), Cov=Cov, asyCov=asyCov, noObservedStat=ps, n=n, cor.analysis=cor.analysis, diag.constraints=diag.constraints, Constraints=Constraints,
+      out <- list(call=match.call(), Cov=Cov, asyCov=asyCov, noObservedStat=ps, n=n, cor.analysis=cor.analysis, 
+                  diag.constraints=diag.constraints, Constraints=Constraints,
                   indepModelChisq=.indepwlsChisq(S=Cov, acovS=asyCov, cor.analysis=cor.analysis),
-                  indepModelDf=no.var*(no.var-1)/2, mx.model=mx.model, mx.fit=mx.fit, mx.algebras=names(mx.algebras), intervals.type=intervals.type)
+                  indepModelDf=no.var*(no.var-1)/2, mx.model=mx.model, mx.fit=mx.fit, mx.algebras=names(mx.algebras), 
+                  intervals.type=intervals.type)
       class(out) <- 'wls'
   }
   out

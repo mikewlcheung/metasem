@@ -48,7 +48,7 @@ S1
 
 ## diag.constraints=TRUE is required as there are mediators  
 fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, intervals.type="LB",
-                 diag.constraints=TRUE,
+                 diag.constraints=FALSE,
                  model.name="TSSEM2 fixed effects model")
 summary(fixed2)
 
@@ -69,7 +69,7 @@ summary(random1)
 
 ## diag.constraints=TRUE is required as there are mediators 
 random2 <- tssem2(random1, Amatrix=A1, Smatrix=S1, intervals.type="LB",
-                  diag.constraints=TRUE,
+                  diag.constraints=FALSE,
                   mx.algebras=
                   list( ind=mxAlgebra(A2J*J2S+A2J*J2W*W2S+A2W*W2S, name="ind") ),
                   model.name="TSSEM2 random effects model")
