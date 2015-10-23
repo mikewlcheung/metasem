@@ -4,18 +4,17 @@
 \docType{package}
 \title{Meta-Analysis using Structural Equation Modeling
 }
-\description{The metaSEM package conducts univariate and multivariate
-             meta-analyses using a structural equation modeling (SEM) approach
-             via the OpenMx package. It also implements the two-stage SEM approach
-             to conduct meta-analytic structural equation modeling on 
-             correlation/covariance matrices.    
+\description{A collection of functions for conducting meta-analysis using a
+             structural equation modeling (SEM) approach via the 'OpenMx' package.
+             It also implements the two-stage SEM approach to conduct meta-analytic
+             structural equation modeling on correlation and covariance matrices. 
 }
 \details{
 \tabular{ll}{
 Package: \tab metaSEM\cr
 Type: \tab Package\cr
-Version: \tab 0.9.5-2\cr
-Date: \tab 2015-09-17\cr
+Version: \tab 0.9.5-3\cr
+Date: \tab 2015-10-23\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }

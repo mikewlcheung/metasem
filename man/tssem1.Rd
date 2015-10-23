@@ -13,12 +13,14 @@
 tssem1(my.df, n, method=c("FEM","REM"), cor.analysis = TRUE, cluster=NULL,
        RE.type=c("Symm", "Diag", "Zero", "User"), RE.startvalues=0.1,
        RE.lbound=1e-10, RE.constraints=NULL, I2="I2q",
+       acov=c("individual", "unweighted", "weighted"),
        model.name=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...)
 tssem1FEM(my.df, n, cor.analysis=TRUE, model.name=NULL,
           cluster=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...)
 tssem1REM(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Zero","User"),
           RE.startvalues=0.1, RE.lbound=1e-10, RE.constraints=NULL,
-          I2="I2q", model.name=NULL, suppressWarnings=TRUE,
+          I2="I2q", acov=c("individual", "unweighted", "weighted"),
+          model.name=NULL, suppressWarnings=TRUE,
           silent=TRUE, run=TRUE, ...)
 }
 \arguments{
@@ -67,7 +69,15 @@ tssem1REM(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Zero","User"),
 	typical within-study sampling variance from the Q statistic, the
 	harmonic mean and the arithmatic mean of the within-study sampling
 	variances (Xiong, Miller, & Morris, 2010). More than one options are possible. If \code{intervals.type="LB"}, 95\% confidence intervals on the heterogeneity indices will be constructed. 
-  }  
+  }
+  \item{acov}{If it is \code{individual} (the default), the sampling variance covariance
+	matrices are calculated based on individual correlation/covariance
+	matrix. If it is either \code{unweighted} or \code{weighted}, the average
+	correlation/covariance matrix is calculated based on the unweighted
+	or weighted mean with the sample sizes. The average
+	correlation/covariance matrix is used to calculate the sampling
+	variance covariance matrices. This argument is ignored with the
+	\code{method="FEM"} argument.}
   \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. 
   }  
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are

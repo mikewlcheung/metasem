@@ -1,3 +1,7 @@
+Release 0.9.5-3 (October 23, 2015)
+====================================
+* Added acov argument in asyCov() and tssem1()
+
 Release 0.9.5-2 (September 17, 2015)
 ====================================
 * Modified wls(diag.constraints=FALSE) so that "mediators" are properly handled 

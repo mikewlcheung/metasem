@@ -109,9 +109,6 @@ my.vec
 # x1 1.0 NA 0.4
 # x2  NA NA  NA
 # x3 0.4 NA 1.0
-
 }
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
 \keyword{ utilities }

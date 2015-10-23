@@ -25,7 +25,4 @@ random1_rerun <- rerun(random1)
 summary(random1_rerun)
 }
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
-\keyword{meta-analysis}
 \keyword{tssem}

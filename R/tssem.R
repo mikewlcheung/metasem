@@ -184,7 +184,8 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
 
 tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Zero", "User"),
                       RE.startvalues=0.1, RE.lbound = 1e-10, RE.constraints=NULL,
-                      I2="I2q", model.name=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
+                      I2="I2q", acov=c("individual", "unweighted", "weighted"),
+                      model.name=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
   ## It handles missing effect sizes rather than missing correlations. Thus, it is more flexible than tssem1FEM().
   ## ACOV is calculated without missing data by assuming 1 and 0 for the missing variances and covariances.
   ## Missing values are indicated by the missing effect sizes.
@@ -203,7 +204,7 @@ tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Ze
   my.complete <- lapply(my.complete, function (x) { x[is.na(x)] <- 0; x })
 
   ## Calculate the asymptotic sampling covariance matrix of the correlation matrix
-  acovR <- asyCov(x=my.complete, n=n, cor.analysis=cor.analysis)
+  acovR <- asyCov(x=my.complete, n=n, cor.analysis=cor.analysis, dropNA=FALSE, as.matrix=TRUE, acov=acov)
 
   ## Fixed a bug that my.df is covariance matrix while cor.analysis is TRUE
   ## When cor.analysis=TRUE, the old version just takes the lower triangle without converting covariance into correlation.
@@ -262,15 +263,16 @@ tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Ze
 
 tssem1 <- function(my.df, n, method=c("FEM", "REM"), cor.analysis=TRUE, cluster=NULL,
                    RE.type=c("Symm", "Diag", "Zero", "User"), RE.startvalues=0.1, RE.lbound=1e-10,
-                   RE.constraints=NULL, I2="I2q",
+                   RE.constraints=NULL, I2="I2q", acov=c("individual", "unweighted", "weighted"),
                    model.name=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
   method <- match.arg(method)
   switch(method,
     FEM = out <- tssem1FEM(my.df=my.df, n=n, cor.analysis=cor.analysis, model.name=model.name,
                           cluster=cluster, suppressWarnings=suppressWarnings, silent=silent, run=run, ...),
     REM = out <- tssem1REM(my.df=my.df, n=n, cor.analysis=cor.analysis, RE.type=RE.type,
-                          RE.startvalues=RE.startvalues, RE.lbound=RE.lbound, RE.constraints=RE.constraints, I2=I2,
-                          model.name=model.name, suppressWarnings=suppressWarnings, silent=silent, run=run, ...) )
+                          RE.startvalues=RE.startvalues, RE.lbound=RE.lbound, RE.constraints=RE.constraints,
+                          I2=I2, acov=acov, model.name=model.name, suppressWarnings=suppressWarnings,
+                          silent=silent, run=run, ...) )
   out
 }
 

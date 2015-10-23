@@ -168,6 +168,4 @@ forest( rma(yi=AL, vi=var_AL, data=Berkey98) )
 title("Forest plot of AL")
 }
 }
-% Add one or more standard keywords, see file 'KEYWORDS' in the
-% R documentation directory.
 \keyword{ methods }% __ONLY ONE__ keyword per line

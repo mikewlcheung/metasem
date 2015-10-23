@@ -79,5 +79,4 @@ fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, Fmatrix=F1,
 summary(fixed2)
 }
 }
-
 \keyword{datasets}

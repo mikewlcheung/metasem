@@ -1,8 +1,32 @@
 #### Generate asymptotic covariance matrix of correlation/covariance matrix by *column major*
 asyCov <- function(x, n, cor.analysis=TRUE, dropNA=FALSE, as.matrix=TRUE,
+                   acov=c("individual", "unweighted", "weighted"),
                    suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
     if (is.list(x)) {
-      
+
+        ## whether to use average correlation matrix
+        acov <- match.arg(acov, c("individual", "unweighted", "weighted"))
+        if (acov != "individual") {
+            ## Replace NA with 0 before calculations
+            my.x <- lapply(x, function(x) {x[is.na(x)] <- 0; x} )
+
+            if (acov=="unweighted") {
+                ## Unweighted means = sum of correlations/no. of studies
+                my.x <- Reduce("+", my.x)/pattern.na(x, show.na = FALSE)
+            } else {
+                my.x <- mapply("*", my.x, n, SIMPLIFY = FALSE)
+                ## Weighted means = Cummulative sum of r*n/sum of n
+                my.x <- Reduce("+", my.x)/pattern.n(x, n)
+            }
+
+            ## Make sure that the diagonals are 1 for correlation analysis
+            if (cor.analysis) diag(my.x) <- 1
+            ## Repeat it to k studies
+            x <- replicate(length(x), my.x, simplify = FALSE)    
+        }
+        ## whether to use average correlation matrix
+
+        
         # Check if it returns a matrix or a list
         if (as.matrix) {
           # No. of variables
