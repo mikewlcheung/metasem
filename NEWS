@@ -1,3 +1,7 @@
+Release 0.9.5-4 (October 29, 2015)
+====================================
+* Fixed a bug in rerun() for tssem1FEM objects that does not update the objects
+
 Release 0.9.5-3 (October 23, 2015)
 ====================================
 * Added acov argument in asyCov() and tssem1()

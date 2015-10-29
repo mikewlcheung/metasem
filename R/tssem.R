@@ -32,9 +32,10 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
     total.n <- sum(n)
 
     ## Check positive definiteness of data
+    ## Print warning rather than stop
     isPD <- is.pd(my.df)
     if (!all(isPD))
-        stop(paste("Group ", (1:no.groups)[!isPD], " is not positive definite.", sep = ""))
+        warning(paste("Group ", (1:no.groups)[!isPD], " is not positive definite.", sep = ""))
 
     ## Prepare starting values based on covariance matrices
     sv <- .startValues(my.df, cor.analysis = FALSE)
@@ -130,51 +131,51 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
     if (inherits(mx.fit, "error"))
         warning(print(mx.fit))
 
-    pooledS <- eval(parse(text = "mxEval(S, mx.fit)"))
+    #### Fixed a bug in rerun() on tssem1() that does not update pooledS and acovS
+      
+    ## pooledS <- eval(parse(text = "mxEval(S, mx.fit)"))
 
-    # Fixed a bug that all elements have to be inverted before selecting some of them
-    if (cor.analysis) {
-        #Hessian_S <- 0.5*mx.fit@output$calculatedHessian[vechs(ps.labels), vechs(ps.labels)]
-        acovS <- tryCatch( 2*solve(mx.fit@output$calculatedHessian)[vechs(ps.labels),
-                           vechs(ps.labels)], error = function(e) e)
-    } else {
-        #Hessian_S <- 0.5*mx.fit@output$calculatedHessian[vech(ps.labels), vech(ps.labels)]
-        acovS <-  tryCatch( 2*solve(mx.fit@output$calculatedHessian)[vech(ps.labels),
-                            vech(ps.labels)], error = function(e) e)
-    }
-    # Issue a warning instead of error message
-    if (inherits(acovS, "error")) {
-      cat("Error in solving the Hessian matrix.\n")
-      warning(print(acovS))
-    } else {
-      # Fixed a bug in a few lines later in dimnames(acovS) when acovS is a scalar
-      acovS <- as.matrix(acovS)
-    }
+    ## # Fixed a bug that all elements have to be inverted before selecting some of them
+    ## if (cor.analysis) {
+    ##     #Hessian_S <- 0.5*mx.fit@output$calculatedHessian[vechs(ps.labels), vechs(ps.labels)]
+    ##     acovS <- tryCatch( 2*solve(mx.fit@output$calculatedHessian)[vechs(ps.labels),
+    ##                        vechs(ps.labels)], error = function(e) e)
+    ## } else {
+    ##     #Hessian_S <- 0.5*mx.fit@output$calculatedHessian[vech(ps.labels), vech(ps.labels)]
+    ##     acovS <-  tryCatch( 2*solve(mx.fit@output$calculatedHessian)[vech(ps.labels),
+    ##                         vech(ps.labels)], error = function(e) e)
+    ## }
+    ## # Issue a warning instead of error message
+    ## if (inherits(acovS, "error")) {
+    ##   cat("Error in solving the Hessian matrix.\n")
+    ##   warning(print(acovS))
+    ## } else {
+    ##   # Fixed a bug in a few lines later in dimnames(acovS) when acovS is a scalar
+    ##   acovS <- as.matrix(acovS)
+    ## }
 
-    # check dimnames
-    if (is.null(dimnames(my.df[[1]]))) {
-        dimnames(pooledS) <- list(var.names, var.names)
-    } else {
-        df.dim <- dimnames(my.df[[1]])
-        dimnames(pooledS) <- df.dim
-        # create matrix of labels for ps
-        if (cor.analysis) {
-            psMatnames <- vechs(outer(unlist(df.dim[1]), unlist(df.dim[1]), paste,
-                sep = " "))
-        } else {
-            psMatnames <- vech(outer(unlist(df.dim[1]), unlist(df.dim[1]), paste,
-                sep = " "))
-        }
-        #dimnames(Hessian_S) <- list(psMatnames, psMatnames)
-        dimnames(acovS) <- list(psMatnames, psMatnames)
-    }
+    ## # check dimnames
+    ## if (is.null(dimnames(my.df[[1]]))) {
+    ##     dimnames(pooledS) <- list(var.names, var.names)
+    ## } else {
+    ##     df.dim <- dimnames(my.df[[1]])
+    ##     dimnames(pooledS) <- df.dim
+    ##     # create matrix of labels for ps
+    ##     if (cor.analysis) {
+    ##         psMatnames <- vechs(outer(unlist(df.dim[1]), unlist(df.dim[1]), paste,
+    ##             sep = " "))
+    ##     } else {
+    ##         psMatnames <- vech(outer(unlist(df.dim[1]), unlist(df.dim[1]), paste,
+    ##             sep = " "))
+    ##     }
+    ##     #dimnames(Hessian_S) <- list(psMatnames, psMatnames)
+    ##     dimnames(acovS) <- list(psMatnames, psMatnames)
+    ## }
 
     ## Calculate 2LL of the saturated and independence models and the DF of independence model
     baseMinus2LL <- tryCatch(.minus2LL(x=my.df, n=n), error = function(e) e)
 
-    out <- list(call = match.call(), cor.analysis=cor.analysis, data=my.df, pooledS = pooledS,
-                acovS = acovS, n = n,
-                modelMinus2LL = mx.fit@output$Minus2LogLikelihood,
+    out <- list(call = match.call(), cor.analysis=cor.analysis, data=my.df, n = n,
                 baseMinus2LL = baseMinus2LL, mx.model=tssem1, mx.fit = mx.fit,
                 original.names=original.names)
     class(out) <- "tssem1FEM"
@@ -525,11 +526,7 @@ tssem2 <- function(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.co
                                              mx.algebras=mx.algebras,
                                              model.name=model.name, suppressWarnings=suppressWarnings, silent=silent, run=run, ...)
                               class(out) <- "wls.cluster" },
-         tssem1FEM = { cor.analysis <- tssem1.obj$cor.analysis
-                      # check the call to determine whether it is a correlation or covariance analysis
-                      ## cor.analysis <- tssem1.obj$call[[match("cor.analysis", names(tssem1.obj$call))]]
-                      ## # if not specified, the default in tssem1() is cor.analysis=TRUE
-                      if (cor.analysis==TRUE) {
+         tssem1FEM = { if (tssem1.obj$cor.analysis==TRUE) {
                         if (is.null(model.name)) model.name <- "TSSEM2 Correlation"
                       } else {
                         if (is.null(model.name)) model.name <- "TSSEM2 Covariance"
@@ -537,11 +534,11 @@ tssem2 <- function(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.co
                       ## cor.analysis <- as.logical(as.character(cor.analysis))
                       }
                       ## Use the original varible names for the observed covariance matrix
-                      pooledS <- tssem1.obj$pooledS
-                      dimnames(pooledS) <- list(tssem1.obj$original.names, tssem1.obj$original.names)
-                      out <- wls(Cov=pooledS, asyCov=tssem1.obj$acovS, n=sum(tssem1.obj$n),
-                                 Amatrix=Amatrix, Smatrix=Smatrix, Fmatrix=Fmatrix,
-                                 diag.constraints=diag.constraints, cor.analysis=cor.analysis,
+                      pooledS <- coef.tssem1FEM(tssem1.obj)                      
+                      ## dimnames(pooledS) <- list(tssem1.obj$original.names, tssem1.obj$original.names)
+                      out <- wls(Cov=coef.tssem1FEM(tssem1.obj), asyCov=vcov.tssem1FEM(tssem1.obj),
+                                 n=sum(tssem1.obj$n), Amatrix=Amatrix, Smatrix=Smatrix, Fmatrix=Fmatrix,
+                                 diag.constraints=diag.constraints, cor.analysis=tssem1.obj$cor.analysis,
                                  intervals.type=intervals.type, mx.algebras=mx.algebras,
                                  model.name=model.name, suppressWarnings=suppressWarnings,
                                  silent=silent, run=run, ...) },

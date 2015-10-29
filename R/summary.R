@@ -217,13 +217,9 @@ summary.tssem1FEM <- function(object, ...) {
     
     cor.analysis <- object$cor.analysis
     
-    # Calculate the no. of variables based on the implied S
-    mx.fit <- summary(object$mx.fit)
-
-    ## Fixed a warning in R CMD check
-    ## summary.tssem1: no visible binding for global variable "S1"
-    no.var <- ncol(object$pooledS)
-
+    pooledS <- coef.tssem1FEM(object)
+    no.var <- ncol(pooledS)
+    
     # Fixed if there are incomplete data in the first group
     ## no.var <- ncol(mxEval(S1, object$mx.fit))
     if (cor.analysis)
@@ -238,13 +234,14 @@ summary.tssem1FEM <- function(object, ...) {
       tB <- NA
       dfB <- NA
     } else {
-      tT <- object$modelMinus2LL - unname(object$baseMinus2LL["SaturatedLikelihood"])
+      tT <- object$mx.fit@output$Minus2LogLikelihood - unname(object$baseMinus2LL["SaturatedLikelihood"])
       tB <- unname(object$baseMinus2LL["IndependenceLikelihood"]) - unname(object$baseMinus2LL["SaturatedLikelihood"])
       dfB <- unname(object$baseMinus2LL["independenceDoF"])
     }
-    
+
+    my.fit <- summary(object$mx.fit)
     ## tT <- object$modelMinus2LL - object$saturatedMinus2LL 
-    dfT <- mx.fit$degreesOfFreedom
+    dfT <- my.fit$degreesOfFreedom
     ## tB <- object$independentMinus2LL - object$saturatedMinus2LL
     ## dfB <- mx.fit$degreesOfFreedom + ps
     p <- pchisq(tT, df=dfT, lower.tail=FALSE)
@@ -278,7 +275,7 @@ summary.tssem1FEM <- function(object, ...) {
 
     ## weight to calculate SRMR
     n.weight <- (n-1)/sum(n-1)
-    SRMR <- sapply(object$data, srmr, pooledS=object$pooledS, cor.analysis=cor.analysis)
+    SRMR <- sapply(object$data, srmr, pooledS=pooledS, cor.analysis=cor.analysis)
     SRMR <- sum(n.weight*SRMR)
     ## SRMR <- sqrt(mean(unlist(sapply(object$data, srmr, pooledS=object$pooledS, cor.analysis=cor.analysis))))
     #SRMR <- sqrt(mean(mapply(srmr, x$data, miss.index,
@@ -291,7 +288,7 @@ summary.tssem1FEM <- function(object, ...) {
     colnames(stat) <- "Value"
 
     # calculate coefficients    
-    my.para <- summary(object$mx.fit)$parameters
+    my.para <- my.fit$parameters
     ## my.para <- my.para[my.para$matrix=="S1", ]
     my.para <- my.para[my.para$matrix=="S", , drop=FALSE]
     #Sel <- grep("^S", my.para$matrix, value=TRUE)
@@ -746,7 +743,42 @@ vcov.meta <- function(object, select=c("all", "fixed", "random"), ...) {
 vcov.tssem1FEM <- function(object, ...) {
   if (!is.element("tssem1FEM", class(object)))
     stop("\"object\" must be an object of class \"tssem1FEM\".")
-  object$acovS
+
+    no.var <- ncol(coef.tssem1FEM(object))
+
+    ## matrix of labels; only use the lower triangle
+    ps.labels <- outer(1:no.var, 1:no.var, function(x, y) paste0("s", x, y))
+    
+    if (object$cor.analysis) {
+        #Hessian_S <- 0.5*mx.fit@output$calculatedHessian[vechs(ps.labels), vechs(ps.labels)]
+        acovS <- tryCatch( 2*solve(object$mx.fit@output$calculatedHessian)[vechs(ps.labels),
+                           vechs(ps.labels)], error = function(e) e)
+    } else {
+        #Hessian_S <- 0.5*mx.fit@output$calculatedHessian[vech(ps.labels), vech(ps.labels)]
+        acovS <-  tryCatch( 2*solve(object$mx.fit@output$calculatedHessian)[vech(ps.labels),
+                            vech(ps.labels)], error = function(e) e)
+    }
+    # Issue a warning instead of error message
+    if (inherits(acovS, "error")) {
+      cat("Error in solving the Hessian matrix.\n")
+      warning(print(acovS))
+    } else {
+      # Fixed a bug in a few lines later in dimnames(acovS) when acovS is a scalar
+      acovS <- as.matrix(acovS)
+    }
+
+    acovS.dim <- outer(object$original.names, object$original.names, paste, sep="_")
+
+    # create matrix of labels for ps
+    if (object$cor.analysis) {
+        psMatnames <- vechs(acovS.dim)
+    } else {
+        psMatnames <- vech(acovS.dim)
+    }
+
+    dimnames(acovS) <- list(psMatnames, psMatnames)
+
+    acovS
 }
 
 vcov.tssem1FEM.cluster <- function(object, ...) {
@@ -857,12 +889,16 @@ coef.meta <- function(object, select=c("all", "fixed", "random"), ...) {
 coef.tssem1FEM <- function(object, ...) {  
     if (!is.element("tssem1FEM", class(object)))
     stop("\"object\" must be an object of class \"tssem1FEM\".")
-    object$pooledS
+
+    pooledS <- eval(parse(text = "mxEval(S, object$mx.fit)"))
+    dimnames(pooledS) <- list(object$original.names, object$original.names)  
+    pooledS
 }
 
 coef.tssem1REM <- function(object, select=c("all", "fixed", "random"), ...) {
   if (!is.element("tssem1REM", class(object)))
     stop("\"object\" must be an object of class \"tssem1REM\".")
+
   coef.meta(object, select, ...)
 }
 
