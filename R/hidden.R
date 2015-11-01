@@ -53,9 +53,12 @@
   indep.out <- tryCatch(mxRun(mx.model, silent=TRUE,
                               suppressWarnings=TRUE), error = function(e) e)
     
-  if (inherits(indep.out, "error"))
-    stop(print(indep.out))
-  else return(indep.out@output$Minus2LogLikelihood)
+  if (inherits(indep.out, "error")) {
+      return(NA)
+      ## stop(print(indep.out))
+  }  else {
+      return(indep.out@output$Minus2LogLikelihood)
+  }
 }
 
 .minus2LL <- function(x, n) {
@@ -94,11 +97,16 @@
     mx.model <- mxOption(mx.model, "Standard Errors"  , "No")
     
     fit <- tryCatch(mxRun(mx.model, silent=TRUE, suppressWarnings=TRUE), error = function(e) e)
-    if (inherits(fit, "error")) 
-          stop(print(fit))
-    #fit@output$Minus2LogLikelihood
-    ## c(unlist(summary(fit)[c("SaturatedLikelihood", "IndependenceLikelihood", "independenceDoF")]))
-    c(unlist(fit@output[c("SaturatedLikelihood", "IndependenceLikelihood")]), independenceDoF=no.var*(no.var-1)/2)
+    
+    if (inherits(fit, "error")) {
+        return(c(SaturatedLikelihood=NA, IndependenceLikelihood=NA,
+                 independenceDoF=no.var*(no.var-1)/2))
+        ## stop(print(fit))
+    } else {
+        #fit@output$Minus2LogLikelihood
+        ## c(unlist(summary(fit)[c("SaturatedLikelihood", "IndependenceLikelihood", "independenceDoF")]))
+       return(c(unlist(fit@output[c("SaturatedLikelihood", "IndependenceLikelihood")]), independenceDoF=no.var*(no.var-1)/2))
+    }
   }
 }
 
@@ -223,70 +231,4 @@
     }
   
   I2.values
-}
-
-## Calculate asymptotic sampling covariance matrix
-## fn=list("x1*x2/x3", "x2^x1/x3")
-## variables=c("x1", "x2", "x3")
-## Mean and Cov based on variables
-.delta <- function (fn, variables, Mean, Cov) { 
-    Cov <- as.matrix(Cov)
-    n <- length(Mean)
-    if ((dim(Cov)[1] != n) || (dim(Cov)[2] != n)) 
-        stop("Dimensions of \"Mean\" and \"Cov\" are different.\n")          
-    if (!is.list(fn))
-      fn <- list(fn)
-    ## Convert into formulas
-    fn <- lapply(fn, function(x) as.formula(paste("~", x, sep="")))
-    for (i in 1:n) assign(variables[i], Mean[i])
-    grad <- t(sapply(fn, function(x) as.numeric(attr(eval(deriv(x, variables)), "gradient"))))
-    grad %*% Cov %*% t(grad)
-}
-
-.asyCov <- function(x, n, cor.analysis=TRUE, type=c("individual", "fixed", "random")) {
-    type <- match.arg(type)
-    switch( type,
-           individual = {
-               ## Diagonals of starting values
-               my.start <- diag(.startValues(x, cor.analysis=TRUE))
-               ## Replace diagonals with 1.0
-               my.cor <- lapply(x, function (x) { my.na <- is.na(Diag(x))
-                                                  Diag(x)[my.na] <- my.start[my.na]
-                                                  x })
-               ## Replace missing variables with 0.0
-               my.cor <- lapply(my.cor, function (x) { x[is.na(x)] <- 0; x }) },
-           fixed = {
-               my.fixed <- tssem1REM(my.df=x, n=n, cor.analysis=cor.analysis, RE.type="Zero", silent=TRUE)
-               my.cor <- vec2symMat(coef(my.fixed, select="fixed"), diag=!cor.analysis)
-               my.cor <- rep(list(my.cor), length(n)) },
-           random = {
-               my.random <- tssem1REM(my.df=x, n=n, cor.analysis=cor.analysis, RE.type="Diag", silent=TRUE)
-               my.cor <- vec2symMat(coef(my.random, select="fixed"), diag=!cor.analysis)
-               my.cor <- rep(list(my.cor), length(n)) })
-
-    ## Calculate the asymptotic sampling covariance matrix of the correlation matrix
-    asyCov(x=my.cor, n=n, cor.analysis=cor.analysis)
-}
-
-.ellipse <- function (x, scale=c(1, 1), centre=c(0, 0), level=0.95,
-                      t=sqrt(qchisq(level, 2)), which=c(1, 2), npoints=100, ...) {
-    names <- c("x", "y")
-    if (is.matrix(x)) {
-        xind <- which[1]
-        yind <- which[2]
-        r <- x[xind, yind]
-        if (missing(scale)) {
-            scale <- sqrt(c(x[xind, xind], x[yind, yind]))
-        if (scale[1] > 0) r <- r/scale[1]
-        if (scale[2] > 0) r <- r/scale[2]
-        }
-    if (!is.null(dimnames(x)[[1]]))
-        names <- dimnames(x)[[1]][c(xind, yind)]
-    }
-    else r <- x
-    r <- min(max(r,-1),1)  # clamp to -1..1, in case of rounding errors
-    d <- acos(r)
-    a <- seq(0, 2 * pi, len = npoints)
-    matrix(c(t*scale[1] * cos(a + d/2) + centre[1], t * scale[2] *
-             cos(a - d/2)+centre[2]), npoints, 2, dimnames=list(NULL, names))
 }

@@ -8,11 +8,12 @@ The stable version can be installed from CRAN by:
 install.packages("metaSEM")
 ```
 
-The developmental version can be installed by:
+The developmental version can be installed from GitHub by:
 ```
-library(devtools)
-## Install metaSEM from GitHub
-install_github("mikewlcheung/metasem")
+## Install devtools package if it has not been installed yet
+# install.packages("devtools")
+
+devtools::install_github("mikewlcheung/metasem")
 ```
 
 Please refer to https://courses.nus.edu.sg/course/psycwlm/Internet/metaSEM/ for more detail.

@@ -4,7 +4,7 @@ import(OpenMx)
 # import(Matrix)
 importFrom(Matrix, nearPD)
 
-# importFrom(ellipse, ellipse)
+importFrom(ellipse, ellipse)
 importFrom(MASS, mvrnorm)
 
 S3method(plot, meta)
@@ -55,3 +55,11 @@ S3method(print, summary.tssem1FEM)
 S3method(print, summary.meta)
 S3method(print, summary.meta3X)
 S3method(print, summary.reml)
+
+# required by R3.3
+importFrom("graphics", "abline", "arrows", "layout", "par", "plot",
+           "points", "polygon")
+importFrom("stats", "as.formula", "coef", "cov2cor", "deriv",
+           "na.omit", "pchisq", "pnorm", "printCoefmat", "qchisq",
+           "qnorm", "reshape", "var", "vcov", "weighted.mean")
+importFrom("utils", "read.table")

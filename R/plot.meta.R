@@ -102,7 +102,7 @@ plot.meta <- function(x, effect.sizes, add.margin=0.1, interval=0.95,
                          function(x) {rand.val <- c(x[rand.ind[effect.sizes[1],effect.sizes[1]]],
                                                     x[rand.ind[effect.sizes[1],effect.sizes[2]]],
                                                     x[rand.ind[effect.sizes[2],effect.sizes[2]]])
-                                      .ellipse( vec2symMat(rand.val),
+                                      ellipse( vec2symMat(rand.val),
                                                 centre=c(x[effect.sizes[1]],x[effect.sizes[2]]))})
     
     ## study.cex is proportional to sqrt(1/det(ACOV)).
@@ -143,12 +143,12 @@ plot.meta <- function(x, effect.sizes, add.margin=0.1, interval=0.95,
   
     points(x=ES[1], y=ES[2], col=estimate.col, pch=estimate.pch, cex=estimate.cex)
     if (estimate.ellipse.plot==TRUE) {
-      points(.ellipse(ACov, centre=ES), type="l", col=estimate.ellipse.col,
+      points(ellipse(ACov, centre=ES), type="l", col=estimate.ellipse.col,
              lty=estimate.ellipse.lty, lwd=estimate.ellipse.lwd)
     }  
     ## Plot ellipse for random effects only if no missing in RE
     if ( randeff.ellipse.plot==TRUE && all(!is.na(Diag(RE))) ) {
-      points(.ellipse(RE, centre=ES), type="l", col=randeff.ellipse.col,
+      points(ellipse(RE, centre=ES), type="l", col=randeff.ellipse.col,
              lty=randeff.ellipse.lty, lwd=randeff.ellipse.lwd)
     }
     ## Plot univariate if at least one RE is present
