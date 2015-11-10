@@ -1,3 +1,7 @@
+Release 0.9.7-0 (November 10, 2015)
+====================================
+* Added RMSEA 95% CI for wls and tssem1FEM classes
+
 Release 0.9.6 (October 31, 2015)
 ====================================
 * Released to CRAN

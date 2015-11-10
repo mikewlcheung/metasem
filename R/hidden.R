@@ -232,3 +232,35 @@
   
   I2.values
 }
+
+## Modified from rmseaConfidenceIntervalHelper() in OpenMx
+.rmseaCI <- function(chi.squared, df, N, G=1, lower=.05, upper=.95){
+
+    if (df==0) {
+        return(c(lower=0, upper=0))
+    } else {
+        pChiSqFun <- function(x, val, degf, goal){ goal - pchisq(val, degf, ncp=x) }  
+
+        # Lower confidence interval
+        if (pchisq(chi.squared, df=df, ncp=0) >= upper) { #sic
+            lower.lam <- uniroot(f=pChiSqFun, interval=c(1e-10, 1e4), val=chi.squared, degf=df, goal=upper)$root
+            # solve pchisq(ch, df=df, ncp=x) == upper for x
+        } else{
+            lower.lam <- 0
+        }
+
+        # Upper confidence interval
+        if (pchisq(chi.squared, df=df, ncp=0) >= lower) { #sic
+            upper.lam <- uniroot(f=pChiSqFun, interval=c(1e-10, 1e4), val=chi.squared, degf=df, goal=lower)$root
+            # solve pchisq(ch, df=df, ncp=x) == lower for x
+        } else{
+            upper.lam <- 0
+        }
+
+        ## Steiger (1998, Eq. 24) A note on multiple sample extensions of the RMSEA fit indices. SEM, 5(4), 411-419.
+        lower.rmsea <- sqrt(G)*sqrt(max((lower.lam)/(N-G)/df, 0))
+        upper.rmsea <- sqrt(G)*sqrt(max((upper.lam)/(N-G)/df, 0))
+
+        return(c(lower=lower.rmsea, upper=upper.rmsea))
+    }
+}

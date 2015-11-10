@@ -29,6 +29,9 @@ summary.wls <- function(object, df.adjustment=0, R=50, ...) {
     } else {
       RMSEA <- sqrt(max((tT-dfT)/(n-1),0)/dfT)
     }
+    ## RMSEA 95% CI
+    RMSEA.CI <- .rmseaCI(chi.squared=tT, df=dfT, N=n, G=1, lower=.05, upper=.95)
+    
     TLI <- (tB/dfB - tT/dfT)/(tB/dfB-1)
     CFI <- 1 - max((tT-dfT),0)/max((tT-dfT),(tB-dfB),0)
 	## FIXME: better to use -2LL+2r where r is the no. of free parameters (Mplus, p. 22; R ?AIC)
@@ -45,12 +48,13 @@ summary.wls <- function(object, df.adjustment=0, R=50, ...) {
     }
 
     stat <- matrix(c(n, tT, dfT, p, no.constraints, df.adjustment, tB, dfB,
-                     RMSEA, SRMR, TLI, CFI, AIC, BIC), ncol=1)
+                     RMSEA, RMSEA.CI[1], RMSEA.CI[2], SRMR, TLI, CFI, AIC, BIC), ncol=1)
 
     dimnames(stat) <- list( c("Sample size", "Chi-square of target model", "DF of target model",
                         "p value of target model", "Number of constraints imposed on \"Smatrix\"",
                         "DF manually adjusted", "Chi-square of independence model",
-                        "DF of independence model",  "RMSEA", "SRMR", "TLI", "CFI", "AIC", "BIC"), "Value" )
+                        "DF of independence model",  "RMSEA", "RMSEA lower 95% CI",
+                        "RMSEA upper 95% CI", "SRMR", "TLI", "CFI", "AIC", "BIC"), "Value" )
    
     ## my.para <- my.mx$parameters       # Worked up to OpenMx1.0.6
     my.para <- my.mx$parameters[, 1:6]   # Fixed for OpenMx1.1
@@ -249,6 +253,9 @@ summary.tssem1FEM <- function(object, ...) {
     no.groups <- length(object$mx.fit@submodels)
     ## Steiger (1998, Eq. 24) A note on multiple sample extensions of the RMSEA fit indices. SEM, 5(4), 411-419.
     RMSEA <- sqrt(no.groups)*sqrt(max((tT-dfT)/(sum(n)-1),0)/dfT)
+    ## RMSEA 95% CI
+    RMSEA.CI <- .rmseaCI(chi.squared=tT, df=dfT, N=sum(n), G=no.groups, lower=.05, upper=.95)   
+    
     ## Hu and Bentler (1998)
     TLI <- (tB/dfB - tT/dfT)/(tB/dfB-1)
     CFI <- 1 - max((tT-dfT),0)/max((tT-dfT),(tB-dfB),0)
@@ -281,10 +288,12 @@ summary.tssem1FEM <- function(object, ...) {
     #SRMR <- sqrt(mean(mapply(srmr, x$data, miss.index,
     #                         MoreArgs=list(pooledS=x$pooledS, cor.analysis=cor.analysis))))
     
-    stat <- matrix(c(sum(n), tT, dfT, p, tB, dfB, RMSEA, SRMR, TLI, CFI, AIC, BIC), ncol=1)
+    stat <- matrix(c(sum(n), tT, dfT, p, tB, dfB, RMSEA, RMSEA.CI[1], RMSEA.CI[2],
+                     SRMR, TLI, CFI, AIC, BIC), ncol=1)
     rownames(stat) <- c("Sample size", "Chi-square of target model", "DF of target model",
                         "p value of target model", "Chi-square of independence model",
-                        "DF of independence model", "RMSEA", "SRMR", "TLI", "CFI", "AIC", "BIC")
+                        "DF of independence model", "RMSEA", "RMSEA lower 95% CI",
+                        "RMSEA upper 95% CI","SRMR", "TLI", "CFI", "AIC", "BIC")
     colnames(stat) <- "Value"
 
     # calculate coefficients    
