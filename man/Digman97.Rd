@@ -65,6 +65,23 @@ F1 <- create.Fmatrix(c(1,1,1,1,1,0,0), as.mxMatrix=FALSE)
 ## Display F1
 F1
 
+################################################################################
+## Alternative model specification in lavaan model syntax
+model <- "## Factor loadings
+          Alpha=~A+C+ES
+          Beta=~E+I
+          ## Factor correlation
+          Alpha~~Beta"
+
+RAM <- lavaan2RAM(model, obs.variables=c("A","C","ES","E","I"),
+                  A.notation="on", S.notation="with")
+RAM
+
+A1 <- RAM$A
+S1 <- RAM$S
+F1 <- RAM$F
+################################################################################
+
 fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, Fmatrix=F1,
                  model.name="TSSEM2 Digman97")
 summary(fixed2)

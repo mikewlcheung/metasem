@@ -1,3 +1,7 @@
+Release 0.9.7-1 (November 19, 2015)
+====================================
+* Added lavaan2RAM to convert lavaan models to RAM models
+
 Release 0.9.7-0 (November 10, 2015)
 ====================================
 * Added RMSEA 95% CI for wls and tssem1FEM classes
@@ -7,25 +11,10 @@ Release 0.9.6 (October 31, 2015)
 * Released to CRAN
 * Added several packages in NAMESPACE to satisfy R developmental version's (3.3.0) requirements
 * Added ellipse package in imports
-
-Release 0.9.5-4 (October 29, 2015)
-====================================
 * Fixed a bug reported by S.-F. Cheung in rerun() for tssem1FEM objects
-
-Release 0.9.5-3 (October 23, 2015)
-====================================
 * Added acov argument in asyCov() and tssem1()
-
-Release 0.9.5-2 (September 17, 2015)
-====================================
 * Modified wls(diag.constraints=FALSE) so that "mediators" are properly handled 
-
-Release 0.9.5-1 (August 20, 2015)
-====================================
 * Added datasets Norton13 and Roorda11
-
-Release 0.9.5-0 (August 1, 2015)
-====================================
 * Changed default model.name in tssem1REM(), tssem1FEM() and wls() to avoid potential error code with OpenMx 2.2.6
 * Added RE.constraints argument and "User" option in RE.type argument in tssem1() and tssem1REM()
 

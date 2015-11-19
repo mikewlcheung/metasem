@@ -53,6 +53,25 @@ dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c("Math","Spatial","Verbal")
 ## Display S1
 S1
 
+################################################################################
+## Alternative model specification in lavaan model syntax
+model <- "## Regression paths
+          Math~Spatial2Math*Spatial
+          Math~Verbal2Math*Verbal
+          Spatial~~CorSpatialVerbal*Verbal
+          ## Fix the variances of Spatial and Verbal at 1
+          Spatial~~1*Spatial
+          Verbal~~1*Verbal
+          ## Label the error variance of Math
+          Math~~ErrorVarMath*Math+start(0.2)*Math"
+
+RAM <- lavaan2RAM(model, obs.variables=c("Math","Spatial","Verbal"))
+RAM
+
+A1 <- RAM$A
+S1 <- RAM$S
+################################################################################
+
 ## Fixed-effects model: Second stage analysis
 ## Two equivalent versions to calculate the R2 and its 95\% LBCI
 fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, intervals.type="LB",

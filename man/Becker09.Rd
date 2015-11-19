@@ -61,6 +61,30 @@ dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c("Per","Cog","SO","SC")
 ## Display S1
 S1
 
+################################################################################
+## Alternative model specification in lavaan model syntax
+model <- "## Regression paths
+          Per~Cog2Per*Cog
+          Per~SO2Per*SO
+          Per~SC2Per*SC
+          SC~Cog2SC*Cog
+          SC~SO2SC*SO
+          ## Fix the variances of Cog and SO at 1
+          Cog~~1*Cog
+          SO~~1*SO
+          ## Label the correlation between Cog and SO
+          Cog~~cor*SO
+          ## Label the error variances of Per and SC
+          Per~~var_Per*Per
+          SC~~var_SC*SC"
+
+RAM <- lavaan2RAM(model, obs.variables=c("Per","Cog","SO","SC"))
+RAM
+
+A1 <- RAM$A
+S1 <- RAM$S
+################################################################################
+
 ## Second stage analysis
 fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, diag.constraints=TRUE,
                  intervals.type="LB", model.name="TSSEM2 Becker09",

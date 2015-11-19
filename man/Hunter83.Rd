@@ -46,6 +46,26 @@ S1 <- create.mxMatrix(c(1,"0.1*Var_e_J", "0.1*Var_e_W", "0.1*Var_e_S"),
 dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c("Ability","Job","Work","Supervisor") 
 S1
 
+################################################################################
+## Alternative model specification in lavaan model syntax
+model <- "## Regression paths
+          Job~A2J*Ability
+          Work~A2W*Ability + J2W*Job
+          Supervisor~J2S*Job + W2S*Work
+          ## Fix the variance of Ability
+          Ability~~1*Ability
+          ## Label the error variances of dependent variables
+          Job~~Var_e_J*Job
+          Work~~Var_e_W*Work
+          Supervisor~~Var_e_S*Supervisor"
+
+RAM <- lavaan2RAM(model, obs.variables=c("Ability","Job","Work","Supervisor"))
+RAM
+
+A1 <- RAM$A
+S1 <- RAM$S
+################################################################################
+
 ## diag.constraints=TRUE is required as there are mediators  
 fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, intervals.type="LB",
                  diag.constraints=FALSE,
