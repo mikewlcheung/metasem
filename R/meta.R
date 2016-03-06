@@ -91,7 +91,9 @@ meta <- function(y, v, x, data, intercept.constraints=NULL, coef.constraints=NUL
       startValues <- tryCatch( eval(parse(text=paste("t(coefficients(lm(cbind(",
                                yVar, ")~", xVar,", data=data.frame(my.df))))", sep=""))) )
       # If error, replace it with 0. Added a column of intercepts
-      if (inherits(startValues, "error"))
+      # Fixed a minor bug that no starting value on the last predictor
+      # when intercept.constraints=0
+      if ( inherits(startValues, "error") & !is.null(intercept.constraints) )
         startValues <- matrix(0, nrow=no.y, ncol=(no.x+1))
       
       A.labels <- outer(1:no.y, 1:no.x, function(y, x) paste("*Slope", y,"_", x, sep = ""))
