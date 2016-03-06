@@ -1,0 +1,10 @@
+language: r
+cache: packages
+sudo: false
+
+r_packages:
+ - semPlot
+
+r:
+  - release
+  - devel   
