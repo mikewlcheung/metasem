@@ -93,9 +93,9 @@ meta <- function(y, v, x, data, intercept.constraints=NULL, coef.constraints=NUL
       # If error, replace it with 0. Added a column of intercepts
       # Fixed a minor bug that no starting value on the last predictor
       # when intercept.constraints=0
-      if ( inherits(startValues, "error") & !is.null(intercept.constraints) )
+      if ( inherits(startValues, "error") | !is.null(intercept.constraints) )
         startValues <- matrix(0, nrow=no.y, ncol=(no.x+1))
-      
+  
       A.labels <- outer(1:no.y, 1:no.x, function(y, x) paste("*Slope", y,"_", x, sep = ""))
       Beta <- matrix( paste(startValues[,-1], A.labels, sep=""), nrow=no.y, ncol=no.x )
     } else {
