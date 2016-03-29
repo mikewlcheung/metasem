@@ -1,3 +1,7 @@
+Release 0.9.7-3 (March 29, 2016)
+====================================
+* Returned NA rather than error in 95% CI of RMSEA when there are errors in summary.wls(). 
+
 Release 0.9.7-2 (March 6, 2016)
 ====================================
 * Fixed a minor bug in meta() that does not give a starting value on the last preditcor with intercept.constraints=0

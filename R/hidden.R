@@ -243,15 +243,19 @@
 
         # Lower confidence interval
         if (pchisq(chi.squared, df=df, ncp=0) >= upper) { #sic
-            lower.lam <- uniroot(f=pChiSqFun, interval=c(1e-10, 1e4), val=chi.squared, degf=df, goal=upper)$root
-            # solve pchisq(ch, df=df, ncp=x) == upper for x
+            lower.lam <- tryCatch( uniroot(f=pChiSqFun, interval=c(1e-10, 1e4), val=chi.squared, degf=df, goal=upper)$root,
+                                   error=function(e) e )
+            if (inherits(lower.lam, "error")) lower.lam <- NA
+            # solve pchisq(ch, df=df, ncp=x) == upper for x            
         } else{
             lower.lam <- 0
         }
 
         # Upper confidence interval
         if (pchisq(chi.squared, df=df, ncp=0) >= lower) { #sic
-            upper.lam <- uniroot(f=pChiSqFun, interval=c(1e-10, 1e4), val=chi.squared, degf=df, goal=lower)$root
+            upper.lam <- tryCatch( uniroot(f=pChiSqFun, interval=c(1e-10, 1e4), val=chi.squared, degf=df, goal=lower)$root,
+                                   error=function(e) e )
+            if (inherits(upper.lam, "error")) upper.lam <- NA
             # solve pchisq(ch, df=df, ncp=x) == lower for x
         } else{
             upper.lam <- 0
