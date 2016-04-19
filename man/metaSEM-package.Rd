@@ -13,8 +13,8 @@
 \tabular{ll}{
 Package: \tab metaSEM\cr
 Type: \tab Package\cr
-Version: \tab 0.9.7-3\cr
-Date: \tab 2016-03-29\cr
+Version: \tab 0.9.8\cr
+Date: \tab 2016-04-16\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }
@@ -49,7 +49,7 @@ Cheung, M. W.-L., & Chan, W. (2005). Meta-analytic structural equation modeling:
 Cheung, M. W.-L., & Chan, W. (2009). A two-stage approach to synthesizing covariance matrices in meta-analytic structural equation modeling. \emph{Structural Equation Modeling}, \bold{16}, 28-53.
 
 Cheung, M. W.-L., & Cheung, S.-F. (in press). Random-effects models for meta-analytic structural equation modeling: Review, issues, and
-  illustrations. \emph{Research Synthesis Methods.}
+illustrations. \emph{Research Synthesis Methods.}
 }
 \keyword{ package }
 

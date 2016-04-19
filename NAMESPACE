@@ -61,5 +61,6 @@ importFrom("graphics", "abline", "arrows", "layout", "par", "plot",
            "points", "polygon")
 importFrom("stats", "as.formula", "coef", "cov2cor", "deriv",
            "na.omit", "pchisq", "pnorm", "printCoefmat", "qchisq",
-           "qnorm", "reshape", "var", "vcov", "weighted.mean")
+           "qnorm", "reshape", "var", "vcov", "weighted.mean", "uniroot")
 importFrom("utils", "read.table")
+
