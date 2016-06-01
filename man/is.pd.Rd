@@ -18,10 +18,8 @@ is.pd(x, check.asyCov=FALSE, cor.analysis=TRUE, tol=1e-06)
 	\code{\link[metaSEM]{asyCov}}.}
   \item{cor.analysis}{Whether the input matrix is a correlation or a
 	covariance matrix. It is ignored when \code{check.asyCov=FALSE}.}
-  \item{tol}{Relative tolerance of positiveness of smallest eigenvalue compared
-	to largest eigenvalue. The matrix is considered positive definite if the
-	ratio of the smallest eigenvalue to the largest eigenvalue is larger than
-	\code{tol}. See \code{\link[Matrix]{nearPD}}
+  \item{tol}{Tolerance (relative to largest variance) for numerical lack
+	of positive-definiteness in \code{x}. It is adopted from \code{\link[MASS]{mvrnorm}}.
 }
 }
 \value{If the input is a matrix, it returns \code{TRUE}, \code{FALSE}

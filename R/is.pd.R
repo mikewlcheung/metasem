@@ -20,7 +20,10 @@ is.pd <- function(x, check.asyCov=FALSE, cor.analysis=TRUE, tol=1e-06) {
             out <- NA
         } else {
             # lambda_k/lambda_1 > tol
-            if (lambda[length(lambda)]/lambda[1] > tol) {
+            ## if (lambda[length(lambda)]/lambda[1] > tol) {
+          
+            ## Use the definition in MASS::mvrnorm
+            if (all(lambda >= -tol*abs(lambda[1L]))) {
                 out <- TRUE
             } else {
                 out <- FALSE
