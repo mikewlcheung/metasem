@@ -21,9 +21,9 @@ A list of data with the following structure:
   Cheung, S.-F., & Chan, D. K.-S. (2000). The role of perceived behavioral control in predicting human behavior: A meta-analytic review of studies on the theory of planned behavior. \emph{Unpublished manuscript}, Chinese University of Hong Kong.
 }
 \references{
-  Cheung, M.W.-L., & Cheung, S.-F. (in press). Random-effects models for
+  Cheung, M.W.-L., & Cheung, S.-F. (2016). Random-effects models for
   meta-analytic structural equation modeling: Review, issues, and
-  illustrations. \emph{Research Synthesis Methods.}
+  illustrations. \emph{Research Synthesis Methods}, \bold{7}, 140-155.
 }
 \note{These studies were extracted from the original data set for
   illustration purpose. Some samples contained two or more correlation
