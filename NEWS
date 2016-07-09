@@ -1,4 +1,5 @@
 Release 0.9.9-1 (July 9, 2016)
+* Fixed a minor bug in lavaan2RAM() that does not honor the std.lv argument.
 * Modified the vignette and added examples.
 
 Release 0.9.9-0 (June 1, 2016)
@@ -8,7 +9,7 @@ Release 0.9.8 (April 16, 2016)
 * Released to CRAN
 * Returned NA rather than error in calculating 95% CI of RMSEA when there are errors in summary.wls(). 
 * Fixed a minor bug in meta() that does not give a starting value on the last preditcor with intercept.constraints=0
-* Added lavaan2RAM to convert lavaan models to RAM models
+* Added lavaan2RAM() to convert lavaan models to RAM models
 * Added RMSEA 95% CI for wls and tssem1FEM classes
 
 Release 0.9.6 (October 31, 2015)

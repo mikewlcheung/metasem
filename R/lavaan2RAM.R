@@ -3,10 +3,10 @@ lavaan2RAM <- function(model, obs.variables = NULL, A.notation="ON", S.notation=
     if (!requireNamespace("lavaan", quietly=TRUE))    
         stop("\"lavaan\" package is required for this function.")
 
-    ## fix the latent independent variables at 1
-    my.model <- lavaan::lavaanify(model, fixed.x = FALSE, auto.var=auto.var, std.lv=TRUE, ...)
+    ## Default: fix the latent independent variables at 1
+    my.model <- lavaan::lavaanify(model, fixed.x = FALSE, auto.var=auto.var, std.lv=std.lv, ...)
     
-    ## replace "." with ""
+    ## replace "." with "" as OpenMx does not like "." in model
     my.model$plabel <- gsub("\\.", "", my.model$plabel)
     ## remove constraints 
     ## there are constraints such as .p1. and .p2; remove them
