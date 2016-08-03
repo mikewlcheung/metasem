@@ -253,8 +253,15 @@ summary.tssem1FEM <- function(object, ...) {
     no.groups <- length(object$mx.fit@submodels)
     ## Steiger (1998, Eq. 24) A note on multiple sample extensions of the RMSEA fit indices. SEM, 5(4), 411-419.
     RMSEA <- sqrt(no.groups)*sqrt(max((tT-dfT)/(sum(n)-1),0)/dfT)
+
+    ## Fixed a minor bug that returns an error when tT=NA; it returns NA for RMSEA.CI now
     ## RMSEA 95% CI
-    RMSEA.CI <- .rmseaCI(chi.squared=tT, df=dfT, N=sum(n), G=no.groups, lower=.05, upper=.95)   
+    if (is.na(tT)) {
+      RMSEA.CI <- c(NA, NA)
+      attr(RMSEA.CI, "names") <- c("lower", "upper")
+    } else {
+      RMSEA.CI <- .rmseaCI(chi.squared=tT, df=dfT, N=sum(n), G=no.groups, lower=.05, upper=.95)   
+    }
     
     ## Hu and Bentler (1998)
     TLI <- (tB/dfB - tT/dfT)/(tB/dfB-1)

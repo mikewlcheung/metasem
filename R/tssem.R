@@ -1,6 +1,6 @@
 tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
-                     cluster=NULL, suppressWarnings=TRUE, silent=TRUE,
-                     run=TRUE, ...) {
+                      cluster=NULL, suppressWarnings=TRUE, silent=TRUE,
+                      run=TRUE, ...) {
   if (!is.null(cluster)) {
     data.cluster <- tapply(my.df, cluster, function(x) {x})
     n.cluster <- tapply(n, cluster, function(x) {x})
@@ -15,6 +15,9 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
     class(out) <- "tssem1FEM.cluster"
     out
   } else {
+    ## Throw an error when df and n are in different lengths.
+    if (length(my.df) != length(n)) stop("Lengths of \"df\" and \"n\" are different.\n") 
+      
     ## Check whether all studies have the same dimensions
     my.range <- range(sapply(my.df, function(x) {ncol(x)}))
     if ( !all.equal(my.range[1], my.range[2]) )
@@ -115,10 +118,18 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
     ##         sep = "", collapse = "+"), ", name=\"obj\"), mxAlgebraObjective(\"obj\"))",
     ##         sep = "")
     ## }
-    tssem1.model <- paste("tssem1 <- mxModel(\"", model.name, "\", S, ",
-                          paste("g", 1:no.groups, sep = "", collapse = ","),
-                          ", mxAlgebra(", paste("g", 1:no.groups, ".objective", sep = "", collapse = "+"),
-                          ", name=\"obj\"), mxFitFunctionAlgebra(algebra =\"obj\"))", sep = "")
+      
+    ## tssem1.model <- paste("tssem1 <- mxModel(\"", model.name, "\", S, ",
+    ##                       paste("g", 1:no.groups, sep = "", collapse = ","),
+    ##                       ", mxAlgebra(", paste("g", 1:no.groups, ".objective", sep = "", collapse = "+"),
+    ##                       ", name=\"obj\"), mxFitFunctionAlgebra(algebra =\"obj\"))", sep = "")
+
+    ## Replaced mxFitFunctionAlgebra() with mxFitFunctionMultigroup()  
+    tssem1.model <- paste0("tssem1 <- mxModel(\"", model.name, "\", S, ",
+                          paste0("g", 1:no.groups, collapse = ","),
+                          ", mxFitFunctionMultigroup(c(", paste0("\"g", 1:no.groups, "\"", collapse=","), ")))")
+    ## mgFitFn <- paste0("mxFitFunctionMultigroup(c(", paste0("\"g", 1:no.groups, "\"", collapse=","), ")")
+      
     eval(parse(text = tssem1.model))
 
     ## Return mx model without running the analysis
@@ -191,6 +202,9 @@ tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Ze
   ## ACOV is calculated without missing data by assuming 1 and 0 for the missing variances and covariances.
   ## Missing values are indicated by the missing effect sizes.
 
+  ## Throw an error when df and n are in different lengths.
+  if (length(my.df) != length(n)) stop("Lengths of \"df\" and \"n\" are different.\n")   
+    
   ## Get the original variable names
   original.names <- colnames(my.df[[1]])
 

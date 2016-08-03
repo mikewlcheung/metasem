@@ -1,3 +1,8 @@
+Release 0.9.9-2 (August 3, 2016)
+* Fixed a minor bug in summary.tssem1FEM that throws an error when tT is NA.
+* Added a check on the lengths of df and n in tssem1FEM() and tssem1REM().
+* Changed mxFitFunctionAlgebra() to mxFitFunctionMultigroup() in tssem1FEM().
+
 Release 0.9.9-1 (July 9, 2016)
 * Fixed a minor bug in lavaan2RAM() that does not honor the std.lv argument.
 * Modified the vignette and added examples.
