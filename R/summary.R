@@ -1166,3 +1166,9 @@ vcov.MxRAMModel <- function(object, ...) {
       return(acov)
     }
 }
+
+VarCorr <- function(object, ...) {
+    if (!is.element("meta", class(object)))
+    stop("\"object\" must be an object of class \"meta\".")
+    eval(parse(text="mxEval(Tau, object$mx.fit)"))
+}

@@ -1,3 +1,6 @@
+Release 0.9.9-3 (August 11, 2016)
+* Added VarCorr() to extract variance component matrix for the class meta objects.
+
 Release 0.9.9-2 (August 3, 2016)
 * Fixed a minor bug in summary.tssem1FEM that throws an error when tT is NA.
 * Added a check on the lengths of df and n in tssem1FEM() and tssem1REM().
