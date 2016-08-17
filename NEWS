@@ -1,3 +1,6 @@
+Release 0.9.9-4 (August 17, 2016)
+* Added impliedSigma() to calculate the model implied correlation or covariance matrix based on the RAM model
+
 Release 0.9.9-3 (August 11, 2016)
 * Added VarCorr() to extract variance component matrix for the class meta objects.
 
@@ -14,6 +17,7 @@ Release 0.9.9-0 (June 1, 2016)
 * Changed the definition of is.pd() from Matrix::nearPD to MASS::mvrnorm().
 
 Release 0.9.8 (April 16, 2016)
+====================================
 * Released to CRAN
 * Returned NA rather than error in calculating 95% CI of RMSEA when there are errors in summary.wls(). 
 * Fixed a minor bug in meta() that does not give a starting value on the last preditcor with intercept.constraints=0

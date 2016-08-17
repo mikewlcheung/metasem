@@ -55,6 +55,7 @@ S3method(print, summary.tssem1FEM)
 S3method(print, summary.meta)
 S3method(print, summary.meta3X)
 S3method(print, summary.reml)
+S3method(print, impliedSigma)
 
 # required by R3.3
 importFrom("graphics", "abline", "arrows", "layout", "par", "plot",

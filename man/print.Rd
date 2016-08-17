@@ -6,12 +6,13 @@
 \alias{print.meta}
 \alias{print.meta3X}
 \alias{print.reml}
-\title{Print Methods for \code{tssem1FEM}, \code{tssem1FEM.cluster},
-  \code{tssem1REM}, \code{wls}, \code{meta}, \code{meta3X} and \code{reml} Objects 
+\alias{print.impliedSigma}
+\title{Print Methods for various Objects 
 }
-\description{Print methods for either \code{tssem1FEM},
+\description{Print methods for the \code{tssem1FEM},
   \code{tssem1FEM.cluster}, \code{tssem1REM}, \code{wls},
-  \code{meta}, \code{meta3X} or \code{reml} objects.
+  \code{meta}, \code{meta3X}, \code{reml}, and
+  \code{impliedSigma} objects.
 }
 \usage{
 \method{print}{tssem1FEM}(x, \dots)
@@ -21,14 +22,17 @@
 \method{print}{meta}(x, \dots)
 \method{print}{meta3X}(x, \dots)
 \method{print}{reml}(x, \dots)
+\method{print}{impliedSigma}(x, \dots)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{An object returned from either class
 	\code{tssem1FEM}, class \code{tssem1FEM.cluster}, class \code{tssem1REM},
-	class \code{wls}, class \code{meta}, class \code{meta3X} or class \code{reml}
+	class \code{wls}, class \code{meta}, class \code{meta3X},
+	class \code{reml}, or class \code{impliedSigma}
 }
   \item{\dots}{Further arguments to be passed to \code{summary.default}
+	or unused.
 }
 }
 
