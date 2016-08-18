@@ -32,13 +32,13 @@ tssem2(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
 }
   \item{n}{Sample size.
 }
-  \item{Amatrix}{An asymmetric matrix in the RAM approach with
+  \item{Amatrix}{An asymmetric matrix in the RAM specification with
 	\code{\link[OpenMx]{MxMatrix-class}}. If it is \code{NULL}, a matrix
 	of zero will be created. If it is a matrix, it will be converted into \code{\link[OpenMx]{MxMatrix-class}} by the \code{as.mxMatrix} function.
 }
-  \item{Smatrix}{A symmetric matrix in the RAM approach with \code{\link[OpenMx]{MxMatrix-class}}. If it is a matrix, it will be converted into \code{\link[OpenMx]{MxMatrix-class}} by the \code{as.mxMatrix} function.
+  \item{Smatrix}{A symmetric matrix in the RAM specification with \code{\link[OpenMx]{MxMatrix-class}}. If it is a matrix, it will be converted into \code{\link[OpenMx]{MxMatrix-class}} by the \code{as.mxMatrix} function.
 }
-  \item{Fmatrix}{A filter matrix in the RAM approach with
+  \item{Fmatrix}{A filter matrix in the RAM specification with
 	\code{\link[OpenMx]{MxMatrix-class}}. If it is \code{NULL} (the default), an
 	identity matrix with the same dimensions of \code{Cov} will be
 	created. If it is a matrix, it will be converted into \code{\link[OpenMx]{MxMatrix-class}} by the \code{as.mxMatrix} function. It is not required when there is no latent variable.

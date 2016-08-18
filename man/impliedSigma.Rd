@@ -7,7 +7,7 @@
 }
 \usage{
 impliedSigma(Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, labels=NULL,
-cor.analysis=TRUE, ...)
+             cor.analysis=TRUE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -73,7 +73,7 @@ cor.analysis=TRUE, ...)
 
 \examples{
 ## A simple mediation model
-## All are population parameters in A matrix
+## All are population parameters in the A matrix
 A1 <- matrix(c(0, 0, 0,
                0.3, 0, 0,
                0.2, 0.4, 0), nrow=3, ncol=3, byrow=TRUE,

@@ -1,19 +1,13 @@
-Release 0.9.9-4 (August 17, 2016)
+Release 0.9.10 (August 18, 2016)
+====================================
+* Released to CRAN
 * Added impliedSigma() to calculate the model implied correlation or covariance matrix based on the RAM model
-
-Release 0.9.9-3 (August 11, 2016)
 * Added VarCorr() to extract variance component matrix for the class meta objects.
-
-Release 0.9.9-2 (August 3, 2016)
 * Fixed a minor bug in summary.tssem1FEM that throws an error when tT is NA.
 * Added a check on the lengths of df and n in tssem1FEM() and tssem1REM().
 * Changed mxFitFunctionAlgebra() to mxFitFunctionMultigroup() in tssem1FEM().
-
-Release 0.9.9-1 (July 9, 2016)
 * Fixed a minor bug in lavaan2RAM() that does not honor the std.lv argument.
 * Modified the vignette and added examples.
-
-Release 0.9.9-0 (June 1, 2016)
 * Changed the definition of is.pd() from Matrix::nearPD to MASS::mvrnorm().
 
 Release 0.9.8 (April 16, 2016)
