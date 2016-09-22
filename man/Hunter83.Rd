@@ -12,8 +12,8 @@ This data set includes fourteen studies of Correlation Matrices reported by Hunt
 A list of data with the following structure:
 \describe{
   \item{data}{A list of 14 studies of correlation matrices. The
-	variables are \emph{Ability}, \emph{Job knowledge}, \emph{Work
-	  sample} and \emph{Supervisor rating}}
+	variables are \emph{Ability}, \emph{Job knowledge},
+	\emph{Work sample} and \emph{Supervisor rating}}
   \item{n}{A vector of sample sizes}
 }
 }
@@ -49,17 +49,20 @@ S1
 ################################################################################
 ## Alternative model specification in lavaan model syntax
 model <- "## Regression paths
-          Job~A2J*Ability
-          Work~A2W*Ability + J2W*Job
-          Supervisor~J2S*Job + W2S*Work
-          ## Fix the variance of Ability
-          Ability~~1*Ability
-          ## Label the error variances of dependent variables
-          Job~~Var_e_J*Job
-          Work~~Var_e_W*Work
-          Supervisor~~Var_e_S*Supervisor"
+          Job_knowledge ~ A2J*Ability
+          Work_sample ~ A2W*Ability + J2W*Job_knowledge
+          Supervisor ~ J2S*Job_knowledge + W2S*Work_sample
 
-RAM <- lavaan2RAM(model, obs.variables=c("Ability","Job","Work","Supervisor"))
+          ## Fix the variance of Ability at 1
+          Ability ~~ 1*Ability
+
+          ## Label the error variances of the dependent variables
+          Job_knowledge ~~ VarE_J*Job_knowledge
+          Work_sample ~~ VarE_W*Work_sample
+          Supervisor ~~ VarE_S*Supervisor"
+
+RAM <- lavaan2RAM(model, obs.variables=c("Ability","Job_knowledge",
+                  "Work_sample","Supervisor"))
 RAM
 
 A1 <- RAM$A

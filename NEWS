@@ -1,3 +1,8 @@
+Release 0.9.11-0 (September 22, 2016)
+====================================
+* Added datasets Nohe15A1 and Nohe15A2
+* Modified some variable names in Hunter83
+
 Release 0.9.10 (August 18, 2016)
 ====================================
 * Released to CRAN
