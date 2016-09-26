@@ -2,10 +2,10 @@ language: r
 cache: packages
 sudo: false
 
-r_packages:
- - sem
- - qgraph
- - semPlot
+# r_packages:
+#  - sem
+#  - qgraph
+#  - semPlot
 
 r:
   - release
