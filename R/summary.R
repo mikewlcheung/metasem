@@ -751,9 +751,9 @@ vcov.meta <- function(object, select=c("all", "fixed", "random"), ...) {
     if (inherits(acov, "error")) {
       cat("Error in solving the Hessian matrix.\n")
       warning(print(acov))
-    } else {
-      return(acov)
     }
+    
+    acov    
 }
 
 vcov.tssem1FEM <- function(object, ...) {
@@ -778,6 +778,7 @@ vcov.tssem1FEM <- function(object, ...) {
     if (inherits(acovS, "error")) {
       cat("Error in solving the Hessian matrix.\n")
       warning(print(acovS))
+      return(acovS)
     } else {
       # Fixed a bug in a few lines later in dimnames(acovS) when acovS is a scalar
       acovS <- as.matrix(acovS)
@@ -791,9 +792,8 @@ vcov.tssem1FEM <- function(object, ...) {
     } else {
         psMatnames <- vech(acovS.dim)
     }
-
     dimnames(acovS) <- list(psMatnames, psMatnames)
-
+  
     acovS
 }
 
@@ -840,15 +840,16 @@ vcov.wls <- function(object, R=50, ...) {
         
   } else {
     ## Select the free parameters for inversion
-    acovS <- tryCatch( 2*solve(object$mx.fit@output$calculatedHessian), error = function(e) e ) 
-
-    # Issue a warning instead of error message
-    if (inherits(acovS, "error")) {
-      cat("Error in solving the Hessian matrix.\n")
-      stop(print(acovS))
-    } 
+    acovS <- tryCatch( 2*solve(object$mx.fit@output$calculatedHessian), error = function(e) e )       
   }
-
+  
+  # Issue a warning instead of error message
+  if (inherits(acovS, "error")) {
+      cat("Error in solving the Hessian matrix.\n")
+      warning(print(acovS))
+      return(acovS)
+  }
+  
   my.para <- summary(object$mx.fit)$parameters[, 1:4]
   my.labels <- my.para$name
   my.order <- with(my.para, order(matrix, row, col))
@@ -856,6 +857,7 @@ vcov.wls <- function(object, R=50, ...) {
   acovS <- acovS[my.labels[my.order], my.labels[my.order]]
   my.labels <- my.labels <- gsub(paste(object$mx.model$name, ".", sep=""), "", row.names(acovS))
   dimnames(acovS) <- list(my.labels, my.labels)
+
   acovS
 }
 
@@ -879,9 +881,9 @@ vcov.reml <- function(object, ...) {
     if (inherits(acov, "error")) {
       cat("Error in solving the Hessian matrix.\n")
       warning(print(acov))
-    } else {
-      return(acov)
-    }
+    } 
+
+    acov    
 }
   
 

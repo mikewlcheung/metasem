@@ -1,3 +1,7 @@
+Release 0.9.11-1 (September 26, 2016)
+====================================
+* Minor changes on how errors are handled in the main functions. 
+
 Release 0.9.11-0 (September 22, 2016)
 ====================================
 * Added datasets Nohe15A1 and Nohe15A2

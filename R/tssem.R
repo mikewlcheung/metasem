@@ -138,59 +138,23 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
     # try to run it with error message as output
     ## mx.fit <- mxRun(tssem1)
     mx.fit <- tryCatch(mxRun(tssem1, suppressWarnings = suppressWarnings, silent=silent, ...),
-                           error = function(e) e)
-    if (inherits(mx.fit, "error"))
+                       error = function(e) e)
+
+    ## It is useful to return error for computer simulation.  
+    if (inherits(mx.fit, "error")) {
         warning(print(mx.fit))
+        out <- mx.fit
+    } else {
+        ## Calculate 2LL of the saturated and independence models and the DF of independence model
+        baseMinus2LL <- tryCatch(.minus2LL(x=my.df, n=n), error = function(e) e)
 
-    #### Fixed a bug in rerun() on tssem1() that does not update pooledS and acovS
-      
-    ## pooledS <- eval(parse(text = "mxEval(S, mx.fit)"))
-
-    ## # Fixed a bug that all elements have to be inverted before selecting some of them
-    ## if (cor.analysis) {
-    ##     #Hessian_S <- 0.5*mx.fit@output$calculatedHessian[vechs(ps.labels), vechs(ps.labels)]
-    ##     acovS <- tryCatch( 2*solve(mx.fit@output$calculatedHessian)[vechs(ps.labels),
-    ##                        vechs(ps.labels)], error = function(e) e)
-    ## } else {
-    ##     #Hessian_S <- 0.5*mx.fit@output$calculatedHessian[vech(ps.labels), vech(ps.labels)]
-    ##     acovS <-  tryCatch( 2*solve(mx.fit@output$calculatedHessian)[vech(ps.labels),
-    ##                         vech(ps.labels)], error = function(e) e)
-    ## }
-    ## # Issue a warning instead of error message
-    ## if (inherits(acovS, "error")) {
-    ##   cat("Error in solving the Hessian matrix.\n")
-    ##   warning(print(acovS))
-    ## } else {
-    ##   # Fixed a bug in a few lines later in dimnames(acovS) when acovS is a scalar
-    ##   acovS <- as.matrix(acovS)
-    ## }
-
-    ## # check dimnames
-    ## if (is.null(dimnames(my.df[[1]]))) {
-    ##     dimnames(pooledS) <- list(var.names, var.names)
-    ## } else {
-    ##     df.dim <- dimnames(my.df[[1]])
-    ##     dimnames(pooledS) <- df.dim
-    ##     # create matrix of labels for ps
-    ##     if (cor.analysis) {
-    ##         psMatnames <- vechs(outer(unlist(df.dim[1]), unlist(df.dim[1]), paste,
-    ##             sep = " "))
-    ##     } else {
-    ##         psMatnames <- vech(outer(unlist(df.dim[1]), unlist(df.dim[1]), paste,
-    ##             sep = " "))
-    ##     }
-    ##     #dimnames(Hessian_S) <- list(psMatnames, psMatnames)
-    ##     dimnames(acovS) <- list(psMatnames, psMatnames)
-    ## }
-
-    ## Calculate 2LL of the saturated and independence models and the DF of independence model
-    baseMinus2LL <- tryCatch(.minus2LL(x=my.df, n=n), error = function(e) e)
-
-    out <- list(call = match.call(), cor.analysis=cor.analysis, data=my.df, n = n,
-                baseMinus2LL = baseMinus2LL, mx.model=tssem1, mx.fit = mx.fit,
-                original.names=original.names)
-    class(out) <- "tssem1FEM"
+        out <- list(call = match.call(), cor.analysis=cor.analysis, data=my.df, n = n,
+                    baseMinus2LL = baseMinus2LL, mx.model=tssem1, mx.fit = mx.fit,
+                    original.names=original.names)
+        class(out) <- "tssem1FEM"
+    }
     return(out)
+      
   }
 }
 
@@ -516,6 +480,7 @@ wls <- function(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
   if (inherits(mx.fit, "error")) {
       cat("Error in running the mxModel:\n")
       warning(print(mx.fit))
+      out <- mx.fit
   } else {
       out <- list(call=match.call(), Cov=Cov, asyCov=asyCov, noObservedStat=ps, n=n, cor.analysis=cor.analysis, 
                   diag.constraints=diag.constraints, Constraints=Constraints,

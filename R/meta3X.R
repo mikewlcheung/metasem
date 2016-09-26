@@ -485,6 +485,7 @@ meta3X <- function(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=
   if (inherits(mx.fit, "error")) {
     cat("Error in running the mxModel:\n")
     warning(print(mx.fit))
+    return(mx.fit)
   }
 
   ## ## my.long is complete data

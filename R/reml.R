@@ -202,6 +202,7 @@ reml <- function(y, v, x, data, RE.constraints=NULL, RE.startvalues=0.1, RE.lbou
   if (inherits(mx.fit, "error")) {
     cat("Error in running the mxModel:\n")
     warning(print(mx.fit))
+    return(mx.fit)
   }
 
   ## Ad-hoc: Add no. of studies and no. of observed statistics

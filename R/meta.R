@@ -235,10 +235,12 @@ meta <- function(y, v, x, data, intercept.constraints=NULL, coef.constraints=NUL
   if (inherits(mx.fit, "error")) {
     cat("Error in running mxModel:\n")
     warning(print(mx.fit))
+    return(mx.fit)
+  } else {
+     out <- list(call=mf, data=input.df, no.y=no.y, no.x=no.x, miss.x=miss.x, mx.model=mx.model,
+                 I2=I2, R2=R2, mx.fit=mx.fit, mx0.fit=mx0.fit, intervals.type=intervals.type)
+     class(out) <- "meta"
   }
   
-  out <- list(call=mf, data=input.df, no.y=no.y, no.x=no.x, miss.x=miss.x, mx.model=mx.model,
-              I2=I2, R2=R2, mx.fit=mx.fit, mx0.fit=mx0.fit, intervals.type=intervals.type)
-  class(out) <- "meta"
   return(out)
 }
