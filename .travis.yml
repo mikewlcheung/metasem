@@ -9,4 +9,7 @@ sudo: false
 
 r:
   - release
-#  - devel   
+#  - devel 
+
+warnings_are_errors: true    
+r_check_args: "--run-dontrun"
