@@ -1,3 +1,8 @@
+Release 0.9.11-2 (September 27, 2016)
+====================================
+* Added uniR1(), uniR2mx(), and uniR2lavaan().
+* Modified a variable name in Becker09
+
 Release 0.9.11-1 (September 26, 2016)
 ====================================
 * Minor changes on how errors are handled in the main functions. 

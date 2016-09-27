@@ -14,7 +14,7 @@ A list of data with the following structure:
 \describe{
   \item{data}{A list of 4x4 correlation matrices. The
 	variables are \emph{Performance}, \emph{Cognitive}, \emph{Somatic},
-	and \emph{Self confidence}}
+	and \emph{Self_confidence}}
   \item{n}{A vector of sample sizes}
   \item{Type_of_sport}{Samples based on \emph{Individual} or \emph{Team}}
 }
@@ -44,7 +44,8 @@ A1 <- create.mxMatrix(c(0, "0.1*Cog2Per", "0.1*SO2Per", "0.1*SC2Per",
                       as.mxMatrix=FALSE)
 
 ## This step is not necessary but it is useful for inspecting the model.
-dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- c("Per","Cog","SO","SC")
+dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- c("Performance", "Cognitive",
+                                            "Somatic", "Self_confidence")
 
 ## Display A1
 A1
@@ -56,7 +57,8 @@ S1 <- create.mxMatrix(c("0.1*var_Per",
                       as.mxMatrix=FALSE)
 
 ## This step is not necessary but it is useful for inspecting the model.
-dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c("Per","Cog","SO","SC")
+dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c("Performance", "Cognitive",
+                                            "Somatic", "Self_confidence")
 
 ## Display S1
 S1
@@ -64,21 +66,19 @@ S1
 ################################################################################
 ## Alternative model specification in lavaan model syntax
 model <- "## Regression paths
-          Per~Cog2Per*Cog
-          Per~SO2Per*SO
-          Per~SC2Per*SC
-          SC~Cog2SC*Cog
-          SC~SO2SC*SO
+          Performance ~ Cog2Per*Cognitive + SO2Per*Somatic + SC2Per*Self_confidence
+          Self_confidence ~ Cog2SC*Cognitive + SO2SC*Somatic
           ## Fix the variances of Cog and SO at 1
-          Cog~~1*Cog
-          SO~~1*SO
+          Cognitive ~~ 1*Cognitive
+          Somatic ~~ 1*Somatic
           ## Label the correlation between Cog and SO
-          Cog~~cor*SO
+          Cognitive ~~ cor*Somatic
           ## Label the error variances of Per and SC
-          Per~~var_Per*Per
-          SC~~var_SC*SC"
+          Performance ~~ var_Per*Performance
+          Self_confidence ~~ var_SC*Self_confidence"
 
-RAM <- lavaan2RAM(model, obs.variables=c("Per","Cog","SO","SC"))
+RAM <- lavaan2RAM(model, obs.variables=c("Performance", "Cognitive",
+                                         "Somatic", "Self_confidence"))
 RAM
 
 A1 <- RAM$A
@@ -150,10 +150,45 @@ my.plot <- meta2semPlot(random2, manNames=c("Per","Cog","SO","SC"))
 ## Plot the model with labels
 ## The labels are overlapped.
 ## semPaths(my.plot, whatLabels="path", nCharEdges=10)
-semPaths(my.plot, whatLabels="path", nCharEdges=10,  nCharNodes=10, layout="spring", color="red")
+semPaths(my.plot, whatLabels="path", nCharEdges=10,  nCharNodes=10,
+         layout="spring", color="red")
 
 ## Plot the parameter estimates
-semPaths(my.plot, whatLabels="est", nCharNodes=10, layout="spring", color="green")
+semPaths(my.plot, whatLabels="est", nCharNodes=10, layout="spring",
+color="green")
+
+#### Univariate r approach
+#### First stage of the analysis
+uni1 <- uniR1(Becker09$data, Becker09$n)
+uni1
+
+#### Second stage of analysis using OpenMx
+model2 <- "## Regression paths
+           Performance ~ Cog2Per*Cognitive + SO2Per*Somatic + SC2Per*Self_confidence
+           Self_confidence ~ Cog2SC*Cognitive + SO2SC*Somatic
+           ## Provide starting values for Cog and SO
+           Cognitive ~~ start(1)*Cognitive
+           Somatic ~~ start(1)*Somatic
+           ## Label the correlation between Cog and SO
+           Cognitive ~~ cor*Somatic
+           ## Label the error variances of Per and SC
+           Performance ~~ var_Per*Performance
+           Self_confidence ~~ var_SC*Self_confidence"
+
+RAM2 <- lavaan2RAM(model2, obs.variables=c("Performance", "Cognitive",
+                                           "Somatic", "Self_confidence"))
+RAM2
+
+uni2mx <- uniR2mx(uni1, Amatrix=RAM2$A, Smatrix=RAM2$S)
+summary(uni2mx)
+
+#### Second stage of analysis Using lavaan
+model3 <- "## Regression paths
+           Performance ~ Cognitive + Somatic + Self_confidence
+           Self_confidence ~ Cognitive + Somatic"
+
+uni2lavaan <- uniR2lavaan(uni1, model3)
+summary(uni2lavaan)
 }
 }
 \keyword{datasets}
