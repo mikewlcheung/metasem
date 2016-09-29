@@ -25,20 +25,20 @@ uniR1 <- function(my.df, n, ...) {
   ## Average sampling error: Schmidt and Hunter (2015, Eq. 3.6)
   ## No. of studies
   K <- pattern.na(my.df, show.na = FALSE)
-  r.err2 <- (1-r.mean^2)^2*K/n.sum
+  r.SE2 <- (1-r.mean^2)^2*K/n.sum
 
   ## Heterogeneity variance: Schmidt and Hunter (2015)
-  r.SD2 <- r.S2 - r.err2
+  r.SD2 <- r.S2 - r.SE2
   ## if negative, truncates to 0
   r.SD2[r.SD2<0] <- 0
 
   ## set the diagonals at NA
-  diag(r.err2) <- diag(r.SD2) <- diag(r.S2) <- NA
+  diag(r.SE2) <- diag(r.SD2) <- NA
 
   ## cumulative n of the lower triangle
   n.harmonic <- n.sum[lower.tri(n.sum)]
   n.harmonic <- round( length(n.harmonic)/sum(1/n.harmonic), 0 )
-  out <- list(data=my.df, n=n, r.mean=r.mean, r.S2=r.S2, r.err=sqrt(r.err2),
+  out <- list(data=my.df, n=n, r.mean=r.mean, r.SE=sqrt(r.SE2),
               r.SD=sqrt(r.SD2), n.harmonic=n.harmonic)
   class(out) <- "uniR1"
   out
@@ -52,7 +52,7 @@ print.uniR1 <- function(x, ...) {
   cat("\nAverage correlation matrix: ", "\n")
   print(x$r.mean)
   cat("\nSampling error (SE) of the average correlation matrix: ", "\n")
-  print(x$r.err)
+  print(x$r.SE)
   cat("\nPopulation heterogeneity (SD) of the average correlation matrix: ", "\n")
   print(x$r.SD)
 }
