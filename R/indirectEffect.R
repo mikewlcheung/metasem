@@ -60,11 +60,11 @@ indirectEffect <- function(x, n, standardized=TRUE, direct.effect=TRUE, run=TRUE
 
   # Fixed a bug that all elements have to be inverted before selecting some of them
   if (direct.effect) {
-     acovS <- tryCatch( 2*solve(my.fit@output$calculatedHessian)[c("a","b","c"), c("a","b","c")], error = function(e) e)
+     acovS <- .solve(x=my.fit@output$calculatedHessian, parameters=c("a","b","c"))
      ## Differentiate of [a*b c]
      esDiff <- matrix(c(b, 0, a, 0, 0, 1), ncol=3)
   } else {
-     acovS <- tryCatch( 2*solve(my.fit@output$calculatedHessian)[c("a","b"), c("a","b")], error = function(e) e)
+     acovS <- .solve(x=my.fit@output$calculatedHessian, parameters=c("a","b"))
      esDiff <- matrix(c(b, a), ncol=2)
   }
   

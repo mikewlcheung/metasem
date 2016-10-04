@@ -38,7 +38,7 @@
     stop("Dimensions of \"S\" do not match the dimensions of \"acovS\"\n")
     
   # Inverse of asymptotic covariance matrix
-  invacovS <- tryCatch(solve(acovS), error = function(e) e)
+  invacovS <- tryCatch(chol2inv(chol(acovS)), error = function(e) e)
   if (inherits(invacovS, "error"))
     stop(print(invacovS))    
   invAcov <- mxMatrix("Full", ncol = ps, nrow = ps, values = c(invacovS),
@@ -267,4 +267,23 @@
 
         return(c(lower=lower.rmsea, upper=upper.rmsea))
     }
+}
+
+## Use chol2inv() first and ginv() if there are problems
+.solve <- function(x, parameters) {
+    var.names <- colnames(x)
+    
+    acov <- tryCatch( 2*chol2inv(chol(x)), error = function(e) e )
+    # Issue a warning instead of error message
+    if (inherits(acov, "error")) {
+      warning("Error in solving the Hessian matrix. Generalized inverse is used. The standard errors may not be trustworthy.\n")
+      acov <- 2*MASS::ginv(x)
+    }    
+    dimnames(acov) <- list(var.names, var.names)
+    
+    if (!missing(parameters)) {
+        acov <- acov[parameters, parameters, drop=FALSE]
+    }    
+    
+    acov    
 }

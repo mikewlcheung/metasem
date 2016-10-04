@@ -6,6 +6,7 @@ importFrom(Matrix, nearPD)
 
 importFrom(ellipse, ellipse)
 importFrom(MASS, mvrnorm)
+importFrom(MASS, ginv)
 
 S3method(plot, meta)
 

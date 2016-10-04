@@ -302,7 +302,7 @@ wls <- function(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
 
   # Inverse of asymptotic covariance matrix
   if (is.pd(asyCov)) {
-    invacovS <- tryCatch(solve(asyCov), error = function(e) e)
+    invacovS <- tryCatch(chol2inv(chol(asyCov)), error = function(e) e)
     ## It appears that solve() does not fail
     if (inherits(invacovS, "error")) {
       cat("Error in inverting \"asyCov\":\n")

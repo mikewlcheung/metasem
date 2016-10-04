@@ -24,7 +24,7 @@ homoStat <- function(y, v) {
     V <- matrix2bdiag(v)
     V <- V[!miss.index, !miss.index, drop=FALSE]
     
-    V_inv <- solve(V)
+    V_inv <- chol2inv(chol(V))
     Q <- t(Y) %*% ( V_inv - V_inv %*% X %*% solve(t(X)
               %*% V_inv %*% X) %*% t(X) %*% V_inv ) %*% Y
     Q.df <- nrow(X)-ncol(X)
