@@ -3,7 +3,7 @@
 \docType{data}
 \title{Correlation Matrices from Boer et al. (2016)}
 \description{
-  The data set include correlation matrices of leader-member exchange in
+  The data set includes correlation matrices of leader-member exchange in
   transformational leadership reported by Boer et al. (2016). 
 }
 \usage{data(Boer16)}
