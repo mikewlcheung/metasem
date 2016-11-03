@@ -98,6 +98,11 @@ uniR2mx <- function(x, Amatrix = NULL, Smatrix = NULL, Fmatrix = NULL,
     var.labels <- colnames(r.mean)
   }
 
+  ## Added labels for latent variables
+  if (length(var.labels) < p) {
+      var.labels <- c(var.labels, paste0("f", seq_len(p-length(var.labels))))
+  }
+    
   if (is.null(model.name)) model.name <- "UniR2"
   exp <- mxExpectationRAM(A="Amatrix", S="Smatrix", F="Fmatrix", dimnames=var.labels)
 
