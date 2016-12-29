@@ -1,3 +1,7 @@
+Release 0.9.11-7 (December 28, 2016)
+====================================
+* Revised impliedSigma().
+
 Release 0.9.11-6 (November 3, 2016)
 ====================================
 * Fixed a bug in uniR2mx() that does not work for models with latent variables.

@@ -6,8 +6,7 @@
   matrix based on the RAM model specification.
 }
 \usage{
-impliedSigma(Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, labels=NULL,
-             cor.analysis=TRUE, ...)
+impliedSigma(Amatrix, Smatrix, Fmatrix, labels, corr=TRUE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -22,38 +21,38 @@ impliedSigma(Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, labels=NULL,
 	\code{as.mxMatrix} function.
 }
   \item{Fmatrix}{A filter matrix in the RAM specification with
-	\code{\link[OpenMx]{MxMatrix-class}}. If it is \code{NULL} (the default), an
+	\code{\link[OpenMx]{MxMatrix-class}}. If it is missing, an
 	identity matrix with the same dimensions of \code{Smatrix} will be
-	created. If it is a matrix, it will be converted into
+	created, which means that all variables are observed. If it is a matrix, it will be converted into
 	\code{\link[OpenMx]{MxMatrix-class}} by the \code{as.mxMatrix}
 	function. It is not required when there is no latent variable.
   }
-  \item{labels}{A character vectors of labels of observed and latent
+  \item{labels}{A character vector of the observed and latent
 	variables with the same dimensions as that in the \code{Amatrix} and
 	\code{Smatrix}. The labels of the observed variables are
 	automatically extracted by the \code{Fmatrix}.
   }
-  \item{cor.analysis}{Logical. The output is either the model implied
+  \item{corr}{Logical. The output is either the model implied
 	correlation matrix or the covariance matrix.
   }
   \item{\dots}{Not used.}
 }
 \details{This function can be used to generate the model implied
   correlation matrix for the standardized parameters with the
-  \code{cor.analysis=TRUE} argument. Suppose we want to calculate the
+  \code{corr=TRUE} argument. Suppose we want to calculate the
   population correlation matrix for a mediation model with x, m, and
   y. We only need to specify the population path coefficients among x,
   m, and y in the \code{Amatrix}. We do not need to specify the
   population error variances of m and y. We treat the error variances as
   unknown parameters by giving them starting values in the
   \code{Smatrix} matrix. When the covariance matrix is requested by
-  specifying \code{cor.analysis=FALSE}, it simply calculates the
+  specifying \code{corr=FALSE}, it simply calculates the
   population model covariance matrix by treating the values in
   \code{Smatrix} as the population values.
 }
 \note{It is important to ensure that all the population values in
   \code{Amatrix} must be set as fixed parameters; otherwise, these
-  values may be altered with the \code{cor.analysis=TRUE} argument. When
+  values may be altered with the \code{corr=TRUE} argument. When
   there is an error or warning message about the status code, there is a
   high chance that some of the values in \code{Amatrix} are incorrectly
   set as free parameters.
@@ -63,9 +62,9 @@ impliedSigma(Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, labels=NULL,
   covariance matrix of the observed variables (\code{SigmaObs}), of both
   observed and latent variables (\code{SigmaAll}), the minimum fit
   (\code{minFit}) which should be zero, and the status code of the
-  optimization (\code{status}) which should also be zero. The last
-  object is \code{mx.fit} which is the output after running the
-  model. It can be used for diagnosis.
+  optimization (\code{status}) which should also be zero when the
+  optimization is fine. The last object is \code{mx.fit} which is the output after running the
+  model. It can be used in the diagnosis.
 }
 
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
