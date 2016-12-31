@@ -83,8 +83,7 @@ impliedSigma <- function(Amatrix, Smatrix, Fmatrix, labels, corr=TRUE, ...) {
   if (status!=0) warning("The status code of optimization is non-zero. ",
                          "Please check if there are too many free parameters in your population model.\n")  
 
-  out <- list(A=A, S=S, F=F, SigmaObs=SigmaObs, SigmaAll=SigmaAll, SigmaObs.PD=is.pd(SigmaObs),
-              SigmaAll.PD=is.pd(SigmaAll), minFit=minFit, status=status, mx.fit=mx.fit)
+  out <- list(A=A, S=S, F=F, SigmaObs=SigmaObs, SigmaAll=SigmaAll, minFit=minFit, status=status, mx.fit=mx.fit)
   class(out) <- "impliedSigma"
   out
 }
@@ -102,8 +101,8 @@ print.impliedSigma <- function(x, ...) {
   print(x$SigmaObs)
   cat("\nSigma of both the observed and latent variables:\n")
   print(x$SigmaAll)
-  cat("\nSigma of the observed variables is positive definite:", x$SigmaObs.PD)
-  cat("\nSigma of both the observed and latent variables is positive definite:", x$SigmaAll.PD) 
+  cat("\nSigma of the observed variables is positive definite:", is.pd(x$SigmaObs))
+  cat("\nSigma of both the observed and latent variables is positive definite:", is.pd(x$SigmaAll)) 
   cat("\nMinimum value of the fit function (it should be close to 0 for correlation solution: ", x$minFit)
   cat("\nStatus code of the optimization (it should be 0 for correlation solution: ", x$status, "\n")  
 }

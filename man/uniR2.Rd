@@ -56,7 +56,7 @@ uniR2lavaan(x, model, ...)
   covariance matrix in fitting structural equation models. The harmonic
   mean of the sample sizes in combining correlation coefficients is used
   as the sample size in fitting structural equation models. It is
-  included for research purposes. The two-stage structural equation
+  included in this package for research interests. The two-stage structural equation
   modeling (TSSEM) approach is preferred (e.g., Cheung, 2015; Cheung & Chan, 2005).
 }
 \references{
@@ -74,6 +74,6 @@ uniR2lavaan(x, model, ...)
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
 \seealso{ \code{\link[metaSEM]{uniR1}}, \code{\link[metaSEM]{lavaan2RAM}},
-    \code{\link[metaSEM]{Becker94}}
+    \code{\link[metaSEM]{Becker09}}
 }
 \keyword{ uniR }
