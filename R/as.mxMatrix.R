@@ -1,7 +1,8 @@
 as.mxMatrix <- function(x, name, ...) {
   ## If it is a vector, the output is a column matrix.
   if (!is.matrix(x))
-    x <- as.matrix(x)
+      x <- as.matrix(x)
+
   # suppress warnings
   ## warn <- options()$warn
   ## options(warn=-1)
@@ -12,9 +13,9 @@ as.mxMatrix <- function(x, name, ...) {
   # if not, use the matrix name
   if (missing(name))
     name <- as.character(match.call())[2]
-  
-  values <- suppressWarnings(as.numeric(x))  # They are NA for characters 
-  free <- is.na(values)    # They are TRUE for parameters with labels 
+
+  values <- suppressWarnings(as.numeric(x))  # They are NA for characters
+  free <- is.na(values)    # They are TRUE for parameters with labels
   freePara1 <- x[free]     # Extract free parameters
   # check if there are any free parameters
   if (length(freePara1)>0) {
@@ -27,8 +28,10 @@ as.mxMatrix <- function(x, name, ...) {
                     name=name, labels=labels, ...)
   } else {
     out <- mxMatrix(type = "Full", nrow=nRow, ncol=nCol, values=values, free=free,
-                    name=name, ...)    
+                    name=name, ...)
   }
+  ## Add the dimnames on values
+  dimnames(out@values) <- dimnames(x)
   ## options(warn=warn)
   out
 }

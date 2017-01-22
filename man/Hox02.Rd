@@ -52,8 +52,8 @@ summary( meta(y=yi, v=vi, data=Hox02, RE.constraints=VarComp_REML) )
 
 
 ## Mixed-effects meta-analysis with "weeks" as a predictor
-## Request likelihood-based CI
-summary( reml(y=yi, v=vi, x=weeks, intervals.type="LB",
+## Request Wald CI
+summary( reml(y=yi, v=vi, x=weeks, intervals.type="z",
               data=Hox02, model.name="REML with LB CI") )
 }
 }

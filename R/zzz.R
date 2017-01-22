@@ -8,18 +8,20 @@
 ## }
 
 .onAttach <- function(lib, pkg){
-        ## SLSQP (not NPSOL) is used as the default optimizer.
-        ## "central" (not "forward") is used as the default "Gradient algorithm".
-        mxOption(NULL, "Gradient algorithm", "central")
-        mxOption(NULL, "Optimality tolerance", "6.3e-14")
-        mxOption(NULL, "Gradient iterations", 2)
+    ## SLSQP (not NPSOL) is used as the default optimizer.
+    ## "central" (not "forward") is used as the default "Gradient algorithm".
 
-        packageStartupMessage('mxOption(NULL, "Gradient algorithm") is set at "', mxOption(NULL, "Gradient algorithm"), '".')
-        packageStartupMessage('mxOption(NULL, "Optimality tolerance") is set at "', mxOption(NULL, "Optimality tolerance"), '".')
-        packageStartupMessage('mxOption(NULL, "Gradient iterations") is set at "', mxOption(NULL, "Gradient iterations"), '".')
+    mxOption(NULL, "Default optimizer", "SLSQP")
+    mxOption(NULL, "Gradient algorithm", "central")
+    mxOption(NULL, "Optimality tolerance", "6.3e-14")
+    mxOption(NULL, "Gradient iterations", 2)
 
-        packageStartupMessage('"SLSQP" is set as the default optimizer in OpenMx.')
-        ## packageStartupMessage('If "SLSQP" does not work well for you, e.g., there are many error codes,')
-        ## packageStartupMessage('you may install the "NPSOL" optimizer from the OpenMx website and use it by calling:')
-        ## packageStartupMessage('mxOption(NULL, "Default optimizer", "NPSOL")')
+    packageStartupMessage('"SLSQP" is set as the default optimizer in OpenMx.')
+    packageStartupMessage('mxOption(NULL, "Gradient algorithm") is set at "', mxOption(NULL, "Gradient algorithm"), '".')
+    packageStartupMessage('mxOption(NULL, "Optimality tolerance") is set at "', mxOption(NULL, "Optimality tolerance"), '".')
+    packageStartupMessage('mxOption(NULL, "Gradient iterations") is set at "', mxOption(NULL, "Gradient iterations"), '".')
+
+    #packageStartupMessage('If "SLSQP" does not work well for you, e.g., there are many error codes,')
+    #packageStartupMessage('you may install the "NPSOL" optimizer from the OpenMx website and use it by calling:')
+    #packageStartupMessage('mxOption(NULL, "Default optimizer", "NPSOL")')
 }

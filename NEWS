@@ -1,3 +1,8 @@
+Release 0.9.11-8 (January 22, 2017)
+====================================
+* Explicitly stated "SLSQP" as the optimizer in metaSEM as "CSOLNP" is the default optimizer in OpenMx 2.7.4. 
+* Renamed impliedSigma() to impliedR().
+
 Release 0.9.11-7 (December 28, 2016)
 ====================================
 * Revised impliedSigma().

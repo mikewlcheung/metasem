@@ -1,12 +1,12 @@
-\name{impliedSigma}
-\alias{impliedSigma}
+\name{impliedR}
+\alias{impliedR}
 \title{Create the Model Implied Correlation or Covariance Matrix
 }
 \description{It creates the model implied correlation or covariance
   matrix based on the RAM model specification.
 }
 \usage{
-impliedSigma(Amatrix, Smatrix, Fmatrix, labels, corr=TRUE, ...)
+impliedR(Amatrix, Smatrix, Fmatrix, corr=TRUE, labels, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -27,13 +27,12 @@ impliedSigma(Amatrix, Smatrix, Fmatrix, labels, corr=TRUE, ...)
 	\code{\link[OpenMx]{MxMatrix-class}} by the \code{as.mxMatrix}
 	function. It is not required when there is no latent variable.
   }
-  \item{labels}{A character vector of the observed and latent
-	variables with the same dimensions as that in the \code{Amatrix} and
-	\code{Smatrix}. The labels of the observed variables are
-	automatically extracted by the \code{Fmatrix}.
-  }
   \item{corr}{Logical. The output is either the model implied
 	correlation matrix or the covariance matrix.
+  }
+  \item{labels}{A character vector of the observed and latent
+	variables with the same dimensions as that in the \code{Amatrix} and
+	\code{Smatrix}. 
   }
   \item{\dots}{Not used.}
 }
@@ -86,7 +85,7 @@ S1 <- matrix(c(1, 0, 0,
              dimnames=list(c("x", "m", "y"), c("x", "m", "y")))
 S1
 
-impliedSigma(Amatrix=A1, Smatrix=S1, labels=c("x","m","y"))
+impliedR(Amatrix=A1, Smatrix=S1)
 
 ## A CFA model
 A2 <- matrix(c(0, 0, 0, 0.3,
@@ -107,6 +106,6 @@ S2
 F2 <- create.Fmatrix(c(1,1,1,0), as.mxMatrix=FALSE)
 F2
 
-impliedSigma(Amatrix=A2, Smatrix=S2, Fmatrix=F2, labels=c("x1", "x2", "x3", "f"))
+impliedR(Amatrix=A2, Smatrix=S2, Fmatrix=F2)
 }
 \keyword{utilities}

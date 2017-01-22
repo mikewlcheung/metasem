@@ -1,4 +1,4 @@
-impliedSigma <- function(Amatrix, Smatrix, Fmatrix, labels, corr=TRUE, ...) {
+impliedR <- function(Amatrix, Smatrix, Fmatrix, corr=TRUE, labels, ...) {
   if (missing(Smatrix)) {
     stop("\"Smatrix\" matrix is not specified.\n")
   } else {
@@ -27,24 +27,24 @@ impliedSigma <- function(Amatrix, Smatrix, Fmatrix, labels, corr=TRUE, ...) {
 
   ## Model implied correlation/covariance matrix including latent variables
   SigmaAll <- mxAlgebra( solve(Id-Amatrix)%&%Smatrix, name="SigmaAll" )
-  
+
   ## Model implied correlation/covariance matrix of the observed variables
   SigmaObs <- mxAlgebra( Fmatrix%&%SigmaAll, name="SigmaObs" )
-  
+
   if (corr) {
-     ## Create One vector for the diagonal constraint   
+     ## Create One vector for the diagonal constraint
      One <- create.mxMatrix(rep(1,p), type="Full", ncol=1, nrow=p, name="One")
 
      ## Ensure observed and latent are standardized
      minFit <- mxAlgebra( sum((One-diag2vec(SigmaAll))^2), name="minFit" )
 
-     model <- mxModel(model="impliedSigma", Amatrix, Smatrix, Fmatrix, Id, One,
+     model <- mxModel(model="impliedR", Amatrix, Smatrix, Fmatrix, Id, One,
                       SigmaAll, SigmaObs, minFit,
                       mxFitFunctionAlgebra("minFit"))
   } else {
      ## Covariance matrix, no need for the constraint
-     model <- mxModel(model="impliedSigma", Amatrix, Smatrix, Fmatrix, Id, 
-                      SigmaAll, SigmaObs)    
+     model <- mxModel(model="impliedSigma", Amatrix, Smatrix, Fmatrix, Id,
+                      SigmaAll, SigmaObs)
   }
 
   mx.fit <- mxRun(model, silent=TRUE)
@@ -56,40 +56,59 @@ impliedSigma <- function(Amatrix, Smatrix, Fmatrix, labels, corr=TRUE, ...) {
   SigmaAll <- eval(parse(text = "mxEval(SigmaAll, mx.fit)"))
 
   ## Create the labels for the matrices
-  if (!missing(labels)) {
-      if (length(labels==p)) {
-          fmatrix <- Fmatrix@values
-          index <- apply(fmatrix, 1, function(x) which(x==1))
-          labels.obs <- labels[index]
-          dimnames(A) <- dimnames(S) <- dimnames(SigmaAll) <- list(labels, labels)
-          dimnames(SigmaObs) <- list(labels.obs, labels.obs)
-          dimnames(F) <- list(labels.obs, labels)
+  ## Index for the observed variables
+  index <- apply(Fmatrix@values, 1, function(x) which(x==1))
+  
+  if (missing(labels)) {
+      if (!is.null(dimnames(Smatrix@values))) {
+          labels <- colnames(Smatrix@values)
+      } else if (!is.null(dimnames(Amatrix@values))) {
+          labels <- colnames(Amatrix@values)
+      } else if (!is.null(dimnames(Fmatrix@values))) {
+          labels <- colnames(Fmatrix@values)
       } else {
-          warning("The length of \"labels\" is different from that in \"Smatrix\".\n")
+          labels <- NULL
       }
+  } else if (length(labels)!=p) {
+      warning("Length of \"labels\" is different from the number of variables.\n")
   }
-          
+      
+  if (!is.null(labels)) {
+      labels.obs <- labels[index]
+      dimnames(A) <- dimnames(S) <- dimnames(SigmaAll) <- list(labels, labels)
+      dimnames(SigmaObs) <- list(labels.obs, labels.obs)
+      dimnames(F) <- list(labels.obs, labels)
+  }
+  
   if (corr) {
+      ## minFit is the amount of misfit on the constraints
+      ## It should be close to zero.
       minFit <- c(eval(parse(text = "mxEval(minFit, mx.fit)")))
       status <- c(mx.fit$output$status[[1]])
   } else {
+      ## It is zero by definition for covariance matrix.
       minFit <- 0
       status <- 0
   }
 
-  if (!isTRUE(all.equal(minFit, 0))) warning("The diagonals of the correlation matrix are not zero! ",
-                                     "You should not trust the results.\n")
+  if (!isTRUE(all.equal(minFit, 0))) {
+      warning("The diagonals of the correlation matrix are not zero! ",
+              "You should not trust the results.\n")
+  }
 
-  if (status!=0) warning("The status code of optimization is non-zero. ",
-                         "Please check if there are too many free parameters in your population model.\n")  
+  if (status!=0) {
+      warning("The status code of optimization is non-zero. ",
+              "Please check if there are too many free parameters in your population model.\n")
+  }
 
-  out <- list(A=A, S=S, F=F, SigmaObs=SigmaObs, SigmaAll=SigmaAll, minFit=minFit, status=status, mx.fit=mx.fit)
-  class(out) <- "impliedSigma"
+  out <- list(A=A, S=S, F=F, SigmaObs=SigmaObs, SigmaAll=SigmaAll, corr=corr,
+              minFit=minFit, status=status, mx.fit=mx.fit)
+  class(out) <- "impliedR"
   out
 }
 
-print.impliedSigma <- function(x, ...) {
-  if (!is.element("impliedSigma", class(x)))
+print.impliedR <- function(x, ...) {
+  if (!is.element("impliedR", class(x)))
       stop("\"x\" must be an object of class \"uniR1\".")
   cat("Amatrix:\n")
   print(x$A)
@@ -101,9 +120,10 @@ print.impliedSigma <- function(x, ...) {
   print(x$SigmaObs)
   cat("\nSigma of both the observed and latent variables:\n")
   print(x$SigmaAll)
+  cat("\nCorrelation matrix:", x$corr)
   cat("\nSigma of the observed variables is positive definite:", is.pd(x$SigmaObs))
-  cat("\nSigma of both the observed and latent variables is positive definite:", is.pd(x$SigmaAll)) 
+  cat("\nSigma of both the observed and latent variables is positive definite:", is.pd(x$SigmaAll))
   cat("\nMinimum value of the fit function (it should be close to 0 for correlation solution: ", x$minFit)
-  cat("\nStatus code of the optimization (it should be 0 for correlation solution: ", x$status, "\n")  
+  cat("\nStatus code of the optimization (it should be 0 for correlation solution: ", x$status, "\n")
 }
 
