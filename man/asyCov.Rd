@@ -61,6 +61,7 @@ Cheung, M. W.-L., & Chan, W. (2004). Testing dependent correlation coefficients 
 
 
 \examples{
+\dontrun{
 C1 <- matrix(c(1,0.5,0.4,0.5,1,0.2,0.4,0.2,1), ncol=3)  
 asyCov(C1, n=100)
 
@@ -76,6 +77,7 @@ asyCov(list(C1,C2), n=c(100,50), as.matrix=TRUE)
 
 ## Output is a stacked matrix of asymptotic covariance matrices
 asyCov(list(C3,C3), n=c(100,50), as.matrix=TRUE)
+}
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
