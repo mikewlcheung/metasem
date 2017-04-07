@@ -155,7 +155,7 @@ semPaths(my.plot, whatLabels="path", nCharEdges=10,  nCharNodes=10,
 
 ## Plot the parameter estimates
 semPaths(my.plot, whatLabels="est", nCharNodes=10, layout="spring",
-color="green")
+         color="green")
 
 #### Univariate r approach
 #### First stage of the analysis
@@ -188,7 +188,7 @@ model3 <- "## Regression paths
            Self_confidence ~ Cognitive + Somatic"
 
 uni2lavaan <- uniR2lavaan(uni1, model3)
-summary(uni2lavaan)
+lavaan::summary(uni2lavaan)
 }
 }
 \keyword{datasets}

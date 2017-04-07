@@ -11,7 +11,7 @@ uniR1 <- function(my.df, n, ...) {
   ## average r weighted by n
   r.mean <- r.sum/n.sum
 
-  ## Average squared error: Schmidt and Hunter (2015, Eq. 3.2)
+  ## Average squared error: Schmidt and Hunter (2015, p. 101, Eq. 3.2)
   r.diff2 <- lapply(my.df, function(x) (x-r.mean)^2)
   ## muliplied it by n
   r.diff2 <- mapply("*", r.diff2, n, SIMPLIFY = FALSE)
@@ -22,10 +22,12 @@ uniR1 <- function(my.df, n, ...) {
   ## frequency-weighted average squared error
   r.S2 <- r.diff2/n.sum
 
-  ## Average sampling error: Schmidt and Hunter (2015, Eq. 3.6)
+  ## Average sampling error: Second improved approximation of Schmidt and Hunter (2015, p. 101, Eq. 3.7)
   ## No. of studies
   K <- pattern.na(my.df, show.na = FALSE)
-  r.SE2 <- (1-r.mean^2)^2*K/n.sum
+  ## N.mean = sum of sample sizes / no. of studies
+  N.mean <- n.sum/K
+  r.SE2 <- (1-r.mean^2)^2 / (N.mean-1)
 
   ## Heterogeneity variance: Schmidt and Hunter (2015)
   r.SD2 <- r.S2 - r.SE2

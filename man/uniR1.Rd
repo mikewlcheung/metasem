@@ -23,7 +23,7 @@ uniR1(my.df, n, ...)
 \details{
   This function implements the univariate r approach proposed by Viswesvaran
   and Ones (1995) to conduct meta-analytic structural equation modeling
-  (MASEM). It uses Hunter and Schmidt's approach to combine correlation
+  (MASEM). It uses Schmidt and Hunter's approach to combine correlation
   coefficients. It is included in this package for research interests. The two-stage
   structural equation modeling (TSSEM) approach is preferred (e.g.,
   Cheung, 2015; Cheung & Chan, 2005).
@@ -49,4 +49,4 @@ uniR1(my.df, n, ...)
 \seealso{ \code{\link[metaSEM]{uniR2mx}}, \code{\link[metaSEM]{uniR2lavaan}},
     \code{\link[metaSEM]{Becker09}}
 }
-\keyword{ uniR }
+\keyword{uniR}

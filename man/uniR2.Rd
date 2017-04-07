@@ -76,4 +76,4 @@ uniR2lavaan(x, model, ...)
 \seealso{ \code{\link[metaSEM]{uniR1}}, \code{\link[metaSEM]{lavaan2RAM}},
     \code{\link[metaSEM]{Becker09}}
 }
-\keyword{ uniR }
+\keyword{uniR}
