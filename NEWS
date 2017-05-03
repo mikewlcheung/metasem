@@ -1,3 +1,7 @@
+Release 0.9.13-1 (May 3, 2017)
+====================================
+* Fixed a minor bug reported by John Ma when there are more than 120 variables in tssem1FEM().
+
 Release 0.9.13-0 (April 7, 2017)
 ====================================
 * Revised the formula in calculating the standard error in uniR1() by using the second improved approximation of Schmidt and Hunter (2015, p. 101)
