@@ -755,7 +755,8 @@ vcov.tssem1FEM <- function(object, ...) {
     no.var <- ncol(coef.tssem1FEM(object))
 
     ## matrix of labels; only use the lower triangle
-    ps.labels <- outer(1:no.var, 1:no.var, function(x, y) paste0("s", x, y))
+    ## Fixed a bug reported by John Ma with more than 120 variables.
+    ps.labels <- outer(1:no.var, 1:no.var, function(x, y) paste0("s", x, "_", y))
     
     if (object$cor.analysis) {
         #Hessian_S <- 0.5*mx.fit@output$calculatedHessian[vechs(ps.labels), vechs(ps.labels)]

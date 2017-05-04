@@ -45,7 +45,7 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
       
     ## matrix of labels; only use the lower triangle
     ## Fixed a bug reported by John Ma when there are more than 120 variables by replacing " " with "_"  
-    ps.labels <- outer(1:no.var, 1:no.var, function(x, y) paste("s", x, y, sep = "_"))
+    ps.labels <- outer(1:no.var, 1:no.var, function(x, y) paste0("s", x, "_", y))
     if (cor.analysis==TRUE) {
       S <- mxMatrix(type="Stand", nrow=no.var, ncol=no.var, free=TRUE, values=vechs(cov2cor(sv)),
                     labels=vechs(ps.labels), name="S")
