@@ -7,17 +7,20 @@
 \alias{summary.meta}
 \alias{summary.meta3X}
 \alias{summary.reml}
+\alias{summary.CorPop}
 \alias{print.summary.tssem1FEM}
 \alias{print.summary.tssem1FEM.cluster}
 \alias{print.summary.wls}
 \alias{print.summary.meta}
 \alias{print.summary.meta3X}
 \alias{print.summary.reml}
+\alias{print.summary.CorPop}
 \title{Summary Method for tssem1, wls, meta and meta3X Objects
 }
 \description{It summaries results for either class \code{tssem1FEM},
   class \code{tssem1FEM.cluster}, class \code{tssem1REM}, class
-  \code{wls}, class \code{wls.cluster}, class \code{meta}, class \code{meta3X} or class \code{reml}.
+  \code{wls}, class \code{wls.cluster}, class \code{meta}, class
+  \code{meta3X}, class \code{reml}, or class \code{CorPop}.
 }
 \usage{
 \method{summary}{tssem1FEM}(object, \dots)
@@ -28,21 +31,24 @@
 \method{summary}{meta}(object, homoStat=TRUE, \dots)
 \method{summary}{meta3X}(object, allX=FALSE, \dots)
 \method{summary}{reml}(object, \dots)
+\method{summary}{CorPop}(object, \dots)
 \method{print.summary}{tssem1FEM}(x, \dots)
 \method{print.summary}{wls}(x, \dots)
 \method{print.summary}{meta}(x, \dots)
 \method{print.summary}{meta3X}(x, \dots)
 \method{print.summary}{reml}(x, \dots)
+\method{print.summary}{CorPop}(x, \dots)
 }
 \arguments{
   \item{object}{An object returned from either class
 	\code{tssem1FEM}, class \code{tssem1FEM.cluster},
 	class \code{tssem1REM}, class \code{wls}, class \code{wls.cluster},
-	class \code{meta}, class \code{meta3X} or class \code{reml}.
+	class \code{meta}, class \code{meta3X}, class \code{reml} or class \code{CorPop}.
 }
   \item{x}{An object returned from either class \code{summary.tssem1FEM},
 	class \code{tssem1FEM.cluster}, class \code{summary.wls}, class
-	\code{summary.meta}, class \code{summary.meta3X} or class \code{summary.reml}.
+	\code{summary.meta}, class \code{summary.meta3X}, class
+	\code{summary.reml} or class \code{summary.CorPop}.
 }
   \item{homoStat}{Logical. Whether to conduct a homogeneity test on the
 	effect sizes.}
@@ -69,7 +75,7 @@
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{ \code{\link[metaSEM]{tssem1}}, \code{\link[metaSEM]{wls}},
-  \code{\link[metaSEM]{meta}}, \code{\link[metaSEM]{reml}}
+  \code{\link[metaSEM]{meta}}, \code{\link[metaSEM]{reml}}, \code{\link[metaSEM]{rCor}}
 }
 
 % Add one or more standard keywords, see file 'KEYWORDS' in the

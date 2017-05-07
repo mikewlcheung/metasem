@@ -127,3 +127,83 @@ print.impliedR <- function(x, ...) {
   cat("\nStatus code of the optimization (it should be 0 for correlation solution: ", x$status, "\n")
 }
 
+## Generate model implied matrices from random parameters
+## It only allows random paths in the Amatrix
+rimpliedR <- function(Amatrix, Smatrix, Fmatrix, AmatrixSD, k=1, corr=TRUE,
+                      nonPD.pop=c("replace", "nearPD", "accept")) {
+  
+  if (!all(sapply(list(dim(Amatrix), dim(Smatrix)), FUN=identical, dim(AmatrixSD))))
+    stop("Dimensions of \"Amatrix\", \"Smatrix\", and \"AmatrixSD\" must be the same.")
+
+  ## No. of observed variables
+  p <- ncol(Amatrix)
+  ## No. of elements in Amatrix
+  n <- p*p
+  
+  ## All variables are observed.
+  if (missing(Fmatrix)) Fmatrix <- Diag(p)
+  
+  ## Try to get the labels of all variables from A and then S
+  labels <- colnames(Amatrix)
+  if (is.null(labels)) labels <- colnames(Smatrix)
+  
+  ## Select the labels of the observed variables
+  if (!is.null(labels)) labels <- labels[as.logical(colSums(Fmatrix))]
+
+  ## A vector of the means of Amatrix by column major
+  A.mean <- c(Amatrix)
+  
+  ## A vector of the variances of Amatrix by column major
+  A.var <- diag(c(AmatrixSD^2))
+
+  nonPD.pop <- match.arg(nonPD.pop)
+  
+  ## Count for nonPD matrices
+  nonPD.count <- 0
+  
+  genCor <- function() {
+    ## Generate random A matrix
+    A <- matrix(mvtnorm::rmvnorm(n=1, mean=A.mean, sigma=A.var), ncol=p, nrow=p)
+    impR <- impliedR(Amatrix=A, Smatrix=Smatrix, Fmatrix=Fmatrix, corr=corr)
+    R <- impR$SigmaObs
+    ## isPD includes: status=0 and PD
+    isPD <- impR$status==0 & is.pd(R)
+    
+    ## R is nonPD
+    if (!isPD) {
+      ## global rather than local assignment
+      nonPD.count <<- nonPD.count+1
+      switch(nonPD.pop,
+             replace = while (!isPD) {
+               A <- matrix(mvtnorm::rmvnorm(n=1, mean=A.mean, sigma=A.var), 
+                           ncol=p, nrow=p)
+               impR <- impliedR(Amatrix=A, Smatrix=Smatrix, Fmatrix=Fmatrix, 
+                                corr=corr)
+               R <- impR$SigmaObs
+               ## isPD includes: status=0 and PD
+               isPD <- impR$status==0 & is.pd(R)
+               nonPD.count <<- nonPD.count+1
+             },
+             nearPD = {R <- as.matrix(Matrix::nearPD(R, corr=corr, 
+                                                     keepDiag=corr)$mat)},
+             accept = {} )
+    }
+    ## Ad hoc, R may not be symmetric due to the precision
+    R[lower.tri(R)] <- t(R)[lower.tri(t(R))]
+    if (!is.null(labels)) dimnames(R) <- list(labels, labels)
+    R
+  }  
+  
+  ## Repeat it k times
+  ## Simplify it when AmatrixSD=0
+  if (all(AmatrixSD==0)) {
+    tmp <- genCor()
+    out <- replicate(n=k, tmp, simplify=FALSE)
+  } else {
+    out <- replicate(n=k, genCor(), simplify=FALSE) 
+  }
+  
+  attr(out, "k") <- k
+  attr(out, "nonPD.count") <- nonPD.count
+  out
+}

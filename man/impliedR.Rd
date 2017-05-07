@@ -1,12 +1,15 @@
 \name{impliedR}
 \alias{impliedR}
-\title{Create the Model Implied Correlation or Covariance Matrix
+\alias{rimpliedR}
+\title{Create or Generate the Model Implied Correlation or Covariance Matrices
 }
-\description{It creates the model implied correlation or covariance
-  matrix based on the RAM model specification.
+\description{It creates or generate the model implied correlation or covariance
+  matrices based on the RAM model specification.
 }
 \usage{
 impliedR(Amatrix, Smatrix, Fmatrix, corr=TRUE, labels, ...)
+rimpliedR(Amatrix, Smatrix, Fmatrix, AmatrixSD, k=1, corr=TRUE,
+          nonPD.pop=c("replace", "nearPD", "accept"))
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -27,6 +30,9 @@ impliedR(Amatrix, Smatrix, Fmatrix, corr=TRUE, labels, ...)
 	\code{\link[OpenMx]{MxMatrix-class}} by the \code{as.mxMatrix}
 	function. It is not required when there is no latent variable.
   }
+  \item{AmatrixSD}{Standard deviations (SD) of the elements in the
+	\code{Amatrix}.}
+  \item{k}{Number of studies.}  
   \item{corr}{Logical. The output is either the model implied
 	correlation matrix or the covariance matrix.
   }
@@ -34,6 +40,11 @@ impliedR(Amatrix, Smatrix, Fmatrix, corr=TRUE, labels, ...)
 	variables with the same dimensions as that in the \code{Amatrix} and
 	\code{Smatrix}. 
   }
+  \item{nonPD.pop}{If it is \code{replace}, generated non-positive
+	definite matrices are replaced by generated new ones which are
+	positive definite. If it is \code{nearPD}, they are replaced by
+	nearly positive definite matrices by calling
+	\code{Matrix::nearPD()}. If it is \code{accept}, they are accepted.}
   \item{\dots}{Not used.}
 }
 \details{This function can be used to generate the model implied
