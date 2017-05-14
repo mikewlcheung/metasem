@@ -89,7 +89,8 @@ meta <- function(y, v, x, data, intercept.constraints=NULL, coef.constraints=NUL
       xVar <- paste("x", seq(1,no.x), sep="", collapse="+")
       # Use lm() coefficients as starting values
       startValues <- tryCatch( eval(parse(text=paste("t(coefficients(lm(cbind(",
-                               yVar, ")~", xVar,", data=data.frame(my.df))))", sep=""))) )
+                                                     yVar, ")~", xVar,", data=data.frame(my.df))))", sep=""))),
+                               error = function(e) e )
       # If error, replace it with 0. Added a column of intercepts
       # Fixed a minor bug that no starting value on the last predictor
       # when intercept.constraints=0
