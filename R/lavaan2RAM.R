@@ -1,5 +1,5 @@
 lavaan2RAM <- function(model, obs.variables = NULL, A.notation="ON", S.notation="WITH",
-                       auto.var = TRUE, std.lv = TRUE, ...) {
+                       M.notation="mean", auto.var = TRUE, std.lv = TRUE, ...) {
     if (!requireNamespace("lavaan", quietly=TRUE))    
         stop("\"lavaan\" package is required for this function.")
 
@@ -24,6 +24,8 @@ lavaan2RAM <- function(model, obs.variables = NULL, A.notation="ON", S.notation=
     latent <- unique(my.model[my.model$op== "=~", ]$lhs)
     ## observed variables: not latent
     observed <- all.var[!(all.var %in% latent)]
+    ## remove empty string "" when there are mean structure
+    observed <- observed[observed !=""]
     ## check whether observed in model = observed in argument
     if (!is.null(obs.variables)) {
         if (!identical(sort(observed), sort(obs.variables))) {
@@ -48,6 +50,7 @@ lavaan2RAM <- function(model, obs.variables = NULL, A.notation="ON", S.notation=
   
     Amatrix <- matrix(0, ncol=no.all, nrow=no.all, dimnames=list(all.var, all.var))
     Smatrix <- matrix(0, ncol=no.all, nrow=no.all, dimnames=list(all.var, all.var))
+    Mmatrix <- matrix(0, nrow=1, ncol=no.all, dimnames=list(1, all.var))
   
   ## ## latent variable
   ## lhs <- (all.var %in% my.model[my.model$op== "=~", ]$lhs) 
@@ -61,10 +64,13 @@ lavaan2RAM <- function(model, obs.variables = NULL, A.notation="ON", S.notation=
         switch(my.model[i, ]$op,
                "=~" = my.model[i, ]$label <- paste0(my.model[i, ]$rhs, A.notation, my.model[i, ]$lhs),
                "~"  = my.model[i, ]$label <- paste0(my.model[i, ]$lhs, A.notation, my.model[i, ]$rhs),
-               "~~" = my.model[i, ]$label <- paste0(my.model[i, ]$lhs, S.notation, my.model[i, ]$rhs))
+               "~~" = my.model[i, ]$label <- paste0(my.model[i, ]$lhs, S.notation, my.model[i, ]$rhs),
+               "~1" = my.model[i, ]$label <- paste0(my.model[i, ]$lhs, M.notation))
       }
     }
     
+    ## replace NA to 0 in ustart
+    my.model$ustart[is.na(my.model$ustart)] <- 0
     ## keys in as.mxMatrix format
     key <- with(my.model, ifelse(free==0, yes=ustart, no=paste(ustart, label, sep="*")))  
     
@@ -75,11 +81,13 @@ lavaan2RAM <- function(model, obs.variables = NULL, A.notation="ON", S.notation=
                "=~" = Amatrix[my.line$rhs, my.line$lhs] <- key[i],
                ## lhs: DV; rhs: IV
                "~" = Amatrix[my.line$lhs, my.line$rhs] <- key[i],
-               "~~" = Smatrix[my.line$lhs, my.line$rhs] <- Smatrix[my.line$rhs, my.line$lhs] <- key[i])
+               "~~" = Smatrix[my.line$lhs, my.line$rhs] <- Smatrix[my.line$rhs, my.line$lhs] <- key[i],
+               ## means
+               "~1" = Mmatrix[1, my.line$lhs] <- key[i])
     }
 
     Fmatrix <- create.Fmatrix(c(rep(1, no.obs), rep(0, no.lat)), as.mxMatrix=FALSE)
     dimnames(Fmatrix) <- list(observed, all.var)
 
-    list(A=Amatrix, S=Smatrix, F=Fmatrix)
+    list(A=Amatrix, S=Smatrix, F=Fmatrix, M=Mmatrix)
 }
