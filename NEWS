@@ -1,7 +1,10 @@
+Release 0.9.15-2 (June 18, 2017)
+====================================
+* Changed the variable names in Becker94 so that they work better with lavaan2RAM()
+
 Release 0.9.15-1 (June 10, 2017)
 ====================================
 * Revised lavaan2RAM() to work with mean structure
-
 
 Release 0.9.15-0 (June 4, 2017)
 ====================================

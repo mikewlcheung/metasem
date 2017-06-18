@@ -14,7 +14,7 @@
 A list of data with the following structure:
 \describe{
   \item{data}{A list of 10 correlation matrices. The
-	variables are \emph{SAT (Math)}, \emph{Spatial} and \emph{SAT (Verbal)}}
+	variables are \emph{SAT_Math}, \emph{Spatial} and \emph{SAT_Verbal}}
   \item{n}{A vector of sample sizes}
   \item{gender}{\emph{Females} or \emph{Males} samples}
 }
@@ -34,22 +34,30 @@ fixed1 <- tssem1(Becker94$data, Becker94$n, method="FEM")
 summary(fixed1)
 
 ## Prepare a regression model using create.mxMatrix()
-A1 <- create.mxMatrix(c(0,0,0,"0.2*Spatial2Aptitude",
-                        0,0,"0.2*Verbal2Aptitude",0,0), type="Full",
+A1 <- create.mxMatrix(c(0,0,0,"0.2*Spatial2Math",
+                        0,0,"0.2*Verbal2Math",0,0), type="Full",
                       ncol=3, nrow=3, name="A1")
-S1 <-
-create.mxMatrix(c("0.2*ErrorVarAptitude",0,0,1,"0.2*CorBetweenSpatialVerbal",1),
-                type="Symm", name="S1")
+S1 <- create.mxMatrix(c("0.2*ErrorVarMath",0,0,1,
+                        "0.2*CorBetweenSpatialVerbal",1),
+                      type="Symm", name="S1")
 
-## An alternative method to create a regression model using mxMatrix()
-# A1 <- mxMatrix("Full", ncol=3, nrow=3, value=0, free=c(FALSE,FALSE,FALSE,TRUE,FALSE,
-#                                                        FALSE,TRUE,FALSE,FALSE),
-#                label=c(NA,NA,NA,"Spatial2Aptitude",NA,NA,"Verbal2Aptitude",NA,NA),
-#                name="A1")
-# S1 <- mxMatrix("Symm", ncol=3, nrow=3, value=c(0.5,0,0,1,0.2,1),
-#                free=c(TRUE,FALSE,FALSE,FALSE,TRUE,FALSE),
-#                label=c("ErrorVarAptitude",NA,NA,NA,"CorBetweenSpatialVerbal",NA),
-#                        name="S1")
+## An alternative method to create a regression model with the lavaan syntax
+model <- "## Regression model
+          SAT_Math ~ Spatial2Math*Spatial + Verbal2Math*SAT_Verbal
+          ## Error variance of SAT_Math
+          SAT_Math ~~ ErrorVarMath*SAT_Math
+          ## Variances of Spatial and SAT_Verbal fixed at 1.0
+          Spatial ~~ 1*Spatial
+          SAT_Verbal ~~ 1*SAT_Verbal
+          ## Correlation between Spatial and SAT_Verbal
+          Spatial ~~ CorBetweenSpatialVerbal*SAT_Verbal"
+
+RAM <- lavaan2RAM(model,
+                  obs.variables=c("SAT_Math", "Spatial", "SAT_Verbal"))
+RAM
+
+A1 <- RAM$A
+S1 <- RAM$S
 
 ## Second stage analysis
 fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, intervals.type="LB")
