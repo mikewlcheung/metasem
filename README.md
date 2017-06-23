@@ -19,5 +19,3 @@ The developmental version can be installed from GitHub by:
 
 devtools::install_github("mikewlcheung/metasem")
 ```
-
-Please refer to https://courses.nus.edu.sg/course/psycwlm/Internet/metaSEM/ for more detail.

@@ -1,3 +1,7 @@
+Release 0.9.15-3 (June 24, 2017)
+====================================
+* Revised meta2semPlot() so that it generates nicer variable labels
+
 Release 0.9.15-2 (June 18, 2017)
 ====================================
 * Changed the variable names in Becker94 so that they work better with lavaan2RAM()

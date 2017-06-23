@@ -10,14 +10,19 @@ meta2semPlot <- function(object, manNames=NULL, latNames=NULL, labels=c("labels"
     ## F <- mxEval(Fmatrix, object$mx.fit)
        A <- object$mx.fit@matrices$Amatrix$values
        S <- object$mx.fit@matrices$Smatrix$values
-       ## S may be calculated when diag.constraints=FALSE
-       if (is.null(S)) S <- object$mx.fit$algebras$Smatrix$result      
+       ## S can be calculated when diag.constraints=FALSE
+       if (is.null(S)) {
+           S <- object$mx.fit$algebras$Smatrix$result
+           ## Add the dimensions names. Not necessary, but nicer
+           ## dimnames(S) <- dimnames(A)
+       }
        F <- object$mx.fit@matrices$Fmatrix$values
        Id <- diag(nrow(S))
        ObsCovs <- object$Cov
     ## ImpCovs <- mxEval(Fmatrix%*%solve(Id-Amatrix)%*%S%*%solve(t(Id-Amatrix))%*%t(Fmatrix), 
     ##                   object$mx.fit)
     ## ImpCovs <- F%*%solve(Id-A)%*%S%*%solve(t(Id-A))%*%t(F)
+        
        ImpCovs <- object$mx.fit@algebras$impliedS$result    
         
        if (is.null(manNames)) {
@@ -29,10 +34,18 @@ meta2semPlot <- function(object, manNames=NULL, latNames=NULL, labels=c("labels"
        }
 
        dimnames(ImpCovs) <- dimnames(ObsCovs) <- list(manNames, manNames)
-            
+
+       ## Try to get the names of the latent variables
+       lat_index <- dimnames(F)[[2]] %in% dimnames(F)[[1]]
+       lat_names <- dimnames(F)[[2]][!lat_index]
+        
        if (is.null(latNames)) {
-         no.latent <- ncol(F) - nrow(F)
-         if (no.latent > 0) latNames <- paste("L", seq(1,no.latent), sep="")
+           if (!is.null(lat_names)) {
+               latNames <- lat_names
+           } else {
+               no.latent <- ncol(F) - nrow(F)
+               if (no.latent > 0) latNames <- paste("L", seq(1,no.latent), sep="")
+           }    
        }
     
        out <- semPlot::ramModel(A=A, S=S, F=F, manNames=manNames, latNames=latNames, ObsCovs=ObsCovs, 
@@ -45,9 +58,10 @@ meta2semPlot <- function(object, manNames=NULL, latNames=NULL, labels=c("labels"
          labels <- c(c(A.labels), c(S.labels))
          row.pars <- as.numeric(row.names(out@Pars))
          out@Pars$label <- labels[row.pars]
-         ## replace NA labels with estimates
+         ## replace NA labels with space
          na.index <- is.na(out@Pars$label)
-         out@Pars$label[na.index] <- sprintf("%.2f", out@Pars$est[na.index])
+         ##out@Pars$label[na.index] <- sprintf("%.2f", out@Pars$est[na.index])
+         out@Pars$label[na.index] <- ""
        }   
   } else {
     stop("\"object\" must be an object of class \"wls\".")
