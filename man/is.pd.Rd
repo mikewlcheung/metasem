@@ -10,14 +10,14 @@
   the missing variables.
 }
 \usage{
-is.pd(x, check.asyCov=FALSE, cor.analysis=TRUE, tol=1e-06)
+is.pd(x, check.aCov=FALSE, cor.analysis=TRUE, tol=1e-06)
 }
 \arguments{
   \item{x}{A square matrix or a list of square matrices}
-  \item{check.asyCov}{If it is \code{TRUE}, it mirrors the checking in
+  \item{check.aCov}{If it is \code{TRUE}, it mirrors the checking in
 	\code{\link[metaSEM]{asyCov}}.}
   \item{cor.analysis}{Whether the input matrix is a correlation or a
-	covariance matrix. It is ignored when \code{check.asyCov=FALSE}.}
+	covariance matrix. It is ignored when \code{check.aCov=FALSE}.}
   \item{tol}{Tolerance (relative to largest variance) for numerical lack
 	of positive-definiteness in \code{x}. It is adopted from \code{\link[MASS]{mvrnorm}}.
 }

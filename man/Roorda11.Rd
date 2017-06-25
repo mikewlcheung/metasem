@@ -32,7 +32,7 @@ analysis. \emph{Manuscript in preparation}.
 \dontrun{
 
 ## Random-effects model: First stage analysis
-random1 <- tssem1(my.df = Roorda11$data, n = Roorda11$n, method = "REM", RE.type = "Diag")
+random1 <- tssem1(Cov = Roorda11$data, n = Roorda11$n, method = "REM", RE.type = "Diag")
 summary(random1)
 
 varnames <- c("pos", "neg", "enga", "achiev")

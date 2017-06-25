@@ -10,21 +10,21 @@
   respectively. \code{tssem1()} is a wrapper of these functions. 
 }
 \usage{
-tssem1(my.df, n, method=c("FEM","REM"), cor.analysis = TRUE, cluster=NULL,
+tssem1(Cov, n, method=c("FEM","REM"), cor.analysis = TRUE, cluster=NULL,
        RE.type=c("Symm", "Diag", "Zero", "User"), RE.startvalues=0.1,
        RE.lbound=1e-10, RE.constraints=NULL, I2="I2q",
        acov=c("individual", "unweighted", "weighted"),
        model.name=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...)
-tssem1FEM(my.df, n, cor.analysis=TRUE, model.name=NULL,
+tssem1FEM(Cov, n, cor.analysis=TRUE, model.name=NULL,
           cluster=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...)
-tssem1REM(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Zero","User"),
+tssem1REM(Cov, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Zero","User"),
           RE.startvalues=0.1, RE.lbound=1e-10, RE.constraints=NULL,
           I2="I2q", acov=c("individual", "unweighted", "weighted"),
           model.name=NULL, suppressWarnings=TRUE,
           silent=TRUE, run=TRUE, ...)
 }
 \arguments{
-  \item{my.df}{A list of correlation/covariance matrices
+  \item{Cov}{A list of correlation/covariance matrices
 }
   \item{n}{A vector of sample sizes
 }

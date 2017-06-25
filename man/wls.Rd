@@ -9,7 +9,7 @@
   analysis of the two-stage strutural equation modeling (TSSEM). \code{tssem2} is a wrapper of \code{wls}.
 }
 \usage{
-wls(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
+wls(Cov, aCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
     diag.constraints=FALSE, cor.analysis=TRUE, intervals.type=c("z","LB"),
     mx.algebras=NULL, model.name=NULL, suppressWarnings=TRUE,
     silent=TRUE, run=TRUE, ...)
@@ -25,7 +25,7 @@ tssem2(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
   \item{Cov}{A \eqn{p}{p} x \eqn{p}{p} sample correlation/covariance matrix
 	where \eqn{p}{p} is the number of variables.
 }
-  \item{asyCov}{A \eqn{p*}{p*} x \eqn{p*}{p*} asymptotic sampling covariance
+  \item{aCov}{A \eqn{p*}{p*} x \eqn{p*}{p*} asymptotic sampling covariance
 	matrix of either \code{\link[OpenMx]{vechs}} \code{(Cov)} or
 	\code{\link[OpenMx]{vech}} \code{(Cov)} where \eqn{p* = p(p-1)/2 }{p*
 	  = p(p-1)/2} for correlation matrix and \eqn{p* = p(p+1)/2 }{p* = p(p+1)/2} for covariance matrix.
@@ -153,7 +153,7 @@ acovR1 <- asyCov(R1, n)
 
 ## The first 4 variables are observed while the last one is latent.
 (F1 <- create.Fmatrix(c(1,1,1,1,0), name="F1"))
-wls.fit1 <- wls(Cov=R1, asyCov=acovR1, n=n, Fmatrix=F1, Smatrix=S1, Amatrix=A1,
+wls.fit1 <- wls(Cov=R1, aCov=acovR1, n=n, Fmatrix=F1, Smatrix=S1, Amatrix=A1,
                  cor.analysis=TRUE, intervals="LB")
 summary(wls.fit1)
 
@@ -183,7 +183,7 @@ acovR2 <- asyCov(R2, n)
                free=c(TRUE,FALSE,FALSE,FALSE,TRUE,FALSE), name="S2"))
 
 ## F may be ignored as there is no latent variable.
-wls.fit2 <- wls(Cov=R2, asyCov=acovR2, n=n, Amatrix=A2, Smatrix=S2,
+wls.fit2 <- wls(Cov=R2, aCov=acovR2, n=n, Amatrix=A2, Smatrix=S2,
                 cor.analysis=TRUE, intervals="LB")
 summary(wls.fit2)
 
@@ -204,7 +204,7 @@ acovS3 <- asyCov(R3, n, cor.analysis=FALSE)
 F3 <- c(TRUE,TRUE,TRUE,TRUE,FALSE)
 (F3 <- create.Fmatrix(F3, name="F3", as.mxMatrix=FALSE))
 
-wls.fit3 <- wls(Cov=R3, asyCov=acovS3, n=n, Amatrix=A3, Smatrix=S3,
+wls.fit3 <- wls(Cov=R3, aCov=acovS3, n=n, Amatrix=A3, Smatrix=S3,
                 Fmatrix=F3, cor.analysis=FALSE)
 summary(wls.fit3)
 }

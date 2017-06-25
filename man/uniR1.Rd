@@ -6,10 +6,10 @@
   by pooling elements of the correlation coefficients individually. 
 }
 \usage{
-uniR1(my.df, n, ...)
+uniR1(Cor, n, ...)
 }
 \arguments{
-  \item{my.df}{A list of correlation matrices
+  \item{Cor}{A list of correlation matrices
 }
   \item{n}{A vector of sample sizes
 }

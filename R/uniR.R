@@ -1,18 +1,18 @@
-uniR1 <- function(my.df, n, ...) {
+uniR1 <- function(Cor, n, ...) {
   ## Average correlation: Schmidt and Hunter (2015, Eq. 3.1)
   ## muliplied cor matrices with n
-  r.sum <- mapply("*", my.df, n, SIMPLIFY = FALSE)
+  r.sum <- mapply("*", Cor, n, SIMPLIFY = FALSE)
   ## replace NA with 0
   r.sum <- lapply(r.sum, function(x) {x[is.na(x)] <- 0; x})
   ## cummulative sum of r*n
   r.sum <- Reduce("+", r.sum)
   ## cumulative n
-  n.sum <- pattern.n(my.df, n)
+  n.sum <- pattern.n(Cor, n)
   ## average r weighted by n
   r.mean <- r.sum/n.sum
 
   ## Average squared error: Schmidt and Hunter (2015, p. 101, Eq. 3.2)
-  r.diff2 <- lapply(my.df, function(x) (x-r.mean)^2)
+  r.diff2 <- lapply(Cor, function(x) (x-r.mean)^2)
   ## muliplied it by n
   r.diff2 <- mapply("*", r.diff2, n, SIMPLIFY = FALSE)
   ## replace NA with 0
@@ -24,7 +24,7 @@ uniR1 <- function(my.df, n, ...) {
 
   ## Average sampling error: Second improved approximation of Schmidt and Hunter (2015, p. 101, Eq. 3.7)
   ## No. of studies
-  K <- pattern.na(my.df, show.na = FALSE)
+  K <- pattern.na(Cor, show.na = FALSE)
   ## N.mean = sum of sample sizes / no. of studies
   N.mean <- n.sum/K
   r.SE2 <- (1-r.mean^2)^2 / (N.mean-1)
@@ -40,7 +40,7 @@ uniR1 <- function(my.df, n, ...) {
   ## cumulative n of the lower triangle
   n.harmonic <- n.sum[lower.tri(n.sum)]
   n.harmonic <- round( length(n.harmonic)/sum(1/n.harmonic), 0 )
-  out <- list(data=my.df, n=n, r.mean=r.mean, r.SE=sqrt(r.SE2),
+  out <- list(data=Cor, n=n, r.mean=r.mean, r.SE=sqrt(r.SE2),
               r.SD=sqrt(r.SD2), n.harmonic=n.harmonic)
   class(out) <- "uniR1"
   out

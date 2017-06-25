@@ -1,8 +1,8 @@
-tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
+tssem1FEM <- function(Cov, n, cor.analysis=TRUE, model.name=NULL,
                       cluster=NULL, suppressWarnings=TRUE, silent=TRUE,
                       run=TRUE, ...) {
   if (!is.null(cluster)) {
-    data.cluster <- tapply(my.df, cluster, function(x) {x})
+    data.cluster <- tapply(Cov, cluster, function(x) {x})
     n.cluster <- tapply(n, cluster, function(x) {x})
     out <- list()
     for (i in 1:length(data.cluster)) {
@@ -16,32 +16,32 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
     out
   } else {
     ## Throw an error when df and n are in different lengths.
-    if (length(my.df) != length(n)) stop("Lengths of \"df\" and \"n\" are different.\n") 
+    if (length(Cov) != length(n)) stop("Lengths of \"df\" and \"n\" are different.\n") 
       
     ## Check whether all studies have the same dimensions
-    my.range <- range(sapply(my.df, function(x) {ncol(x)}))
+    my.range <- range(sapply(Cov, function(x) {ncol(x)}))
     if ( !all.equal(my.range[1], my.range[2]) )
       stop("Dimensions of groups are not the same!\n")
 
-    no.groups <- length(my.df)
-    no.var <- ncol(my.df[[1]])
+    no.groups <- length(Cov)
+    no.var <- ncol(Cov[[1]])
 
     ## Get the original variable names
-    original.names <- colnames(my.df[[1]])
+    original.names <- colnames(Cov[[1]])
 
     var.names <- paste("x", 1:no.var, sep = "")
     ## Convert variable labels to x1, x2, ...
-    my.df <- lapply(my.df, function(x) {dimnames(x) <- list(var.names, var.names); x})
+    Cov <- lapply(Cov, function(x) {dimnames(x) <- list(var.names, var.names); x})
     total.n <- sum(n)
 
     ## Check positive definiteness of data
     ## Print warning rather than stop
-    isPD <- is.pd(my.df)
+    isPD <- is.pd(Cov)
     if (!all(isPD))
         warning(paste("Group ", (1:no.groups)[!isPD], " is not positive definite.", sep = ""))
 
     ## Prepare starting values based on covariance matrices
-    sv <- .startValues(my.df, cor.analysis = FALSE)
+    sv <- .startValues(Cov, cor.analysis = FALSE)
       
     ## matrix of labels; only use the lower triangle
     ## Fixed a bug reported by John Ma when there are more than 120 variables by replacing " " with "_"  
@@ -58,7 +58,7 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
     }
 
     ## Index for missing variables: only check the diagonals only!!!
-    miss.index <- lapply(my.df, function(x) { is.na(Diag(x)) })
+    miss.index <- lapply(Cov, function(x) { is.na(Diag(x)) })
 
     ## complete.index <- NULL
     ## for (i in no.groups:1) {
@@ -74,8 +74,8 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
     for (i in 1:no.groups) {
         no.var.i <- sum(!miss.index[[i]], na.rm = TRUE)
         miss.index.i <- miss.index[[i]]
-        my.df.i <- my.df[[i]][!miss.index.i, !miss.index.i]
-        ## dimnames(my.df.i) <- list(var.names[!miss.index.i], var.names[!miss.index.i])
+        Cov.i <- Cov[[i]][!miss.index.i, !miss.index.i]
+        ## dimnames(Cov.i) <- list(var.names[!miss.index.i], var.names[!miss.index.i])
 
         # Prepare matrices for calculations
         if (cor.analysis) {
@@ -95,13 +95,13 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
                           var.names[!miss.index.i]))
         # Create mxModel
         ## model <- mxModel(paste("group",i,sep=""), S, Dmatrix, expC,
-        ##                      mxData(observed=my.df.i, type="cov", numObs=n[i]),
+        ##                      mxData(observed=Cov.i, type="cov", numObs=n[i]),
         ##                      mxMLObjective(expC, dimnames=var.names[!miss.index[[i]]]))
 
         fitFunction <- mxFitFunctionML()
 
-        ## Fixed a bug when my.df[[i]][, , ] is a scalar
-        g.model <- paste("g", i, " <- mxModel(\"g", i, "\", S, SD, expC, mxData(observed=my.df[[",i,"]][!miss.index[[",i,"]],!miss.index[[",i,"]], drop=FALSE], type=\"cov\", numObs=n[", i,
+        ## Fixed a bug when Cov[[i]][, , ] is a scalar
+        g.model <- paste("g", i, " <- mxModel(\"g", i, "\", S, SD, expC, mxData(observed=Cov[[",i,"]][!miss.index[[",i,"]],!miss.index[[",i,"]], drop=FALSE], type=\"cov\", numObs=n[", i,
                 "]), fitFunction, mxExpectationNormal(covariance=\"expC\", means=NA, dimnames=var.names[!miss.index[[", i, "]]]))", sep = "")
         eval(parse(text = g.model))
     }
@@ -148,9 +148,9 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
         out <- mx.fit
     } else {
         ## Calculate 2LL of the saturated and independence models and the DF of independence model
-        baseMinus2LL <- tryCatch(.minus2LL(x=my.df, n=n), error = function(e) e)
+        baseMinus2LL <- tryCatch(.minus2LL(x=Cov, n=n), error = function(e) e)
 
-        out <- list(call = match.call(), cor.analysis=cor.analysis, data=my.df, n = n,
+        out <- list(call = match.call(), cor.analysis=cor.analysis, data=Cov, n = n,
                     baseMinus2LL = baseMinus2LL, mx.model=tssem1, mx.fit = mx.fit,
                     original.names=original.names)
         class(out) <- "tssem1FEM"
@@ -160,7 +160,7 @@ tssem1FEM <- function(my.df, n, cor.analysis=TRUE, model.name=NULL,
   }
 }
 
-tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Zero", "User"),
+tssem1REM <- function(Cov, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Zero", "User"),
                       RE.startvalues=0.1, RE.lbound = 1e-10, RE.constraints=NULL,
                       I2="I2q", acov=c("individual", "unweighted", "weighted"),
                       model.name=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
@@ -169,17 +169,17 @@ tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Ze
   ## Missing values are indicated by the missing effect sizes.
 
   ## Throw an error when df and n are in different lengths.
-  if (length(my.df) != length(n)) stop("Lengths of \"df\" and \"n\" are different.\n")   
+  if (length(Cov) != length(n)) stop("Lengths of \"df\" and \"n\" are different.\n")   
     
   ## Get the original variable names
-  original.names <- colnames(my.df[[1]])
+  original.names <- colnames(Cov[[1]])
 
   if (cor.analysis) {
       ## Replace diagonals with 1.0
-      my.complete <- lapply(my.df, function (x) { Diag(x)[is.na(Diag(x))] <- 1; x })
+      my.complete <- lapply(Cov, function (x) { Diag(x)[is.na(Diag(x))] <- 1; x })
   } else {
       ## Replace diagonals with the mean of diagonals
-      my.complete <- lapply(my.df, function (x) { Diag(x)[is.na(Diag(x))] <- mean(Diag(x), na.rm=TRUE); x })
+      my.complete <- lapply(Cov, function (x) { Diag(x)[is.na(Diag(x))] <- mean(Diag(x), na.rm=TRUE); x })
   }
   ## Replace missing variables with 0.0 regardless of cor.analysis
   my.complete <- lapply(my.complete, function (x) { x[is.na(x)] <- 0; x })
@@ -187,15 +187,15 @@ tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Ze
   ## Calculate the asymptotic sampling covariance matrix of the correlation matrix
   acovR <- asyCov(x=my.complete, n=n, cor.analysis=cor.analysis, dropNA=FALSE, as.matrix=TRUE, acov=acov)
 
-  ## Fixed a bug that my.df is covariance matrix while cor.analysis is TRUE
+  ## Fixed a bug that Cov is covariance matrix while cor.analysis is TRUE
   ## When cor.analysis=TRUE, the old version just takes the lower triangle without converting covariance into correlation.
   if (cor.analysis) {
     ## Convert possible covariance matrices into correlation matrices
     ## When there are NA in diagonas, they become 1 after cov2cor()
     ## It is fine as the diagonals are not used in cor.analysis=TRUE
-    ES <- list2matrix(x=suppressWarnings(lapply(my.df, cov2cor)), diag=FALSE)
+    ES <- list2matrix(x=suppressWarnings(lapply(Cov, cov2cor)), diag=FALSE)
   } else {
-    ES <- list2matrix(x=my.df, diag=TRUE)
+    ES <- list2matrix(x=Cov, diag=TRUE)
   }
   ## no. of effect sizes
   no.es <- ncol(ES)
@@ -242,15 +242,15 @@ tssem1REM <- function(my.df, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Ze
   return(out)
 }
 
-tssem1 <- function(my.df, n, method=c("FEM", "REM"), cor.analysis=TRUE, cluster=NULL,
+tssem1 <- function(Cov, n, method=c("FEM", "REM"), cor.analysis=TRUE, cluster=NULL,
                    RE.type=c("Symm", "Diag", "Zero", "User"), RE.startvalues=0.1, RE.lbound=1e-10,
                    RE.constraints=NULL, I2="I2q", acov=c("individual", "unweighted", "weighted"),
                    model.name=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
   method <- match.arg(method)
   switch(method,
-    FEM = out <- tssem1FEM(my.df=my.df, n=n, cor.analysis=cor.analysis, model.name=model.name,
+    FEM = out <- tssem1FEM(Cov=Cov, n=n, cor.analysis=cor.analysis, model.name=model.name,
                           cluster=cluster, suppressWarnings=suppressWarnings, silent=silent, run=run, ...),
-    REM = out <- tssem1REM(my.df=my.df, n=n, cor.analysis=cor.analysis, RE.type=RE.type,
+    REM = out <- tssem1REM(Cov=Cov, n=n, cor.analysis=cor.analysis, RE.type=RE.type,
                           RE.startvalues=RE.startvalues, RE.lbound=RE.lbound, RE.constraints=RE.constraints,
                           I2=I2, acov=acov, model.name=model.name, suppressWarnings=suppressWarnings,
                           silent=silent, run=run, ...) )
@@ -258,7 +258,7 @@ tssem1 <- function(my.df, n, method=c("FEM", "REM"), cor.analysis=TRUE, cluster=
 }
 
 
-wls <- function(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, 
+wls <- function(Cov, aCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, 
                 diag.constraints=FALSE, cor.analysis=TRUE, intervals.type=c("z", "LB"), 
                 mx.algebras=NULL, model.name=NULL, suppressWarnings=TRUE, 
                 silent=TRUE, run=TRUE, ...) {
@@ -303,16 +303,16 @@ wls <- function(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
          LB = intervals <- TRUE)
 
   # Inverse of asymptotic covariance matrix
-  if (is.pd(asyCov)) {
-    invacovS <- tryCatch(chol2inv(chol(asyCov)), error = function(e) e)
+  if (is.pd(aCov)) {
+    invaCov <- tryCatch(chol2inv(chol(aCov)), error = function(e) e)
     ## It appears that solve() does not fail
-    if (inherits(invacovS, "error")) {
-      cat("Error in inverting \"asyCov\":\n")
-      stop(print(invacovS))
+    if (inherits(invaCov, "error")) {
+      cat("Error in inverting \"aCov\":\n")
+      stop(print(invaCov))
     }
-    invAcov <- as.mxMatrix(invacovS, name="invAcov")
+    invAcov <- as.mxMatrix(invaCov, name="invAcov")
   } else {
-    stop("\"asyCov\" is not positive definite.\n")
+    stop("\"aCov\" is not positive definite.\n")
   }
 
   if (cor.analysis) {
@@ -323,8 +323,8 @@ wls <- function(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
     ps <- no.var * (no.var + 1)/2
   }
   
-  if (ncol(asyCov) != ps)
-    stop("No. of dimension of \"Cov\" does not match the multiplier of the dimension of \"asyCov\"\n")
+  if (ncol(aCov) != ps)
+    stop("No. of dimension of \"Cov\" does not match the multiplier of the dimension of \"aCov\"\n")
   
   ## Assuming no constraint
   Constraints <- 0
@@ -484,9 +484,9 @@ wls <- function(Cov, asyCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
       warning(print(mx.fit))
       out <- mx.fit
   } else {
-      out <- list(call=match.call(), Cov=Cov, asyCov=asyCov, noObservedStat=ps, n=n, cor.analysis=cor.analysis, 
+      out <- list(call=match.call(), Cov=Cov, aCov=aCov, noObservedStat=ps, n=n, cor.analysis=cor.analysis, 
                   diag.constraints=diag.constraints, Constraints=Constraints,
-                  indepModelChisq=.indepwlsChisq(S=Cov, acovS=asyCov, cor.analysis=cor.analysis),
+                  indepModelChisq=.indepwlsChisq(S=Cov, aCov=aCov, cor.analysis=cor.analysis),
                   indepModelDf=no.var*(no.var-1)/2, mx.model=mx.model, mx.fit=mx.fit, mx.algebras=names(mx.algebras), 
                   intervals.type=intervals.type)
       class(out) <- 'wls'
@@ -517,7 +517,7 @@ tssem2 <- function(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.co
                       ## Use the original varible names for the observed covariance matrix
                       pooledS <- coef.tssem1FEM(tssem1.obj)                      
                       ## dimnames(pooledS) <- list(tssem1.obj$original.names, tssem1.obj$original.names)
-                      out <- wls(Cov=coef.tssem1FEM(tssem1.obj), asyCov=vcov.tssem1FEM(tssem1.obj),
+                      out <- wls(Cov=coef.tssem1FEM(tssem1.obj), aCov=vcov.tssem1FEM(tssem1.obj),
                                  n=sum(tssem1.obj$n), Amatrix=Amatrix, Smatrix=Smatrix, Fmatrix=Fmatrix,
                                  diag.constraints=diag.constraints, cor.analysis=tssem1.obj$cor.analysis,
                                  intervals.type=intervals.type, mx.algebras=mx.algebras,
@@ -527,7 +527,7 @@ tssem2 <- function(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.co
                       ## Extract the pooled correlation matrix
                       pooledS <- vec2symMat( coef(tssem1.obj, select="fixed"), diag=!cor.analysis)
                       ## Extract the asymptotic covariance matrix of the pooled correlations
-                      asyCov <- vcov(tssem1.obj, select="fixed")
+                      aCov <- vcov(tssem1.obj, select="fixed")
 
                       if (cor.analysis==TRUE) {
                         if (is.null(model.name)) model.name <- "TSSEM2 Correlation"
@@ -536,7 +536,7 @@ tssem2 <- function(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.co
                       }
                       ## Use the original varible names for the observed covariance matrix
                       dimnames(pooledS) <- list(tssem1.obj$original.names, tssem1.obj$original.names)
-                      out <- wls(Cov=pooledS, asyCov=asyCov, n=tssem1.obj$total.n,
+                      out <- wls(Cov=pooledS, aCov=aCov, n=tssem1.obj$total.n,
                                  Amatrix=Amatrix, Smatrix=Smatrix, Fmatrix=Fmatrix, diag.constraints=diag.constraints,
                                  cor.analysis=cor.analysis, intervals.type=intervals.type, mx.algebras=mx.algebras,
                                  model.name=model.name, suppressWarnings = suppressWarnings, silent=silent, run=run, ...) })

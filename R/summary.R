@@ -802,9 +802,9 @@ vcov.wls <- function(object, R=50, ...) {
     ## Parametric bootstrap for vcov when there are nonlinear constraints
     paraboot <- function(x) {
       if (x$cor.analysis) {
-        sampleS <- mvrnorm(n=1, mu=vechs(x$Cov), Sigma=x$asyCov)
+        sampleS <- mvrnorm(n=1, mu=vechs(x$Cov), Sigma=x$aCov)
       } else {
-        sampleS <- mvrnorm(n=1, mu=vech(x$Cov), Sigma=x$asyCov)
+        sampleS <- mvrnorm(n=1, mu=vech(x$Cov), Sigma=x$aCov)
       }
       sampleS <- vec2symMat(sampleS, diag=!x$cor.analysis)
       mx.model <- mxModel(x$mx.fit, sampleS <- as.mxMatrix(sampleS, name="sampleS"))

@@ -19,7 +19,7 @@
   out
 }
 
-.indepwlsChisq <- function(S, acovS, cor.analysis = TRUE) {
+.indepwlsChisq <- function(S, aCov, cor.analysis = TRUE) {
   no.var <- ncol(S)
   sampleS <- mxMatrix("Full", ncol = no.var, nrow = no.var, values = c(S),
                       free = FALSE, name = "sampleS")
@@ -34,14 +34,14 @@
     ps <- no.var * (no.var + 1)/2
     vecS <- mxAlgebra(vech(sampleS - impliedS), name = "vecS")
   }
-  if (ncol(acovS) != ps)
-    stop("Dimensions of \"S\" do not match the dimensions of \"acovS\"\n")
+  if (ncol(aCov) != ps)
+    stop("Dimensions of \"S\" do not match the dimensions of \"aCov\"\n")
     
   # Inverse of asymptotic covariance matrix
-  invacovS <- tryCatch(chol2inv(chol(acovS)), error = function(e) e)
-  if (inherits(invacovS, "error"))
-    stop(print(invacovS))    
-  invAcov <- mxMatrix("Full", ncol = ps, nrow = ps, values = c(invacovS),
+  invaCov <- tryCatch(chol2inv(chol(aCov)), error = function(e) e)
+  if (inherits(invaCov, "error"))
+    stop(print(invaCov))    
+  invAcov <- mxMatrix("Full", ncol = ps, nrow = ps, values = c(invaCov),
                       free = FALSE, name = "invAcov")
   obj <- mxAlgebra(t(vecS) %&% invAcov, name = "obj")
 

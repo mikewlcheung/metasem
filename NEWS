@@ -1,3 +1,10 @@
+Release 0.9.15-4 (June 25, 2017)
+====================================
+* Renamed the argument my.df to Cov in the tssem1 family.
+* Renamed the argument my.df to Cor in uniR1().
+* Renamed the argument asyCov to aCov in the wls() and tssem2().
+* Renamed the argument check.asyCov to check.aCov in is.pd().  
+
 Release 0.9.15-3 (June 24, 2017)
 ====================================
 * Revised meta2semPlot() so that it generates nicer variable labels
