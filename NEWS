@@ -1,3 +1,7 @@
+Release 0.9.15-5 (September 28, 2017)
+====================================
+* Added bootMASEM functions
+
 Release 0.9.15-4 (June 25, 2017)
 ====================================
 * Renamed the argument my.df to Cov in the tssem1 family.

@@ -60,7 +60,7 @@ m <- c(5,7,9)
 v <- c(10,11,12)
 
 ## Sample sizes
-n=c(50,52,53)
+n <- c(50,52,53)
 
 ## Assuming homogeneity of variances
 smdMTS(m, v, n, homogeneity = "var", bias.adjust=TRUE, all.comparisons=FALSE,

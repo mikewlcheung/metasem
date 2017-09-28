@@ -20,6 +20,7 @@ S3method(summary, meta)
 S3method(summary, meta3X)
 S3method(summary, reml)
 S3method(summary, CorPop)
+S3method(summary, bootMASEM2)
 
 S3method(anova, meta)
 S3method(anova, meta3X)
@@ -61,6 +62,7 @@ S3method(print, summary.reml)
 S3method(print, impliedR)
 S3method(print, uniR1)
 S3method(print, summary.CorPop)
+S3method(print, summary.bootMASEM2)
 
 # required by R3.3
 importFrom("graphics", "abline", "arrows", "layout", "par", "plot",
@@ -68,6 +70,6 @@ importFrom("graphics", "abline", "arrows", "layout", "par", "plot",
 importFrom("stats", "as.formula", "coef", "cov2cor", "deriv",
            "na.omit", "pchisq", "pnorm", "printCoefmat", "qchisq",
            "qnorm", "reshape", "var", "vcov", "weighted.mean", "uniroot",
-           "cov", "cor", "rWishart")
+           "cov", "cor", "rWishart", "sd", "quantile")
 importFrom("utils", "read.table")
 
