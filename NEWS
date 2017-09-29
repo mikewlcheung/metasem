@@ -1,29 +1,15 @@
-Release 0.9.15-5 (September 28, 2017)
+Release 0.9.16 (September 29, 2017)
 ====================================
-* Added bootMASEM functions
-
-Release 0.9.15-4 (June 25, 2017)
-====================================
+* Released to CRAN.
+* Added bootMASEM functions.
 * Renamed the argument my.df to Cov in the tssem1 family.
 * Renamed the argument my.df to Cor in uniR1().
 * Renamed the argument asyCov to aCov in the wls() and tssem2().
 * Renamed the argument check.asyCov to check.aCov in is.pd().  
-
-Release 0.9.15-3 (June 24, 2017)
-====================================
-* Revised meta2semPlot() so that it generates nicer variable labels
-
-Release 0.9.15-2 (June 18, 2017)
-====================================
-* Changed the variable names in Becker94 so that they work better with lavaan2RAM()
-
-Release 0.9.15-1 (June 10, 2017)
-====================================
-* Revised lavaan2RAM() to work with mean structure
-
-Release 0.9.15-0 (June 4, 2017)
-====================================
-* Revised as.mxMatrix() to work with definition variables
+* Revised meta2semPlot() so that it generates nicer variable labels.
+* Changed the variable names in Becker94 so that they work better with lavaan2RAM().
+* Revised lavaan2RAM() to work with mean structure.
+* Revised as.mxMatrix() to work with definition variables.
 
 Release 0.9.14 (May 18, 2017)
 ====================================

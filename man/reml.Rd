@@ -21,7 +21,7 @@ reml(y, v, x, data, RE.constraints = NULL, RE.startvalues = 0.1,
 	where \eqn{k}{k} is the number of studies and \eqn{p}{p} is the
 	number of effect sizes. 
 }
-  \item{v}{A vector of the sampling variance of the effect size for univarite
+  \item{v}{A vector of the sampling variance of the effect size for univariate
 	meta-analysis or a \eqn{k}{k} x \eqn{p*}{p*} matrix of the sampling
 	covariance matrix of the effect sizes for multivariate meta-analysis
 	where \eqn{p* = p(p+1)/2 }{p* = p(p+1)/2}. It is arranged by column
@@ -33,7 +33,7 @@ reml(y, v, x, data, RE.constraints = NULL, RE.startvalues = 0.1,
   \item{data}{An optional data frame containing the variables in the model.
 }   
   \item{RE.constraints}{A \eqn{p}{p} x \eqn{p}{p} matrix
-	specifying the variance componets of the random effects. If the input
+	specifying the variance components of the random effects. If the input
 	is not a matrix, it is converted into a matrix by
 	\code{as.matrix()}. The default is that all
 	covariance/variance components are free. The format of this matrix
@@ -68,7 +68,7 @@ reml(y, v, x, data, RE.constraints = NULL, RE.startvalues = 0.1,
   }
   \item{silent}{Logical. Argument to be passed to \code{\link[OpenMx]{mxRun}}}
   \item{run}{Logical. If \code{FALSE}, only return the mx model without running the analysis.}  
-  \item{\dots}{Futher arguments to be passed to \code{\link[OpenMx]{mxRun}}
+  \item{\dots}{Further arguments to be passed to \code{\link[OpenMx]{mxRun}}
 }
 }
 \details{
@@ -108,7 +108,7 @@ reml(y, v, x, data, RE.constraints = NULL, RE.startvalues = 0.1,
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 %%  ~~who you are~~
 }
-\note{ \code{reml} is more computional intensive than \code{meta}. Moreover, \code{reml} is more
+\note{ \code{reml} is more computational intensive than \code{meta}. Moreover, \code{reml} is more
   likely to encounter errors during optimization. Since
   a likelihood function is directly employed to obtain the parameter
   estimates, there is no number of studies and number of observed statistics

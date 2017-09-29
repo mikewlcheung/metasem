@@ -5,7 +5,7 @@
 \description{It converts a list of symmetric matrices into
   a stacked matrix. Dimensions of the symmetric matrices have to be the
   same. It tries to preserve the dimension names if possible. Dimension names will
-  be created if there is no dimension names in the first symmetric matrix. 
+  be created if there are no dimension names in the first symmetric matrix. 
 }
 \usage{
 list2matrix(x, diag = FALSE)

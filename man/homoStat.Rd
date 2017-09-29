@@ -14,7 +14,7 @@ homoStat(y, v)
 	where \eqn{k}{k} is the number of studies and \eqn{p}{p} is the
 	number of effect sizes. 
 }
-  \item{v}{A vector of the sampling variance of the effect size for univarite
+  \item{v}{A vector of the sampling variance of the effect size for univariate
 	meta-analysis or a \eqn{k}{k} x \eqn{p*}{p*} matrix of the sampling
 	covariance matrix of the effect sizes for multivariate meta-analysis
 	where \eqn{p* = p(p+1)/2 }{p* = p(p+1)/2}. It is arranged by column
@@ -30,7 +30,7 @@ homoStat(y, v)
 	sizes. It has an approximate chi-square distribution under the null
 	hypothesis.}
   \item{Q.df}{Degrees of freedom of the Q statistic}
-  \item{pval}{p value on the test of homogeneity of effect sizes}
+  \item{pval}{p-value on the test of homogeneity of effect sizes}
 }
 \references{
 Becker, B. J. (1992). Using results from replicated studies to

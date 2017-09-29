@@ -21,7 +21,7 @@ Diag(x) <- value
 }
 
 \details{Started from R-3.0.0, \code{diag(x)} returns a numeric matrix with NA in the
-  diagonals when x is a character vector. Although this follows exactly what the manual says, this
+  diagonals when x is a character vector. Although this follows what the manual says, this
   breaks the metaSEM. The \code{Diag} has the same functions as
   \code{diag} except that \code{Diag(x)} works for a character vector of
   x by returning a square matrix of character "0" with \code{x} as the

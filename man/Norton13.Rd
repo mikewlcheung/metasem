@@ -16,7 +16,7 @@
   \item{data}{A list of 28 studies of correlation matrices. The
       variables are 14 items (x1 to x14) measuring HADS.}
   \item{n}{A vector of sample sizes}
-  \item{population}{A vector of population of the data}
+  \item{population}{A vector of the population of the data}
   \item{group}{A vector of classification into \emph{patients}
       vs. \emph{non-patients} based on population}
   }

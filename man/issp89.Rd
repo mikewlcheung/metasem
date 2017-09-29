@@ -1,7 +1,7 @@
 \name{issp89}
 \alias{issp89}
 \docType{data}
-\title{Data Set from Cheung and Chan (2005; 2009) 
+\title{A Dataset from Cheung and Chan (2005; 2009) 
 }
 \description{Eleven covariance matrices on work-related attitudes were
   extracted from the Inter-University Consortium for Political and

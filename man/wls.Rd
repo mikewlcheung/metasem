@@ -49,7 +49,7 @@ tssem2(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
 	error will not be generated. Parametric bootstrap is used to
 	estimate the standard error by drawing samples from \eqn{\mathcal{N}(vech(Cov), asyCov)}{N(vech(Cov), asyCov)} for covariance analysis and \eqn{\mathcal{N}(vechs(Cov), asyCov)}{N(vechs(Cov), asyCov)} for
 	correlation analysis while asyCov is treated as fixed. This process
-	is computational intensive. A better approach is to request likelihood-based
+	is computationally intensive. A better approach is to request likelihood-based
 	confidence intervals (CIs) by specifying \code{intervals.type="LB"}. 
 	If \code{diag.constraints=FALSE} and \code{cor.analysis=TRUE}, the diagonals are automatically constrained as ones by
   treating the error variances as computed values rather than as
@@ -65,7 +65,7 @@ tssem2(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
 	related to the likelihood-based CIs.
   }
   \item{mx.algebras}{A list of \code{\link[OpenMx]{mxMatrix}} or  \code{\link[OpenMx]{mxAlgebra}} objects on the \code{Amatrix},
-	\code{Smatrix} and \code{Fmatrx}. It can be used to define new functions
+	\code{Smatrix}, and \code{Fmatrx}. It can be used to define new functions
 	of parameters and their LBCIs. For example, if the regression
 	coefficients to calculate an indirect effect are stored in A[1,2] and
 	A[1,3], we may define
@@ -85,10 +85,10 @@ tssem2(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
 	"TSSEM2 (or WLS) Analysis of Covariance Structure" for \code{cor.analysis=FALSE}.
 	}
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
-	suppressed. Argument to be passed to \code{\link[OpenMx]{mxRun}}.}
-  \item{silent}{Logical. Argument to be passed to \code{\link[OpenMx]{mxRun}}}
+	suppressed. The argument to be passed to \code{\link[OpenMx]{mxRun}}.}
+  \item{silent}{Logical. The argument to be passed to \code{\link[OpenMx]{mxRun}}}
   \item{run}{Logical. If \code{FALSE}, only return the mx model without running the analysis.}  
-  \item{\dots}{Futher arguments to be passed to \code{\link[OpenMx]{mxRun}}.
+  \item{\dots}{Further arguments to be passed to \code{\link[OpenMx]{mxRun}}.
 }
 }
 

@@ -33,7 +33,7 @@ smdMTS(m, v, n, homogeneity=c("variance", "none"), bias.adjust=TRUE,
 \details{
   Gleser and Olkin (2009) introduces formulas to calculate the
   standardized mean differences and their sampling covariance matrix for
-  multiple treatment studies under the assumption of homogeneity of
+  multiple treatment studies under the assumption of homogeneity of the
   covariance matrix. This function uses a structural equation modeling (SEM)
   approach introduced in Chapter 3 of Cheung (2015) to calculate the
   same estimates. The SEM approach is more flexible in three ways: (1)

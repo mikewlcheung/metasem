@@ -12,7 +12,7 @@ indirectEffect(x, n, standardized = TRUE, direct.effect = TRUE, run = TRUE)
 \arguments{
   \item{x}{A 3x3 correlation/covariance matrix or a list of
 	correlation/covariance matrices. Variables are
-	arranged as dependent variable (y), mediator (m) and independent
+	arranged as the dependent variable (y), mediator (m) and independent
 	variable (x)
 }
   \item{n}{Sample size or a vector of sample sizes
@@ -31,7 +31,7 @@ indirectEffect(x, n, standardized = TRUE, direct.effect = TRUE, run = TRUE)
   this function. Delta method is used to calculate the asymptotic covariance matrix.
 }
 \value{A vector (or a matrix if the input is a list of matrices) of
-  (standardized) indirect effect, standardized direct effect and their
+  (standardized) indirect effect, standardized direct effect, and their
   asymptotic sampling covariance matrices
 }
 \references{

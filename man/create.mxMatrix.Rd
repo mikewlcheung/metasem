@@ -15,11 +15,11 @@ nrow=NA, as.mxMatrix=TRUE, byrow=FALSE, ...)
   \item{type}{Matrix type similar to those listed in
 	\code{\link[OpenMx]{mxMatrix}}
 }
-\item{ncol}{Number of columns. It is necessary when
+\item{ncol}{A number of columns. It is necessary when
   \code{type="Full"}. It is ignored and determined by the length of
   \code{x} for the other types of matrices.
 }
-\item{nrow}{Number of rows. It is necessary when
+\item{nrow}{A number of rows. It is necessary when
   \code{type="Full"}. It is ignored and determined by the length of
   \code{x} for the other types of matrices.
 }
@@ -30,13 +30,13 @@ nrow=NA, as.mxMatrix=TRUE, byrow=FALSE, ...)
 \item{\dots}{Further arguments to be passed to
 	\code{\link[OpenMx]{mxMatrix}}. Please note that \code{type},
 	  \code{nrow}, \code{ncol}, \code{values}, \code{free} and \code{labels} will be created automatically. Thus, these arguments
-	  excepts labels should be avoided in \dots 
+	  except labels should be avoided in \dots 
 }
 }
 \details{If there are non-numeric values in \code{x}, they are treated
   as the labels of the free parameters. If an "*" is
-  present, the numeric value on the left hand side will be treated as
-  the starting value for a free parameter or a fixed value for a fixed parameter. If it is a matrix of numeric values, there is
+  present, the numeric value on the left-hand side will be treated as
+  the starting value for a free parameter or a fixed value for a fixed parameter. If it is a matrix of numeric values, there are
   no free parameters in the output matrix. \code{nrow} and \code{ncol}
   will be calculated from the length of \code{x} unless
   \code{type="Full"} is specified.

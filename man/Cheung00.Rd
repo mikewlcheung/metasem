@@ -3,7 +3,7 @@
 \docType{data}
 \title{Fifty Studies of Correlation Matrices used in Cheung and Chan (2000)}
 \description{
-This data set includes fifty studies of correlation matrices on theory
+This data set includes fifty studies of correlation matrices on the theory
 of planned theory reported by Cheung and Chan (2000).
 }
 \usage{data(Cheung00)}
@@ -27,7 +27,7 @@ A list of data with the following structure:
 }
 \note{These studies were extracted from the original data set for
   illustration purpose. Some samples contained two or more correlation
-  matrices and only one of them was arbitrarily selected to avoid the
+  matrices, and only one of them was arbitrarily selected to avoid the
   problem of dependence. Moreover, studies with less than 3 correlation
   coefficients were also excluded.
   }

@@ -1,26 +1,28 @@
 \name{bootMASEM2}
 \alias{bootMASEM2}
-\title{Fit Models on the bootstrapped objects of the univariate R (uniR) approach
+\title{Fit Models on the bootstrapped correlation matrices
 }
-\description{It fits structural equation models on the boostrapped
-  objects on the univariate R (uniR). 
+\description{It fits structural equation models on the bootstrapped
+  correlation matrices. 
 }
 \usage{
 bootMASEM2(model, data, n, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{model}{Futher arguments to be passed to either
+  \item{model}{Further arguments to be passed to either
 	\code{\link[OpenMx]{mxRun}} or \code{\link[lavaan]{sem}}}  
   \item{data}{A list of correlation matrices.}
   \item{n}{Sample size in fitting the structural equation models}  
-  \item{\dots}{Futher arguments to be passed to \code{\link[lavaan]{sem}}.
+  \item{\dots}{Further arguments to be passed to \code{\link[lavaan]{sem}}.
   }
 }
 
-\value{A list of fitted object from \code{\link[lavaan]{sem}}.
+\value{A list of the fitted object from \code{\link[lavaan]{sem}}.
 }
-\details{It fitts the lavaan model with the bootstrapped correlation matrices.
+\details{This function fits the lavaan model with the bootstrapped correlation
+  matrices. It implements the parametric bootstrap approach suggested
+  by Yu et al. (2016). It is included in this package for research interests.
 }
 \references{
   %% Cheung, M. W.-L. (2017). Issues in solving the problem of effect size

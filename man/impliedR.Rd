@@ -32,7 +32,7 @@ rimpliedR(Amatrix, Smatrix, Fmatrix, AmatrixSD, k=1, corr=TRUE,
   }
   \item{AmatrixSD}{Standard deviations (SD) of the elements in the
 	\code{Amatrix}.}
-  \item{k}{Number of studies.}  
+  \item{k}{A number of studies.}  
   \item{corr}{Logical. The output is either the model implied
 	correlation matrix or the covariance matrix.
   }

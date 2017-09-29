@@ -66,7 +66,7 @@ cutoff.chisq.pvalue=0.05, cutoff.CFI=0.9, cutoff.SRMR=0.1, cutoff.RMSEA=0.05, \d
   \item{R}{Positive integer. The number of parameter bootstrap
 	replicates when \code{diag.constraints=TRUE}.}
   \item{probs}{Quantiles for the parameter estimates.}
-  \item{cutoff.chisq.pvalue}{Cutoff of the p value for the chi-square
+  \item{cutoff.chisq.pvalue}{Cutoff of the p-value for the chi-square
 	statistic.}
   \item{cutoff.CFI}{Cutoff of the CFI.}
   \item{cutoff.SRMR}{Cutoff of the SRMR.}

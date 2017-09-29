@@ -1,6 +1,6 @@
 \name{VarCorr}
 \alias{VarCorr}
-\title{Extract Variance Covariance Matrix of the Random Effects
+\title{Extract Variance-Covariance Matrix of the Random Effects
 }
 \description{It extracts the variance-covariance matrix of the
   random effects (variance component) from the \code{meta} objects.

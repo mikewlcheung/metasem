@@ -42,7 +42,7 @@ uniR2lavaan(x, model, ...)
   \item{run}{Logical. If \code{FALSE}, only return the mx model without
 	running the analysis.} 
   \item{model}{A model specified using lavaan syntax see \code{\link[lavaan]{model.syntax}}}  
-  \item{\dots}{Futher arguments to be passed to either
+  \item{\dots}{Further arguments to be passed to either
 	\code{\link[OpenMx]{mxRun}} or \code{\link[lavaan]{sem}}.
   }
 }

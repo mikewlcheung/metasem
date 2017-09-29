@@ -42,7 +42,7 @@ lavaan2RAM(model, obs.variables = NULL, A.notation = "ON",
   metric of each latent variable is determined by fixing the factor
   loading of the first indicator to 1.0. See \code{\link[lavaan]{lavaanify}}.
 }
-\item{\dots}{Futher arguments to be passed to \code{\link[lavaan]{lavaanify}}}. Please note that \code{fixed.x} is set at \code{FALSE}. Thus it cannot be passed to \dots.
+\item{\dots}{Further arguments to be passed to \code{\link[lavaan]{lavaanify}}}. Please note that \code{fixed.x} is set at \code{FALSE}. Thus it cannot be passed to \dots.
 }
 \details{
 It uses the \code{\link[lavaan]{lavaanify}} to do the conversion.

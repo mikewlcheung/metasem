@@ -43,7 +43,7 @@ summary(meta1)
 ## Extract the coefficients for the variance component of the random effects
 coef1 <- coef(meta1, select="random")
 
-## Convert it into a symmetrix matrix by row major
+## Convert it into a symmetric matrix by row major
 my.cov <- vec2symMat(coef1, byrow=TRUE)
 
 ## Convert it into a correlation matrix

@@ -26,7 +26,7 @@ achievement reported by Roorda et al. (2011).
 }
 \references{
   Jak, S., & Cheung, M. W.-L. (2015). Addressing heterogeneity in meta-analytic structural equation modeling using subgroup
-analysis. \emph{Manuscript in preparation}.
+analysis. \emph{Manuscript submitted for publication}.
 }
 \examples{
 \dontrun{

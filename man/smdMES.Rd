@@ -18,8 +18,8 @@ smdMES(m1, m2, V1, V2, n1, n2,
 	group.}
   \item{V2}{A \emph{p} by \emph{p} sample covariance matrix of the second
 	group.}  
-  \item{n1}{Sample size of the first group.}
-  \item{n2}{Sample size of the second group.}
+  \item{n1}{The sample size of the first group.}
+  \item{n2}{The sample size of the second group.}
   \item{homogeneity}{If it is \code{covariance} (the default),
 	homogeneity of covariance matrices is assumed. The common standard
 	deviations are used as the standardizers in calculating the effect
@@ -38,7 +38,7 @@ smdMES(m1, m2, V1, V2, n1, n2,
 \details{
   Gleser and Olkin (2009) introduces formulas to calculate the
   standardized mean differences and their sampling covariance matrix for
-  multiple end-point studies under the assumption of homogeneity of
+  multiple end-point studies under the assumption of homogeneity of the
   covariance matrix. This function uses a structural equation modeling (SEM)
   approach introduced in Chapter 3 of Cheung (2015) to calculate the
   same estimates. The SEM approach is more flexible in two ways: (1)

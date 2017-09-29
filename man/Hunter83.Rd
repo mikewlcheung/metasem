@@ -4,7 +4,7 @@
 \title{Fourteen Studies of Correlation Matrices reported by Hunter (1983)
 }
 \description{
-This data set includes fourteen studies of Correlation Matrices reported by Hunter (1983)
+This dataset includes fourteen studies of Correlation Matrices reported by Hunter (1983)
 }
 \usage{data(Hunter83)}
 

@@ -65,16 +65,16 @@ meta3X(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=NULL,
 	constrained equally by using the same labels.
 }
   \item{RE2.constraints}{A scalar or a \eqn{1}{1} x \eqn{1}{1} matrix
-	specifying the variance componets of the random effects. The default
-	is that the variance components is free. The format of this matrix
+	specifying the variance components of the random effects. The default
+	is that the variance components are free. The format of this matrix
 	follows \code{\link[metaSEM]{as.mxMatrix}}. Elements of the variance
 	components can be constrained equally by using the same label. 
 }
   \item{RE2.lbound}{A scalar or a \eqn{1}{1} x \eqn{1}{1} matrix of lower bound on the level-2 variance component of the random effects. 
 }
   \item{RE3.constraints}{A scalar of a \eqn{1}{1} x \eqn{1}{1} matrix
-	specifying the variance componets of the random effects at
-	level-3. The default is that the variance components is free. The format of this matrix
+	specifying the variance components of the random effects at
+	level-3. The default is that the variance components are free. The format of this matrix
 	follows \code{\link[metaSEM]{as.mxMatrix}}. Elements of the variance
 	components can be constrained equally by using the same label. 
 }
@@ -91,7 +91,7 @@ meta3X(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=NULL,
   \item{I2}{Possible options are \code{"I2q"}, \code{"I2hm"},
 	\code{"I2am"} and \code{"ICC"}. They represent the \code{I2} calculated by using a
 	typical within-study sampling variance from the Q statistic, the
-	harmonic mean, the arithmatic mean of the within-study sampling
+	harmonic mean, the arithmetic mean of the within-study sampling
 	variances, and the intra-class correlation. More than one options are possible. If \code{intervals.type="LB"}, 95\% confidence intervals on the heterogeneity indices will be constructed. 
   }
   \item{R2}{Logical. If \code{TRUE} and there are predictors, R2 is
@@ -104,7 +104,7 @@ meta3X(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=NULL,
   }
   \item{silent}{Logical. Argument to be passed to \code{\link[OpenMx]{mxRun}}}
   \item{run}{Logical. If \code{FALSE}, only return the mx model without running the analysis.}
-  \item{\dots}{Futher arguments to be passed to
+  \item{\dots}{Further arguments to be passed to
 	\code{\link[OpenMx]{mxRun}}}  
 }
 \details{

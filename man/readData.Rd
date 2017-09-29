@@ -15,7 +15,7 @@ readLowTriMat(file, no.var, ...)
 \arguments{
   \item{file}{File name of the data.
 }
-  \item{no.var}{Number of variables in the data.
+  \item{no.var}{The number of variables in the data.
 }
   \item{\dots}{Further arguments to be passed to \code{\link[base]{scan}} for \code{readLowTriMat} and to \code{\link[utils]{read.table}} for \code{readFullMat} and \code{readStackVec}.
 }

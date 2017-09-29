@@ -1,7 +1,7 @@
 \name{issp05}
 \alias{issp05}
 \docType{data}
-\title{Data Set from ISSP (2005) 
+\title{A Dataset from ISSP (2005) 
 }
 \description{Thirty-two covariance matrices on work-related attitudes
   were extracted from the International Social Survey Programme 2005:

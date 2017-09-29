@@ -7,7 +7,7 @@
 It conducts univariate and multivariate meta-analysis with maximum
 likelihood estimation method. Mixed-effects meta-analysis can be
 conducted by including study characteristics as predictors. Equality constraints on
-intercepts, regression coefficients and variance components can be
+intercepts, regression coefficients, and variance components can be
 easily imposed by setting the same labels on the parameter estimates.
 }
 \usage{
@@ -24,7 +24,7 @@ meta(y, v, x, data, intercept.constraints = NULL, coef.constraints = NULL,
 	where \eqn{k}{k} is the number of studies and \eqn{p}{p} is the
 	number of effect sizes. 
 }
-  \item{v}{A vector of the sampling variance of the effect size for univarite
+  \item{v}{A vector of the sampling variance of the effect size for univariate
 	meta-analysis or a \eqn{k}{k} x \eqn{p*}{p*} matrix of the sampling
 	covariance matrix of the effect sizes for multivariate meta-analysis
 	where \eqn{p* = p(p+1)/2 }{p* = p(p+1)/2}. It is arranged by column
@@ -53,7 +53,7 @@ meta(y, v, x, data, intercept.constraints = NULL, coef.constraints = NULL,
 	constrained equally by using the same labels.
 }
   \item{RE.constraints}{A \eqn{p}{p} x \eqn{p}{p} matrix
-	specifying the variance componets of the random effects. If the input
+	specifying the variance components of the random effects. If the input
 	is not a matrix, it is converted into a matrix by
 	\code{as.matrix()}. The default is that all
 	covariance/variance components are free. The format of this matrix
@@ -84,7 +84,7 @@ meta(y, v, x, data, intercept.constraints = NULL, coef.constraints = NULL,
   \item{I2}{Possible options are \code{"I2q"}, \code{"I2hm"} and
 	\code{"I2am"}. They represent the \code{I2} calculated by using a
 	typical within-study sampling variance from the Q statistic, the
-	harmonic mean and the arithmatic mean of the within-study sampling
+	harmonic mean and the arithmetic mean of the within-study sampling
 	variances (Xiong, Miller, & Morris, 2010). More than one options are possible. If \code{intervals.type="LB"}, 95\% confidence intervals on the heterogeneity indices will be constructed. 
   }
   \item{R2}{Logical. If \code{TRUE} and there are predictors, R2 is
@@ -93,11 +93,11 @@ meta(y, v, x, data, intercept.constraints = NULL, coef.constraints = NULL,
   \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. 
 	}
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
-	suppressed. Argument to be passed to \code{\link[OpenMx]{mxRun}}.}
-  \item{silent}{Logical. Argument to be passed to \code{\link[OpenMx]{mxRun}}}
+	suppressed. The argument to be passed to \code{\link[OpenMx]{mxRun}}.}
+  \item{silent}{Logical. The argument to be passed to \code{\link[OpenMx]{mxRun}}}
   \item{run}{Logical. If \code{FALSE}, only return the mx model without
 	running the analysis.} 
-  \item{\dots}{Futher arguments to be passed to \code{\link[OpenMx]{mxRun}}}    
+  \item{\dots}{Further arguments to be passed to \code{\link[OpenMx]{mxRun}}}    
 }
 
 \value{An object of class \code{meta} with a list of

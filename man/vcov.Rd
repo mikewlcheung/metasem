@@ -49,7 +49,7 @@
 
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
-\note{\code{vcov} returns \code{NA} when \code{diag.constraints=TRUE}
+\note{\code{vcov} returns \code{NA} when the \code{diag.constraints=TRUE}
   argument is used in \code{wls} objects.
 }
 %% ~Make other sections like Warning with \section{Warning }{....} ~

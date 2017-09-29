@@ -45,45 +45,45 @@ diag.panel = FALSE, xlim=NULL, ylim=NULL, ...)
 }
   \item{axis.labels}{Labels for the effect sizes.
 }
-\item{study.col}{Color of individual studies. See \code{col} in \code{\link[graphics]{par}}.  
+\item{study.col}{The color for individual studies. See \code{col} in \code{\link[graphics]{par}}.  
 }
   \item{study.pch}{Plotting character of individual studies. See \code{pch} in \code{\link[graphics]{points}}. 
 }
-  \item{study.min.cex}{Minimum value of cex for individual
+  \item{study.min.cex}{The minimum value of cex for individual
 	studies. See \code{cex} in \code{\link[graphics]{par}}.
 }
-  \item{study.weight.plot}{Logical. If \code{TRUE}, the ploting size of individual
+  \item{study.weight.plot}{Logical. If \code{TRUE}, the plotting size of individual
 	studies (cex) will be proportional to one over the square root of the
 	determinant of the sampling covariance matrix of the study.
 }
   \item{study.ellipse.plot}{Logical. If \code{TRUE}, the confidence
 	ellipses of individual studies are plotted.
 }
-  \item{study.ellipse.col}{Color of the confidence ellipses of
+  \item{study.ellipse.col}{The color of the confidence ellipses of
 	individual studies. See \code{col} in \code{\link[graphics]{par}}. 
 }
-  \item{study.ellipse.lty}{Line type of the confidence ellipse of
+  \item{study.ellipse.lty}{The line type of the confidence ellipse of
 	individual studies. See \code{lty} in \code{\link[graphics]{par}}. 
 }
-  \item{study.ellipse.lwd}{Line width of the confidence ellipse of
+  \item{study.ellipse.lwd}{The line width of the confidence ellipse of
 	individual studies. See \code{lwd} in \code{\link[graphics]{par}}. 
 }
-  \item{estimate.col}{Color of the estimated effect size. See \code{col} in \code{\link[graphics]{par}}. 
+  \item{estimate.col}{The color of the estimated effect size. See \code{col} in \code{\link[graphics]{par}}. 
 }
   \item{estimate.pch}{Plotting character of the estimated effect sizes. See \code{pch} in \code{\link[graphics]{points}}.
 }
-  \item{estimate.cex}{Amount of plotting of the estimated effect sizes. See \code{cex} in \code{\link[graphics]{par}}.
+  \item{estimate.cex}{The amount of plotting of the estimated effect sizes. See \code{cex} in \code{\link[graphics]{par}}.
 }
   \item{estimate.ellipse.plot}{Logical. If \code{TRUE}, the confidence
 	ellipse of the estimated effect sizes will be plotted.
 }
-  \item{estimate.ellipse.col}{Color of the confidence
+  \item{estimate.ellipse.col}{The color of the confidence
 	ellipse of the estimated effect sizes. See \code{col} in \code{\link[graphics]{par}}. 
 }
-  \item{estimate.ellipse.lty}{Line type of the confidence
+  \item{estimate.ellipse.lty}{The line type of the confidence
 	ellipse of the estimated effect sizes. See \code{lty} in \code{\link[graphics]{par}}. 
 }
-  \item{estimate.ellipse.lwd}{Line width of the confidence
+  \item{estimate.ellipse.lwd}{The line width of the confidence
 	ellipse of the estimated effect sizes. See \code{lwd} in \code{\link[graphics]{par}}. 
 }
   \item{randeff.ellipse.plot}{Logical. If \code{TRUE}, the confidence
@@ -92,34 +92,34 @@ diag.panel = FALSE, xlim=NULL, ylim=NULL, ...)
   \item{randeff.ellipse.col}{Color of the confidence
 	ellipses of the random effects. See \code{col} in \code{\link[graphics]{par}}. 
 }
-  \item{randeff.ellipse.lty}{Line type of the confidence
+  \item{randeff.ellipse.lty}{The line type of the confidence
 	ellipses of the random effects. See \code{lty} in \code{\link[graphics]{par}}. 
 }
-  \item{randeff.ellipse.lwd}{Line width of the confidence
+  \item{randeff.ellipse.lwd}{The line width of the confidence
 	ellipses of the random effects. See \code{lwd} in \code{\link[graphics]{par}}. 
 }
   \item{univariate.plot}{Logical. If \code{TRUE}, the estimated univariate effect
 	sizes will be plotted.
 }
-  \item{univariate.lines.col}{Color of the estimated univariate effect
+  \item{univariate.lines.col}{The color of the estimated univariate effect
 	sizes. See \code{col} in \code{\link[graphics]{par}}. 
 }
-  \item{univariate.lines.lty}{Line type of the estimated univariate effect
+  \item{univariate.lines.lty}{The line type of the estimated univariate effect
 	sizes. See \code{lty} in \code{\link[graphics]{par}}. 
 }
-  \item{univariate.lines.lwd}{Line width of the estimated univariate effect
+  \item{univariate.lines.lwd}{The line width of the estimated univariate effect
 	sizes. See \code{lwd} in \code{\link[graphics]{par}}. 
 }
-  \item{univariate.polygon.width}{Width of the polygon of the estimated univariate effect
+  \item{univariate.polygon.width}{The width of the polygon of the estimated univariate effect
 	sizes.
 }
-  \item{univariate.polygon.col}{Color of the polygon of the estimated univariate effect
+  \item{univariate.polygon.col}{The color of the polygon of the estimated univariate effect
 	sizes.
 }
-  \item{univariate.arrows.col}{Color of the arrows of the estimated univariate effect
+  \item{univariate.arrows.col}{The color of the arrows of the estimated univariate effect
 	sizes.
 }
-  \item{univariate.arrows.lwd}{Line width of the arrows of the estimated univariate effect
+  \item{univariate.arrows.lwd}{The line width of the arrows of the estimated univariate effect
 	sizes.
 }
   \item{diag.panel}{Logical. If \code{TRUE}, diagonal panels will be

@@ -54,7 +54,7 @@ reml3(y, v, cluster, x, data, RE2.startvalue=0.1, RE2.lbound=1e-10,
   }
   \item{silent}{Logical. Argument to be passed to \code{\link[OpenMx]{mxRun}}}
   \item{run}{Logical. If \code{FALSE}, only return the mx model without running the analysis.}  
-  \item{\dots}{Futher arguments to be passed to \code{\link[OpenMx]{mxRun}}}
+  \item{\dots}{Further arguments to be passed to \code{\link[OpenMx]{mxRun}}}
 }
 \details{
 Restricted (residual) maximum likelihood obtains the parameter estimates on the transformed data that do not include the fixed-effects parameters. A transformation matrix \eqn{M=I-X(X'X)^{-1}X}{M=I-X(X'X)^{-1}X'} is created based on the design matrix \eqn{X}{X} which is just a column vector when there is no predictor in \code{x}. The last \eqn{N}{N} redundant rows of \eqn{M}{M} is removed where \eqn{N}{N} is the rank of \eqn{X}{X}. After pre-multiplying by \eqn{M} on \code{y}, the parameters of fixed-effects are removed from the model. Thus, only the parameters of random-effects are estimated.
@@ -91,7 +91,7 @@ An alternative but equivalent approach is to minimize the
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 %%  ~~who you are~~
 }
-\note{ \code{reml} is more computional intensive than \code{meta}. Moreover, \code{reml} is more
+\note{ \code{reml} is more computational intensive than \code{meta}. Moreover, \code{reml} is more
   likely to encounter errors during optimization. Since
   a likelihood function is directly employed to obtain the parameter
   estimates, there is no number of studies and number of observed statistics

@@ -2,7 +2,7 @@
 \alias{bootMASEM1}
 \title{Parametric bootstrap on the univariate R (uniR) object
 }
-\description{It conducts the parametric bootstrap on the univariate R
+\description{It generates correlation matrices with the parametric bootstrap on the univariate R
   (uniR) object. 
 }
 \usage{
@@ -21,7 +21,7 @@ bootMASEM1(x, Rep, nonPD.pop=c("replace", "nearPD", "accept"))
 }
 \details{
   This function implements the parametric bootstrap approach suggested
-  by Yu et al. (2016).
+  by Yu et al. (2016). It is included in this package for research interests.
 }
 \references{
   %% Cheung, M. W.-L. (2017). Issues in solving the problem of effect size
