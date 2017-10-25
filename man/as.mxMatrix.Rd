@@ -14,7 +14,7 @@ as.mxMatrix(x, name, ...)
   }
   \item{name}{An optional character string as the name of the
 	MxMatrix object created by mxModel function. If the \code{name} is missing,
-  the name of \code{x} will be used.}
+	the name of \code{x} will be used.}
   \item{\dots}{Further arguments to be passed to
 	\code{\link[OpenMx]{mxMatrix}}. It should be noted that \code{type},
 	  \code{nrow}, \code{ncol}, \code{values}, \code{free}, \code{name}

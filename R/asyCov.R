@@ -34,18 +34,18 @@ asyCov <- function(x, n, cor.analysis=TRUE, dropNA=FALSE, as.matrix=TRUE,
             stop("The dimensions of matrices should be the same in order to stack them together!")
           
           if (is.null(dimnames(x[[1]]))) {
-            oldNames <- paste("x", 1:dim(x[[1]])[[1]], sep = "")
+            oldNames <- paste0("x", 1:dim(x[[1]])[[1]])
           } else {
             oldNames <- dimnames(x[[1]])[[1]]
           }
-          psOldNames <- outer(oldNames, oldNames, paste, sep = "")          
+          psOldNames <- outer(oldNames, oldNames, paste, sep = "_")          
           if (cor.analysis) {
             psOldNames <- vechs(psOldNames)
           } else {
             psOldNames <- vech(psOldNames)
           }
           # cov/var of psOldNames
-          psCovNames <- paste("cov(", outer(psOldNames, psOldNames, paste, sep = "_"), ")", sep="")
+          psCovNames <- paste("C(", outer(psOldNames, psOldNames, paste, sep = " "), ")", sep="")
           psCovNames <- vech(matrix(psCovNames, nrow=length(psOldNames), ncol=length(psOldNames)))
 
           ## Fixed a bug before v.0.7-0 that uses only the first n 
@@ -89,8 +89,8 @@ asyCov <- function(x, n, cor.analysis=TRUE, dropNA=FALSE, as.matrix=TRUE,
             cNames <- dimnames(x.new)[[1]]
         }
         # create matrix of labels for ps
-        psOldNames <- outer(oldNames, oldNames, paste, sep = "")
-        psMatnames <- outer(cNames, cNames, paste, sep = "")
+        psOldNames <- outer(oldNames, oldNames, paste, sep = "_")
+        psMatnames <- outer(cNames, cNames, paste, sep = "_")
         
         if (cor.analysis) {
             psOldNames <- vechs(psOldNames)

@@ -1,3 +1,8 @@
+Release 0.9.17-0 (October 25, 2017)
+====================================
+* Rename bootMASEM functions to bootuniR functions.
+* Changed the variable names in the output of asyCov().
+
 Release 0.9.16 (September 29, 2017)
 ====================================
 * Released to CRAN.

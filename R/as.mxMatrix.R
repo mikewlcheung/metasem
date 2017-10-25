@@ -34,9 +34,13 @@ as.mxMatrix <- function(x, name, ...) {
     out <- mxMatrix(type = "Full", nrow=nRow, ncol=nCol, values=values, free=free,
                     name=name, ...)
   }
-    
-  ## Add the dimnames for ease of references
-  dimnames(out@values) <- dimnames(out@labels) <- dimnames(out@free) <- dimnames(x)
+
+    ## Don't include dimnames if nRow==1 (most likely mean vector)
+    ## Dimensions in the M matrix may create an error   
+  if (nRow>1) {
+      ## Add the dimnames for ease of references
+      dimnames(out@values) <- dimnames(out@labels) <- dimnames(out@free) <- dimnames(x)
+  }    
 
   ## options(warn=warn)
   out

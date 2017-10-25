@@ -92,7 +92,7 @@ uni1 <- uniR1(Nohe15A1$data, Nohe15A1$n)
 uni1
 
 ## Generate random correlation matrices
-boot.cor <- bootMASEM1(uni1, Rep=50)
+boot.cor <- bootuniR1(uni1, Rep=50)
 
 ## Display the quality of the generated correlation matrices
 summary(boot.cor)
@@ -103,14 +103,14 @@ model1 <- 'W2 + S2 ~ W1 + S1'
 ## Use the harmonic mean of the sample sizes as n in SEM
 n <- uni1$n.harmonic    
     
-boot.fit1 <- bootMASEM2(model=model1, data=boot.cor, n=n)
+boot.fit1 <- bootuniR2(model=model1, data=boot.cor, n=n)
 summary(boot.fit1)
 
 ## Proposed model with equal regression coefficients
 model2 <- 'W2 ~ Same*W1 + Cross*S1
            S2 ~ Cross*W1 + Same*S1'
 
-boot.fit2 <- bootMASEM2(model=model2, data=boot.cor, n=n)
+boot.fit2 <- bootuniR2(model=model2, data=boot.cor, n=n)
 summary(boot.fit2)
     
 }

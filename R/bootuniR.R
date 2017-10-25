@@ -1,5 +1,5 @@
 ## Generate population correlation matrices from uniR1 object
-bootMASEM1 <- function(x, Rep, nonPD.pop=c("replace", "nearPD", "accept")) {
+bootuniR1 <- function(x, Rep, nonPD.pop=c("replace", "nearPD", "accept")) {
   if (!is.element("uniR1", class(x)))
       stop("'x' must be an object of class 'uniR1'.")
   
@@ -7,7 +7,7 @@ bootMASEM1 <- function(x, Rep, nonPD.pop=c("replace", "nearPD", "accept")) {
           corr=TRUE, k=Rep, nonPD.pop=nonPD.pop)
 }
 
-bootMASEM2 <- function(model, data, n, ...) {
+bootuniR2 <- function(model, data, n, ...) {
   if (!requireNamespace("lavaan", quietly=TRUE))
     stop("\"lavaan\" package is required for this function.")
 
@@ -15,15 +15,15 @@ bootMASEM2 <- function(model, data, n, ...) {
                                                     sample.nobs=n, ...))})
   ## ## remove replications with errors
   ## out <- out[sapply(out, function(x) !inherits(x, "try-error"))]
-  class(out) <- "bootMASEM2"
+  class(out) <- "bootuniR2"
   out
 }
 
-summary.bootMASEM2 <- function(object, probs=c(0, 0.1, 0.5, 0.9, 1),
-                             cutoff.chisq.pvalue=0.05, cutoff.CFI=0.9,
-                             cutoff.SRMR=0.1, cutoff.RMSEA=0.05, ...) {
-  if (!is.element("bootMASEM2", class(object)))
-    stop("'object' must be an object of class 'bootMASEM2'.")
+summary.bootuniR2 <- function(object, probs=c(0, 0.1, 0.5, 0.9, 1),
+                              cutoff.chisq.pvalue=0.05, cutoff.CFI=0.9,
+                              cutoff.SRMR=0.1, cutoff.RMSEA=0.05, ...) {
+  if (!is.element("bootuniR2", class(object)))
+    stop("'object' must be an object of class 'bootuniR2'.")
 
   Rep.total <- length(object)
 
@@ -61,13 +61,13 @@ summary.bootMASEM2 <- function(object, probs=c(0, 0.1, 0.5, 0.9, 1),
                      Rep.success=length(object))
 
   out <- list(coefficients=coefficients, fitindices=fitindices, fitsummary=fitsummary)
-  class(out) <- "summary.bootMASEM2"
+  class(out) <- "summary.bootuniR2"
   out
 }
 
-print.summary.bootMASEM2 <- function(x, ...) {
-  if (!is.element("summary.bootMASEM2", class(x)))
-    stop("\"x\" must be an object of class \"summary.bootMASEM2\".")
+print.summary.bootuniR2 <- function(x, ...) {
+  if (!is.element("summary.bootuniR2", class(x)))
+    stop("\"x\" must be an object of class \"summary.bootuniR2\".")
 
   cat("Summary of the coefficients:\n")
   printCoefmat(x$coefficients)
