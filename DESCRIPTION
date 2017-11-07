@@ -1,8 +1,8 @@
 Package: metaSEM
 Type: Package
 Title: Meta-Analysis using Structural Equation Modeling
-Version: 0.9.17-0
-Date: 2017-10-25
+Version: 0.9.17-1
+Date: 2017-11-07
 Depends: R (>= 3.3.0), OpenMx (>= 2.6.9)  
 Imports: Matrix, MASS, ellipse, graphics, stats, utils, mvtnorm
 Suggests: metafor, semPlot, lavaan, R.rsp

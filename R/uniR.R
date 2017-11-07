@@ -124,5 +124,6 @@ uniR2lavaan <- function(x, model, ...) {
   if (!is.element("uniR1", class(x)))
     stop("\"x\" must be an object of class \"uniR1\".")
 
-  lavaan::sem(model=model, sample.nobs=x$n.harmonic, sample.cov=x$r.mean, ...)
+  lavaan::sem(model=model, sample.nobs=x$n.harmonic, sample.cov=x$r.mean, fixed.x=FALSE,
+              ...)
 }

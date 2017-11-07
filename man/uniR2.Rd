@@ -43,7 +43,8 @@ uniR2lavaan(x, model, ...)
 	running the analysis.} 
   \item{model}{A model specified using lavaan syntax see \code{\link[lavaan]{model.syntax}}}  
   \item{\dots}{Further arguments to be passed to either
-	\code{\link[OpenMx]{mxRun}} or \code{\link[lavaan]{sem}}.
+	\code{\link[OpenMx]{mxRun}} or \code{\link[lavaan]{sem}. For
+	  \code{\link[lavaan]{sem}}, \code{fixed.x=FALSE} is passed automatically.}
   }
 }
 

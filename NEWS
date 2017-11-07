@@ -1,3 +1,8 @@
+Release 0.9.17-1 (November 7, 2017)
+====================================
+* Added fixed.x=FALSE automatically in uniR2lavaan().
+* Fixed coef.wls() so that it always follows the order of the parameter estimates in vcov.wls().
+
 Release 0.9.17-0 (October 25, 2017)
 ====================================
 * Rename bootMASEM functions to bootuniR functions.

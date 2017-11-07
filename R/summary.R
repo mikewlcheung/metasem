@@ -898,15 +898,25 @@ coef.tssem1FEM.cluster <- function(object, ...) {
   
 coef.wls <- function(object, ...) {
     if (!is.element("wls", class(object)))
-    stop("\"object\" must be an object of class \"wls\".")
-    ## object$mx.fit@output$estimate
-    my.mx <- summary(object$mx.fit)
-    my.coef <- my.mx$parameters$Estimate
-    ## # For example, P[1,2], L[1,2], ...
-    ## names(my.coef) <- with(my.mx$parameters[, 2:4], paste(matrix,"[",row,",",col,"]",sep=""))
-    my.labels <- my.mx$parameters$name
-    my.labels <- gsub(paste(object$mx.model$name, ".", sep=""), "", my.labels)
-    names(my.coef) <- my.labels    
+        stop("\"object\" must be an object of class \"wls\".")
+    
+    ## ## object$mx.fit@output$estimate
+    ## my.mx <- summary(object$mx.fit)
+    ## my.coef <- my.mx$parameters$Estimate
+    ## ## # For example, P[1,2], L[1,2], ...
+    ## ## names(my.coef) <- with(my.mx$parameters[, 2:4], paste(matrix,"[",row,",",col,"]",sep=""))
+    ## my.labels <- my.mx$parameters$name
+    ## my.labels <- gsub(paste(object$mx.model$name, ".", sep=""), "", my.labels)
+    ## names(my.coef) <- my.labels    
+    ## my.coef
+
+    ## Make sure that coef.wls follows the order in vcov.wls
+    my.para <- summary(object$mx.fit)$parameters[, 1:5]
+    my.order <- with(my.para, order(matrix, row, col))
+    ## Reorder it following the order in vcov.wls
+    my.para <- my.para[my.order, ]
+    my.coef <- my.para$Estimate
+    names(my.coef) <- my.para$name
     my.coef
 }
 
