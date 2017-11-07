@@ -19,10 +19,10 @@ A list of data with the following structure:
 }
 }
 \source{
-  Cooke, R., Dahdah, M., Norman, P., & French, D. P. (2016). How well does the theory of planned behaviour predict alcohol consumption? A systematic review and meta-analysis. \emph{Health Psychology Review}, \emph{10}(2), 148-167.
+  Cooke, R., Dahdah, M., Norman, P., & French, D. P. (2016). How well does the theory of planned behaviour predict alcohol consumption? A systematic review and meta-analysis. \emph{Health Psychology Review}, \bold{10}(2), 148-167.
 }
 \references{
-  Cheung, M. W.-L., & Hong, R. Y. (2017). Applications of meta-analytic structural equation modeling in health psychology: Examples, issues, and recommendations. \emph{Health Psychology Review}, \emph{11}, 265-279. 
+  Cheung, M. W.-L., & Hong, R. Y. (2017). Applications of meta-analytic structural equation modeling in health psychology: Examples, issues, and recommendations. \emph{Health Psychology Review}, \bold{11}, 265-279. 
 }
 
 \examples{
