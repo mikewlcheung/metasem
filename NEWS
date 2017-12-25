@@ -1,3 +1,12 @@
+Release 0.9.17-2 (December 25, 2017)
+====================================
+* Changed the defaults of tssem1():
+  		  From method="FEM" to method="REM",
+  		  From RE.type="Symm" to RE.type="Diag", and
+  		  From acov="individual" to acov="weighted."
+* Added tssemParaVar() to estimate heterogeneity of parameter estimates in tssem approach.
+* Added basic tests.
+
 Release 0.9.17-1 (November 7, 2017)
 ====================================
 * Added fixed.x=FALSE automatically in uniR2lavaan().

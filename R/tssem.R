@@ -160,14 +160,16 @@ tssem1FEM <- function(Cov, n, cor.analysis=TRUE, model.name=NULL,
   }
 }
 
-tssem1REM <- function(Cov, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Zero", "User"),
+tssem1REM <- function(Cov, n, cor.analysis=TRUE, RE.type=c("Diag", "Symm", "Zero", "User"),
                       RE.startvalues=0.1, RE.lbound = 1e-10, RE.constraints=NULL,
-                      I2="I2q", acov=c("individual", "unweighted", "weighted"),
+                      I2="I2q", acov=c("weighted", "individual", "unweighted"),
                       model.name=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
   ## It handles missing effect sizes rather than missing correlations. Thus, it is more flexible than tssem1FEM().
   ## ACOV is calculated without missing data by assuming 1 and 0 for the missing variances and covariances.
   ## Missing values are indicated by the missing effect sizes.
 
+  acov <- match.arg(acov, c("weighted", "individual", "unweighted"))
+    
   ## Throw an error when df and n are in different lengths.
   if (length(Cov) != length(n)) stop("Lengths of \"df\" and \"n\" are different.\n")   
     
@@ -208,7 +210,7 @@ tssem1REM <- function(Cov, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Zero
     }
   }
 
-  RE.type <- match.arg(RE.type)
+  RE.type <- match.arg(RE.type, c("Diag", "Symm", "Zero", "User"))
   switch( RE.type,
          Symm = mx.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2, RE.startvalues=RE.startvalues,
                                RE.lbound=RE.lbound, suppressWarnings=TRUE, silent=silent, run=run, ...),
@@ -242,9 +244,9 @@ tssem1REM <- function(Cov, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Zero
   return(out)
 }
 
-tssem1 <- function(Cov, n, method=c("FEM", "REM"), cor.analysis=TRUE, cluster=NULL,
-                   RE.type=c("Symm", "Diag", "Zero", "User"), RE.startvalues=0.1, RE.lbound=1e-10,
-                   RE.constraints=NULL, I2="I2q", acov=c("individual", "unweighted", "weighted"),
+tssem1 <- function(Cov, n, method=c("REM", "FEM"), cor.analysis=TRUE, cluster=NULL,
+                   RE.type=c("Diag", "Symm", "Zero", "User"), RE.startvalues=0.1, RE.lbound=1e-10,
+                   RE.constraints=NULL, I2="I2q", acov=c("weighted", "individual", "unweighted"),
                    model.name=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
   method <- match.arg(method)
   switch(method,
@@ -542,3 +544,151 @@ tssem2 <- function(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.co
                                  model.name=model.name, suppressWarnings = suppressWarnings, silent=silent, run=run, ...) })
   out
 }
+
+
+tssemParaVar <- function(tssem1.obj, tssem2.obj, method=c("bootstrap", "delta"),
+                         interval=0.8, Rep=50, output=c("data.frame", "matrices"),
+                         nonPD.pop=c("replace", "nearPD", "accept")) {
+
+    if (interval <=0 | interval >=1) stop("'interval' must be within 0 and 1.\n")
+    
+    ## Means of stage 1
+    Means <- eval(parse(text="mxEval(Inter, tssem1.obj$mx.fit)"))
+    ## Variance componet of the correlation coefficients
+    V <- eval(parse(text="mxEval(Tau, tssem1.obj$mx.fit)"))
+
+    mx.model <- tssem2.obj$mx.fit
+    ## Maximize the speed
+    mx.model <- mxOption(mx.model, "Calculate Hessian", "No")
+    mx.model <- mxOption(mx.model, "Standard Errors", "No")
+  
+    method <- match.arg(method)
+    output <- match.arg(output)
+
+    ## delta method
+    if (method=="delta") {
+
+        if (!requireNamespace("numDeriv", quietly = TRUE))
+            stop("\"numDeriv\" package is required for this function.")
+
+        ## Gradiant function
+        ## x: Correlation coefficients
+        fun1 <- function(x) {
+            sampleS <- as.mxMatrix(vec2symMat(x, diag=FALSE), name="sampleS")
+            model <- mxModel(mx.model, sampleS=sampleS)
+            fit <- mxRun(model, silent=TRUE)
+            coef(fit)
+        }
+        
+        ## Jacobian matrix
+        grad <- numDeriv::jacobian(fun1, x=Means)
+        Tau2 <- grad %*% V %*% t(grad)
+    } else {
+        ## bootstrap method
+        boot.cor <- rCorPop(Sigma=vec2symMat(Means, diag=FALSE),
+                            V=V, k=Rep, nonPD.pop=nonPD.pop)
+
+        boot.coef <- t(sapply(boot.cor, function(x) {
+                               sampleS <- as.mxMatrix(x, name="sampleS")
+                               model <- mxModel(mx.model, sampleS=sampleS)
+                               fit <- mxRun(model, silent=TRUE)
+                               coef(fit)
+        }))
+        Tau2 <- cov(boot.coef, use="complete.obs") 
+    }
+
+    ## Parameters for checking
+    para <- coef(mxRun(mx.model, silent=TRUE))
+    if (is.null(dimnames(Tau2))) {
+        dimnames(Tau2) <- list(names(para), names(para))
+    }
+    SD <- sqrt(diag(Tau2))
+
+    if (output=="data.frame") {
+        z <- qnorm((1-interval)/2, lower.tail=FALSE)
+        out <- data.frame(Parameter=para, SD=SD, lbound=para-z*SD, ubound=para+z*SD)
+        lbound <- paste0(interval*100, "% lbound")
+        ubound <- paste0(interval*100, "% ubound")
+        colnames(out) <- c("Parameter", "SD", "lbound", "ubound")
+    } else {
+        out <- list(para=para, SD=SD, Tau2=Tau2)
+    }
+    out
+}
+
+
+
+## deltaCV <- function(tssem1.obj, tssem2.obj) {
+    
+##     if (!requireNamespace("numDeriv", quietly = TRUE)) 
+##         stop("\"numDeriv\" package is required for this function.")
+
+##     ## Means
+##     Means <- mxEval(Inter, tssem1.obj$mx.fit)
+##     ## Variance componet of the correlation coefficients
+##     V <- mxEval(Tau, tssem1.obj$mx.fit)
+
+##     mx.model <- tssem2.obj$mx.fit
+##     ## Maximize the speed
+##     mx.model <- mxOption(mx.model, "Calculate Hessian", "No")
+##     mx.model <- mxOption(mx.model, "Standard Errors", "No")
+    
+##     ## Gradiant function
+##     ## x: Correlation coefficients
+##     fun <- function(x) {
+##         sampleS <- as.mxMatrix(vec2symMat(x, diag=FALSE), name="sampleS")
+##         model <- mxModel(mx.model, sampleS=sampleS)
+##         fit <- mxRun(model, silent=TRUE)
+##         coef(fit)
+##     }
+
+##     grad <- numDeriv::jacobian(fun, x=Means)
+##     Tau2 <- grad %*% V %*% t(grad)
+
+##     para <- coef(mxRun(mx.model, silent=TRUE))
+##     dimnames(Tau2) <- list(names(para), names(para))
+    
+##     SD <- sqrt(diag(Tau2))
+    
+##     list(para=para, SD=SD, Tau2=Tau2)
+## }
+
+
+
+## delta2 <- function(tssem1.obj, Amatrix = NULL, Smatrix = NULL, Fmatrix = NULL, 
+##                    diag.constraints = FALSE) {
+    
+##     if (!requireNamespace("numDeriv", quietly = TRUE)) 
+##         stop("\"numDeriv\" package is required for this function.")
+
+##     ## Means
+##     Means <- mxEval(Inter, tssem1.obj$mx.fit)
+##     ## Variance componet of the correlation coefficients
+##     V <- mxEval(Tau, tssem1.obj$mx.fit)
+
+##     ## Setup the model without running it
+##     mx.model <- tssem2(tssem1.obj=tssem1.obj, Amatrix=Amatrix, Smatrix=Smatrix,
+##                        Fmatrix=Fmatrix, diag.constraints=diag.constraints,
+##                        run=FALSE)
+
+##     ## Maximize the speed
+##     mx.model <- mxOption(mx.model, "Calculate Hessian", "No")
+##     mx.model <- mxOption(mx.model, "Standard Errors"  , "No")
+    
+##     ## Gradiant function
+##     ## x: Correlation coefficients
+##     fun <- function(x) {
+##         sampleS <- as.mxMatrix(vec2symMat(x, diag=FALSE), name="sampleS")
+##         model <- mxModel(mx.model, sampleS=sampleS)
+##         fit <- mxRun(model, silent=TRUE)
+##         coef(fit)
+##     }
+
+##     grad <- numDeriv::jacobian(fun, x=Means)
+##     Tau2 <- grad %*% V %*% t(grad)
+
+##     para <- coef(mxRun(mx.model, silent=TRUE))
+##     dimnames(Tau2) <- list(names(para), names(para))
+
+##     list(para=para, Tau2=Tau2)
+## }

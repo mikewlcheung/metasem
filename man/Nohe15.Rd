@@ -33,6 +33,9 @@ A list of data with the following structure:
 }
 \examples{
 \dontrun{
+## Set seed for replicability    
+set.seed(23891)
+    
 ## Table A1
 randA1a <- tssem1(Nohe15A1$data, Nohe15A1$n, method="REM", RE.type="Diag")
 summary(randA1a)
@@ -77,6 +80,9 @@ RAM2
 randA2b <- tssem2(randA2a, Amatrix=RAM2$A, Smatrix=RAM2$S)
 summary(randA2b)
 
+## Estimate the heterogeneity of the parameter estimates
+tssemParaVar(randA1a, randA2b)    
+    
 my.plotA2 <- meta2semPlot(randA2b)
 semPlot::semPaths(my.plotA2, whatLabels="est", sizeMan=8, edge.label.cex=1.5, color="yellow",
                   edge.color = "black", weighted=FALSE)

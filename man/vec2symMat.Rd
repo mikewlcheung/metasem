@@ -2,7 +2,8 @@
 \alias{vec2symMat}
 \title{Convert a Vector into a Symmetric Matrix
 }
-\description{It converts a vector into a symmetric matrix. 
+\description{It converts a vector into a symmetric matrix by filling up
+  the elements into the lower triangle of the matrix.  
 }
 \usage{
 vec2symMat(x, diag = TRUE, byrow = FALSE)

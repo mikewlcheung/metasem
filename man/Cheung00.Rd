@@ -58,7 +58,7 @@ A
 #### Random-effects model
 
 ## Stage 1 analysis
-random_1 <- tssem1(Cheung00$data, Cheung00$n, method="REM")
+random_1 <- tssem1(Cheung00$data, Cheung00$n, method="REM", RE.type="Symm", acov="individual")
 summary(random_1)
 
 ## Stage 2 analysis

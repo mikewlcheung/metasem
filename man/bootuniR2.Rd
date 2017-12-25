@@ -38,6 +38,7 @@ bootuniR2(model, data, n, ...)
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
-\seealso{ \code{\link[metaSEM]{bootuniR2}}, \code{\link[metaSEM]{Nohe15}}
+\seealso{ \code{\link[metaSEM]{bootuniR2}},
+  \code{\link[metaSEM]{tssemParaVar}}, \code{\link[metaSEM]{Nohe15}}
 }
 \keyword{bootuniR}

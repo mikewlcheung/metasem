@@ -27,7 +27,7 @@ A list of data with the following structure:
 \examples{
 \dontrun{
 ## Stage 1 analysis
-rand1 <- tssem1(Boer16$data, Boer16$n, method="REM", RE.type="Diag")
+rand1 <- tssem1(Boer16$data, Boer16$n, method="REM", RE.type="Diag", acov="individual")
 summary(rand1)
 
 ## Stage 2 analysis

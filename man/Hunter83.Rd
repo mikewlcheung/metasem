@@ -68,8 +68,7 @@ RAM
 A1 <- RAM$A
 S1 <- RAM$S
 ################################################################################
-
-## diag.constraints=TRUE is required as there are mediators  
+ 
 fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, intervals.type="LB",
                  diag.constraints=FALSE,
                  model.name="TSSEM2 fixed effects model")
@@ -84,13 +83,12 @@ vcov(fixed2)
 #### Random-effects model with diagonal elements only
 ## First stage analysis
 random1 <- tssem1(Hunter83$data, Hunter83$n, method="REM", RE.type="Diag", 
-                  model.name="TSSEM1 random effects model")
+                  acov="individual", model.name="TSSEM1 random effects model")
 summary(random1)
 
 ## Second stage analysis
 ## Model without direct effect from Ability to Supervisor
 
-## diag.constraints=TRUE is required as there are mediators 
 random2 <- tssem2(random1, Amatrix=A1, Smatrix=S1, intervals.type="LB",
                   diag.constraints=FALSE,
                   mx.algebras=

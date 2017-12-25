@@ -10,16 +10,16 @@
   respectively. \code{tssem1()} is a wrapper of these functions. 
 }
 \usage{
-tssem1(Cov, n, method=c("FEM","REM"), cor.analysis = TRUE, cluster=NULL,
-       RE.type=c("Symm", "Diag", "Zero", "User"), RE.startvalues=0.1,
+tssem1(Cov, n, method=c("REM","FEM"), cor.analysis = TRUE, cluster=NULL,
+       RE.type=c("Diag", "Symm", "Zero", "User"), RE.startvalues=0.1,
        RE.lbound=1e-10, RE.constraints=NULL, I2="I2q",
-       acov=c("individual", "unweighted", "weighted"),
+       acov=c("weighted", "individual", "unweighted"),
        model.name=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...)
 tssem1FEM(Cov, n, cor.analysis=TRUE, model.name=NULL,
           cluster=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...)
-tssem1REM(Cov, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Zero","User"),
+tssem1REM(Cov, n, cor.analysis=TRUE, RE.type=c("Diag", "Symm", "Zero","User"),
           RE.startvalues=0.1, RE.lbound=1e-10, RE.constraints=NULL,
-          I2="I2q", acov=c("individual", "unweighted", "weighted"),
+          I2="I2q", acov=c("weighted", "individual", "unweighted"),
           model.name=NULL, suppressWarnings=TRUE,
           silent=TRUE, run=TRUE, ...)
 }
@@ -28,9 +28,9 @@ tssem1REM(Cov, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Zero","User"),
 }
   \item{n}{A vector of sample sizes
 }
-\item{method}{Either \code{"FEM"} (default if missing) or \code{"REM"}.
-  If it is "FEM", fixed-effects meta-analysis will be applied. If it is "REM",
-   random-effects meta-analysis will be applied.
+\item{method}{Either \code{"REM"} (default if missing) or \code{"FEM"}.
+  If it is "REM",a random-effects meta-analysis will be applied. If it
+  is "FEM", a fixed-effects meta-analysis will be applied. 
 }
   \item{cor.analysis}{Logical. The output is either a pooled correlation or a covariance matrix.
   }
@@ -38,12 +38,12 @@ tssem1REM(Cov, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Zero","User"),
 	clusters. Analyses will be conducted for each cluster. It will be
 	ignored when \code{method="REM"}.
   }
-  \item{RE.type}{Either \code{"Symm"}, \code{"Diag"}, 
-	\code{"Zero"} or \code{"User"}. If it is \code{"Symm"} (default if missing), a
+  \item{RE.type}{Either \code{"Diag"}, \code{"Symm"},  
+	\code{"Zero"} or \code{"User"}. If it is
+	\code{"Diag"}, a diagonal matrix is used for the random effects
+	meaning that the random effects are independent. If it is \code{"Symm"} (default if missing), a
 	symmetric matrix is used for the random effects on the covariances
 	among the correlation (or covariance) vectors. If it is
-	\code{"Diag"}, a diagonal matrix is used for the random effects
-	meaning that the random effects are independent. If it is
 	\code{"Zero"}, there is no random effects which is similar to the
 	conventional Generalized Least Squares (GLS) approach to
 	fixed-effects analysis.
@@ -70,9 +70,9 @@ tssem1REM(Cov, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Zero","User"),
 	harmonic mean and the arithmetic mean of the within-study sampling
 	variances (Xiong, Miller, & Morris, 2010). More than one options are possible. If \code{intervals.type="LB"}, 95\% confidence intervals on the heterogeneity indices will be constructed. 
   }
-  \item{acov}{If it is \code{individual} (the default), the sampling variance-covariance
+  \item{acov}{If it is \code{individual}, the sampling variance-covariance
 	matrices are calculated based on individual correlation/covariance
-	matrix. If it is either \code{unweighted} or \code{weighted}, the average
+	matrix. If it is either \code{unweighted} or \code{weighted} (the default), the average
 	correlation/covariance matrix is calculated based on the unweighted
 	or weighted mean with the sample sizes. The average
 	correlation/covariance matrix is used to calculate the sampling
@@ -95,8 +95,7 @@ tssem1REM(Cov, n, cor.analysis=TRUE, RE.type=c("Symm", "Diag", "Zero","User"),
 \references{
   Cheung, M. W.-L. (2014). Fixed- and random-effects meta-analytic structural equation modeling: Examples and analyses in R. \emph{Behavior Research Methods}, \bold{46}, 29-40.
 
-  Cheung, M. W.-L. (2013). Multivariate meta-analysis as structural
-equation models. \emph{Structural Equation Modeling}, \bold{20},
+  Cheung, M. W.-L. (2013). Multivariate meta-analysis as structural equation models. \emph{Structural Equation Modeling}, \bold{20},
 429-454.
 
  Cheung, M. W.-L., & Chan, W. (2005). Meta-analytic structural equation modeling: A two-stage approach. \emph{Psychological Methods}, \bold{10}, 40-64.
