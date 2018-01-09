@@ -18,8 +18,8 @@
 smdMTS <- function(m, v, n, homogeneity=c("variance", "none"), bias.adjust=TRUE, 
                    all.comparisons=FALSE, lavaan.output=FALSE) {
 
-  if (!requireNamespace("lavaan", quietly=TRUE))
-    stop("\"lavaan\" package is required for this function.")
+  ## if (!requireNamespace("lavaan", quietly=TRUE))
+  ##   stop("\"lavaan\" package is required for this function.")
   
   if ( var(c(length(m), length(v), length(n))) !=0 ) {
     stop("The lengths of m, v, and n are not the same.\n")
@@ -106,8 +106,8 @@ smdMTS <- function(m, v, n, homogeneity=c("variance", "none"), bias.adjust=TRUE,
 smdMES <- function(m1, m2, V1, V2, n1, n2, homogeneity=c("covariance", "correlation", "none"), 
                    bias.adjust=TRUE, lavaan.output=FALSE) {
 
-  if (!requireNamespace("lavaan", quietly=TRUE))
-    stop("\"lavaan\" package is required for this function.")
+  ## if (!requireNamespace("lavaan", quietly=TRUE))
+  ##   stop("\"lavaan\" package is required for this function.")
   
   if ( var(c(length(m1), length(m2), nrow(V1), ncol(V1), nrow(V2), ncol(V2))) !=0 ) {
     stop("Dimensions of the inputs are not the same.\n")

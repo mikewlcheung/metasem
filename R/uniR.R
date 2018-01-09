@@ -118,8 +118,8 @@ uniR2mx <- function(x, Amatrix = NULL, Smatrix = NULL, Fmatrix = NULL,
 }
 
 uniR2lavaan <- function(x, model, ...) {
-  if (!requireNamespace("lavaan", quietly=TRUE))
-    stop("\"lavaan\" package is required for this function.")
+  ## if (!requireNamespace("lavaan", quietly=TRUE))
+  ##   stop("\"lavaan\" package is required for this function.")
 
   if (!is.element("uniR1", class(x)))
     stop("\"x\" must be an object of class \"uniR1\".")

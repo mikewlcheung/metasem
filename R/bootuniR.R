@@ -8,8 +8,8 @@ bootuniR1 <- function(x, Rep, nonPD.pop=c("replace", "nearPD", "accept")) {
 }
 
 bootuniR2 <- function(model, data, n, ...) {
-  if (!requireNamespace("lavaan", quietly=TRUE))
-    stop("\"lavaan\" package is required for this function.")
+  ## if (!requireNamespace("lavaan", quietly=TRUE))
+  ##   stop("\"lavaan\" package is required for this function.")
 
   out <- lapply(data, function(x) {try( lavaan::sem(model=model, sample.cov=x,
                                                     sample.nobs=n, ...))})

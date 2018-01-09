@@ -1,7 +1,7 @@
 lavaan2RAM <- function(model, obs.variables = NULL, A.notation="ON", S.notation="WITH",
                        M.notation="mean", auto.var = TRUE, std.lv = TRUE, ...) {
-    if (!requireNamespace("lavaan", quietly=TRUE))    
-        stop("\"lavaan\" package is required for this function.")
+    ## if (!requireNamespace("lavaan", quietly=TRUE))    
+    ##     stop("\"lavaan\" package is required for this function.")
 
     ## Default: fix the latent independent variables at 1
     my.model <- lavaan::lavaanify(model, fixed.x = FALSE, auto.var=auto.var, std.lv=std.lv, ...)
