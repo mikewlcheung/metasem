@@ -6,7 +6,7 @@
 Between 1990 and 1993, 57,561 adults aged 18 and above from 42 nations
 were interviewed by local academic institutes in Eastern European
 nations and by professional survey organizations in other nations.
-Standardized mean difference (SMD) between males and females on life
+The standardized mean difference (SMD) between males and females on life
 satisfaction and on life control in each country were calculated as the effect sizes. Positive values indicate that males have higher scores than females do.
 }
 \usage{data(wvs94a)}

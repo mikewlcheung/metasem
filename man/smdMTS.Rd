@@ -31,7 +31,7 @@ smdMTS(m, v, n, homogeneity=c("variance", "none"), bias.adjust=TRUE,
 	\code{\link[lavaan]{lavaan-class}} object.}
 }
 \details{
-  Gleser and Olkin (2009) introduces formulas to calculate the
+  Gleser and Olkin (2009) introduce formulas to calculate the
   standardized mean differences and their sampling covariance matrix for
   multiple treatment studies under the assumption of homogeneity of the
   covariance matrix. This function uses a structural equation modeling (SEM)
@@ -45,6 +45,11 @@ smdMTS(m, v, n, homogeneity=c("variance", "none"), bias.adjust=TRUE,
 \references{
   Cheung, M. W.-L. (2015). \emph{Meta-analysis: A structural equation modeling approach}. Chichester, West Sussex: John Wiley & Sons, Inc.
 
+  Cheung, M. W.-L. (2017). Computing multivariate effect sizes and their
+  sampling covariance matrices with structural equation modeling:
+  Theory, examples, and computer simulations. \emph{Manuscript under
+	review}.
+  
   Gleser, L. J., & Olkin, I. (2009). Stochastically dependent effect sizes. In H. Cooper, L. V. Hedges, & J. C. Valentine (Eds.), \emph{The handbook of research synthesis and meta-analysis}. (2nd ed., pp. 357-376). New York: Russell Sage Foundation.
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>

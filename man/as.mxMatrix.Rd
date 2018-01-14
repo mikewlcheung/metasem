@@ -24,7 +24,7 @@ as.mxMatrix(x, name, ...)
 }
 }
 \details{If there are non-numeric values in \code{x}, they are treated
-  as the labels of the free parameters. If an "*" is
+  as the labels of the free parameters. If a "*" is
   present, the numeric value on the left-hand side will be treated as
   the starting value for a free parameter or a fixed value for a fixed parameter. If it is a matrix of numeric values, there are
   no free parameters in the output matrix. 

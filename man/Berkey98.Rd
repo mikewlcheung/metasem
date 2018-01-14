@@ -51,7 +51,9 @@ summary( reml(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
               model.name="Multivariate meta analysis with REML") )
 
 ## Multivariate meta-analysis with "publication year-1979" as the predictor
+## Diagonal structure for the variance component
 summary( reml(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
+              RE.constraints=Diag(c("1e-5*Tau2_1_1", "1e-5*Tau2_2_2")),
               x=scale(pub_year, center=1979), data=Berkey98) )
 }
 \keyword{datasets}

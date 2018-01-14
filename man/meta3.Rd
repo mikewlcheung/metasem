@@ -100,7 +100,7 @@ meta3X(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=NULL,
   \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. 
 }
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
-	suppressed. Argument to be passed to \code{\link[OpenMx]{mxRun}}.
+	suppressed. It is passed to \code{\link[OpenMx]{mxRun}}.
   }
   \item{silent}{Logical. Argument to be passed to \code{\link[OpenMx]{mxRun}}}
   \item{run}{Logical. If \code{FALSE}, only return the mx model without running the analysis.}

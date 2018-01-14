@@ -15,11 +15,11 @@ nrow=NA, as.mxMatrix=TRUE, byrow=FALSE, ...)
   \item{type}{Matrix type similar to those listed in
 	\code{\link[OpenMx]{mxMatrix}}
 }
-\item{ncol}{A number of columns. It is necessary when
+\item{ncol}{The number of columns. It is necessary when
   \code{type="Full"}. It is ignored and determined by the length of
   \code{x} for the other types of matrices.
 }
-\item{nrow}{A number of rows. It is necessary when
+\item{nrow}{The number of rows. It is necessary when
   \code{type="Full"}. It is ignored and determined by the length of
   \code{x} for the other types of matrices.
 }

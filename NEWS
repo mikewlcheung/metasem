@@ -1,22 +1,15 @@
-Release 0.9.17-3 (January 9, 2018)
-* Added lavaan in import
-
-Release 0.9.17-2 (December 25, 2017)
+Release 1.0.0 (January 12, 2018)
 ====================================
+* Released to CRAN.
+* Added lavaan in import.
 * Changed the defaults of tssem1():
   		  From method="FEM" to method="REM",
   		  From RE.type="Symm" to RE.type="Diag", and
   		  From acov="individual" to acov="weighted."
 * Added tssemParaVar() to estimate heterogeneity of parameter estimates in tssem approach.
 * Added basic tests.
-
-Release 0.9.17-1 (November 7, 2017)
-====================================
 * Added fixed.x=FALSE automatically in uniR2lavaan().
 * Fixed coef.wls() so that it always follows the order of the parameter estimates in vcov.wls().
-
-Release 0.9.17-0 (October 25, 2017)
-====================================
 * Rename bootMASEM functions to bootuniR functions.
 * Changed the variable names in the output of asyCov().
 

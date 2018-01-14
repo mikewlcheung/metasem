@@ -3,7 +3,7 @@
 \alias{rimpliedR}
 \title{Create or Generate the Model Implied Correlation or Covariance Matrices
 }
-\description{It creates or generate the model implied correlation or covariance
+\description{It creates or generates the model implied correlation or covariance
   matrices based on the RAM model specification.
 }
 \usage{

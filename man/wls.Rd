@@ -6,7 +6,7 @@
 \description{It fits a correlation or covariance structure with
   weighted least squares (WLS) estimation method where the inverse of the asymptotic covariance matrix is
   used as the weight matrix. \code{tssem2} conducts the second stage
-  analysis of the two-stage strutural equation modeling (TSSEM). \code{tssem2} is a wrapper of \code{wls}.
+  analysis of the two-stage structural equation modeling (TSSEM). \code{tssem2} is a wrapper of \code{wls}.
 }
 \usage{
 wls(Cov, aCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
@@ -45,7 +45,7 @@ tssem2(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
   }
   \item{diag.constraints}{Logical. This argument is ignored when
 	\code{cor.analysis=FALSE}. If
-	\code{diag.constraints=TRUE}, the diagonals of the model implied matrix will be constrained at 1 by nonlinear constraints. The drawback is that standard
+	\code{diag.constraints=TRUE}, the diagonals of the model implied matrix would be constrained at 1 by nonlinear constraints. The drawback is that standard
 	error will not be generated. Parametric bootstrap is used to
 	estimate the standard error by drawing samples from \eqn{\mathcal{N}(vech(Cov), asyCov)}{N(vech(Cov), asyCov)} for covariance analysis and \eqn{\mathcal{N}(vechs(Cov), asyCov)}{N(vechs(Cov), asyCov)} for
 	correlation analysis while asyCov is treated as fixed. This process

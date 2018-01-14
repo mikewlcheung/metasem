@@ -1,7 +1,7 @@
 \name{Cheung09}
 \alias{Cheung09}
 \docType{data}
-\title{A Data Set from TSSEM User's Guide Version 1.11 by Cheung (2009) 
+\title{A Dataset from TSSEM User's Guide Version 1.11 by Cheung (2009) 
 }
 \description{Four studies were selected from the data set used by Cheung
   and Chan (2005; 2009). Some variables were randomly deleted to

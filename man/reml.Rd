@@ -64,7 +64,7 @@ reml(y, v, x, data, RE.constraints = NULL, RE.startvalues = 0.1,
   \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. 
 	}  
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
-	suppressed. Argument to be passed to \code{\link[OpenMx]{mxRun}}.
+	suppressed. It is passed to \code{\link[OpenMx]{mxRun}}.
   }
   \item{silent}{Logical. Argument to be passed to \code{\link[OpenMx]{mxRun}}}
   \item{run}{Logical. If \code{FALSE}, only return the mx model without running the analysis.}  
@@ -108,7 +108,7 @@ reml(y, v, x, data, RE.constraints = NULL, RE.startvalues = 0.1,
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 %%  ~~who you are~~
 }
-\note{ \code{reml} is more computational intensive than \code{meta}. Moreover, \code{reml} is more
+\note{ \code{reml} is more computationally intensive than \code{meta}. Moreover, \code{reml} is more
   likely to encounter errors during optimization. Since
   a likelihood function is directly employed to obtain the parameter
   estimates, there is no number of studies and number of observed statistics

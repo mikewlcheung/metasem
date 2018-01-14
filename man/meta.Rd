@@ -136,7 +136,7 @@ meta(y, v, x, data, intercept.constraints = NULL, coef.constraints = NULL,
 
   Raudenbush, S. W. (2009). Analyzing effect sizes: random effects models. In H. M. Cooper, L. V. Hedges, & J. C. Valentine (Eds.), \emph{The handbook of research synthesis and meta-analysis} (2nd ed., pp. 295-315). New York: Russell Sage Foundation.
 
-  Xiong, C., Miller, J. P., & Morris, J. C. (2010). Measuring study-specific heterogeneity in meta-analysis: application to an antecedent biomarker study of alzheimer's disease. \emph{Statistics in Biopharmaceutical Research}, \bold{2(3)}, 300-309. doi:10.1198/sbr.2009.0067
+  Xiong, C., Miller, J. P., & Morris, J. C. (2010). Measuring study-specific heterogeneity in meta-analysis: application to an antecedent biomarker study of Alzheimer's disease. \emph{Statistics in Biopharmaceutical Research}, \bold{2(3)}, 300-309. doi:10.1198/sbr.2009.0067
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }

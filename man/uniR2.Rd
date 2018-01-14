@@ -36,7 +36,7 @@ uniR2lavaan(x, model, ...)
 	"UniR2".
 }
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
-	suppressed. Argument to be passed to \code{\link[OpenMx]{mxRun}}.
+	suppressed. It is passed to \code{\link[OpenMx]{mxRun}}.
 }
   \item{silent}{Logical. Argument to be passed to \code{\link[OpenMx]{mxRun}}}
   \item{run}{Logical. If \code{FALSE}, only return the mx model without
