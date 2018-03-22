@@ -20,7 +20,7 @@ asyCov <- function(x, n, cor.analysis=TRUE, dropNA=FALSE, as.matrix=TRUE,
             }
 
             ## Make sure that the diagonals are 1 for correlation analysis
-            if (cor.analysis) diag(my.x) <- 1
+            if (cor.analysis) my.x <- cov2cor(my.x)
             ## Repeat it to k studies
             x <- replicate(length(x), my.x, simplify = FALSE)    
         }
