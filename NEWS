@@ -1,3 +1,7 @@
+Release 1.0.2 (March 24, 2018)
+====================================
+* Fixed a bug in list2matrix() for 2x2 matrices when the diag=FALSE.
+
 Release 1.0.1 (March 22, 2018)
 ====================================
 * Fixed a minor bug in asyCov() with acov="weighted" or "unweighted" when the cor.analysis=TRUE with covariance matrices as the input.

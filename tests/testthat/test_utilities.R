@@ -82,3 +82,67 @@ test_that("bdiagMat() works correctly", {
                                   "0", "0", "e", "f"),
                                 ncol=4, nrow=3, byrow=TRUE))
 })
+
+test_that("list2matrix() works correctly", {
+    x1 <- matrix(c(1,0.5,0.4,0.5,1,0.2,0.4,0.2,1), ncol=3)
+    x2 <- matrix(c(1,0.4,NA,0.4,1,NA,NA,NA,NA), ncol=3)  
+
+    expect_identical(list2matrix(list(x1, x2), diag=FALSE),
+                     matrix(c(0.5, 0.4, 0.2,
+                              0.4, NA, NA),
+                            byrow=TRUE, nrow=2, ncol=3,
+                            dimnames=list(NULL, c("x2_x1", "x3_x1", "x3_x2"))))
+
+    expect_identical(list2matrix(list(x1, x2), diag=TRUE),
+                     matrix(c(1, 0.5, 0.4, 1,  0.2, 1,
+                              1, 0.4, NA, 1, NA, NA),
+                            byrow=TRUE, nrow=2, ncol=6,
+                            dimnames=list(NULL, c("x1_x1", "x2_x1", "x3_x1",
+                                                  "x2_x2", "x3_x2", "x3_x3"))))    
+
+    dimnames(x1) <- list( c("x","y","z"), c("x","y","z") )
+    dimnames(x2) <- list( c("x","y","z"), c("x","y","z") )
+
+    expect_identical(list2matrix(list(x1, x2), diag=FALSE),
+                     matrix(c(0.5, 0.4, 0.2,
+                              0.4, NA, NA),
+                            byrow=TRUE, nrow=2, ncol=3,
+                            dimnames=list(NULL, c("y_x", "z_x", "z_y"))))
+    
+    expect_identical(list2matrix(list(x1, x2), diag=TRUE),
+                     matrix(c(1, 0.5, 0.4, 1,  0.2, 1,
+                              1, 0.4, NA, 1, NA, NA),
+                            byrow=TRUE, nrow=2, ncol=6,
+                            dimnames=list(NULL, c("x_x", "y_x", "z_x",
+                                                  "y_y", "z_y", "z_z"))))  
+
+    x3 <- matrix(c(1,0.5,0.5,1), ncol=2)
+    x4 <- matrix(c(1,0.4,0.4,1), ncol=2)  
+
+    expect_identical(list2matrix(list(x3, x4), diag=FALSE),
+                     matrix(c(0.5,
+                              0.4),
+                            byrow=TRUE, nrow=2, ncol=1,
+                            dimnames=list(NULL, c("x2_x1"))))
+
+    expect_identical(list2matrix(list(x3, x4), diag=TRUE),
+                     matrix(c(1, 0.5, 1,
+                              1, 0.4, 1),
+                            byrow=TRUE, nrow=2, ncol=3,
+                            dimnames=list(NULL, c("x1_x1", "x2_x1", "x2_x2"))))    
+
+    dimnames(x3) <- list( c("x","y"), c("x","y") )
+    dimnames(x4) <- list( c("x","y"), c("x","y") )
+
+    expect_identical(list2matrix(list(x3, x4), diag=FALSE),
+                     matrix(c(0.5,
+                              0.4),
+                            byrow=TRUE, nrow=2, ncol=1,
+                            dimnames=list(NULL, c("y_x"))))
+
+    expect_identical(list2matrix(list(x3, x4), diag=TRUE),
+                     matrix(c(1, 0.5, 1,
+                              1, 0.4, 1),
+                            byrow=TRUE, nrow=2, ncol=3,
+                            dimnames=list(NULL, c("x_x", "y_x", "y_y"))))
+})
