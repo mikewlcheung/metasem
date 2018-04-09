@@ -61,18 +61,24 @@ model <- "## Regression paths
           Work_sample ~~ VarE_W*Work_sample
           Supervisor ~~ VarE_S*Supervisor"
 
+## Display the model
+plot(model, layout="spring", sizeMan=10)
+
 RAM <- lavaan2RAM(model, obs.variables=c("Ability","Job_knowledge",
                   "Work_sample","Supervisor"))
 RAM
 
 A1 <- RAM$A
 S1 <- RAM$S
+
 ################################################################################
- 
 fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, intervals.type="LB",
                  diag.constraints=FALSE,
                  model.name="TSSEM2 fixed effects model")
 summary(fixed2)
+
+## Display the model with the parameter estimates
+plot(fixed2, layout="spring")
 
 ## Coefficients
 coef(fixed2)
@@ -96,17 +102,11 @@ random2 <- tssem2(random1, Amatrix=A1, Smatrix=S1, intervals.type="LB",
                   model.name="TSSEM2 random effects model")
 summary(random2)
 
+## Display the model with the parameter estimates
+plot(random2, layout="spring")
+
 ## Load the library
 library("semPlot")
-
-## Convert the model to semPlotModel object
-my.plot <- meta2semPlot(random2)
-
-## Plot the model with labels
-semPaths(my.plot, whatLabels="path", nCharEdges=10, nCharNodes=10, color="red")
-
-## Plot the parameter estimates
-semPaths(my.plot, whatLabels="est", nCharNodes=10, color="green")
 }
 }
 \keyword{datasets}

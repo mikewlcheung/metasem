@@ -79,6 +79,9 @@ F1 <- create.Fmatrix(c(rep(1,9), rep(0,3)))
 cor2 <- tssem2(cor1, Amatrix=A1, Smatrix=S1, Fmatrix=F1, intervals.type="LB")
 summary(cor2)
 
+## Display the model with the parameter estimates
+plot(cor2, nDigits=1)
+
 #### Analysis of covariance structure in Cheung and Chan (2009)
 #### Fixed-effects model: Stage 1 analysis
 cov1 <- tssem1(issp89$data, issp89$n, method="FEM", cor.analysis=FALSE)
@@ -87,6 +90,9 @@ summary(cov1)
 #### Fixed-effects model: Stage 2 analysis
 cov2 <- tssem2(cov1, Amatrix=A1, Smatrix=S1, Fmatrix=F1)              
 summary(cov2)
+
+## Display the model with the parameter estimates
+plot(cov2, nDigits=1)
 }
 }
 \keyword{datasets}

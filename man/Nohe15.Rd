@@ -49,15 +49,17 @@ model1 <- 'W2 ~ w2w*W1 + s2w*S1
            W2 ~~ Errw2*W2
            S2 ~~ Errs2*S2'
 
+## Display the model
+plot(model1, layout="spring")    
+    
 RAM1 <- lavaan2RAM(model1, obs.variables=c("W1", "S1", "W2", "S2"))
 RAM1
 
 randA1b <- tssem2(randA1a, Amatrix=RAM1$A, Smatrix=RAM1$S)
 summary(randA1b)
 
-my.plotA1 <- meta2semPlot(randA1b)
-semPlot::semPaths(my.plotA1, whatLabels="est", sizeMan=8, edge.label.cex=1.5, color="yellow",
-                  edge.color = "black", weighted=FALSE)
+## Display the model with the parameter estimates
+plot(randA1b, layout="spring")    
 
 ## Table A2
 randA2a <- tssem1(Nohe15A2$data, Nohe15A2$n, method="REM", RE.type="Diag")
@@ -74,18 +76,20 @@ model2 <- 'F2 ~ f2f*F1 + s2F*S1
            F2 ~~ Errf2*F2
            S2 ~~ Errs2*S2'
 
+## Display the model
+plot(model2, layout="spring")
+    
 RAM2 <- lavaan2RAM(model2, obs.variables=c("F1", "S1", "F2", "S2"))
 RAM2
 
 randA2b <- tssem2(randA2a, Amatrix=RAM2$A, Smatrix=RAM2$S)
 summary(randA2b)
 
+## Display the model with the parameter estimates
+plot(randA2b, layout="spring")  
+    
 ## Estimate the heterogeneity of the parameter estimates
 tssemParaVar(randA1a, randA2b)    
-    
-my.plotA2 <- meta2semPlot(randA2b)
-semPlot::semPaths(my.plotA2, whatLabels="est", sizeMan=8, edge.label.cex=1.5, color="yellow",
-                  edge.color = "black", weighted=FALSE)
 
 ## Parametric bootstrap based on Yu et al. (2016)
 ## I assume that you know what you are doing!
@@ -117,8 +121,7 @@ model2 <- 'W2 ~ Same*W1 + Cross*S1
            S2 ~ Cross*W1 + Same*S1'
 
 boot.fit2 <- bootuniR2(model=model2, data=boot.cor, n=n)
-summary(boot.fit2)
-    
+summary(boot.fit2)    
 }
 }
 \keyword{datasets}

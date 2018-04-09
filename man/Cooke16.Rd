@@ -28,7 +28,7 @@ A list of data with the following structure:
 \examples{
 \dontrun{
 ## Check whether the correlation matrices are valid (positive definite)
-is.pd(Cooke16$data)
+Cooke16$data[is.pd(Cooke16$data)==FALSE]
 
 ## Since the correlation matrix in Study 3 is not positive definite,
 ## we exclude it in the following analyses
@@ -72,13 +72,15 @@ dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- colnames(Cooke16$data[[1]])
 S1
 
 ## Stage 2 analysis
-random2 <- tssem2(random1, Amatrix=A1, Smatrix=S1, diag.constraints=TRUE, intervals.type="LB")
+random2 <- tssem2(random1, Amatrix=A1, Smatrix=S1, diag.constraints=FALSE,
+                  intervals.type="LB")
 summary(random2)
 
-my.plot <- meta2semPlot(random2)
-semPlot::semPaths(my.plot, whatLabels="est", sizeMan=8,
-                  edge.label.cex=1.5, color="yellow",
-                  edge.color = "black", weighted=FALSE)
+## Display the model
+plot(random2, what="path")    
+    
+## Display the model with the parameter estimates
+plot(random2, color="yellow")
 }
 }
 \keyword{datasets}

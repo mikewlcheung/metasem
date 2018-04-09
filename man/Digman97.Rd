@@ -73,6 +73,9 @@ model <- "## Factor loadings
           ## Factor correlation
           Alpha~~Beta"
 
+## Display the model
+plot(model)
+
 RAM <- lavaan2RAM(model, obs.variables=c("A","C","ES","E","I"),
                   A.notation="on", S.notation="with")
 RAM
@@ -80,11 +83,14 @@ RAM
 A1 <- RAM$A
 S1 <- RAM$S
 F1 <- RAM$F
-################################################################################
 
+################################################################################
 fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, Fmatrix=F1,
                  model.name="TSSEM2 Digman97")
 summary(fixed2)
+
+## Display the model with the parameter estimates
+plot(fixed2)
 
 #### Fixed-effects TSSEM with several clusters
 #### Create a variable for different samples
@@ -105,16 +111,16 @@ fixed2.cluster <- tssem2(fixed1.cluster, Amatrix=A1, Smatrix=S1, Fmatrix=F1)
 #### Please note that the estimates for the younger participants are problematic.
 summary(fixed2.cluster)
 
-## Load the library
-library("semPlot")
-
-## Convert the model to semPlotModel object with 2 plots
-my.plots <- lapply(X=fixed2.cluster, FUN=meta2semPlot, latNames=c("Alpha","Beta"))
-
 ## Setup two plots
 layout(t(1:2))
-semPaths(my.plots[[1]], whatLabels="est", nCharNodes=10, color="green")
-semPaths(my.plots[[2]], whatLabels="est", nCharNodes=10, color="green")
+
+## Plot the first group
+plot(fixed2.cluster[[1]])
+title("Younger participants")
+
+## Plot the second group
+plot(fixed2.cluster[[2]])
+title("Older participants")
 
 #### Random-effects TSSEM with random effects on the diagonals
 random1 <- tssem1(Digman97$data, Digman97$n, method="REM",
@@ -124,14 +130,8 @@ summary(random1)
 random2 <- tssem2(random1, Amatrix=A1, Smatrix=S1, Fmatrix=F1)
 summary(random2)
 
-## Convert the model to semPlotModel object
-my.plot <- meta2semPlot(random2, latNames=c("Alpha","Beta"))
-
-## Plot the model with labels
-semPaths(my.plot, whatLabels="path", nCharEdges=10, nCharNodes=10, color="red")
-
-## Plot the parameter estimates
-semPaths(my.plot, whatLabels="est", nCharNodes=10, color="green")
+## Display the model with the parameter estimates
+plot(random2, color="green")
 }
 }
 \keyword{datasets}

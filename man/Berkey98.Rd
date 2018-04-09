@@ -30,8 +30,21 @@ data(Berkey98)
 
 #### ML estimation method
 ## Multivariate meta-analysis
-summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
-              data=Berkey98, I2=c("I2q", "I2hm", "I2am")) )
+x <- meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL), data=Berkey98)
+summary(x)
+plot(x)
+
+## Plot individual studies proportional to the weights
+plot(x, study.weight.plot=TRUE)
+
+## Include forest plot from the metafor package
+library(metafor)
+plot(x, diag.panel=TRUE, main="Multivariate meta-analysis",
+     axis.label=c("PD", "AL"))
+     forest( rma(yi=PD, vi=var_PD, data=Berkey98) )
+     title("Forest plot of PD")
+     forest( rma(yi=AL, vi=var_AL, data=Berkey98) )
+     title("Forest plot of AL")
 
 ## Multivariate meta-analysis with "publication year-1979" as the predictor
 summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),

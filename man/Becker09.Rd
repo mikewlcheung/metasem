@@ -77,6 +77,9 @@ model <- "## Regression paths
           Performance ~~ var_Per*Performance
           Self_confidence ~~ var_SC*Self_confidence"
 
+## Display the model
+plot(model, layout="spring")
+
 RAM <- lavaan2RAM(model, obs.variables=c("Performance", "Cognitive",
                                          "Somatic", "Self_confidence"))
 RAM
@@ -93,6 +96,9 @@ fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, diag.constraints=TRUE,
                                    Cog_SO=mxAlgebra(Cog2SC*SC2Per+SO2SC*SC2Per,
                                    name="Cog_SO")) )
 summary(fixed2)
+
+## Display the model with the parameter estimates
+plot(fixed2, layout="spring")
 
 #### Fixed-effects model: with type of sport as cluster
 ## First stage analysis
@@ -141,21 +147,11 @@ random2 <- tssem2(random1, Amatrix=A1, Smatrix=S1, diag.constraints=TRUE,
                                     name="Cog_SO")) )
 summary(random2)
 
-## Load the library
-library("semPlot")
+## Display the model
+plot(random2, what="path", layout="spring")
 
-## Convert the model to semPlotModel object
-my.plot <- meta2semPlot(random2, manNames=c("Per","Cog","SO","SC"))
-
-## Plot the model with labels
-## The labels are overlapped.
-## semPaths(my.plot, whatLabels="path", nCharEdges=10)
-semPaths(my.plot, whatLabels="path", nCharEdges=10,  nCharNodes=10,
-         layout="spring", color="red")
-
-## Plot the parameter estimates
-semPaths(my.plot, whatLabels="est", nCharNodes=10, layout="spring",
-         color="green")
+## Display the model with the parameter estimates
+plot(random2, layout="spring", color="yellow")
 
 #### Univariate r approach
 #### First stage of the analysis

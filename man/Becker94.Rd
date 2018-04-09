@@ -52,6 +52,9 @@ model <- "## Regression model
           ## Correlation between Spatial and SAT_Verbal
           Spatial ~~ CorBetweenSpatialVerbal*SAT_Verbal"
 
+## Display the model
+plot(model)
+
 RAM <- lavaan2RAM(model,
                   obs.variables=c("SAT_Math", "Spatial", "SAT_Verbal"))
 RAM
@@ -63,7 +66,9 @@ S1 <- RAM$S
 fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, intervals.type="LB")
 summary(fixed2)
 
-
+## Display the model with the parameter estimates
+plot(fixed2)
+    
 #### Fixed-effects model: with gender as cluster
 ## First stage analysis
 cluster1 <- tssem1(Becker94$data, Becker94$n, method="FEM", cluster=Becker94$gender)
@@ -72,7 +77,6 @@ summary(cluster1)
 ## Second stage analysis  
 cluster2 <- tssem2(cluster1, Amatrix=A1, Smatrix=S1, intervals.type="LB")
 summary(cluster2)
-
 
 #### Conventional fixed-effects GLS approach
 ## First stage analysis

@@ -69,6 +69,13 @@ F1 <- create.Fmatrix(c(rep(1,9), rep(0,3)))
 fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, Fmatrix=F1,
                  intervals.type="LB")
 summary(fixed2)
+
+## Display the model
+plot(fixed2, what="path")
+
+## Display the model with the parameter estimates
+plot(fixed2, latNames=c("f1", "f2", "f3"), edge.label.cex=0.8,
+     color="yellow")
 }
 }
 \keyword{datasets}

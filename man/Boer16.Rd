@@ -40,16 +40,17 @@ model2a <- 'JS+OC+LE ~ LMX+TFL
             JS ~~ LE
             OC ~~ LE'
 
+## Display the model
+plot(model2a)    
+    
 RAM2a <- lavaan2RAM(model2a, obs.variables = c("LMX", "TFL", "JS", "OC", "LE"),
                     A.notation="on", S.notation="with")
 
 rand2a <- tssem2(rand1, Amatrix=RAM2a$A, Smatrix=RAM2a$S)
 summary(rand2a)
 
-my.plot2a <- meta2semPlot(rand2a)
-semPlot::semPaths(my.plot2a, whatLabels="est", sizeMan=8,
-                  edge.label.cex=1.5, color="yellow",
-                  edge.color = "black", weighted=FALSE, layout="tree2")
+## Display the model with the parameter estimates
+plot(rand2a, layout="spring")    
 }
 }
 \keyword{datasets}

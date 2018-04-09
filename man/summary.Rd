@@ -79,7 +79,7 @@ cutoff.chisq.pvalue=0.05, cutoff.CFI=0.9, cutoff.SRMR=0.1, cutoff.RMSEA=0.05, \d
 }
 \note{If the OpenMx status1 is either 0 or 1, the estimation is
   considered fine. If the OpenMx status1 is other values, it indicates
-  estimation problems. Users should refer to \url{http://openmx.psyc.virginia.edu/wiki/errors} for more details.
+  estimation problems. Users should refer to \url{https://openmx.ssri.psu.edu//wiki/errors} for more details.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

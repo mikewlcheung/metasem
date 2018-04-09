@@ -58,18 +58,23 @@ A
 #### Random-effects model
 
 ## Stage 1 analysis
-random_1 <- tssem1(Cheung00$data, Cheung00$n, method="REM", RE.type="Symm", acov="individual")
+random_1 <- tssem1(Cheung00$data, Cheung00$n, method="REM", RE.type="Symm",
+                   acov="individual")
 summary(random_1)
 
 ## Stage 2 analysis
-random_2 <- tssem2(random_1, Amatrix=A, Smatrix=S, intervals.type="LB", diag.constraints=TRUE)
+random_2 <- tssem2(random_1, Amatrix=A, Smatrix=S, intervals.type="LB",
+                   diag.constraints=TRUE)
 summary(random_2)
+
+## Display the model
+plot(random_2, what="path")
+
+## Display the model with the parameter estimates
+plot(random_2, color="yellow")
 
 ## Load the library
 library("semPlot")
-
-my.plot1 <- meta2semPlot(random_2)
-semPaths(my.plot1, whatLabels="est", col="yellow")
 }
 }
 \keyword{datasets}

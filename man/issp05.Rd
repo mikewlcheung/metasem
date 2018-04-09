@@ -77,6 +77,8 @@ F1 <- create.Fmatrix(c(rep(1,7), rep(0,3)))
 fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, Fmatrix=F1,
                  intervals.type="LB")
 summary(fixed2)
+
+plot(fixed2, nDigits=1)
 }
 }
 \keyword{datasets}

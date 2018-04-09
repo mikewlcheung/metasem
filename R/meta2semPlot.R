@@ -70,3 +70,39 @@ meta2semPlot <- function(object, manNames=NULL, latNames=NULL, labels=c("labels"
     
   out
 }
+
+plot.character <- function(x, fixed.x=FALSE, nCharNodes=0, nCharEdges=0,
+                           layout=c("tree", "circle", "spring", "tree2", "circle2"),
+                           color="white", ...) {
+  if (!requireNamespace("semPlot", quietly=TRUE))    
+    stop("\"semPlot\" package is required for this function.")
+  
+  if (!is.element("character", class(x)))
+    stop("\"x\" must be an object of class \"character\" of the \"lavaan\" model.")
+
+  invisible( semPlot::semPaths(semPlot::semPlotModel(x, fixed.x=fixed.x),
+                               nCharNodes=nCharNodes, nCharEdges=nCharEdges,
+                               layout=match.arg(layout), color=color, ...) )
+}
+
+## How to handle multiple plots with cluster?
+plot.wls <- function(x, manNames=NULL, latNames=NULL, labels=c("labels", "RAM"),
+                     what="est", nCharNodes=0, nCharEdges=0,
+                     layout=c("tree", "circle", "spring", "tree2", "circle2"),
+                     sizeMan=8, sizeLat=8, edge.label.cex=1.3, color="white",
+                     weighted=FALSE, ...) {
+  if (!requireNamespace("semPlot", quietly=TRUE))    
+    stop("\"semPlot\" package is required for this function.")
+
+  if (!is.element(class(x), "wls"))
+    stop("\"x\" must be an object of class \"wls\".")
+
+  sem.plot <- meta2semPlot(object=x, manNames=manNames, latNames=latNames, 
+                           labels=labels)
+
+  invisible( semPlot::semPaths(sem.plot, what=what, nCharNodes=nCharNodes,
+                               nCharEdges=nCharEdges, layout=match.arg(layout),
+                               sizeMan=sizeMan, sizeLat=sizeLat,
+                               edge.label.cex=edge.label.cex, color=color,
+                               weighted=weighted, ...) )
+}

@@ -1,3 +1,7 @@
+Release 1.0.3 (April 9, 2018)
+====================================
+* Modified plotting methods for lavaan models and wls objects.
+
 Release 1.0.2 (March 24, 2018)
 ====================================
 * Fixed a bug in list2matrix() for 2x2 matrices when the diag=FALSE.

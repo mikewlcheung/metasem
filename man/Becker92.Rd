@@ -65,6 +65,9 @@ model <- "## Regression paths
           ## Label the error variance of Math
           Math~~ErrorVarMath*Math+start(0.2)*Math"
 
+## Display the model
+plot(model)
+
 RAM <- lavaan2RAM(model, obs.variables=c("Math","Spatial","Verbal"))
 RAM
 
@@ -81,6 +84,9 @@ fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, intervals.type="LB",
                         One=mxMatrix("Iden", ncol=1, nrow=1, name="One")))
 summary(fixed2)
 
+## Display the model with the parameter estimates
+plot(fixed2)
+
 #### Random-effects model
 ## First stage analysis
 ## No random effects for off-diagonal elements
@@ -90,6 +96,9 @@ summary(random1)
 ## Random-effects model: Second stage analysis
 random2 <- tssem2(random1, Amatrix=A1, Smatrix=S1, intervals.type="z")
 summary(random2)
+
+## Display the model with the parameter estimates
+plot(random2, color="yellow")
 
 #### Conventional fixed-effects GLS approach
 ## First stage analysis
@@ -103,18 +112,6 @@ summary(gls1)
 gls2 <- tssem2(gls1, Amatrix=A1, Smatrix=S1, intervals.type="z",
                model.name="Fixed effects GLS Stage 2")
 summary(gls2)
-
-## Load the library
-library("semPlot")
-
-## Convert the model to semPlotModel object
-my.plot <- meta2semPlot(gls2)
-
-## Plot the model with labels
-semPaths(my.plot, whatLabels="path", nCharEdges=10, nCharNodes=10, color="red")
-
-## Plot the parameter estimates
-semPaths(my.plot, whatLabels="est", nCharNodes=10, color="green")
 }
 }
 \keyword{datasets}
