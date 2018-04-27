@@ -18,5 +18,5 @@ r:
 warnings_are_errors: true    
 r_check_args: "--run-dontrun"
 
-before_install:
-  Rscript -e 'update.packages(ask = FALSE)'        
+# before_install:
+#   Rscript -e 'update.packages(ask = FALSE)'        
