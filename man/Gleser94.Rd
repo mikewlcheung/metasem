@@ -27,10 +27,6 @@ data(Gleser94)
 ## Multiple-treatment studies
 Gleser94$MTS
 
-means <- paste0("Mean.", c("C", "E1", "E2", "E3", "E4", "E5"))
-sds <-  paste0("SD.", c("C", "E1", "E2", "E3", "E4", "E5"))
-ns <- paste0("N.", c("C", "E1", "E2", "E3", "E4", "E5"))
-
 ## Assuming homogeneity of variances
 t(apply(Gleser94$MTS, MARGIN=1,
         function(x)
@@ -42,7 +38,7 @@ t(apply(Gleser94$MTS, MARGIN=1,
 ## Multiple-endpoint studies
 Gleser94$MES
 
-## Calculate the sampling variances and covariance
+## Calculate the sampling variances and covariance and amend into the data set
 Gleser94$MES$Uncoached.V11 <- with(Gleser94$MES, SD.Uncoached.Math^2)
 Gleser94$MES$Uncoached.V21 <- with(Gleser94$MES, SD.Uncoached.Math*Cor.Math.Verbal*SD.Uncoached.Verbal)
 Gleser94$MES$Uncoached.V22 <- with(Gleser94$MES, SD.Uncoached.Verbal^2)
@@ -50,7 +46,6 @@ Gleser94$MES$Uncoached.V22 <- with(Gleser94$MES, SD.Uncoached.Verbal^2)
 Gleser94$MES$Coached.V11 <- with(Gleser94$MES, SD.Coached.Math^2)
 Gleser94$MES$Coached.V21 <- with(Gleser94$MES, SD.Coached.Math*Cor.Math.Verbal*SD.Coached.Verbal)
 Gleser94$MES$Coached.V22 <- with(Gleser94$MES, SD.Coached.Verbal^2)
-
 
 ## Assuming homogeneity of covariance matrices
 t(apply(Gleser94$MES, MARGIN=1,
