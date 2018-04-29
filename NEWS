@@ -1,3 +1,7 @@
+Release 1.0.6 (April 29, 2018)
+====================================
+* Added list.output argument in smdMTS() and smdMES().
+
 Release 1.0.5 (April 27, 2018)
 ====================================
 * Added dataset Gleser94.

@@ -146,3 +146,116 @@ test_that("list2matrix() works correctly", {
                             byrow=TRUE, nrow=2, ncol=3,
                             dimnames=list(NULL, c("x_x", "y_x", "y_y"))))
 })
+
+test_that("smdMTS() works correctly", {
+    ## Means
+    m <- c(5,NA,7,9,NA)
+    ## Sample variances
+    v <- c(10,0,11,12,0)
+    ## Sample sizes
+    n <- c(50,0,52,53,0)
+
+    index <- !is.na(m)
+    ## index.y: index on comparisons against the first group
+    index.y <- index[-1]    
+
+    ## Comparing against the first group
+    x1 <- smdMTS(m=m, v=v, n=n, homogeneity="variance", bias.adjust=TRUE,
+                 all.comparisons=FALSE, list.output=TRUE, lavaan.output=FALSE)
+
+    x2 <- smdMTS(m=m[index], v=v[index], n=n[index], homogeneity="variance",
+                 bias.adjust=TRUE, all.comparisons=FALSE,
+                 list.output=TRUE, lavaan.output=FALSE)    
+
+    ## Check NA in y
+    expect_identical(!index.y, unname(is.na(x1$y))) 
+    ## Check NA in V
+    expect_identical(TRUE, all(is.na(x1$V[!index.y, !index.y])))  
+    ## Check the content in y
+    expect_identical(unname(x1$y[!is.na(x1$y)]), unname(x2$y))
+    ## Check the content in V
+    expect_identical(unname(x1$V[!is.na(x1$y), !is.na(x1$y)]), unname(x2$V))
+
+    ## Conducting all comparisons
+    x3 <- suppressWarnings( smdMTS(m=m, v=v, n=n, homogeneity="none",
+                                   bias.adjust=FALSE, all.comparisons=TRUE,
+                                   list.output=TRUE, lavaan.output=FALSE) )
+
+    x4 <- suppressWarnings( smdMTS(m=m[index], v=v[index], n=n[index],
+                                   homogeneity="none", bias.adjust=FALSE,
+                                   all.comparisons=TRUE, list.output=TRUE,
+                                   lavaan.output=FALSE) )
+    ## index for y
+    k <- length(index)
+    index.y <- rep(NA, k*(k-1)/2)
+    p <- 1
+    for (i in 1:(k-1)) {
+        for (j in (i+1):k) {
+            index.y[p] <- index[i]&index[j]
+            p <- p+1
+        }
+    }
+
+    ## Check NA in y
+    expect_identical(!index.y, unname(is.na(x3$y)))
+    ## Check NA in y
+    expect_identical(TRUE, all(is.na(x3$V[!index.y, !index.y])))
+    ## Check the content in y
+    expect_identical(unname(x3$y[!is.na(x3$y)]), unname(x4$y))
+    ## Check the content in V
+    expect_identical(unname(x3$V[!is.na(x3$y), !is.na(x3$y)]), unname(x4$V))
+})
+
+test_that("smdMES() works correctly", {
+    ## Sample means of the first group
+    m1 <- c(4, NA, 5)
+    ## Sample means of the second group
+    m2 <- c(5, NA, 6)
+
+    index <- !is.na(m1)
+    
+    ## Sample covariance matrices
+    V1 <- V2 <- matrix(NA, ncol=3, nrow=3)
+    V1[index, index] <- c(3,2,2,3)
+    V2[index, index] <- c(3.5,2.1,2.1,3.5)
+
+    ## Sample size in Group 1
+    n1 <- 20
+
+    ## Sample size in Group 2
+    n2 <- 25
+    
+    ## Assuming homogeneity of covariance matrix
+    x1 <- smdMES(m=m1, m2=m2, V1=V1, V2=V2, n1=n1, n2=n2, homogeneity="covariance",
+                 bias.adjust=TRUE, list.output=TRUE, lavaan.output=FALSE)
+    x2 <- smdMES(m=m1[index], m2=m2[index], V1=V1[index, index],
+                 V2=V2[index, index], n1=n1, n2=n2, homogeneity="covariance",
+                 bias.adjust=TRUE, list.output=TRUE, lavaan.output=FALSE)
+    
+    ## Check NA in y
+    expect_identical(!index, unname(is.na(x1$y))) 
+    ## Check NA in V
+    expect_identical(TRUE, all(is.na(x1$V[!index, !index])))    
+    ## Check the content in y
+    expect_identical(unname(x1$y[!is.na(x1$y)]), unname(x2$y))
+    ## Check the content in V
+    expect_identical(unname(x1$V[!is.na(x1$y), !is.na(x1$y)]), unname(x2$V))
+
+    ## Without assuming homogeneity of covariance matrix
+    x3 <- smdMES(m=m1, m2=m2, V1=V1, V2=V2, n1=n1, n2=n2, homogeneity="none",
+                 bias.adjust=FALSE, list.output=TRUE, lavaan.output=FALSE)
+    x4 <- smdMES(m=m1[index], m2=m2[index], V1=V1[index, index],
+                 V2=V2[index, index], n1=n1, n2=n2, homogeneity="none",
+                 bias.adjust=FALSE, list.output=TRUE, lavaan.output=FALSE)
+    
+    ## Check NA in y
+    expect_identical(!index, unname(is.na(x3$y))) 
+    ## Check NA in V
+    expect_identical(TRUE, all(is.na(x3$V[!index, !index])))    
+    ## Check the content in y
+    expect_identical(unname(x3$y[!is.na(x3$y)]), unname(x4$y))
+    ## Check the content in V
+    expect_identical(unname(x3$V[!is.na(x3$y), !is.na(x3$y)]), unname(x4$V))
+
+    
+})

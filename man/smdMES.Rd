@@ -9,7 +9,7 @@
 \usage{
 smdMES(m1, m2, V1, V2, n1, n2,
        homogeneity=c("covariance", "correlation", "none"), 
-       bias.adjust=TRUE, lavaan.output=FALSE) 
+       bias.adjust=TRUE, list.output=TRUE, lavaan.output=FALSE) 
 }
 \arguments{
   \item{m1}{A vector of \emph{p} sample means of the first group.}
@@ -29,7 +29,10 @@ smdMES(m1, m2, V1, V2, n1, n2,
 	no homogeneity assumption is made. The standard deviations of the first group are used as the
 	standardizer in calculating the effect sizes.}
   \item{bias.adjust}{If it is \code{TRUE} (the default), the effect sizes are
-	adjusted for small bias by multiplying \eqn{1-3/(4*(n1+n2)-9)}}
+	adjusted for small bias by multiplying \eqn{1-3/(4*(n1+n2)-9)}.}
+  \item{list.output}{If it is \code{TRUE} (the default), the effect
+	sizes and their sampling covariance matrix are outputed as a
+	list. If it is \code{FALSE}, they will be stacked into a vector.}
   \item{lavaan.output}{If it is \code{FALSE} (the default), the effect
 	sizes and its sampling covariance matrix are reported. If it is
 	\code{TRUE}, it outputs the fitted
@@ -59,7 +62,8 @@ smdMES(m1, m2, V1, V2, n1, n2,
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
-
+\seealso{\code{\link[metaSEM]{Gleser94}}
+}
 
 \examples{
 \dontrun{    

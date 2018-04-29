@@ -8,7 +8,7 @@
 }
 \usage{
 smdMTS(m, v, n, homogeneity=c("variance", "none"), bias.adjust=TRUE, 
-       all.comparisons=FALSE, lavaan.output=FALSE) 
+       all.comparisons=FALSE, list.output=TRUE, lavaan.output=FALSE) 
 }
 \arguments{
   \item{m}{A vector of \emph{k} sample means.}
@@ -20,11 +20,14 @@ smdMTS(m, v, n, homogeneity=c("variance", "none"), bias.adjust=TRUE,
 	assumed. The standard deviation of the first group is used as the
 	standardizer in calculating the effect sizes.}
   \item{bias.adjust}{If it is \code{TRUE} (the default), the effect sizes are
-	adjusted for small bias by multiplying \eqn{1-3/(4*(n1+n2)-9)}}
+	adjusted for small bias by multiplying \eqn{1-3/(4*(n1+n2)-9)}.}  
   \item{all.comparisons}{If it is \code{FALSE} (the default), all groups
 	(except the first group) are compared against the first group. If it
 	is \code{TRUE}, all pairwise comparisons are calculated. This may be
 	useful in network meta-analysis.}
+  \item{list.output}{If it is \code{TRUE} (the default), the effect
+	sizes and their sampling covariance matrix are outputed as a
+	list. If it is \code{FALSE}, they will be stacked into a vector.}  
   \item{lavaan.output}{If it is \code{FALSE} (the default), the effect
 	sizes and its sampling covariance matrix are reported. If it is
 	\code{TRUE}, it outputs the fitted
@@ -54,7 +57,8 @@ smdMTS(m, v, n, homogeneity=c("variance", "none"), bias.adjust=TRUE,
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
-
+\seealso{\code{\link[metaSEM]{Gleser94}}
+}
 
 \examples{
 \dontrun{  
