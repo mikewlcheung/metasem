@@ -40,11 +40,13 @@ Gleser94$MES
 
 ## Calculate the sampling variances and covariance and amend into the data set
 Gleser94$MES$Uncoached.V11 <- with(Gleser94$MES, SD.Uncoached.Math^2)
-Gleser94$MES$Uncoached.V21 <- with(Gleser94$MES, SD.Uncoached.Math*Cor.Math.Verbal*SD.Uncoached.Verbal)
+Gleser94$MES$Uncoached.V21 <- with(Gleser94$MES,
+                                   SD.Uncoached.Math*Cor.Math.Verbal*SD.Uncoached.Verbal)
 Gleser94$MES$Uncoached.V22 <- with(Gleser94$MES, SD.Uncoached.Verbal^2)
 
 Gleser94$MES$Coached.V11 <- with(Gleser94$MES, SD.Coached.Math^2)
-Gleser94$MES$Coached.V21 <- with(Gleser94$MES, SD.Coached.Math*Cor.Math.Verbal*SD.Coached.Verbal)
+Gleser94$MES$Coached.V21 <- with(Gleser94$MES,
+                                 SD.Coached.Math*Cor.Math.Verbal*SD.Coached.Verbal)
 Gleser94$MES$Coached.V22 <- with(Gleser94$MES, SD.Coached.Verbal^2)
 
 ## Assuming homogeneity of covariance matrices

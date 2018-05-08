@@ -55,7 +55,9 @@ It uses the \code{\link[lavaan]{lavaanify}} to do the conversion.
 
 \seealso{\code{\link[semPlot]{ramModel}},
   \code{\link[metaSEM]{Becker92}}, \code{\link[metaSEM]{Becker09}},
-  \code{\link[metaSEM]{Digman97}}, \code{\link[metaSEM]{Hunter83}}
+  \code{\link[metaSEM]{Digman97}}, \code{\link[metaSEM]{Hunter83}},
+  \code{\link[metaSEM]{as.mxMatrix}},
+  \code{\link[metaSEM]{checkRAM}}
 }
 \examples{
 ## Regression model on correlation matrix

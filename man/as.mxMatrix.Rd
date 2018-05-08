@@ -39,7 +39,9 @@ as.mxMatrix(x, name, ...)
 
 \seealso{ \code{\link[OpenMx]{mxMatrix}},
 	\code{\link[metaSEM]{create.mxMatrix}},
-	\code{\link[metaSEM]{create.Fmatrix}}
+	\code{\link[metaSEM]{create.Fmatrix}},
+	\code{\link[metaSEM]{checkRAM}},
+    \code{\link[metaSEM]{lavaan2RAM}}
 }
 \examples{
 ## a and b are free parameters with starting values and labels

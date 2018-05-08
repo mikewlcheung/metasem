@@ -36,7 +36,8 @@ tssem2(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
 	\code{\link[OpenMx]{MxMatrix-class}}. If it is \code{NULL}, a matrix
 	of zero will be created. If it is a matrix, it will be converted into \code{\link[OpenMx]{MxMatrix-class}} by the \code{as.mxMatrix} function.
 }
-  \item{Smatrix}{A symmetric matrix in the RAM specification with \code{\link[OpenMx]{MxMatrix-class}}. If it is a matrix, it will be converted into \code{\link[OpenMx]{MxMatrix-class}} by the \code{as.mxMatrix} function.
+  \item{Smatrix}{A symmetric matrix in the RAM specification with
+	\code{\link[OpenMx]{MxMatrix-class}}. If it is a matrix, it will be converted into \code{\link[OpenMx]{MxMatrix-class}} by the \code{as.mxMatrix} function.
 }
   \item{Fmatrix}{A filter matrix in the RAM specification with
 	\code{\link[OpenMx]{MxMatrix-class}}. If it is \code{NULL} (the default), an

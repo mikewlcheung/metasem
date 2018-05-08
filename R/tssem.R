@@ -280,6 +280,9 @@ wls <- function(Cov, aCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
     Amatrix@name <- "Amatrix"
   }
 
+  ## CheckRAM
+  checkRAM(Amatrix=Amatrix, Smatrix=Smatrix, cor.analysis=cor.analysis)
+  
   if (is.null(Fmatrix)) {
     Fmatrix <- as.mxMatrix(Diag(rep(p,1)), name="Fmatrix")
   } else {

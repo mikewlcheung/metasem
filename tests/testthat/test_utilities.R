@@ -259,3 +259,102 @@ test_that("smdMES() works correctly", {
 
     
 })
+
+test_that("checkRAM() works correctly", {
+    ## Checking A
+    
+    ## OK
+    A1 <- matrix(c("0", "0", "0",
+                   "1*a", "0", "0",
+                   "1*b", "1*c", "0"),
+                 nrow=3, ncol=3, byrow=TRUE)
+    expect_silent(checkRAM(Amatrix=A1))
+    expect_silent(checkRAM(Amatrix=as.mxMatrix(A1)))
+
+    ## Diagonals are not zero
+    A2 <- matrix(c("0", "0", "0",
+                   "1*a", "1", "0",
+                   "1*b", "1*c", "0"),
+                 nrow=3, ncol=3, byrow=TRUE)
+    expect_warning(checkRAM(Amatrix=A2))
+    expect_warning(checkRAM(Amatrix=as.mxMatrix(A2)))
+    
+    A3 <- matrix(c("0", "0", "0",
+                   "1*a", "0*d", "0",
+                   "1*b", "1*c", "0"),
+                 nrow=3, ncol=3, byrow=TRUE)
+    expect_warning(checkRAM(Amatrix=A3))
+    expect_warning(checkRAM(Amatrix=as.mxMatrix(A3)))
+
+    ## Non-recursive model
+    A4 <- matrix(c("0", "0*d", "0",
+                   "1*a", "0", "0",
+                   "1*b", "1*c", "0"),
+                 nrow=3, ncol=3, byrow=TRUE)
+    expect_warning(checkRAM(Amatrix=A4))
+    expect_warning(checkRAM(Amatrix=as.mxMatrix(A4)))
+
+    ## Checking S
+    
+    ## OK
+    S1 <- matrix(c("1", "0", "0",
+                   "0", "0*a", "0*b",
+                   "0", "0*b", "0*c"),
+                 nrow=3, ncol=3, byrow=TRUE)
+    expect_silent(checkRAM(Smatrix=S1, cor.analysis=TRUE))
+    expect_silent(checkRAM(Smatrix=as.mxMatrix(S1), cor.analysis=TRUE)) 
+    expect_silent(checkRAM(Smatrix=S1, cor.analysis=FALSE))
+    expect_silent(checkRAM(Smatrix=as.mxMatrix(S1), cor.analysis=FALSE))
+    
+    ## Not symmetric in labels
+    S2 <- matrix(c("1", "0", "0",
+                   "0", "0*a", "0*b1",
+                   "0", "0*b2", "0*c"),
+                 nrow=3, ncol=3, byrow=TRUE)
+    expect_warning(checkRAM(Smatrix=S2, cor.analysis=TRUE))
+    expect_warning(checkRAM(Smatrix=as.mxMatrix(S2), cor.analysis=TRUE))
+    expect_warning(checkRAM(Smatrix=S2, cor.analysis=FALSE))
+    expect_warning(checkRAM(Smatrix=as.mxMatrix(S2), cor.analysis=FALSE))
+    
+    ## Not symmetric in values
+    S3 <- matrix(c("1", "0", "0",
+                   "1", "0*a", "0*b",
+                   "0", "0*b", "0*c"),
+                 nrow=3, ncol=3, byrow=TRUE)
+    expect_warning(checkRAM(Smatrix=S3, cor.analysis=TRUE))
+    expect_warning(checkRAM(Smatrix=as.mxMatrix(S3), cor.analysis=TRUE))
+    expect_warning(checkRAM(Smatrix=S3, cor.analysis=FALSE))
+    expect_warning(checkRAM(Smatrix=as.mxMatrix(S3), cor.analysis=FALSE))    
+
+    ## Not symmetric in free parameters
+    S4 <- matrix(c("1", "0", "0",
+                   "1*d", "0*a", "0*b",
+                   "0", "0*b", "0*c"),
+                 nrow=3, ncol=3, byrow=TRUE)
+    expect_warning(checkRAM(Smatrix=S4, cor.analysis=TRUE))
+    expect_warning(checkRAM(Smatrix=as.mxMatrix(S4), cor.analysis=TRUE))
+    expect_warning(checkRAM(Smatrix=S4, cor.analysis=FALSE))
+    expect_warning(checkRAM(Smatrix=as.mxMatrix(S4), cor.analysis=FALSE))    
+ 
+    ## Checking both A and S
+    ## OK
+    expect_silent(checkRAM(A=A1, S=S1, cor.analysis=TRUE))
+
+    ## Variance of the IV is a free parameter
+    S5 <- matrix(c("1*Err_IV", "0", "0",
+                   "0", "0*a", "0*b",
+                   "0", "0*b", "0*c"),
+                 nrow=3, ncol=3, byrow=TRUE)
+    expect_warning(checkRAM(Amatrix=A1, Smatrix=S5, cor.analysis=TRUE))
+    ## OK when S is for a covariance structure
+    expect_silent(checkRAM(Amatrix=A1, Smatrix=S5, cor.analysis=FALSE))
+    
+    ## Variance of the IV is not fixed at 1
+    S6 <- matrix(c("0", "0", "0",
+                   "0", "0*a", "0*b",
+                   "0", "0*b", "0*c"),
+                 nrow=3, ncol=3, byrow=TRUE)
+    expect_warning(checkRAM(Amatrix=A1, Smatrix=S6, cor.analysis=TRUE))
+    ## OK when S is for a covariance structure (fewer checking)
+    expect_silent(checkRAM(Amatrix=A1, Smatrix=S6, cor.analysis=FALSE))     
+})
