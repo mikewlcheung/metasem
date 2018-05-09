@@ -1,8 +1,8 @@
 Package: metaSEM
 Type: Package
 Title: Meta-Analysis using Structural Equation Modeling
-Version: 1.0.7
-Date: 2018-05-08
+Version: 1.1.0
+Date: 2018-05-09
 Depends: R (>= 3.3.0), OpenMx
 Imports: Matrix, MASS, ellipse, graphics, stats, utils, mvtnorm, numDeriv, lavaan
 Suggests: metafor, semPlot, R.rsp, testthat
@@ -11,9 +11,9 @@ Author: Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 Maintainer: Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 Description: A collection of functions for conducting meta-analysis using a
              structural equation modeling (SEM) approach via the 'OpenMx' and
-			 'lavaan' packages. It also implements the two-stage SEM approach
-			 to conduct meta-analytic structural equation modeling on
-			 correlation and covariance matrices.
+             'lavaan' packages. It also implements the two-stage SEM approach
+             to conduct meta-analytic structural equation modeling on
+             correlation and covariance matrices.
 License: GPL (>=2)
 LazyLoad: yes
 LazyData: yes

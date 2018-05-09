@@ -120,7 +120,7 @@ $(document).ready(function () {
 
 <h1 class="title toc-ignore">The metaSEM package: Examples</h1>
 <h4 class="author"><em>Mike W.-L. Cheung</em></h4>
-<h4 class="date"><em>12 January, 2018</em></h4>
+<h4 class="date"><em>09 May, 2018</em></h4>
 
 </div>
 
@@ -172,11 +172,11 @@ $(document).ready(function () {
 <div id="introduction" class="section level1">
 <h1>Introduction</h1>
 <ul>
-<li><p>The <code>metaSEM</code> package provides functions for conducting univariate and multivariate meta-analysis using a structural equation modeling approach via the <a href="http://openmx.psyc.virginia.edu/">OpenMx</a> package. It also implemented the two-stage structural equation modeling (TSSEM) approach to conducting fixed- and random-effects meta-analytic structural equation modeling (MASEM) on correlation/covariance matrices.</p></li>
+<li><p>The <code>metaSEM</code> package provides functions for conducting univariate and multivariate meta-analysis using a structural equation modeling approach via the <a href="https://openmx.ssri.psu.edu/">OpenMx</a> package. It also implemented the two-stage structural equation modeling (TSSEM) approach to conducting fixed- and random-effects meta-analytic structural equation modeling (MASEM) on correlation/covariance matrices.</p></li>
 <li>The <code>metaSEM</code> package is based on the following papers:
 <ul>
 <li>Cheung, M.W.-L. (2008). A model for integrating fixed-, random-, and mixed-effects meta-analyses into structural equation modeling. <em>Psychological Methods</em>, <em>13</em>, 182-202.</li>
-<li>Cheung, M.W.-L. (2009). Constructing approximate confidence intervals for parameters with structural equation models. <em>Structural Equation Modeling</em>, <em>16</em>, 267–294.</li>
+<li>Cheung, M.W.-L. (2009). Constructing approximate confidence intervals for parameters with structural equation models. <em>Structural Equation Modeling</em>, <em>16</em>, 267???294.</li>
 <li>Cheung, M.W.-L. (2010). Fixed-effects meta-analyses as multiple-group structural equation models. <em>Structural Equation Modeling</em>, <em>17</em>, 481-509.</li>
 <li>Cheung, M.W.-L. (2013). Implementing restricted maximum likelihood estimation in structural equation models. <em>Structural Equation Modeling</em>, <em>20</em>, 157-167.</li>
 <li>Cheung, M.W.-L. (2013). Multivariate meta-analysis as structural equation models. <em>Structural Equation Modeling</em>, <em>20</em>, 429-454.</li>
@@ -185,7 +185,7 @@ $(document).ready(function () {
 <li>Cheung, M.W.-L. (2015). MetaSEM: an R package for meta-analysis using structural equation modeling. <em>Frontiers in Psychology</em>, <em>5 (1521)</em>.</li>
 <li>Cheung, M.W.-L. (2015). <em>Meta-Analysis: A Structural Equation Modeling Approach</em>. <a href="http://as.wiley.com/WileyCDA/WileyTitle/productCd-1119993431.html">Wiley</a>.</li>
 <li>Cheung, M.W.-L. (in press). Issues in solving the problem of effect size heterogeneity in meta-analytic structural equation modeling: A commentary and simulation study on Yu, Downes, Carter, and O’Boyle (2016). <em>Journal of Applied Psychology</em>.</li>
-<li>Cheung, M.W.-L., &amp; Chan, W. (2004). Testing dependent correlation coefficients via structural equation modeling. <em>Organizational Research Methods</em>, <em>7</em>, 206–223.</li>
+<li>Cheung, M.W.-L., &amp; Chan, W. (2004). Testing dependent correlation coefficients via structural equation modeling. <em>Organizational Research Methods</em>, <em>7</em>, 206???223.</li>
 <li>Cheung, M.W.-L., &amp; Chan, W. (2005). Meta-analytic structural equation modeling: A two-stage approach. <em>Psychological Methods</em>, <em>10</em>, 40-64.</li>
 <li>Cheung, M.W.-L., &amp; Chan, W. (2009). A two-stage approach to synthesizing covariance matrices in meta-analytic structural equation modeling. <em>Structural Equation Modeling</em>, <em>6</em>, 28-53.</li>
 <li>Cheung, M. W.-L., &amp; Cheung, S. F. (2016). Random-effects models for meta-analytic structural equation modeling: Review, issues, and illustrations. <em>Research Synthesis Methods</em>, <em>7</em>, 140-155.</li>
@@ -470,7 +470,7 @@ Other values may indicate problems.)</code></pre>
 <div id="three-level-meta-analysis" class="section level1">
 <h1>Three-level meta-analysis</h1>
 <ul>
-<li><p>This section illustrates how to conduct three-level meta-analyses using the <a href="http://courses.nus.edu.sg/course/psycwlm/internet/metaSEM">metaSEM</a> package implemented in the <a href="https://www.r-project.org/">R</a> environment. The <code>metaSEM</code> package was written to simplify the procedures to conduct a meta-analysis. Most readers may only need to use the <code>metaSEM</code> package to conduct the analysis. The next section shows how to conduct two- and three-level meta-analyses with the <code>meta()</code> and <code>meta3()</code> functions. The third section demonstrates more complicated three-level meta-analyses using a dataset with more predictors. The final section shows how to implement three-level meta-analyses as structural equation models using the <code>OpenMx</code> package. It provides detailed steps on how three-level meta-analyses can be formulated as structural equation models.</p></li>
+<li><p>This section illustrates how to conduct three-level meta-analyses using the <a href="https://github.com/mikewlcheung/metasem">metaSEM</a> package implemented in the <a href="https://www.r-project.org/">R</a> environment. The <code>metaSEM</code> package was written to simplify the procedures to conduct a meta-analysis. Most readers may only need to use the <code>metaSEM</code> package to conduct the analysis. The next section shows how to conduct two- and three-level meta-analyses with the <code>meta()</code> and <code>meta3()</code> functions. The third section demonstrates more complicated three-level meta-analyses using a dataset with more predictors. The final section shows how to implement three-level meta-analyses as structural equation models using the <code>OpenMx</code> package. It provides detailed steps on how three-level meta-analyses can be formulated as structural equation models.</p></li>
 <li><p>This file also demonstrates the advantages of using the SEM approach to conduct three-level meta-analyses. These include flexibility on imposing constraints for model comparisons and construction of likelihood-based confidence interval (LBCI). I also demonstrate how to conduct three-level meta-analysis with restricted (or residual) maximum likelihood (REML) using the <code>reml3()</code> function and handling missing covariates with the full information maximum likelihood (FIML) using the <code>meta3X()</code> function. Readers may refer to Cheung (2015) for the design and implementation of the <code>metaSEM</code> package and Cheung (2014) for the theory and issues on how to formulate three-level meta-analyses as structural equation models.</p></li>
 <li><p>Two datasets from published meta-analyses were used in the illustrations. The first dataset was based on Cooper et al. (2003) and Konstantopoulos (2011). Konstantopoulos (2011) selected part of the dataset to illustrate how to conduct a three-level meta-analysis. The second dataset was reported by Bornmann et al. (2007) and Marsh et al. (2009). They conducted a three-level meta-analysis on gender effects in peer reviews of grant proposals.</p></li>
 </ul>
@@ -753,9 +753,9 @@ P value of the Q statistic: 0
 Heterogeneity indices (I2) and their 95% likelihood-based CIs:
                                lbound Estimate ubound
 I2_2 (Typical v: Q statistic) 0.12754  0.34396 0.6565
-ICC_2 (tau^2/(tau^2+tau^3))   0.13123  0.36273 0.7005
-I2_3 (Typical v: Q statistic) 0.34963  0.60429 0.8451
-ICC_3 (tau^3/(tau^2+tau^3))   0.29948  0.63727 0.8688
+ICC_2 (tau^2/(tau^2+tau^3))        NA  0.36273     NA
+I2_3 (Typical v: Q statistic)      NA  0.60429     NA
+ICC_3 (tau^3/(tau^2+tau^3))        NA  0.63727     NA
 
 Number of studies (or clusters): 11
 Number of observed statistics: 56
@@ -777,8 +777,8 @@ Coefficients:
             Estimate Std.Error     lbound     ubound z value Pr(&gt;|z|)
 Intercept  0.1780268        NA  0.0056477  0.3512066      NA       NA
 Slope_1    0.0050737        NA -0.0128322  0.0237932      NA       NA
-Tau2_2     0.0329390        NA  0.0163748  0.0589972      NA       NA
-Tau2_3     0.0564628        NA  0.0192365  0.1587922      NA       NA
+Tau2_2     0.0329390        NA  0.0163748  0.0349725      NA       NA
+Tau2_3     0.0564628        NA  0.0192365  0.0703461      NA       NA
 
 Q statistic on the homogeneity of effect sizes: 578.864
 Degrees of freedom of the Q statistic: 55
@@ -1046,15 +1046,15 @@ meta3(y = logOR, v = v, cluster = Cluster, x = cbind(Grants,
 95% confidence intervals: z statistic approximation
 Coefficients:
            Estimate   Std.Error      lbound      ubound z value  Pr(&gt;|z|)
-Slope_1  0.10000000          NA          NA          NA      NA        NA
-Slope_2 -0.20209280  0.03921507 -0.27895292 -0.12523268 -5.1534 2.557e-07
-Tau2_2   0.00357518  0.00245474 -0.00123602  0.00838638  1.4564 0.1452706
-Tau2_3   0.00271391  0.00071421  0.00131408  0.00411374  3.7999 0.0001448
+Slope_1 -2.4808e-01  8.7524e+02 -1.7157e+03  1.7152e+03 -0.0003    0.9998
+Slope_2 -2.0209e-01  3.9553e-02 -2.7962e-01 -1.2457e-01 -5.1094 3.232e-07
+Tau2_2   3.5752e-03  2.4549e-03 -1.2363e-03  8.3867e-03  1.4563    0.1453
+Tau2_3   2.7139e-03  2.8448e-03 -2.8618e-03  8.2896e-03  0.9540    0.3401
            
 Slope_1    
 Slope_2 ***
 Tau2_2     
-Tau2_3  ***
+Tau2_3     
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -1156,10 +1156,10 @@ meta3(y = logOR, v = v, cluster = Cluster, x = cbind(DisciplinePhy,
 95% confidence intervals: z statistic approximation
 Coefficients:
              Estimate   Std.Error      lbound      ubound z value Pr(&gt;|z|)
-Intercept -0.01474783  0.06389944 -0.13998844  0.11049278 -0.2308  0.81747
-Slope_1   -0.00913064  0.09949197 -0.20413133  0.18587004 -0.0918  0.92688
-Slope_2   -0.12617957  0.07866273 -0.28035569  0.02799655 -1.6041  0.10870
-Slope_3   -0.23695698  0.12123091 -0.47456519  0.00065124 -1.9546  0.05063
+Intercept -0.01474783  0.06389945 -0.13998846  0.11049279 -0.2308  0.81747
+Slope_1   -0.00913064  0.09949198 -0.20413134  0.18587006 -0.0918  0.92688
+Slope_2   -0.12617957  0.07866274 -0.28035571  0.02799656 -1.6041  0.10870
+Slope_3   -0.23695698  0.12123091 -0.47456520  0.00065125 -1.9546  0.05063
 Tau2_2     0.00390942  0.00283949 -0.00165587  0.00947471  1.3768  0.16857
 Tau2_3     0.00710338  0.00643210 -0.00550331  0.01971006  1.1044  0.26944
            
@@ -1363,8 +1363,8 @@ meta3(y = logOR, v = v, cluster = Cluster, x = cbind(Type2, CountryAus,
 Coefficients:
              Estimate   Std.Error      lbound      ubound z value
 Intercept  6.7507e-02  1.8933e-02  3.0399e-02  1.0461e-01  3.5656
-Slope_1   -1.5167e-01  4.1113e-02 -2.3225e-01 -7.1092e-02 -3.6892
-Slope_2   -6.9580e-02  8.5164e-02 -2.3650e-01  9.7340e-02 -0.8170
+Slope_1   -1.5167e-01  4.1113e-02 -2.3225e-01 -7.1092e-02 -3.6891
+Slope_2   -6.9579e-02  8.5164e-02 -2.3650e-01  9.7340e-02 -0.8170
 Slope_3   -1.4231e-01  7.5204e-02 -2.8970e-01  5.0878e-03 -1.8923
 Slope_4   -1.6116e-01  4.0203e-02 -2.3995e-01 -8.2361e-02 -4.0086
 Slope_5    9.0419e-03  7.0074e-02 -1.2830e-01  1.4639e-01  0.1290
@@ -1373,10 +1373,10 @@ Tau2_3     1.0000e-10          NA          NA          NA      NA
            Pr(&gt;|z|)    
 Intercept 0.0003631 ***
 Slope_1   0.0002250 ***
-Slope_2   0.4139267    
+Slope_2   0.4139269    
 Slope_3   0.0584497 .  
 Slope_4   6.108e-05 ***
-Slope_5   0.8973315    
+Slope_5   0.8973314    
 Tau2_2    0.1107693    
 Tau2_3           NA    
 ---
@@ -1434,12 +1434,12 @@ meta3(y = logOR, v = v, cluster = Cluster, x = cbind(DisciplinePhy,
 Coefficients:
             Estimate  Std.Error     lbound     ubound z value Pr(&gt;|z|)  
 Intercept  0.0029305  0.0576743 -0.1101090  0.1159700  0.0508  0.95948  
-Slope_1    0.1742169  0.1702554 -0.1594775  0.5079113  1.0233  0.30618  
-Slope_2    0.0826806  0.1599802 -0.2308748  0.3962360  0.5168  0.60528  
+Slope_1    0.1742169  0.1702554 -0.1594775  0.5079114  1.0233  0.30618  
+Slope_2    0.0826806  0.1599802 -0.2308749  0.3962360  0.5168  0.60528  
 Slope_3   -0.0462265  0.1715773 -0.3825119  0.2900589 -0.2694  0.78761  
-Slope_4   -0.0486321  0.1306918 -0.3047834  0.2075191 -0.3721  0.70981  
-Slope_5   -0.2169132  0.1915703 -0.5923841  0.1585576 -1.1323  0.25751  
-Slope_6   -0.3036578  0.1670720 -0.6311130  0.0237974 -1.8175  0.06914 .
+Slope_4   -0.0486321  0.1306918 -0.3047834  0.2075192 -0.3721  0.70981  
+Slope_5   -0.2169132  0.1915703 -0.5923841  0.1585577 -1.1323  0.25751  
+Slope_6   -0.3036578  0.1670721 -0.6311130  0.0237974 -1.8175  0.06914 .
 Slope_7   -0.0605272  0.1809419 -0.4151668  0.2941124 -0.3345  0.73799  
 Tau2_2     0.0032661  0.0022784 -0.0011994  0.0077317  1.4335  0.15171  
 Tau2_3     0.0040618  0.0038459 -0.0034759  0.0115996  1.0562  0.29090  
@@ -1490,9 +1490,9 @@ Slope_1   -1.6885e-01  4.1545e-02 -2.5028e-01 -8.7425e-02 -4.0643
 Slope_2    2.5329e-01  1.5814e-01 -5.6670e-02  5.6324e-01  1.6016
 Slope_3    1.2689e-01  1.4774e-01 -1.6268e-01  4.1646e-01  0.8589
 Slope_4   -8.3549e-03  1.5796e-01 -3.1795e-01  3.0124e-01 -0.0529
-Slope_5   -1.1530e-01  1.1147e-01 -3.3377e-01  1.0317e-01 -1.0344
-Slope_6   -2.6412e-01  1.6402e-01 -5.8559e-01  5.7344e-02 -1.6103
-Slope_7   -2.9029e-01  1.4859e-01 -5.8152e-01  9.5186e-04 -1.9536
+Slope_5   -1.1530e-01  1.1146e-01 -3.3377e-01  1.0317e-01 -1.0344
+Slope_6   -2.6412e-01  1.6402e-01 -5.8559e-01  5.7343e-02 -1.6103
+Slope_7   -2.9029e-01  1.4859e-01 -5.8152e-01  9.5188e-04 -1.9536
 Slope_8   -1.5975e-01  1.6285e-01 -4.7893e-01  1.5943e-01 -0.9810
 Tau2_2     2.1010e-03  1.2925e-03 -4.3226e-04  4.6342e-03  1.6255
 Tau2_3     1.0000e-10          NA          NA          NA      NA
@@ -1504,7 +1504,7 @@ Slope_3    0.390410
 Slope_4    0.957818    
 Slope_5    0.300948    
 Slope_6    0.107323    
-Slope_7    0.050753 .  
+Slope_7    0.050754 .  
 Slope_8    0.326609    
 Tau2_2     0.104051    
 Tau2_3           NA    
@@ -1610,7 +1610,7 @@ Explained variances (R2):
                          Level 2 Level 3
 Tau2 (no predictor)    0.0037965  0.0141
 Tau2 (with predictors) 0.0030338  0.0037
-R2                     0.2009069  0.7394
+R2                     0.2009068  0.7394
 
 Number of studies (or clusters): 21
 Number of observed statistics: 115
@@ -1641,7 +1641,7 @@ meta3(y = logOR, v = v, cluster = Cluster, x = Type_MAR, data = Bornmann07)
 Coefficients:
              Estimate   Std.Error      lbound      ubound z value Pr(&gt;|z|)
 Intercept -0.01587052  0.03952546 -0.09333901  0.06159796 -0.4015 0.688032
-Slope_1   -0.17573648  0.06328327 -0.29976940 -0.05170355 -2.7770 0.005487
+Slope_1   -0.17573647  0.06328327 -0.29976940 -0.05170355 -2.7770 0.005487
 Tau2_2     0.00259266  0.00171596 -0.00077056  0.00595588  1.5109 0.130811
 Tau2_3     0.00278384  0.00267150 -0.00245221  0.00801989  1.0421 0.297388
             
@@ -1682,10 +1682,10 @@ meta3X(y = logOR, v = v, cluster = Cluster, x2 = Type_MAR, av2 = Year,
 95% confidence intervals: z statistic approximation
 Coefficients:
             Estimate  Std.Error     lbound     ubound z value Pr(&gt;|z|)   
-Intercept -0.0264058  0.0572058 -0.1385270  0.0857155 -0.4616 0.644374   
-SlopeX2_1 -0.2003999  0.0691095 -0.3358519 -0.0649478 -2.8997 0.003735 **
+Intercept -0.0264058  0.0572056 -0.1385267  0.0857152 -0.4616 0.644373   
+SlopeX2_1 -0.2003999  0.0691093 -0.3358517 -0.0649481 -2.8998 0.003735 **
 Tau2_2     0.0029970  0.0022371 -0.0013877  0.0073817  1.3396 0.180359   
-Tau2_3     0.0030212  0.0032463 -0.0033415  0.0093839  0.9307 0.352034   
+Tau2_3     0.0030212  0.0032463 -0.0033415  0.0093839  0.9307 0.352033   
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -1783,14 +1783,14 @@ Coefficients:
        Estimate Std.Error z value  Pr(&gt;|z|)    
 S[1,2] 0.363278  0.013368 27.1759 &lt; 2.2e-16 ***
 S[1,3] 0.390375  0.012880 30.3075 &lt; 2.2e-16 ***
-S[1,4] 0.103572  0.015048  6.8830 5.862e-12 ***
-S[1,5] 0.092286  0.015047  6.1331 8.621e-10 ***
-S[2,3] 0.416070  0.012519 33.2343 &lt; 2.2e-16 ***
-S[2,4] 0.135148  0.014776  9.1464 &lt; 2.2e-16 ***
+S[1,4] 0.103572  0.015048  6.8829 5.863e-12 ***
+S[1,5] 0.092286  0.015047  6.1330 8.622e-10 ***
+S[2,3] 0.416070  0.012519 33.2342 &lt; 2.2e-16 ***
+S[2,4] 0.135148  0.014776  9.1463 &lt; 2.2e-16 ***
 S[2,5] 0.141431  0.014866  9.5135 &lt; 2.2e-16 ***
 S[3,4] 0.244459  0.014153 17.2723 &lt; 2.2e-16 ***
 S[3,5] 0.138339  0.014834  9.3259 &lt; 2.2e-16 ***
-S[4,5] 0.424566  0.012376 34.3070 &lt; 2.2e-16 ***
+S[4,5] 0.424566  0.012376 34.3069 &lt; 2.2e-16 ***
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -1823,7 +1823,7 @@ I  0.09228557 0.1414306 0.1383390 0.4245663 1.00000000</code></pre>
 </div>
 <div id="stage-2-analysis" class="section level3">
 <h3>Stage 2 analysis</h3>
-<p>As an illustration, I continued to fit the structural model based on the pooled correlation matrix. We may specify the two-factor model with the <a href="http://openmx.psyc.virginia.edu/docs/OpenMx/latest/Examples_Matrix.html">RAM formulation</a></p>
+<p>As an illustration, I continued to fit the structural model based on the pooled correlation matrix. We may specify the two-factor model with the <a href="https://vipbg.vcu.edu/vipbg/OpenMx2/docs//OpenMx/latest/Examples_Matrix.html">RAM formulation</a></p>
 <pre class="r"><code>## Factor covariance among latent factors
 Phi &lt;- matrix(c(1,&quot;0.3*cor&quot;,&quot;0.3*cor&quot;,1), ncol=2, nrow=2)
 
@@ -1952,7 +1952,7 @@ Coefficients:
               Estimate Std.Error  lbound  ubound z value Pr(&gt;|z|)
 AonAlpha       0.56280        NA 0.53270 0.59302      NA       NA
 ConAlpha       0.60522        NA 0.57525 0.63535      NA       NA
-EonBeta        0.78141        NA 0.71872 0.85497      NA       NA
+EonBeta        0.78141        NA 0.71872 0.85498      NA       NA
 ESonAlpha      0.71920        NA 0.68876 0.75032      NA       NA
 IonBeta        0.55137        NA 0.50000 0.60270      NA       NA
 AlphawithBeta  0.36268        NA 0.31859 0.40646      NA       NA
@@ -1965,7 +1965,7 @@ DF of target model                            4.0000
 p value of target model                       0.0000
 Number of constraints imposed on &quot;Smatrix&quot;    0.0000
 DF manually adjusted                          0.0000
-Chi-square of independence model           3112.6867
+Chi-square of independence model           3112.6543
 DF of independence model                     10.0000
 RMSEA                                         0.0585
 RMSEA lower 95% CI                            0.0465
@@ -2058,7 +2058,7 @@ tssem1FEM(Cov = data.cluster[[i]], n = n.cluster[[i]], cor.analysis = cor.analys
 
 Coefficients:
         Estimate Std.Error z value  Pr(&gt;|z|)    
-S[1,2]  0.604330  0.022125 27.3141 &lt; 2.2e-16 ***
+S[1,2]  0.604330  0.022125 27.3142 &lt; 2.2e-16 ***
 S[1,3]  0.465536  0.027493 16.9327 &lt; 2.2e-16 ***
 S[1,4] -0.031381  0.035940 -0.8732   0.38258    
 S[1,5]  0.061508  0.034547  1.7804   0.07500 .  
@@ -2146,7 +2146,7 @@ DF of target model                            4.0000
 p value of target model                       0.0002
 Number of constraints imposed on &quot;Smatrix&quot;    0.0000
 DF manually adjusted                          0.0000
-Chi-square of independence model           2273.3342
+Chi-square of independence model           2273.3234
 DF of independence model                     10.0000
 RMSEA                                         0.0351
 RMSEA lower 95% CI                            0.0217
@@ -2173,11 +2173,11 @@ wls(Cov = coef.tssem1FEM(tssem1.obj), aCov = vcov.tssem1FEM(tssem1.obj),
 Coefficients:
                Estimate Std.Error    lbound    ubound z value Pr(&gt;|z|)    
 AonAlpha       0.747647  0.023880  0.700842  0.794451 31.3081   &lt;2e-16 ***
-ConAlpha       0.911705  0.019864  0.872772  0.950638 45.8970   &lt;2e-16 ***
-EonBeta        0.152566  0.159119 -0.159303  0.464434  0.9588   0.3377    
+ConAlpha       0.911705  0.019864  0.872772  0.950638 45.8969   &lt;2e-16 ***
+EonBeta        0.152563  0.159123 -0.159313  0.464439  0.9588   0.3377    
 ESonAlpha      0.677435  0.025863  0.626743  0.728126 26.1927   &lt;2e-16 ***
-IonBeta        3.283787  3.362970 -3.307512  9.875086  0.9765   0.3288    
-AlphawithBeta  0.117259  0.125415 -0.128550  0.363067  0.9350   0.3498    
+IonBeta        3.283838  3.363159 -3.307833  9.875508  0.9764   0.3289    
+AlphawithBeta  0.117257  0.125418 -0.128557  0.363071  0.9349   0.3498    
 ---
 Signif. codes:  0 '***' 0.001 '**' 0.01 '*' 0.05 '.' 0.1 ' ' 1
 
@@ -2189,7 +2189,7 @@ DF of target model                            4.0000
 p value of target model                       0.0000
 Number of constraints imposed on &quot;Smatrix&quot;    0.0000
 DF manually adjusted                          0.0000
-Chi-square of independence model           2480.2312
+Chi-square of independence model           2480.2389
 DF of independence model                     10.0000
 RMSEA                                         0.2057
 RMSEA lower 95% CI                            0.1778
@@ -2236,23 +2236,23 @@ meta(y = ES, v = acovR, RE.constraints = Diag(paste0(RE.startvalues,
 95% confidence intervals: z statistic approximation
 Coefficients:
                Estimate   Std.Error      lbound      ubound z value
-Intercept1   0.38971909  0.05429256  0.28330764  0.49613055  7.1781
-Intercept2   0.43265881  0.04145135  0.35141566  0.51390197 10.4377
-Intercept3   0.04945629  0.06071078 -0.06953465  0.16844723  0.8146
-Intercept4   0.09603708  0.04478710  0.00825599  0.18381818  2.1443
-Intercept5   0.42724246  0.03911620  0.35057612  0.50390881 10.9224
+Intercept1   0.38971910  0.05429256  0.28330764  0.49613056  7.1781
+Intercept2   0.43265882  0.04145135  0.35141566  0.51390197 10.4377
+Intercept3   0.04945630  0.06071078 -0.06953464  0.16844724  0.8146
+Intercept4   0.09603708  0.04478710  0.00825598  0.18381818  2.1443
+Intercept5   0.42724246  0.03911620  0.35057612  0.50390880 10.9224
 Intercept6   0.11929317  0.04106204  0.03881306  0.19977328  2.9052
-Intercept7   0.19292425  0.04757961  0.09966994  0.28617856  4.0548
-Intercept8   0.22690163  0.03240893  0.16338129  0.29042196  7.0012
-Intercept9   0.18105567  0.04258854  0.09758366  0.26452768  4.2513
-Intercept10  0.43614968  0.03205960  0.37331403  0.49898533 13.6043
-Tau2_1_1     0.03648371  0.01513055  0.00682839  0.06613903  2.4113
+Intercept7   0.19292424  0.04757960  0.09966993  0.28617855  4.0548
+Intercept8   0.22690163  0.03240893  0.16338130  0.29042197  7.0012
+Intercept9   0.18105567  0.04258854  0.09758366  0.26452767  4.2513
+Intercept10  0.43614967  0.03205960  0.37331402  0.49898533 13.6043
+Tau2_1_1     0.03648371  0.01513055  0.00682839  0.06613904  2.4113
 Tau2_2_2     0.01963096  0.00859788  0.00277942  0.03648251  2.2832
-Tau2_3_3     0.04571435  0.01952284  0.00745029  0.08397842  2.3416
+Tau2_3_3     0.04571435  0.01952284  0.00745029  0.08397841  2.3416
 Tau2_4_4     0.02236119  0.00995083  0.00285793  0.04186445  2.2472
 Tau2_5_5     0.01729072  0.00796404  0.00168149  0.03289995  2.1711
 Tau2_6_6     0.01815481  0.00895896  0.00059557  0.03571406  2.0264
-Tau2_7_7     0.02604879  0.01130265  0.00389600  0.04820159  2.3047
+Tau2_7_7     0.02604879  0.01130265  0.00389600  0.04820158  2.3047
 Tau2_8_8     0.00988761  0.00513713 -0.00018098  0.01995620  1.9247
 Tau2_9_9     0.01988242  0.00895052  0.00233972  0.03742512  2.2214
 Tau2_10_10   0.01049221  0.00501578  0.00066147  0.02032295  2.0918
@@ -2310,15 +2310,15 @@ Other values may indicate problems.)</code></pre>
 <pre class="r"><code>## Fixed effects
 coef(random1, select=&quot;fixed&quot;)</code></pre>
 <pre><code> Intercept1  Intercept2  Intercept3  Intercept4  Intercept5  Intercept6 
- 0.38971909  0.43265881  0.04945629  0.09603708  0.42724246  0.11929317 
+ 0.38971910  0.43265882  0.04945630  0.09603708  0.42724246  0.11929317 
  Intercept7  Intercept8  Intercept9 Intercept10 
- 0.19292425  0.22690163  0.18105567  0.43614968 </code></pre>
+ 0.19292424  0.22690163  0.18105567  0.43614967 </code></pre>
 <pre class="r"><code>## Random effects
 coef(random1, select=&quot;random&quot;)</code></pre>
-<pre><code>   Tau2_1_1    Tau2_2_2    Tau2_3_3    Tau2_4_4    Tau2_5_5    Tau2_6_6 
-0.036483710 0.019630961 0.045714355 0.022361192 0.017290716 0.018154815 
-   Tau2_7_7    Tau2_8_8    Tau2_9_9  Tau2_10_10 
-0.026048794 0.009887609 0.019882421 0.010492210 </code></pre>
+<pre><code>  Tau2_1_1   Tau2_2_2   Tau2_3_3   Tau2_4_4   Tau2_5_5   Tau2_6_6 
+0.03648371 0.01963096 0.04571435 0.02236119 0.01729072 0.01815481 
+  Tau2_7_7   Tau2_8_8   Tau2_9_9 Tau2_10_10 
+0.02604879 0.00988761 0.01988242 0.01049221 </code></pre>
 </div>
 <div id="stage-2-analysis-2" class="section level3">
 <h3>Stage 2 analysis</h3>
@@ -2341,9 +2341,9 @@ Coefficients:
               Estimate Std.Error  lbound  ubound z value Pr(&gt;|z|)
 AonAlpha       0.56944        NA 0.46903 0.67529      NA       NA
 ConAlpha       0.59063        NA 0.48968 0.69723      NA       NA
-EonBeta        0.67996        NA 0.54690 0.84530      NA       NA
+EonBeta        0.67996        NA 0.54690 0.85236      NA       NA
 ESonAlpha      0.76045        NA 0.64855 0.89661      NA       NA
-IonBeta        0.64184        NA 0.50459 0.78160      NA       NA
+IonBeta        0.64184        NA 0.50459 0.70172      NA       NA
 AlphawithBeta  0.37769        NA 0.28683 0.47386      NA       NA
 
 Goodness-of-fit indices:
@@ -2690,7 +2690,7 @@ wls(Cov = coef.tssem1FEM(tssem1.obj), aCov = vcov.tssem1FEM(tssem1.obj),
 95% confidence intervals: Likelihood-based statistic
 Coefficients:
                  Estimate Std.Error   lbound   ubound z value Pr(&gt;|z|)
-Spatial2Math     0.409265        NA 0.305292 0.512536      NA       NA
+Spatial2Math     0.409265        NA 0.305292 0.512535      NA       NA
 Verbal2Math      0.271217        NA 0.156125 0.386561      NA       NA
 SpatialCorVerbal 0.171931        NA 0.045061 0.298800      NA       NA
 
@@ -2921,9 +2921,9 @@ dump(c(&quot;my.df&quot;), file=&quot;myData.R&quot;)</code></pre></li>
 </ul>
 <p>The files are based on the following versions of <code>R</code> and <code>R</code> packages:</p>
 <pre class="r"><code>sessionInfo()</code></pre>
-<pre><code>R version 3.4.3 (2017-11-30)
+<pre><code>R version 3.4.4 (2018-03-15)
 Platform: x86_64-pc-linux-gnu (64-bit)
-Running under: Linux Mint 18.2
+Running under: Linux Mint 18.3
 
 Matrix products: default
 BLAS: /usr/lib/openblas-base/libblas.so.3
@@ -2941,43 +2941,42 @@ attached base packages:
 [1] stats     graphics  grDevices utils     datasets  methods   base     
 
 other attached packages:
-[1] semPlot_1.1   metafor_2.0-0 Matrix_1.2-12 metaSEM_1.0.0 OpenMx_2.8.3 
-[6] knitr_1.17    rmarkdown_1.8
+[1] semPlot_1.1   metafor_2.0-0 Matrix_1.2-12 metaSEM_1.1.0 OpenMx_2.9.6 
+[6] knitr_1.20    rmarkdown_1.9
 
 loaded via a namespace (and not attached):
- [1] nlme_3.1-131         pbkrtest_0.4-7       RColorBrewer_1.1-2  
- [4] rprojroot_1.2        mi_1.0               tools_3.4.3         
- [7] backports_1.1.2      R6_2.2.2             d3Network_0.5.2.1   
-[10] rpart_4.1-11         Hmisc_4.0-3          lazyeval_0.2.1      
-[13] mgcv_1.8-22          colorspace_1.3-2     nnet_7.3-12         
-[16] gridExtra_2.3        mnormt_1.5-5         compiler_3.4.3      
-[19] qgraph_1.4.4         fdrtool_1.2.15       quantreg_5.34       
-[22] htmlTable_1.11.0     SparseM_1.77         network_1.13.0      
-[25] scales_0.5.0         checkmate_1.8.5      mvtnorm_1.0-6       
-[28] psych_1.7.8          quadprog_1.5-5       sem_3.1-9           
-[31] stringr_1.2.0        digest_0.6.12        pbivnorm_0.6.0      
-[34] foreign_0.8-69       minqa_1.2.4          base64enc_0.1-3     
-[37] jpeg_0.1-8           pkgconfig_2.0.1      htmltools_0.3.6     
-[40] lme4_1.1-14          lisrelToR_0.1.4      htmlwidgets_0.9     
-[43] rlang_0.1.4          huge_1.2.7           rstudioapi_0.7      
-[46] bindr_0.1            gtools_3.5.0         statnet.common_4.0.0
-[49] acepack_1.4.1        dplyr_0.7.4          car_2.1-6           
-[52] magrittr_1.5         Formula_1.2-2        Rcpp_0.12.14        
-[55] munsell_0.4.3        abind_1.4-5          rockchalk_1.8.110   
-[58] whisker_0.3-2        stringi_1.1.6        yaml_2.1.16         
-[61] MASS_7.3-48          plyr_1.8.4           matrixcalc_1.0-3    
-[64] lavaan_0.5-23.1097   grid_3.4.3           parallel_3.4.3      
-[67] lattice_0.20-35      splines_3.4.3        sna_2.4             
-[70] igraph_1.1.2         rjson_0.2.15         boot_1.3-20         
-[73] corpcor_1.6.9        BDgraph_2.43         reshape2_1.4.3      
-[76] stats4_3.4.3         XML_3.98-1.9         glue_1.2.0          
-[79] evaluate_0.10.1      latticeExtra_0.6-28  data.table_1.10.4-3 
-[82] png_0.1-7            nloptr_1.0.4         MatrixModels_0.4-1  
-[85] gtable_0.2.0         purrr_0.2.4          tidyr_0.7.2         
-[88] assertthat_0.2.0     ggplot2_2.2.1        semTools_0.4-14     
-[91] coda_0.19-1          glasso_1.8           survival_2.41-3     
-[94] tibble_1.3.4         arm_1.9-3            ggm_2.3             
-[97] ellipse_0.4.1        bindrcpp_0.2         cluster_2.0.6       </code></pre>
+ [1] nlme_3.1-137         RColorBrewer_1.1-2   rprojroot_1.3-2     
+ [4] mi_1.0               tools_3.4.4          backports_1.1.2     
+ [7] rpart_4.1-13         d3Network_0.5.2.1    Hmisc_4.1-1         
+[10] lazyeval_0.2.1       colorspace_1.3-2     nnet_7.3-12         
+[13] gridExtra_2.3        mnormt_1.5-5         curl_3.2            
+[16] compiler_3.4.4       qgraph_1.4.4         fdrtool_1.2.15      
+[19] htmlTable_1.11.2     network_1.13.0       scales_0.5.0        
+[22] checkmate_1.8.5      mvtnorm_1.0-7        psych_1.8.3.3       
+[25] quadprog_1.5-5       sem_3.1-9            stringr_1.3.0       
+[28] digest_0.6.15        pbivnorm_0.6.0       foreign_0.8-70      
+[31] minqa_1.2.4          rio_0.5.10           base64enc_0.1-3     
+[34] jpeg_0.1-8           pkgconfig_2.0.1      htmltools_0.3.6     
+[37] lme4_1.1-17          lisrelToR_0.1.4      htmlwidgets_1.0     
+[40] rlang_0.2.0          readxl_1.0.0         rstudioapi_0.7      
+[43] huge_1.2.7           gtools_3.5.0         statnet.common_4.0.0
+[46] acepack_1.4.1        car_3.0-0            magrittr_1.5        
+[49] Formula_1.2-2        Rcpp_0.12.16         munsell_0.4.3       
+[52] abind_1.4-5          rockchalk_1.8.110    whisker_0.3-2       
+[55] stringi_1.1.7        yaml_2.1.18          carData_3.0-1       
+[58] MASS_7.3-49          plyr_1.8.4           matrixcalc_1.0-3    
+[61] lavaan_0.5-23.1097   grid_3.4.4           parallel_3.4.4      
+[64] forcats_0.3.0        lattice_0.20-35      haven_1.1.1         
+[67] splines_3.4.4        sna_2.4              pillar_1.2.1        
+[70] igraph_1.2.1         rjson_0.2.15         boot_1.3-20         
+[73] corpcor_1.6.9        BDgraph_2.45         reshape2_1.4.3      
+[76] stats4_3.4.4         XML_3.98-1.10        evaluate_0.10.1     
+[79] latticeExtra_0.6-28  data.table_1.10.4-3  png_0.1-7           
+[82] nloptr_1.0.4         cellranger_1.1.0     gtable_0.2.0        
+[85] ggplot2_2.2.1        openxlsx_4.0.17      semTools_0.4-14     
+[88] coda_0.19-1          survival_2.42-3      glasso_1.8          
+[91] tibble_1.4.2         arm_1.10-1           ggm_2.3             
+[94] ellipse_0.4.1        cluster_2.0.7       </code></pre>
 </div>
 </div>
 

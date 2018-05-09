@@ -1,29 +1,10 @@
-Release 1.0.7 (May 08, 2018)
-====================================
+Release 1.1.0 (May 09, 2018)
 * Added checkRAM().
-
-Release 1.0.6 (April 29, 2018)
-====================================
 * Added list.output argument in smdMTS() and smdMES().
-
-Release 1.0.5 (April 27, 2018)
-====================================
 * Added dataset Gleser94.
-
-Release 1.0.4 (April 12, 2018)
-====================================
 * Added dataset Scalco17.
-
-Release 1.0.3 (April 9, 2018)
-====================================
 * Modified plotting methods for lavaan models and wls objects.
-
-Release 1.0.2 (March 24, 2018)
-====================================
 * Fixed a bug in list2matrix() for 2x2 matrices when the diag=FALSE.
-
-Release 1.0.1 (March 22, 2018)
-====================================
 * Fixed a minor bug in asyCov() with acov="weighted" or "unweighted" when the cor.analysis=TRUE with covariance matrices as the input.
 
 Release 1.0.0 (January 12, 2018)
