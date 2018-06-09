@@ -6,12 +6,16 @@
   that are present) of a list of square matrices with the same dimensions.
 }
 \usage{
-pattern.na(x, show.na = TRUE)
+pattern.na(x, show.na = TRUE, type=c("tssem", "osmasem"))
 }
 \arguments{
   \item{x}{A list of square matrices}
   \item{show.na}{If it is \code{TRUE}, it shows the pattern of missing
-	data. If it is \code{FALSE}, it shows the pattern of data that are present.
+	data. If it is \code{FALSE}, it shows the pattern of data that are
+	present.}
+  \item{type}{If it is \code{tssem}, it reports the pattern of missing
+	correlations for the tssem approach. If it is \code{osmasem}, it
+	reports the pattern of missing correlations for the data created by \code{\link[metaSEM]{Cor2DataFrame}}.
 }
 }
 \value{A square matrix of numerical values with the same dimensions of the

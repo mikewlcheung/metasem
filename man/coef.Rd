@@ -8,13 +8,12 @@
 \alias{coef.meta3X}
 \alias{coef.reml}
 \alias{coef.MxRAMModel}
+\alias{coef.osmasem}
 
-\title{Extract Parameter Estimates from tssem1FEM, tssem1FEM.cluster,
-  tssem1REM, wls, wls.cluster, meta, meta3X, reml and MxRAMModel Objects
+\title{Extract Parameter Estimates from various classes.
 }
-\description{It extracts the parameter estimates from either
-  \code{tssem1FEM}, \code{tssem1FEM.cluster}, \code{tssem1REM}, \code{wls}, \code{wls.cluster},
-  \code{meta}, \code{meta3X}, \code{reml} or \code{MxRAMModel} objects.
+\description{It extracts the parameter estimates from objects of various
+  classes.
 }
 \usage{
 \method{coef}{tssem1FEM}(object, \dots)
@@ -26,6 +25,7 @@
 \method{coef}{meta3X}(object, select = c("all", "fixed", "random", "allX"), \dots)
 \method{coef}{reml}(object, \dots)
 \method{coef}{MxRAMModel}(object, \dots)
+\method{coef}{osmasem}(object, select=c("fixed", "all", "random"), \dots)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -51,7 +51,8 @@
 }
 
 \seealso{ \code{\link[metaSEM]{tssem1}}, \code{\link[metaSEM]{wls}},
-  \code{\link[metaSEM]{meta}}, \code{\link[metaSEM]{reml}}, \code{\link[OpenMx]{omxGetParameters}}
+  \code{\link[metaSEM]{meta}}, \code{\link[metaSEM]{reml}},
+  \code{\link[OpenMx]{omxGetParameters}}, \code{\link[metaSEM]{osmasem}}
 }
 \examples{
 ## Random-effects meta-analysis

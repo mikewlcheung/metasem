@@ -9,6 +9,7 @@
 \alias{summary.reml}
 \alias{summary.CorPop}
 \alias{summary.bootuniR2}
+\alias{summary.osmasem}
 \alias{print.summary.tssem1FEM}
 \alias{print.summary.tssem1FEM.cluster}
 \alias{print.summary.wls}
@@ -19,10 +20,7 @@
 \alias{print.summary.bootuniR2}
 \title{Summary Method for tssem1, wls, meta and meta3X Objects
 }
-\description{It summaries results for either class \code{tssem1FEM},
-  class \code{tssem1FEM.cluster}, class \code{tssem1REM}, class
-  \code{wls}, class \code{wls.cluster}, class \code{meta}, class
-  \code{meta3X}, class \code{reml}, class \code{CorPop}, or class \code{bootuniR2}.
+\description{It summaries results for various class.
 }
 \usage{
 \method{summary}{tssem1FEM}(object, \dots)
@@ -35,7 +33,9 @@
 \method{summary}{reml}(object, \dots)
 \method{summary}{CorPop}(object, \dots)
 \method{summary}{bootuniR2}(object, probs=c(0, 0.1, 0.5, 0.9, 1),
-cutoff.chisq.pvalue=0.05, cutoff.CFI=0.9, cutoff.SRMR=0.1, cutoff.RMSEA=0.05, \dots)
+cutoff.chisq.pvalue=0.05, cutoff.CFI=0.9, cutoff.SRMR=0.1,
+cutoff.RMSEA=0.05, \dots)
+\method{summary}{osmasem}(object, Saturated=FALSE, numObs, \dots)
 \method{print.summary}{tssem1FEM}(x, \dots)
 \method{print.summary}{wls}(x, \dots)
 \method{print.summary}{meta}(x, \dots)
@@ -71,6 +71,10 @@ cutoff.chisq.pvalue=0.05, cutoff.CFI=0.9, cutoff.SRMR=0.1, cutoff.RMSEA=0.05, \d
   \item{cutoff.CFI}{Cutoff of the CFI.}
   \item{cutoff.SRMR}{Cutoff of the SRMR.}
   \item{cutoff.RMSEA}{Cutoff of the RMSEA.}
+  \item{Saturated}{Whether to calculate the saturated model for
+	osmasem.}
+  \item{numObs}{Number of observations in calculating the fit statistics
+	in osmasem. If it is missing, the total number of observations is used.}
   \item{\dots}{Further arguments to be passed to \code{\link[stats]{printCoefmat}}
 }
 }
@@ -85,7 +89,8 @@ cutoff.chisq.pvalue=0.05, cutoff.CFI=0.9, cutoff.SRMR=0.1, cutoff.RMSEA=0.05, \d
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
 \seealso{ \code{\link[metaSEM]{tssem1}}, \code{\link[metaSEM]{wls}},
-  \code{\link[metaSEM]{meta}}, \code{\link[metaSEM]{reml}}, \code{\link[metaSEM]{rCor}}, \code{\link[metaSEM]{bootuniR2}}
+  \code{\link[metaSEM]{meta}}, \code{\link[metaSEM]{reml}},
+  \code{\link[metaSEM]{rCor}}, \code{\link[metaSEM]{bootuniR2}}, \code{\link[metaSEM]{osmasem}}
 }
 
 % Add one or more standard keywords, see file 'KEYWORDS' in the

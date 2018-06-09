@@ -3,15 +3,16 @@
 \title{Extract Variance-Covariance Matrix of the Random Effects
 }
 \description{It extracts the variance-covariance matrix of the
-  random effects (variance component) from the \code{meta} objects.
+  random effects (variance component) from either the \code{meta} or
+  \code{osmasem} objects.
 }
 \usage{
-VarCorr(object, \dots)
+VarCorr(x, \dots)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{object}{An object returned from class
-	\code{meta}
+  \item{x}{An object returned from either class
+	\code{meta} or \code{osmasem}
 }
   \item{\dots}{Further arguments; currently none is used}
 }
@@ -21,11 +22,11 @@ VarCorr(object, \dots)
 
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
-\note{It is similar to \code{coef(object, select="random")}. The main
+\note{It is similar to \code{coef(object, select="random")} in tssem. The main
   difference is that \code{coef()} returns a vector while
   \code{VarCorr()} returns its correspondent matrix.
 }
-\seealso{ \code{\link[metaSEM]{coef}} }
+\seealso{ \code{\link[metaSEM]{coef}}, \code{\link[metaSEM]{vcov}} }
 \examples{
 ## Multivariate meta-analysis on the log of the odds
 ## The conditional sampling covariance is 0

@@ -358,3 +358,4 @@ test_that("checkRAM() works correctly", {
     ## OK when S is for a covariance structure (fewer checking)
     expect_silent(checkRAM(Amatrix=A1, Smatrix=S6, cor.analysis=FALSE))     
 })
+

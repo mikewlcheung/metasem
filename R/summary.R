@@ -1135,8 +1135,8 @@ vcov.MxRAMModel <- function(object, ...) {
     .solve(x=object@output$calculatedHessian, parameters=my.name)
 }
 
-VarCorr <- function(object, ...) {
-    if (!is.element("meta", class(object)))
-    stop("\"object\" must be an object of class \"meta\".")
-    eval(parse(text="mxEval(Tau, object$mx.fit)"))
-}
+## VarCorr.meta <- function(x, sigma=1, ...) {
+##     if (!is.element("meta", class(x)))
+##     stop("\"x\" must be an object of class \"meta\".")
+##     eval(parse(text="mxEval(Tau, x$mx.fit)"))
+## }
