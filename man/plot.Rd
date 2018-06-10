@@ -29,7 +29,7 @@
      diag.panel = FALSE, xlim=NULL, ylim=NULL, ...)
 \method{plot}{character}(x, fixed.x=FALSE, nCharNodes=0, nCharEdges=0,
      layout=c("tree", "circle", "spring", "tree2", "circle2"),
-     color="white", \dots)
+     sizeMan=8, sizeLat=8, edge.label.cex=1.3, color="white", \dots)
 \method{plot}{wls}(x, manNames=NULL, latNames=NULL, labels=c("labels", "RAM"),
      what="est", nCharNodes=0, nCharEdges=0,
      layout=c("tree", "circle", "spring", "tree2", "circle2"),

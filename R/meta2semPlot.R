@@ -73,6 +73,7 @@ meta2semPlot <- function(object, manNames=NULL, latNames=NULL, labels=c("labels"
 
 plot.character <- function(x, fixed.x=FALSE, nCharNodes=0, nCharEdges=0,
                            layout=c("tree", "circle", "spring", "tree2", "circle2"),
+                           sizeMan=8, sizeLat=8, edge.label.cex=1.3,
                            color="white", ...) {
   if (!requireNamespace("semPlot", quietly=TRUE))    
     stop("\"semPlot\" package is required for this function.")
@@ -82,7 +83,9 @@ plot.character <- function(x, fixed.x=FALSE, nCharNodes=0, nCharEdges=0,
 
   invisible( semPlot::semPaths(semPlot::semPlotModel(x, fixed.x=fixed.x),
                                nCharNodes=nCharNodes, nCharEdges=nCharEdges,
-                               layout=match.arg(layout), color=color, ...) )
+                               layout=match.arg(layout), sizeMan=sizeMan,
+                               sizeLat=sizeLat, edge.label.cex=edge.label.cex,
+                               color=color, ...) )
 }
 
 ## How to handle multiple plots with cluster?

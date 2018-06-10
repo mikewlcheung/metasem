@@ -137,8 +137,16 @@ create.vechsR <- function(A0, S0, F0=NULL, Ax=NULL, Sx=NULL) {
         
         for (i in seq_len(length(Ax))) {
 
-            ## Parameters for the moderator
-            text1 <- paste0("A",i, " <- A0; A",i, "$name <- 'A",i, "'")
+            ## Parameters for the moderator based on the Ax, not A0
+            ## When the labels include "data", they are labels of the moderator.
+            index_mod <- apply(Ax[[i]], 1:2, function(x) grepl("data", x))
+
+            ## A temp A0. The free parameters are based on Ax, not A0
+            Atemp <- A0
+            Atemp$free <- index_mod
+            Atemp$labels[!index_mod] <- NA
+
+            text1 <- paste0("A",i, " <- Atemp; A",i, "$name <- 'A",i, "'")
             eval(parse(text=text1))
 
             ## Labels = Labels in A0 + "_1", "_2", etc.

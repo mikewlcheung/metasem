@@ -1,6 +1,6 @@
 \name{Cor2DataFrame}
 \alias{Cor2DataFrame}
-\title{Convert correlation or covariance matrices into correlations or
+\title{Convert correlation or covariance matrices into a dataframe of correlations or
   covariances with their sampling covariance matrices
 }
 \description{It converts the correlation or covariance matrices into a
@@ -26,8 +26,8 @@ Cor2DataFrame(x, n, v.na.replace = TRUE, row.names.unique = FALSE,
 \item{\dots}{Further arguments to be passed to \code{\link[metaSEM]{asyCov}}.}
 }
 
-\value{A list of components: (1) correlations or covariances with their
-  sampling covariance matrices in a dataframe; (2) a vector of sample
+\value{A list of components: (1) a dataframe of correlations or covariances with their
+  sampling covariance matrices; (2) a vector of sample
   sizes; (3) labels of the correlations; and (3) lables of their sampling covariance matrices. }
 
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>

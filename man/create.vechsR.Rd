@@ -23,7 +23,9 @@ create.vechsR(A0, S0, F0 = NULL, Ax = NULL, Sx = NULL)
 
 \value{A list of \code{MxMatrix-class}. The model implied correlation
   matrix is computed in \code{impliedR} and \code{vechsR}.}
-
+\note{Since \code{A0} are the intercepts and \code{Ax} are the
+  regression coefficients. The parameters in \code{Ax} must be a subset of those in
+  \code{A0}.}
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
 \seealso{ \code{\link[metaSEM]{osmasem}},
