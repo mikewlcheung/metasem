@@ -64,7 +64,7 @@ RAM1
 
 ## Create vechs of the model implied correlation matrix
 ## with implicit diagonal constraints
-M0 <- create.vechsCor(A0=RAM1$A, S0=RAM1$S, F0=NULL)
+M0 <- create.vechsR(A0=RAM1$A, S0=RAM1$S, F0=NULL)
 
 ## Create heterogeneity variances
 ## RE.type= either "Diag" or "Symm"
@@ -83,8 +83,8 @@ A1 <- matrix(c(0,0,0,0,
                "0*data.Lag","0*data.Lag",0,0),
              nrow=4, ncol=4, byrow=TRUE)
               
-M1 <- create.vechsCor(A0=RAM1$A, S0=RAM1$S, F0=NULL,
-                      Ax=A1, Sx=NULL)
+M1 <- create.vechsR(A0=RAM1$A, S0=RAM1$S, F0=NULL,
+                    Ax=A1, Sx=NULL)
 
 fit1 <- osmasem(model.name="Lag as a moderator for Amatrix", Mmatrix=M1,
                 Tmatrix=T0, data= my.df)
