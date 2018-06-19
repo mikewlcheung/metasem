@@ -15,8 +15,7 @@ create.Tau2(RAM, no.var, RE.type = c("Diag", "Symm"),
 \item{RAM}{The RAM model for testing. \code{no.var} is calculated from it.}  
 \item{no.var}{If \code{RAM} is missing, the user must have to specify
   the \code{no.var} argument. It represents the number of variables (random effects).}
-\item{RE.type}{Either \code{"Diag"} or \code{"Symm"}. If it
-  is\code{"Diag"}, a diagonal matrix is used for the random effects meaning that the random effects are independent. If it is \code{"Symm"} (default if missing), a
+\item{RE.type}{Either \code{"Diag"} or \code{"Symm"}. If it is\code{"Diag"}, a diagonal matrix is used for the random effects meaning that the random effects are independent. If it is \code{"Symm"} (default if missing), a
 	symmetric matrix is used for the random effects on the covariances
 	among the correlation (or covariance) vectors.}
 \item{Transform}{Either \code{"expLog"} or \code{"sqSD"}. If it is
@@ -38,7 +37,8 @@ create.Tau2(RAM, no.var, RE.type = c("Diag", "Symm"),
 
 \examples{
 \dontrun{
-T0 <- create.Tau2(no.var=6, RE.type="Diag", Transform="expLog", RE.startvalues=0.05)    
+T0 <- create.Tau2(no.var=6, RE.type="Diag", Transform="expLog", RE.startvalues=0.05)
+T0    
 }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

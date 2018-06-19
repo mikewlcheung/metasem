@@ -2,8 +2,7 @@
 \alias{checkRAM}
 \title{Check the correctness of the RAM formulation
 }
-\description{It provides some simple checks on the correctness of the
-  RAM formulation.
+\description{It provides simple checks on the correctness of the RAM formulation.
 }
 \usage{
 checkRAM(Amatrix, Smatrix, cor.analysis=TRUE)

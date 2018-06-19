@@ -36,7 +36,8 @@
 data(Aloe14)
 
 ## Random-effects meta-analysis
-meta1 <- meta(cbind(EE,DP,PA), cbind(V_EE, C_EE_DP, C_EE_PA, V_DP, C_DP_PA, V_PA),
+meta1 <- meta(cbind(EE,DP,PA),
+              cbind(V_EE, C_EE_DP, C_EE_PA, V_DP, C_DP_PA, V_PA),
               data=Aloe14)
 ## Remove error code
 meta1 <- rerun(meta1)

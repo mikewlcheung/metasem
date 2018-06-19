@@ -1,7 +1,6 @@
 \name{create.vechsR}
 \alias{create.vechsR}
-\title{Create implicit diagonal constraints on the model implied
-  correlation matrix
+\title{Create implicit diagonal constraints on the model implied correlation matrix
 }
 \description{It creates implicit diagonal constraints on the model
   implied correlation matrix by treating the error variances as
@@ -15,10 +14,8 @@ create.vechsR(A0, S0, F0 = NULL, Ax = NULL, Sx = NULL)
 \item{A0}{An Amatrix, which will be converted into \code{MxMatrix-class} via \code{as.mxMatrix}.}
 \item{S0}{An Smatrix, which will be converted into \code{MxMatrix-class} via \code{as.mxMatrix}.}
 \item{F0}{An Fmatrix, which will be converted into \code{MxMatrix-class} via \code{as.mxMatrix}.}
-\item{Ax}{An Amatrix of a list of Amatrix with definition variables as
-  the moderators of the Amatrix.}
-\item{Sx}{An Smatrix of a list of Smatrix with definition variables as
-  the moderators of the Smatrix.}
+\item{Ax}{An Amatrix of a list of Amatrix with definition variables as the moderators of the Amatrix.}
+\item{Sx}{An Smatrix of a list of Smatrix with definition variables as the moderators of the Smatrix.}
 }
 
 \value{A list of \code{MxMatrix-class}. The model implied correlation
@@ -66,8 +63,7 @@ Sx <- matrix(c(0,"0*data.Lag",0,0,
                0,0,"0*data.Lag",0),
              nrow=4, ncol=4, byrow=TRUE)
 
-M2 <- create.vechsR(A0=RAM1$A, S0=RAM1$S, F0=NULL, Ax=NULL, Sx=Sx)    
-    
+M2 <- create.vechsR(A0=RAM1$A, S0=RAM1$S, F0=NULL, Ax=NULL, Sx=Sx)
 }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

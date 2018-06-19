@@ -12,7 +12,7 @@ Maintainer: Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 Description: A collection of functions for conducting meta-analysis using a
              structural equation modeling (SEM) approach via the 'OpenMx' and
              'lavaan' packages. It also implements the two-stage SEM approach
-             to conduct meta-analytic structural equation modeling on
+             to perform meta-analytic structural equation modeling on
              correlation and covariance matrices.
 License: GPL (>=2)
 LazyLoad: yes

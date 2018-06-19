@@ -32,6 +32,7 @@ my.df <- Cor2DataFrame(Nohe15A1$data, Nohe15A1$n)
 
 ## Create known sampling variance covariance matrix
 V0 <- create.V(my.df$vlabels)
+V0
 }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

@@ -2,7 +2,7 @@
 \alias{osmasem}
 \title{One-stage meta-analytic structural equation modeling
 }
-\description{It fits MASEM with the one-stage SEM (OSMASEM) approach.  
+\description{It fits MASEM with the one-stage MASEM (OSMASEM) approach.  
 }
 \usage{
 osmasem(model.name="osmasem", Mmatrix, Tmatrix, data,
@@ -14,17 +14,21 @@ osmasem(model.name="osmasem", Mmatrix, Tmatrix, data,
 \arguments{
   \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. 
 }
-\item{Mmatrix}{A list of matrices of the model implied correlation matrix created by \code{create.vechsCor}.}
-\item{Tmatrix}{A list of matrices of the heterogeneity variance-covariance matrix created by \code{create.Tau2}.}
-\item{data}{A list of data created by \code{Cor2DataFrame}.}
+\item{Mmatrix}{A list of matrices of the model implied correlation
+  matrix created by the \code{create.vechsR}.}
+\item{Tmatrix}{A list of matrices of the heterogeneity
+  variance-covariance matrix created by the \code{create.Tau2}.}
+\item{data}{A list of data created by the \code{Cor2DataFrame}.}
 \item{intervals.type}{Either \code{z} (default if missing) or
-  \code{LB}. If it is \code{z}, it calculates the standard error. If it
+  \code{LB}. If it is \code{z}, it calculates the 95\% confidence
+  intervals (CIs) based on the estimated standard error. If it
   is \code{LB}, it calculates the 95\% likelihood-based CIs on the parameter estimates.}
-\item{mxModel.Args}{A list of arguments which are passed to \code{\link[OpenMx]{mxModel}}.}
-\item{mxRun.Args}{A list of arguments which are passed to \code{\link[OpenMx]{mxRun}}.}
-  \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are suppressed. The argument to be passed to \code{\link[OpenMx]{mxRun}}.}
-  \item{silent}{Logical. The argument to be passed to \code{\link[OpenMx]{mxRun}}}
-  \item{run}{Logical. If \code{FALSE}, only return the mx model without running the analysis.}   
+\item{mxModel.Args}{A list of arguments passed to \code{\link[OpenMx]{mxModel}}.}
+\item{mxRun.Args}{A list of arguments passed to \code{\link[OpenMx]{mxRun}}.}
+  \item{suppressWarnings}{Logical. If it is \code{TRUE}, warnings are
+	suppressed. This argument is passed to \code{\link[OpenMx]{mxRun}}.}
+  \item{silent}{Logical. The argument is passed to \code{\link[OpenMx]{mxRun}}}
+  \item{run}{Logical. If \code{FALSE}, only return the mx model without running the analysis.}
   \item{\dots}{Not used yet.}
   
 }
@@ -39,7 +43,7 @@ osmasem(model.name="osmasem", Mmatrix, Tmatrix, data,
 
 \examples{
 \dontrun{
-## Calculate the sampling covariance matrix of the correlation matrices.    
+## Calculate the sampling variance-covariance matrix of the correlation matrices.    
 my.df <- Cor2DataFrame(Nohe15A1$data, Nohe15A1$n)
 
 ## Add the centered Lag as a moderator
@@ -64,7 +68,7 @@ RAM1
 
 ## Create vechs of the model implied correlation matrix
 ## with implicit diagonal constraints
-M0 <- create.vechsR(A0=RAM1$A, S0=RAM1$S, F0=NULL)
+M0 <- create.vechsR(A0=RAM1$A, S0=RAM1$S)
 
 ## Create heterogeneity variances
 ## RE.type= either "Diag" or "Symm"
@@ -74,6 +78,8 @@ T0 <- create.Tau2(RAM=RAM1, RE.type="Diag")
 ## Fit the model
 fit0 <- osmasem(model.name="No moderator", Mmatrix=M0, Tmatrix=T0, data=my.df)
 summary(fit0)
+
+## Get the transformed variance component of the random effects    
 VarCorr(fit0)
     
 ## Moderators with lag as a moderator on A matrix
@@ -83,8 +89,7 @@ A1 <- matrix(c(0,0,0,0,
                "0*data.Lag","0*data.Lag",0,0),
              nrow=4, ncol=4, byrow=TRUE)
               
-M1 <- create.vechsR(A0=RAM1$A, S0=RAM1$S, F0=NULL,
-                    Ax=A1, Sx=NULL)
+M1 <- create.vechsR(A0=RAM1$A, S0=RAM1$S, Ax=A1)
 
 fit1 <- osmasem(model.name="Lag as a moderator for Amatrix", Mmatrix=M1,
                 Tmatrix=T0, data= my.df)
