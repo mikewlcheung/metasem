@@ -207,6 +207,8 @@ print.summary.wls <- function(x, ...) {
     cat("OpenMx status1:", x$Mx.status1, "(\"0\" or \"1\": The optimization is considered fine.\nOther values indicate problems.)\n")
     ## cat("OpenMx status1:", x$Mx.status1, "(\"0\" and \"1\": considered fine; other values indicate problems)\n")
     ## cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")
+
+    if (!(x$Mx.status1 %in% c(0,1))) warning("OpenMx status1 is neither 0 or 1. You are advised to 'rerun' it again.\n")
 }
 
 ## NOTE:
@@ -340,7 +342,9 @@ print.summary.tssem1FEM <- function(x, ...) {
     ## cat("\nDate of analysis:", x$date)
     cat("OpenMx status1:", x$Mx.status1, "(\"0\" or \"1\": The optimization is considered fine.\nOther values may indicate problems.)\n")
     ## cat("OpenMx status:", x$Mx.status1, "(\"0\" and \"1\": considered fine; other values indicate problems)\n")
-    ## cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")    
+    ## cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")
+
+    if (!(x$Mx.status1 %in% c(0,1))) warning("OpenMx status1 is neither 0 or 1. You are advised to 'rerun' it again.\n")
 }
 
 print.tssem1FEM <- function(x, ...) {
@@ -552,6 +556,8 @@ print.summary.meta <- function(x, ...) {
     cat("OpenMx status1:", x$Mx.status1, "(\"0\" or \"1\": The optimization is considered fine.\nOther values may indicate problems.)\n")
     ## cat("OpenMx status1:", x$Mx.status1, "(\"0\" and \"1\": considered fine; other values indicate problems)\n")
     ## cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")      
+
+    if (!(x$Mx.status1 %in% c(0,1))) warning("OpenMx status1 is neither 0 or 1. You are advised to 'rerun' it again.\n")
 }
 
 
@@ -715,6 +721,8 @@ print.summary.reml <- function(x, ...) {
     cat("OpenMx status1:", x$Mx.status1, "(\"0\" or \"1\": The optimization is considered fine.\nOther values may indicate problems.)\n")
     ## cat("OpenMx status:", x$Mx.status1, "(\"0\" and \"1\": considered fine; other values indicate problems)\n")
     ## cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")      
+
+    if (!(x$Mx.status1 %in% c(0,1))) warning("OpenMx status1 is neither 0 or 1. You are advised to 'rerun' it again.\n")
 }
 
 print.reml <- function(x, ...) {
@@ -1063,7 +1071,9 @@ print.summary.meta3X <- function(x, ...) {
     cat("\n-2 log likelihood:", x$Minus2LL, "\n")        
     cat("OpenMx status1:", x$Mx.status1, "(\"0\" or \"1\": The optimization is considered fine.\nOther values may indicate problems.)\n")    
     ## cat("OpenMx status1:", x$Mx.status1, "(\"0\" and \"1\": considered fine; other values indicate problems)\n")
-    ## cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")      
+    ## cat("\nSee http://openmx.psyc.virginia.edu/wiki/errors for the details.\n\n")
+
+    if (!(x$Mx.status1 %in% c(0,1))) warning("OpenMx status1 is neither 0 or 1. You are advised to 'rerun' it again.\n")
 }
 
 print.meta3X <- function(x, ...) {
