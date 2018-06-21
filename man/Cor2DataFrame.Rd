@@ -9,7 +9,7 @@
 }
 \usage{
 Cor2DataFrame(x, n, v.na.replace = TRUE, row.names.unique = FALSE,
-              cor.analysis = TRUE, ...)
+              cor.analysis = TRUE, acov="weighted", ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -22,7 +22,11 @@ Cor2DataFrame(x, n, v.na.replace = TRUE, row.names.unique = FALSE,
 \item{row.names.unique}{Logical, If it is \code{FALSE} (the default), unique
   row names are not created.}
 \item{cor.analysis}{Logical. The output is either a correlation or
-	covariance matrix.}
+  covariance matrix.}
+\item{acov}{If it is \code{weighted}, the average correlation/covariance
+  matrix is calculated based on the weighted mean with the sample
+  sizes. The average correlation/covariance matrix is used to calculate the sampling
+	variance-covariance matrices.}
 \item{\dots}{Further arguments to be passed to \code{\link[metaSEM]{asyCov}}.}
 }
 
@@ -32,7 +36,7 @@ Cor2DataFrame(x, n, v.na.replace = TRUE, row.names.unique = FALSE,
 
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
-\seealso{ \code{\link[metaSEM]{osmasem}}, \code{\link[metaSEM]{create.vechsR}},
+\seealso{ \code{\link[metaSEM]{asyCov}}, \code{\link[metaSEM]{osmasem}}, \code{\link[metaSEM]{create.vechsR}},
   \code{\link[metaSEM]{create.Tau2}}, \code{\link[metaSEM]{create.V}}
 }
 

@@ -1,5 +1,5 @@
 Cor2DataFrame <- function(x, n, v.na.replace=TRUE, row.names.unique=FALSE,
-                          cor.analysis=TRUE, ...) {
+                          cor.analysis=TRUE, acov="weighted", ...) {
     if (length(x) != length(n)) stop("Lengths of 'x' and 'n' are different.\n")
     
     if (cor.analysis) {
@@ -8,7 +8,7 @@ Cor2DataFrame <- function(x, n, v.na.replace=TRUE, row.names.unique=FALSE,
         my.df <- list2matrix(x=x, diag=TRUE)
     }
 
-    acovR <- asyCov(x=x, n=n, cor.analysis=cor.analysis, ...)
+    acovR <- asyCov(x=x, n=n, cor.analysis=cor.analysis, acov=acov, ...)
 
     ## NA is not allowed in definition variables
     ## They are replaced by 1e10
@@ -354,18 +354,6 @@ create.V <- function(x, type=c("Symm", "Diag", "Full"), as.mxMatrix=TRUE) {
     if (as.mxMatrix) out <- as.mxMatrix(out, name="V")
     out
 }
-
-## osmasem <- function(model.name="osmasem", Mmatrix, Tmatrix, data, ...) {
-##     ## Create known sampling variance covariance matrix
-##     Vmatrix <- create.V(data$vlabels, type="Symm", as.mxMatrix=TRUE)
-    
-##     mxModel(model=model.name, mxData(observed=data$data, type="raw"),
-##             mxExpectationNormal(covariance="expCov", means="vechsR",
-##                                 dimnames=data$ylabels),
-##             mxFitFunctionML(), Mmatrix, Tmatrix, Vmatrix, 
-##             mxAlgebra(Tau2+V, name="expCov"),
-##             mxCI(c("Amatrix", "Smatrix", "Tau2")), ...)    
-## }
     
 osmasem <- function(model.name="osmasem", Mmatrix, Tmatrix, data,
                   intervals.type = c("z", "LB"), mxModel.Args=NULL,
