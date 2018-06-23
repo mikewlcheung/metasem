@@ -272,7 +272,7 @@ create.vechsR <- function(A0, S0, F0=NULL, Ax=NULL, Sx=NULL) {
     out
 }
 
-create.Tau2 <- function(RAM, no.var, RE.type=c("Diag", "Symm"),                           
+create.Tau2 <- function(RAM, no.var, RE.type=c("Diag", "Symm", "Zero"),                           
                         Transform=c("expLog", "sqSD"),
                         RE.startvalues=0.05) {
     if (!missing(RAM)) {
@@ -297,6 +297,9 @@ create.Tau2 <- function(RAM, no.var, RE.type=c("Diag", "Symm"),
         warning("Not all 'RE.startvalues' are positive.\n")
     }
 
+    ## Set the starting values at 0 for RE.type="Zero"
+    if (RE.type=="Zero") RE.startvalues <- rep(0, no.var)
+    
     ## Convert the starting values into log or sqrt scale.
     switch(Transform,
            expLog = RE.startvalues <- log(RE.startvalues),
@@ -316,7 +319,11 @@ create.Tau2 <- function(RAM, no.var, RE.type=c("Diag", "Symm"),
            Diag = {
                vecTau1 <- create.mxMatrix(paste0(RE.startvalues, "*Tau1_", seq(no.var)),
                                           ncol=1, nrow=no.var, name="vecTau1")
-               Cor <- as.mxMatrix(diag(no.var), name="Cor")})
+               Cor <- as.mxMatrix(diag(no.var), name="Cor")},
+           Zero = {
+               vecTau1 <- create.mxMatrix(RE.startvalues, type="Full", ncol=1,
+                                          nrow=no.var, name="vecTau1")
+               Cor <- as.mxMatrix(diag(no.var), name="Cor")} )
 
     switch(Transform,
            expLog = Tau2 <- mxAlgebra( vec2diag(exp(vecTau1)) %&% Cor, name="Tau2" ),
