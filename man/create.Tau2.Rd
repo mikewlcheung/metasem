@@ -7,21 +7,26 @@
   correlation and standard deviations.  
 }
 \usage{
-create.Tau2(RAM, no.var, RE.type = c("Diag", "Symm", "Zero"),
-            Transform = c("expLog", "sqSD"), RE.startvalues=0.05)
+create.Tau2(RAM, no.var, RE.type = c("Diag", "Symm", "Zero", "User"),
+            RE.User=NULL, Transform = c("expLog", "sqSD"),
+            RE.startvalues=0.05)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
 \item{RAM}{The RAM model for testing. \code{no.var} is calculated from it.}  
 \item{no.var}{If \code{RAM} is missing, the user must have to specify
-  the \code{no.var} argument. It represents the number of variables (random effects).}
-\item{RE.type}{Either \code{"Diag"}, \code{"Symm"} or \code{"Zero"}. If
+  the \code{no.var} argument. It represents the \code{no.var} by \code{no.var} of the random effects).}
+\item{RE.type}{Either \code{"Diag"}, \code{"Symm"}, \code{"Zero"} or \code{"User"}. If
   it is\code{"Diag"} (the default if missing), a diagonal matrix is used
   for the random effects meaning that the random effects are
   independent. If it is \code{"Symm"}, a symmetric matrix is used for the random effects on the covariances
 	among the correlation (or covariance) vectors. If it is
 	\code{"Zero"}, a zero matrix is assumed on the variance component of
-  the random effects.}
+  the random effects. If it is \code{"User"}, users have to specify the
+  \code{RE.true} argument.}
+\item{RE.User}{It represents the \code{no.var} by \code{no.var} symmetric matrix
+  of \code{TRUE} or \code{FALSE} for the variance component. If the
+  elements are \code{FALSE}, they are fixed at 0.}
 \item{Transform}{Either \code{"expLog"} or \code{"sqSD"}. If it is
   \code{"expLog"}, the variances are estimated by applying a log and exp
   transformation. If it is \code{"sqSD"}, the variances are estimated by

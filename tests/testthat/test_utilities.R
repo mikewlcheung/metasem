@@ -359,3 +359,70 @@ test_that("checkRAM() works correctly", {
     expect_silent(checkRAM(Amatrix=A1, Smatrix=S6, cor.analysis=FALSE))     
 })
 
+test_that("create.Tau2() works correctly", {
+  ## Symmetric variance component  
+  T0 <- create.Tau2(no.var=6, RE.type="Symm", Transform="expLog", 
+                    RE.startvalues=0.01)
+  vecTau0 <- create.mxMatrix(paste0(log(0.01), "*Tau1_", seq(6)),
+                             ncol=1, nrow=6, name="vecTau1")
+  Cor0 <- create.mxMatrix(vechs(outer(seq(6), seq(6),
+                                      function(x,y) paste0("0*Cor_", x, "_", y))),
+                          type="Stand", ncol=6, nrow=6,
+                          lbound=-0.99, ubound=0.99, name="Cor")
+  expect_identical(T0$vecTau1, vecTau0)
+  expect_identical(T0$Cor, Cor0)
+  
+  ## Diagonal variance component  
+  T1 <- create.Tau2(no.var=6, RE.type="Diag", Transform="expLog", 
+                    RE.startvalues=0.01)
+  vecTau1 <- create.mxMatrix(paste0(log(0.01), "*Tau1_", seq(6)),
+                             ncol=1, nrow=6, name="vecTau1")
+  Cor1 <- as.mxMatrix(diag(6), name="Cor")
+  expect_identical(T1$vecTau1, vecTau1)
+  expect_identical(T1$Cor, Cor1)
+
+  ## Zero variance component  
+  T2 <- create.Tau2(no.var=6, RE.type="Zero", Transform="expLog", 
+                    RE.startvalues=0.01)
+  vecTau2 <- create.mxMatrix(rep(log(0),6), type="Full", ncol=1,
+                             nrow=6, name="vecTau1")
+  Cor2 <- as.mxMatrix(diag(6), name="Cor")
+  expect_identical(T2$vecTau1, vecTau2)
+  expect_identical(T2$Cor, Cor2)  
+
+  ## User specified diagonal matrix   
+  RE.User <- diag(c(TRUE, TRUE, FALSE, FALSE, TRUE, TRUE))
+  T3 <- create.Tau2(no.var=6, RE.type="User", 
+                    Transform="expLog", 
+                    RE.User=RE.User, 
+                    RE.startvalues=0.01)
+  vecTau3 <- paste0(log(0.01), "*Tau1_", seq(6))
+  vecTau3[diag(RE.User)==FALSE] <- 0
+  vecTau3 <- create.mxMatrix(vecTau3, ncol=1, nrow=6, name="vecTau1")
+  Cor3 <- outer(seq(6), seq(6),
+                function(x,y) paste0("0*Cor_", x, "_", y))
+  Cor3[RE.User==FALSE] <- 0
+  Cor3 <- create.mxMatrix(vechs(Cor3), type="Stand", ncol=6, nrow=6,
+                          lbound=-0.99, ubound=0.99, name="Cor")
+  expect_identical(T3$vecTau1, vecTau3)
+  expect_identical(T3$Cor, Cor3)   
+  
+  ## User specified symmetric matrix   
+  RE.User <- diag(c(TRUE, TRUE, FALSE, FALSE, TRUE, TRUE))
+  RE.User[2,1] <- RE.User[1,2] <- TRUE
+  T4 <- create.Tau2(no.var=6, RE.type="User", 
+                    Transform="expLog", 
+                    RE.User=RE.User, 
+                    RE.startvalues=0.01)
+  vecTau4 <- paste0(log(0.01), "*Tau1_", seq(6))
+  vecTau4[diag(RE.User)==FALSE] <- 0
+  vecTau4 <- create.mxMatrix(vecTau4, ncol=1, nrow=6, name="vecTau1")
+  Cor4 <- outer(seq(6), seq(6),
+                function(x,y) paste0("0*Cor_", x, "_", y))
+  Cor4[RE.User==FALSE] <- 0
+  Cor4 <- create.mxMatrix(vechs(Cor4), type="Stand", ncol=6, nrow=6,
+                          lbound=-0.99, ubound=0.99, name="Cor")
+  expect_identical(T4$vecTau1, vecTau4)
+  expect_identical(T4$Cor, Cor4)  
+  
+})

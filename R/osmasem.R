@@ -272,11 +272,12 @@ create.vechsR <- function(A0, S0, F0=NULL, Ax=NULL, Sx=NULL) {
     out
 }
 
-create.Tau2 <- function(RAM, no.var, RE.type=c("Diag", "Symm", "Zero"),                           
-                        Transform=c("expLog", "sqSD"),
+create.Tau2 <- function(RAM, no.var, RE.type=c("Diag", "Symm", "Zero", "User"),
+                        RE.User=NULL, Transform=c("expLog", "sqSD"),
                         RE.startvalues=0.05) {
     if (!missing(RAM)) {
         p <- sum(RAM$F)
+        ## no. of correlation coefficients
         no.var <- p*(p-1)/2
     }
     
@@ -315,15 +316,30 @@ create.Tau2 <- function(RAM, no.var, RE.type=c("Diag", "Symm", "Zero"),
                Cor <- create.mxMatrix(vechs(outer(seq(no.var), seq(no.var),
                                             function(x,y) paste0("0*Cor_", x, "_", y))),
                                       type="Stand", ncol=no.var, nrow=no.var,
-                                      lbound=-1, ubound=1, name="Cor")},
+                                      lbound=-0.99, ubound=0.99, name="Cor")},
            Diag = {
                vecTau1 <- create.mxMatrix(paste0(RE.startvalues, "*Tau1_", seq(no.var)),
                                           ncol=1, nrow=no.var, name="vecTau1")
+               ## Uncorrelated
                Cor <- as.mxMatrix(diag(no.var), name="Cor")},
            Zero = {
                vecTau1 <- create.mxMatrix(RE.startvalues, type="Full", ncol=1,
                                           nrow=no.var, name="vecTau1")
-               Cor <- as.mxMatrix(diag(no.var), name="Cor")} )
+               Cor <- as.mxMatrix(diag(no.var), name="Cor")},
+           User = { if (is.null(RE.User)) stop("'RE.User', the ", no.var, " by ", no.var,
+                                               " symmetric matrix of TRUE or FALSE on the variance componment, must be specified.\n")
+                                               ## Check the symmetry of RE.User
+               if (!isSymmetric(RE.User)) stop("'RE.User' is not symmetric.\n")
+               if (!all(dim(RE.User)==c(no.var, no.var))) stop("The dimensions of 'RE.User' are different 'no.var'.\n")                                
+               vecTau1 <- paste0(RE.startvalues, "*Tau1_", seq(no.var))
+               vecTau1[diag(RE.User)==FALSE] <- 0
+               vecTau1 <- create.mxMatrix(vecTau1, ncol=1, nrow=no.var, name="vecTau1")
+               Cor <- outer(seq(no.var), seq(no.var),
+                            function(x,y) paste0("0*Cor_", x, "_", y))
+               Cor[RE.User==FALSE] <- 0
+               Cor <- create.mxMatrix(vechs(Cor), type="Stand", ncol=no.var, nrow=no.var,
+                                      lbound=-0.99, ubound=0.99, name="Cor")}
+               )
 
     switch(Transform,
            expLog = Tau2 <- mxAlgebra( vec2diag(exp(vecTau1)) %&% Cor, name="Tau2" ),

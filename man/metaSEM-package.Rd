@@ -5,16 +5,17 @@
 \title{Meta-Analysis using Structural Equation Modeling
 }
 \description{A collection of functions for conducting meta-analysis using a
-             structural equation modeling (SEM) approach via the 'OpenMx' package.
-             It also implements the two-stage SEM approach to conduct meta-analytic
-             structural equation modeling on correlation and covariance matrices. 
+             structural equation modeling (SEM) approach via the 'OpenMx' and
+             'lavaan' packages. It also implements various procedures to
+			 perform meta-analytic structural equation modeling on the
+             correlation and covariance matrices.
 }
 \details{
 \tabular{ll}{
 Package: \tab metaSEM\cr
 Type: \tab Package\cr
 Version: \tab 1.1.1\cr
-Date: \tab 2018-06-10\cr
+Date: \tab 2018-07-01\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }
