@@ -330,7 +330,15 @@ create.Tau2 <- function(RAM, no.var, RE.type=c("Diag", "Symm", "Zero", "User"),
                                                " symmetric matrix of TRUE or FALSE on the variance componment, must be specified.\n")
                                                ## Check the symmetry of RE.User
                if (!isSymmetric(RE.User)) stop("'RE.User' is not symmetric.\n")
-               if (!all(dim(RE.User)==c(no.var, no.var))) stop("The dimensions of 'RE.User' are different 'no.var'.\n")                                
+               if (!all(dim(RE.User)==c(no.var, no.var))) stop("The dimensions of 'RE.User' are different 'no.var'.\n")
+               ## Check if the covariances are free but the variances are fixed.                                
+               if (no.var>1) {
+                   for (i in 1:(no.var-1)) {
+                       for (j in (i+1):no.var) {
+                           if (RE.User[i,j] & !all(RE.User[i,i], RE.User[j,j])) {
+                               stop("RE.User[",j,",",i,"] is free but either RE.User[",i,",",
+                                    i,"] or RE.User[",j,",",j,"] is fixed.\n") }}}}
+                              
                vecTau1 <- paste0(RE.startvalues, "*Tau1_", seq(no.var))
                vecTau1[diag(RE.User)==FALSE] <- 0
                vecTau1 <- create.mxMatrix(vecTau1, ncol=1, nrow=no.var, name="vecTau1")

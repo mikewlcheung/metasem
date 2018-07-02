@@ -425,4 +425,23 @@ test_that("create.Tau2() works correctly", {
   expect_identical(T4$vecTau1, vecTau4)
   expect_identical(T4$Cor, Cor4)  
   
+  ## User specified symmetric matrix with errors
+  RE.User <- diag(c(TRUE, TRUE, FALSE, FALSE, TRUE, TRUE))
+  ## Okay
+  expect_silent( create.Tau2(no.var=6, RE.type="User", 
+                             Transform="expLog", 
+                             RE.User=RE.User, 
+                             RE.startvalues=0.01) )  
+  ## Asymmetric
+  RE.User[3,1] <- TRUE
+  expect_error( create.Tau2(no.var=6, RE.type="User", 
+                           Transform="expLog", 
+                           RE.User=RE.User, 
+                           RE.startvalues=0.01) )
+  ## Estimating covariance but variances are fixed
+  RE.User[1,3] <- TRUE 
+  expect_error( create.Tau2(no.var=6, RE.type="User", 
+                            Transform="expLog", 
+                            RE.User=RE.User, 
+                            RE.startvalues=0.01) )  
 })
