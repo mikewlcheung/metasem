@@ -131,7 +131,9 @@ print.impliedR <- function(x, ...) {
 ## It only allows random paths in the Amatrix
 rimpliedR <- function(Amatrix, Smatrix, Fmatrix, AmatrixSD, k=1, corr=TRUE,
                       nonPD.pop=c("replace", "nearPD", "accept")) {
-  
+  if (!all(sapply(list(dim(Amatrix), dim(Smatrix)), FUN=identical, dim(AmatrixSD))))
+      stop("Dimensions of \"Amatrix\", \"Smatrix\", and \"AmatrixSD\" must be the same.")
+ 
   ## No. of observed variables
   p <- ncol(Amatrix)
   ## No. of elements in Amatrix
