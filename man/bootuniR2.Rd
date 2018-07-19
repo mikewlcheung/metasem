@@ -26,10 +26,10 @@ bootuniR2(model, data, n, ...)
   with this parametric bootstrap approach.
 }
 \references{
-    Cheung, M. W.-L. (in press). Issues in solving the problem of effect size
-  heterogeneity in meta-analytic structural equation modeling:
-  A commentary and simulation study on Yu, Downes, Carter, and O'Boyle (2016). 
-  \emph{Journal of Applied Psychology}.
+  Cheung, M. W.-L. (2018). Issues in solving the problem of effect size
+heterogeneity in meta-analytic structural equation modeling: A
+commentary and simulation study on Yu, Downes, Carter, and O'Boyle
+(2016). \emph{Journal of Applied Psychology}, \bold{103}, 787-803.
 
   Yu, J. (Joya), Downes, P. E., Carter, K. M., & O'Boyle,
   E. H. (2016). The problem of effect size heterogeneity 

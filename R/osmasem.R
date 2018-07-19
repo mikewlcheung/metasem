@@ -593,24 +593,19 @@ summary.osmasem <- function(object, Saturated=FALSE, numObs, ...) {
     out
 }
 
-osmasemR2 <- function(object, R2.truncate=TRUE) {
-    if (!is.element("osmasem", class(object)))
-        stop("\"object\" must be an object of class \"osmasem\".")
+osmasemR2 <- function(model0, model1, R2.truncate=TRUE) {
+    if (!all(c(class(model0), class(model1)) %in% "osmasem"))
+        stop("Both \"model0\" and \"model1\" must be objects of class \"osmasem\".")
 
-    ## No. of variables in the model
-    p <- nrow(object$Tmatrix$Cor$values)
-
-    outer(seq_len(p), seq_len(p), function(x, y) paste0("Tau2_", x, "_", y))
-    
-    Sat.model <- .osmasemSatIndMod(object, Std.Error=FALSE)
-    Tau2.0 <- diag(eval(parse(text = "mxEval(Tau2, Sat.model)")))       
-    Tau2.1 <- diag(eval(parse(text = "mxEval(Tau2, object$mx.fit)")))
+    Tau2.0 <- diag(eval(parse(text = "mxEval(Tau2, model0$mx.fit)")))       
+    Tau2.1 <- diag(eval(parse(text = "mxEval(Tau2, model1$mx.fit)")))
 
     R2 <- (Tau2.0-Tau2.1)/Tau2.0
 
     ## Truncate negative R2 to 0
     if (R2.truncate) R2[R2<0] <- 0
-        
+    
+    p <- nrow(model0$Tmatrix$Cor$values)        
     names.tau2 <- paste0("Tau2_", seq_len(p), "_", seq_len(p))
     names(R2) <- names(Tau2.0) <- names(Tau2.1) <- names.tau2
     

@@ -15,7 +15,7 @@
 Package: \tab metaSEM\cr
 Type: \tab Package\cr
 Version: \tab 1.1.1\cr
-Date: \tab 2018-07-01\cr
+Date: \tab 2018-07-19\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }
@@ -43,7 +43,12 @@ Cheung, M. W.-L. (2015). metaSEM: An R package for meta-analysis using structura
 
 Cheung, M. W.-L. (2015). \emph{Meta-Analysis: A Structural Equation Modeling Approach}. Chichester, West Sussex: John Wiley & Sons, Inc.
 
-Cheung, M. W.-L. (in press). Issues in solving the problem of effect size heterogeneity in meta-analytic structural equation modeling: A commentary and simulation study on Yu, Downes, Carter, and O'Boyle (2016). \emph{Journal of Applied Psychology}.
+Cheung, M. W.-L. (2018). Issues in solving the problem of effect size
+heterogeneity in meta-analytic structural equation modeling: A
+commentary and simulation study on Yu, Downes, Carter, and O'Boyle
+(2016). \emph{Journal of Applied Psychology}, \bold{103}, 787-803.
+
+Cheung, M. W.-L. (in press). Computing multivariate effect sizes and their sampling covariance matrices with structural equation modeling: Theory, examples, and computer simulations. \emph{Frontiers in Psychology}.
 
 Cheung, M. W.-L., & Chan, W. (2004). Testing dependent correlation coefficients via structural equation modeling. \emph{Organizational Research Methods}, \bold{7}, 206-223.
 

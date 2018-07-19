@@ -52,11 +52,12 @@ smdMES(m1, m2, V1, V2, n1, n2,
 \references{
   Cheung, M. W.-L. (2015). \emph{Meta-analysis: A structural equation
 	modeling approach}. Chichester, West Sussex: John Wiley & Sons, Inc.
-  
-  Cheung, M. W.-L. (2017). Computing multivariate effect sizes and their
-  sampling covariance matrices with structural equation modeling:
-  Theory, examples, and computer simulations. \emph{Manuscript under review}.
 
+  Cheung, M. W.-L. (in press). Computing multivariate effect sizes and
+  their sampling covariance matrices with structural equation modeling:
+  Theory, examples, and computer simulations. \emph{Frontiers in
+	Psychology}.
+  
   Gleser, L. J., & Olkin, I. (2009). Stochastically dependent effect
   sizes. In H. Cooper, L. V. Hedges, & J. C. Valentine (Eds.), \emph{The handbook of research synthesis and meta-analysis}. (2nd ed., pp. 357-376). New York: Russell Sage Foundation.
 }
