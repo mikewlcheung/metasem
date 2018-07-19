@@ -38,12 +38,9 @@ osmasem(model.name="osmasem", Mmatrix, Tmatrix, data,
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
 \seealso{ \code{\link[metaSEM]{Cor2DataFrame}}, \code{\link[metaSEM]{create.vechsR}},
-  \code{\link[metaSEM]{create.Tau2}}, \code{\link[metaSEM]{create.V}, \code{\link[metaSEM]{Nohe15}}}
+  \code{\link[metaSEM]{create.Tau2}}, \code{\link[metaSEM]{create.V}}, \code{\link[metaSEM]{Nohe15}}
 }
 
-\examples{
-
-}
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
 \keyword{ osmasem }
