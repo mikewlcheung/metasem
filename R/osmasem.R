@@ -593,7 +593,7 @@ summary.osmasem <- function(object, Saturated=FALSE, numObs, ...) {
     out
 }
 
-osmasemR2 <- function(model0, model1, R2.truncate=TRUE) {
+osmasemR2 <- function(model1, model0, R2.truncate=TRUE) {
     if (!all(c(class(model0), class(model1)) %in% "osmasem"))
         stop("Both \"model0\" and \"model1\" must be objects of class \"osmasem\".")
 

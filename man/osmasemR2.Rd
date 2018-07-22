@@ -5,11 +5,11 @@
   variances in the heterogeneity variances.  
 }
 \usage{
-osmasemR2(model0, model1, R2.truncate=TRUE)
+osmasemR2(model1, model0, R2.truncate=TRUE)
 }
 \arguments{
-  \item{model0}{An object in class \code{osmasem}.}
   \item{model1}{An object in class \code{osmasem}.}
+  \item{model0}{An object in class \code{osmasem}.}
   \item{R2.truncate}{Whether to truncate the negative R2 to zero.}
 }
 
