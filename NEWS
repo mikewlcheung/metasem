@@ -1,7 +1,8 @@
-Release 1.1.1 (Jul 19, 2018)
+Release 1.1.1 (Jul 31, 2018)
 ====================================
 * Added osmasem() and its related functions.
 * Added the argument type=c("tssem", "osmasem") in pattern.na().
+* Added dataset Gnambs18.
 
 Release 1.1.0 (May 09, 2018)
 ====================================
