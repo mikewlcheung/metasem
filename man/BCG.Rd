@@ -15,7 +15,7 @@ A list of data with the following structure:
 \describe{
   \item{Trial}{Number of the trials}
   \item{Author}{Authors of the original studies}
-  \item{Year}{Year of the publication}
+  \item{Year}{Year of publication}
   \item{VD}{Vaccinated group with disease}
   \item{VWD}{Vaccinated group without disease}
   \item{NVD}{Not vaccinated group with disease}
