@@ -33,8 +33,8 @@
     mxOption(NULL, "Optimality tolerance", "6.3e-14")
     mxOption(NULL, "Gradient iterations", 2)
 
-    packageStartupMessage('"SLSQP" is set as the default optimizer in OpenMx.')
-    packageStartupMessage('mxOption(NULL, "Gradient algorithm") is set at "', mxOption(NULL, "Gradient algorithm"), '".')
-    packageStartupMessage('mxOption(NULL, "Optimality tolerance") is set at "', mxOption(NULL, "Optimality tolerance"), '".')
-    packageStartupMessage('mxOption(NULL, "Gradient iterations") is set at "', mxOption(NULL, "Gradient iterations"), '".')
+##  packageStartupMessage('"SLSQP" is set as the default optimizer in OpenMx.')
+##  packageStartupMessage('mxOption(NULL, "Gradient algorithm") is set at "', mxOption(NULL, "Gradient algorithm"), '".')
+##  packageStartupMessage('mxOption(NULL, "Optimality tolerance") is set at "', mxOption(NULL, "Optimality tolerance"), '".')
+##  packageStartupMessage('mxOption(NULL, "Gradient iterations") is set at "', mxOption(NULL, "Gradient iterations"), '".')
 }
