@@ -2,6 +2,9 @@
 asyCov <- function(x, n, cor.analysis=TRUE, dropNA=FALSE, as.matrix=TRUE,
                    acov=c("individual", "unweighted", "weighted"),
                    suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
+
+    makeSymmetric <- function(x) {x[lower.tri(x)] = t(x)[lower.tri(t(x))]; x}
+    
     if (is.list(x)) {
 
         ## whether to use average correlation matrix
@@ -21,6 +24,11 @@ asyCov <- function(x, n, cor.analysis=TRUE, dropNA=FALSE, as.matrix=TRUE,
 
             ## Make sure that the diagonals are 1 for correlation analysis
             if (cor.analysis) my.x <- cov2cor(my.x)
+
+            ## Make sure that it is symmetric
+            ## Fix the error message from OpenMx::verifyCovarianceMatrix
+            my.x <- makeSymmetric(my.x)
+            
             ## Repeat it to k studies
             x <- replicate(length(x), my.x, simplify = FALSE)    
         }
