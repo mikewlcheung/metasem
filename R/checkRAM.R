@@ -57,6 +57,7 @@ checkRAM <- function(Amatrix, Smatrix, cor.analysis=TRUE) {
         ## }
 
         ## Check both A and S: Variances of IVs must be fixed at 1 and DVs must be free
+        ## Limitation: it may still give warnings when there are DVs with fixed parameters in A
         if (cor.analysis==TRUE & !missing(Amatrix)) {
             ## Check A if it is a DV
             dv <- apply(Amatrix$free, 1, any)

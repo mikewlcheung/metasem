@@ -25,8 +25,8 @@
 Norton, S., Cosco, T., Doyle, F., Done, J., & Sacker, A. (2013). The Hospital Anxiety and Depression Scale: A meta confirmatory factor analysis. \emph{Journal of Psychosomatic Research}, \emph{74}(1), 74-81.
 }
 \references{
-  Jak, S., & Cheung, M. W.-L. (in press). Addressing heterogeneity in meta-analytic structural equation modeling using subgroup analysis. \emph{Behavior Research
-Methods}.
+  Jak, S., & Cheung, M. W.-L. (2018). Addressing heterogeneity in meta-analytic structural equation modeling using subgroup analysis. \emph{Behavior Research
+Methods}, \bold{50}, 1359-1373.
 }
 \examples{
 data(Norton13)

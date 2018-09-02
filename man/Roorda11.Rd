@@ -25,8 +25,8 @@ achievement reported by Roorda et al. (2011).
   Roorda, D. L., Koomen, H. M. Y., Spilt, J. L., & Oort, F. J. (2011). The influence of affective teacher-student relationships on students' school engagement and achievement a meta-analytic approach. \emph{Review of Educational Research}, \emph{81}(4), 493-529.
 }
 \references{
-  Jak, S., & Cheung, M. W.-L. (in press). Addressing heterogeneity in meta-analytic structural equation modeling using subgroup analysis. \emph{Behavior Research
-Methods}. 
+  Jak, S., & Cheung, M. W.-L. (2018). Addressing heterogeneity in meta-analytic structural equation modeling using subgroup analysis. \emph{Behavior Research
+Methods}, \bold{50}, 1359-1373. 
 }
 \examples{
 \dontrun{

@@ -15,7 +15,7 @@
 Package: \tab metaSEM\cr
 Type: \tab Package\cr
 Version: \tab 1.1.1\cr
-Date: \tab 2018-08-17\cr
+Date: \tab 2018-09-02\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }
@@ -43,8 +43,7 @@ Cheung, M. W.-L. (2015). metaSEM: An R package for meta-analysis using structura
 
 Cheung, M. W.-L. (2015). \emph{Meta-Analysis: A Structural Equation Modeling Approach}. Chichester, West Sussex: John Wiley & Sons, Inc.
 
-Cheung, M. W.-L. (2018). Issues in solving the problem of effect size
-heterogeneity in meta-analytic structural equation modeling: A commentary and simulation study on Yu, Downes, Carter, and O'Boyle
+Cheung, M. W.-L. (2018). Issues in solving the problem of effect size heterogeneity in meta-analytic structural equation modeling: A commentary and simulation study on Yu, Downes, Carter, and O'Boyle
 (2016). \emph{Journal of Applied Psychology}, \bold{103}, 787-803.
 
 Cheung, M. W.-L. (2018). Computing multivariate effect sizes and their sampling covariance matrices with structural equation modeling: Theory, examples, and computer simulations. \emph{Frontiers in Psychology}, \bold{9}(1387). https://doi.org/10.3389/fpsyg.2018.01387
@@ -57,7 +56,8 @@ Cheung, M. W.-L., & Chan, W. (2009). A two-stage approach to synthesizing covari
 
 Cheung, M. W.-L., & Cheung, S.-F. (2016). Random-effects models for meta-analytic structural equation modeling: Review, issues, and illustrations. \emph{Research Synthesis Methods}, \bold{7}, 140-155.
 
-Jak, S, & Cheung, M. W.-L. (in press). Testing moderator hypotheses in meta-analytic structural equation modeling using subgroup analysis. \emph{Behavior Research Methods}.
+Jak, S, & Cheung, M. W.-L. (2018). Testing moderator hypotheses in
+meta-analytic structural equation modeling using subgroup analysis. \emph{Behavior Research Methods}, \bold{50}, 1359-1373.
 }
 \keyword{ package }
 

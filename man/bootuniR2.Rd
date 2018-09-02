@@ -22,7 +22,7 @@ bootuniR2(model, data, n, ...)
 \details{This function fits the lavaan model with the bootstrapped correlation
   matrices. It implements the parametric bootstrap approach suggested
   by Yu et al. (2016). It is included in this package for research
-  interests. Please refer to Cheung (in press) for the issues associated
+  interests. Please refer to Cheung (2018) for the issues associated
   with this parametric bootstrap approach.
 }
 \references{

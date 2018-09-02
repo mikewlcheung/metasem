@@ -255,7 +255,7 @@ tssem1 <- function(Cov, n, method=c("REM", "FEM"), cor.analysis=TRUE, cluster=NU
   out
 }
 
-
+## Known bug: wls() will fall into loop when the Amatrix is zero
 wls <- function(Cov, aCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, 
                 diag.constraints=FALSE, cor.analysis=TRUE, intervals.type=c("z", "LB"), 
                 mx.algebras=NULL, model.name=NULL, suppressWarnings=TRUE, 

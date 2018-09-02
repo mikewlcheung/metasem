@@ -40,7 +40,7 @@ method is \code{delta}.
 \value{Either a \code{data.frame} or \code{matrices} of the output.
 }
 \details{
-  The bootstrap method is based on the discussion in Cheung (in press)
+  The bootstrap method is based on the discussion in Cheung (2018)
 and Yu et al. (2016). The delta method is an alternative method to
 obtain the heterogeneity.
 }
