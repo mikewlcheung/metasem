@@ -612,6 +612,22 @@ osmasemR2 <- function(model1, model0, R2.truncate=TRUE) {
     list(Tau2.0=Tau2.0, Tau2.1=Tau2.1, R2=R2)
 }
 
+osmasemSRMR <- function(x) {
+    ## Check if there are moderators in either A1 or S1
+    if (!is.null(x$Mmatrix$A1) | !is.null(x$Mmatrix$S1))
+        stop("Moderators are not allowed in calculating the SRMR in OSMASEM.\n")
+
+    ## Saturated model which should be very close to the stage 1 results in the TSSEM
+    fit.sat <- .osmasemSatIndMod(x, model="Saturated", Std.Error=FALSE, silent=TRUE)
+
+    sampleR <- vec2symMat(mxEval(Mu, fit.sat), diag=FALSE)
+
+    impliedR <- mxEval(impliedR, x$mx.fit)
+
+    ## SRMR
+    sqrt(mean(vechs(sampleR-impliedR)^2))
+}
+
 ## RAMmodelV <- function(Amatrix, Smatrix, Fmatrix, Mmatrix, Vmatrix,
 ##                       data, obs.var, ...) {
 
