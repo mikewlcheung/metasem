@@ -10,7 +10,6 @@ osmasem(model.name="osmasem", Mmatrix, Tmatrix, data,
         mxRun.Args=NULL, suppressWarnings=TRUE,
         silent=FALSE, run=TRUE, ...)
 }
-%- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. 
 }

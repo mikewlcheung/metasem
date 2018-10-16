@@ -287,7 +287,7 @@ create.Tau2 <- function(RAM, no.var, RE.type=c("Diag", "Symm", "Zero", "User"),
     RE.type <- match.arg(RE.type)
     Transform <- match.arg(Transform)
 
-    ## Repeat the starting values if there is one value.
+    ## Repeat the starting values if there is only one value.
     if (length(RE.startvalues)==1) {
         RE.startvalues <- rep(RE.startvalues, no.var)
     }    
@@ -387,9 +387,9 @@ create.V <- function(x, type=c("Symm", "Diag", "Full"), as.mxMatrix=TRUE) {
 }
     
 osmasem <- function(model.name="osmasem", Mmatrix, Tmatrix, data,
-                  intervals.type = c("z", "LB"), mxModel.Args=NULL,
-                  mxRun.Args=NULL, suppressWarnings=TRUE,
-                  silent=FALSE, run=TRUE, ...) {
+                    intervals.type = c("z", "LB"), mxModel.Args=NULL,
+                    mxRun.Args=NULL, suppressWarnings=TRUE,
+                    silent=FALSE, run=TRUE, ...) {
 
     intervals.type <- match.arg(intervals.type)
     switch(intervals.type,
@@ -400,13 +400,13 @@ osmasem <- function(model.name="osmasem", Mmatrix, Tmatrix, data,
     Vmatrix <- create.V(data$vlabels, type="Symm", as.mxMatrix=TRUE)
     
     mx.model <- eval(parse(text="mxModel(model=model.name,
-                        mxData(observed=data$data, type='raw'),
-                        mxExpectationNormal(covariance='expCov',
-                                            means='vechsR',
-                                            dimnames=data$ylabels),
-                        mxFitFunctionML(), Mmatrix, Tmatrix, Vmatrix,
-                        mxAlgebra(Tau2+V, name='expCov'),
-                        mxCI(c('Amatrix', 'Smatrix', 'Tau2')))"))
+                           mxData(observed=data$data, type='raw'),
+                           mxExpectationNormal(covariance='expCov',
+                                               means='vechsR',
+                                               dimnames=data$ylabels),
+                           mxFitFunctionML(), Mmatrix, Tmatrix, Vmatrix,
+                           mxAlgebra(Tau2+V, name='expCov'),
+                           mxCI(c('Amatrix', 'Smatrix', 'Tau2')))"))
 
     ## Add additional arguments to mxModel
     if (!is.null(mxModel.Args)) {
@@ -449,7 +449,7 @@ coef.osmasem <- function(object, select=c("fixed", "all", "random"), ...) {
     switch(select,
            fixed =  mx.coef <- mx.coef[-index],
            random = mx.coef <- mx.coef[index])
-    if (select!="fixed") warning("\"Tau1_xx\" is not the variance component of the random effects. Please use VarCorr().")    
+    if (select!="fixed") warning("\"Tau1_xx\" is not the variance component of the random effects.\nPlease use VarCorr() to get the variance component.\n")    
     mx.coef    
 }
 
@@ -473,17 +473,29 @@ VarCorr <- function(x, ...) {
     if (!(class(x) %in% c("meta", "osmasem")))
         stop("\"x\" must be an object of either class \"meta\" or \"osmasem\".")
 
-    if (class(x)=="meta") {
-        eval(parse(text="mxEval(Tau, x$mx.fit)"))
-    } else {
-        out <- eval(parse(text="mxEval(Tau2, x$mx.fit)"))
+    ## if (class(x)=="meta") {
+    ##     eval(parse(text="mxEval(Tau, x$mx.fit)"))
+    ## } else {
+    ##     out <- eval(parse(text="mxEval(Tau2, x$mx.fit)"))
 
-        ## No. of variables in the model
-        p <- ncol(out)
-        names.tau2 <- paste0("Tau2_", seq_len(p))    
-        dimnames(out) <- list(names.tau2, names.tau2)
-        out
-    }     
+    ##     ## No. of variables in the model
+    ##     p <- ncol(out)
+    ##     names.tau2 <- paste0("Tau2_", seq_len(p))    
+    ##     dimnames(out) <- list(names.tau2, names.tau2)
+    ##     out
+    ## }
+
+    switch(class(x),
+           meta = out <- eval(parse(text="mxEval(Tau, x$mx.fit)")),
+           osmasem = {
+               out <- eval(parse(text="mxEval(Tau2, x$mx.fit)"))
+
+               ## No. of variables in the model
+               p <- ncol(out)
+               names.tau2 <- paste0("Tau2_", seq_len(p))
+               dimnames(out) <- list(names.tau2, names.tau2)})
+
+    out    
 }
 
 
@@ -521,12 +533,12 @@ VarCorr <- function(x, ...) {
     }
     
     mx.model <- eval(parse(text="mxModel(model=model,
-                        mxData(observed=data$data, type='raw'),
-                        mxExpectationNormal(covariance='expCov',
-                                            means='Mu',
-                                            dimnames=data$ylabels),
-                        mxFitFunctionML(), Mmatrix, Tmatrix, Vmatrix,
-                        mxAlgebra(Tau2+V, name='expCov'))"))
+                                 mxData(observed=data$data, type='raw'),
+                                 mxExpectationNormal(covariance='expCov',
+                                                     means='Mu',
+                                                     dimnames=data$ylabels),
+                                 mxFitFunctionML(), Mmatrix, Tmatrix, Vmatrix,
+                                 mxAlgebra(Tau2+V, name='expCov'))"))
 
     ## Add additional arguments to mxModel
     if (!is.null(mxModel.Args)) {
@@ -535,6 +547,7 @@ VarCorr <- function(x, ...) {
         }
     }
 
+    ## It may speed up the analysis
     if (Std.Error==FALSE) {
         mx.model <- mxOption(mx.model, "Calculate Hessian", "No") 
         mx.model <- mxOption(mx.model, "Standard Errors"  , "No")
@@ -546,7 +559,7 @@ VarCorr <- function(x, ...) {
     } else {        
         mx.fit <- tryCatch(do.call(mxRun, c(list(mx.model, silent=silent,
                                                  suppressWarnings=suppressWarnings),
-                                            mxRun.Args)), error = function(e) e)
+                                             mxRun.Args)), error = function(e) e)
     }
     
     # try to run it with error message as output
@@ -569,7 +582,7 @@ summary.osmasem <- function(object, Saturated=FALSE, numObs, ...) {
     ## Ind.stat <- summary(.osmasemSatIndMod(object, model="Independence",
     ##                                    Std.Error=FALSE, silent=TRUE))   
 
-    ## If numObs is not provided, use total N
+    ## If numObs is not provided, use the total N
     if (missing(numObs)) {
         ## numObs <- sum(object$data$n)-length(object$data$n)
         numObs <- sum(object$data$n)
@@ -584,10 +597,10 @@ summary.osmasem <- function(object, Saturated=FALSE, numObs, ...) {
                        SaturatedDoF=Sat.stat$degreesOfFreedom,
                        numObs=numObs, ...)        
     } else {
-        out <- summary(object$mx.fit,
-                       numObs=numObs, ...)
+        out <- summary(object$mx.fit, numObs=numObs, ...)
     }
-    
+
+    ## Additional output to the mx summary
     out$parameters$`z value` <- with(out$parameters, Estimate/Std.Error)
     out$parameters$`Pr(>|z|)` <- 2*(1-pnorm(abs(out$parameters$`z value`)))
     out
@@ -620,11 +633,13 @@ osmasemSRMR <- function(x) {
     ## Saturated model which should be very close to the stage 1 results in the TSSEM
     fit.sat <- .osmasemSatIndMod(x, model="Saturated", Std.Error=FALSE, silent=TRUE)
 
+    ## Similar to the sample correlation matrix
     sampleR <- vec2symMat(mxEval(Mu, fit.sat), diag=FALSE)
 
+    ## Model implied correlation matrix
     impliedR <- mxEval(impliedR, x$mx.fit)
 
-    ## SRMR
+    ## SRMR (Cheung, 2015 book, Eq. 2.36)
     sqrt(mean(vechs(sampleR-impliedR)^2))
 }
 

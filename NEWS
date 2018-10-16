@@ -1,4 +1,4 @@
-Release 1.1.1 (Oct 5, 2018)
+Release 1.1.1 (Oct 16, 2018)
 ====================================
 * Added .onLoad()
 * Added osmasem() and its related functions.

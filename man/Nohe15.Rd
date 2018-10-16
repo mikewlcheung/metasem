@@ -163,10 +163,13 @@ T0 <- create.Tau2(RAM=RAM1, RE.type="Diag")
 fit0 <- osmasem(model.name="No moderator", Mmatrix=M0, Tmatrix=T0, data=my.df)
 summary(fit0)
 
+## Get the SRMR
+osmasemSRMR(fit0)
+
 ## Get the transformed variance component of the random effects    
 VarCorr(fit0)
     
-## Moderators with lag as a moderator on A matrix
+## "lag" as a moderator on A matrix
 A1 <- matrix(c(0,0,0,0,
                0,0,0,0,
                "0*data.Lag","0*data.Lag",0,0,
@@ -180,7 +183,7 @@ fit1 <- osmasem(model.name="Lag as a moderator for Amatrix", Mmatrix=M1,
 summary(fit1)
 VarCorr(fit1)
 
-## Compare the models    
+## Compare the models with and without the moderator "lag"
 anova(fit1, fit0)
 
 ## Calculate the R2    
