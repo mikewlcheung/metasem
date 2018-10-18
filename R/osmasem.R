@@ -634,7 +634,7 @@ osmasemSRMR <- function(x) {
     fit.sat <- .osmasemSatIndMod(x, model="Saturated", Std.Error=FALSE, silent=TRUE)
 
     ## Similar to the sample correlation matrix
-    sampleR <- vec2symMat(mxEval(Mu, fit.sat), diag=FALSE)
+    sampleR <- vec2symMat(eval(parse(text = "mxEval(Mu, fit.sat)")), diag=FALSE)
 
     ## Model implied correlation matrix
     impliedR <- mxEval(impliedR, x$mx.fit)
