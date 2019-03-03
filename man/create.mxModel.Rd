@@ -30,7 +30,15 @@ create.mxModel(model.name="mxModel", RAM=NULL, Amatrix=NULL,
 \item{intervals.type}{Either \code{z} (default if missing) or
   \code{LB}. If it is \code{z}, it calculates the 95\% confidence
   intervals (CIs) based on the estimated standard error. If it
-  is \code{LB}, it calculates the 95\% likelihood-based CIs on the parameter estimates.}
+  is \code{LB}, it calculates the 95\% likelihood-based CIs on the
+  parameter estimates.}
+\item{mx.algebras}{A list of \code{\link[OpenMx]{mxMatrix}} or
+  \code{\link[OpenMx]{mxAlgebra}} objects on the \code{Amatrix},
+  \code{Smatrix}, \code{Fmatrx}, and \code{Mmatrix}. It can be used to
+  define new functions of parameters and their LBCIs. For example, if
+  the regression coefficients to calculate an indirect effect are stored
+  in A[1,2] and A[1,3], we may define \code{list(ind=mxAlgebra(Amatrix[1,2]*Amatrix[1,3], name="ind"))}
+}
 \item{mxModel.Args}{A list of arguments passed to \code{\link[OpenMx]{mxModel}}.}
 \item{mxRun.Args}{A list of arguments passed to \code{\link[OpenMx]{mxRun}}.}
 \item{suppressWarnings}{Logical. If it is \code{TRUE}, warnings are

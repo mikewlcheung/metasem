@@ -59,10 +59,9 @@ Cheung, M. W.-L., & Chan, W. (2009). A two-stage approach to synthesizing covari
 
 Cheung, M. W.-L., & Cheung, S.-F. (2016). Random-effects models for meta-analytic structural equation modeling: Review, issues, and illustrations. \emph{Research Synthesis Methods}, \bold{7}, 140-155.
 
-Jak, S, & Cheung, M. W.-L. (2018). Testing moderator hypotheses in
-meta-analytic structural equation modeling using subgroup analysis. \emph{Behavior Research Methods}, \bold{50}, 1359-1373.
+Jak, S., & Cheung, M. W.-L. (2018). Testing moderator hypotheses in meta-analytic structural equation modeling using subgroup analysis. \emph{Behavior Research Methods}, \bold{50}, 1359-1373.
 
-Jak, S., & Cheung, M. W. (2018). Meta-analytic structural equation modeling with moderating effects on SEM parameters. https://doi.org/10.31234/osf.io/ce85j
+Jak, S., & Cheung, M. W.-L. (2018). Meta-analytic structural equation modeling with moderating effects on SEM parameters. https://doi.org/10.31234/osf.io/ce85j
 }
 \keyword{ package }
 
