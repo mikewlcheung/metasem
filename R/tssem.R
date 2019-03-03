@@ -467,7 +467,7 @@ wls <- function(Cov, aCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
 
   ## Add additional mxAlgebras
   if (!is.null(mx.algebras)) {
-    for (i in 1:length(mx.algebras)) {
+    for (i in seq_along(mx.algebras)) {
       mx.model <- mxModel(mx.model, mx.algebras[[i]])
     }
     mx.model <- mxModel(mx.model, mxCI(names(mx.algebras)))

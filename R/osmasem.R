@@ -389,7 +389,7 @@ create.V <- function(x, type=c("Symm", "Diag", "Full"), as.mxMatrix=TRUE) {
 osmasem <- function(model.name="osmasem", Mmatrix, Tmatrix, data,
                     intervals.type = c("z", "LB"), mxModel.Args=NULL,
                     mxRun.Args=NULL, suppressWarnings=TRUE,
-                    silent=FALSE, run=TRUE, ...) {
+                    silent=TRUE, run=TRUE, ...) {
 
     intervals.type <- match.arg(intervals.type)
     switch(intervals.type,

@@ -8,7 +8,7 @@
 osmasem(model.name="osmasem", Mmatrix, Tmatrix, data,
         intervals.type=c("z", "LB"), mxModel.Args=NULL,
         mxRun.Args=NULL, suppressWarnings=TRUE,
-        silent=FALSE, run=TRUE, ...)
+        silent=TRUE, run=TRUE, ...)
 }
 \arguments{
   \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. 
@@ -36,6 +36,10 @@ osmasem(model.name="osmasem", Mmatrix, Tmatrix, data,
 
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
+
+\references{
+Jak, S., & Cheung, M. W. (2018). Meta-analytic structural equation modeling with moderating effects on SEM parameters. https://doi.org/10.31234/osf.io/ce85j
+}  
 \seealso{ \code{\link[metaSEM]{Cor2DataFrame}}, \code{\link[metaSEM]{create.vechsR}},
   \code{\link[metaSEM]{create.Tau2}}, \code{\link[metaSEM]{create.V}}, \code{\link[metaSEM]{Nohe15}}
 }
