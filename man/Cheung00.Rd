@@ -12,7 +12,7 @@ of planned theory reported by Cheung and Chan (2000).
 A list of data with the following structure:
 \describe{
   \item{data}{A list of 50 studies of correlation matrices. The
-	variables are attitude toward behavior \emph{att}, subjective norm \emph{sn},
+	variables are the attitude toward behavior \emph{att}, subjective norm \emph{sn},
 	behavioral intention \emph{bi}, and behavior \emph{beh}}
   \item{n}{A vector of sample sizes}
 }

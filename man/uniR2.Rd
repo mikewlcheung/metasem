@@ -38,7 +38,7 @@ uniR2lavaan(x, model, ...)
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
 	suppressed. It is passed to \code{\link[OpenMx]{mxRun}}.
 }
-  \item{silent}{Logical. Argument to be passed to \code{\link[OpenMx]{mxRun}}}
+  \item{silent}{Logical. An argument to be passed to \code{\link[OpenMx]{mxRun}}}
   \item{run}{Logical. If \code{FALSE}, only return the mx model without
 	running the analysis.} 
   \item{model}{A model specified using lavaan syntax see \code{\link[lavaan]{model.syntax}}}  

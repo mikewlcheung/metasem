@@ -30,9 +30,9 @@ Cor2DataFrame(x, n, v.na.replace = TRUE, row.names.unique = FALSE,
 \item{\dots}{Further arguments to be passed to \code{\link[metaSEM]{asyCov}}.}
 }
 
-\value{A list of components: (1) a dataframe of correlations or covariances with their
+\value{A list of components: (1) a data frame of correlations or covariances with their
   sampling covariance matrices; (2) a vector of sample
-  sizes; (3) labels of the correlations; and (3) lables of their sampling covariance matrices. }
+  sizes; (3) labels of the correlations; and (3) labels of their sampling covariance matrices. }
 
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }

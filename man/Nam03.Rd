@@ -7,7 +7,7 @@
   This dataset includes 59 studies reported by Nam, Mengersen, and
   Garthwaite (2003) on the potential health effects among children exposed to
 environmental tobacco smoke (ETS), or passive smoking. The effect sizes
-are the log odds ratios of the asthma and lower respiratory disease (LRD).
+are the log odds ratios of asthma and lower respiratory disease (LRD).
 }
 \usage{data(Nam03)}
 
@@ -15,7 +15,7 @@ are the log odds ratios of the asthma and lower respiratory disease (LRD).
 A list of data with the following structure:
 \describe{
   \item{ID}{Study identification number.}
-  \item{Size}{Total number of valid subjects in study.}
+  \item{Size}{Total number of valid subjects in the study.}
   \item{Age}{Mean age of participants.}
   \item{Year}{Year of publication.}
   \item{Country}{Country code.}

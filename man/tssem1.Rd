@@ -47,7 +47,7 @@ tssem1REM(Cov, n, cor.analysis=TRUE, RE.type=c("Diag", "Symm", "Zero","User"),
 	\code{"Zero"}, there is no random effects which is similar to the
 	conventional Generalized Least Squares (GLS) approach to
 	fixed-effects analysis.
-    \code{"User"}, user has to specify the variance component via the
+    \code{"User"}, the user has to specify the variance component via the
 	\code{RE.constraints} argument. This argument will be ignored when \code{method="FEM"}.}
   \item{RE.startvalues}{Starting values on the
 	diagonals of the variance component of the random effects. It will be ignored when \code{method="FEM"}.}
@@ -82,7 +82,7 @@ tssem1REM(Cov, n, cor.analysis=TRUE, RE.type=c("Diag", "Symm", "Zero","User"),
   }  
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
 	suppressed. It is passed to \code{\link[OpenMx]{mxRun}}.}
-  \item{silent}{Logical. Argument to be passed to \code{\link[OpenMx]{mxRun}}}
+  \item{silent}{Logical. An argument to be passed to \code{\link[OpenMx]{mxRun}}}
   \item{run}{Logical. If \code{FALSE}, only return the mx model without running the analysis.}  
   \item{\dots}{Further arguments to be passed to \code{\link[OpenMx]{mxRun}}
 }

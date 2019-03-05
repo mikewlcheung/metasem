@@ -11,11 +11,11 @@ create.vechsR(A0, S0, F0 = NULL, Ax = NULL, Sx = NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-\item{A0}{An Amatrix, which will be converted into \code{MxMatrix-class} via \code{as.mxMatrix}.}
-\item{S0}{An Smatrix, which will be converted into \code{MxMatrix-class} via \code{as.mxMatrix}.}
-\item{F0}{An Fmatrix, which will be converted into \code{MxMatrix-class} via \code{as.mxMatrix}.}
-\item{Ax}{An Amatrix of a list of Amatrix with definition variables as the moderators of the Amatrix.}
-\item{Sx}{An Smatrix of a list of Smatrix with definition variables as the moderators of the Smatrix.}
+\item{A0}{A Amatrix, which will be converted into \code{MxMatrix-class} via \code{as.mxMatrix}.}
+\item{S0}{A Smatrix, which will be converted into \code{MxMatrix-class} via \code{as.mxMatrix}.}
+\item{F0}{A Fmatrix, which will be converted into \code{MxMatrix-class} via \code{as.mxMatrix}.}
+\item{Ax}{A Amatrix of a list of Amatrix with definition variables as the moderators of the Amatrix.}
+\item{Sx}{A Smatrix of a list of Smatrix with definition variables as the moderators of the Smatrix.}
 }
 
 \value{A list of \code{MxMatrix-class}. The model implied correlation

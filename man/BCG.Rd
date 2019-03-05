@@ -17,9 +17,9 @@ A list of data with the following structure:
   \item{Author}{Authors of the original studies}
   \item{Year}{Year of publication}
   \item{VD}{Vaccinated group with disease}
-  \item{VWD}{Vaccinated group without disease}
+  \item{VWD}{Vaccinated group without the disease}
   \item{NVD}{Not vaccinated group with disease}
-  \item{NVWD}{Not vaccinated group without disease}
+  \item{NVWD}{Not vaccinated group without the disease}
   \item{Latitude}{Geographic latitude of the place where the study was done}
   \item{Allocation}{Method of treatment allocation}
   \item{ln_OR}{Natural logarithm of the odds ratio: log((VD/VWD)/(NVD/NVWD))} 

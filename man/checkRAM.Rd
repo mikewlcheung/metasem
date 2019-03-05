@@ -17,7 +17,7 @@ checkRAM(Amatrix, Smatrix, cor.analysis=TRUE)
   \item{cor.analysis}{Logical. Analysis of correlation or covariance
 	structure. There are additional checks for cor.analysis=\code{TRUE}.}
 }
-\value{It returns silent if no error has been detected; otherwise, it
+\value{It returns silently if no error has been detected; otherwise, it
   returns a warning message.
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>

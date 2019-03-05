@@ -4,8 +4,8 @@
 \title{Ten Studies of Correlation Matrices used by Becker (2009)
 }
 \description{This dataset includes ten studies on the relationships between CSAI
-  subscales and sport behavior. The original data were used in Craft et
-  al. (2003), whereas a subset of them were illustrated in Becker (2009).
+  subscales and sports behavior. The original data were used in Craft et
+  al. (2003), whereas a subset of them was illustrated in Becker (2009).
 }
 \usage{data("Becker09")}
 

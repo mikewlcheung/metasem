@@ -1,7 +1,7 @@
 \name{osmasemR2}
 \alias{osmasemR2}
 \title{Calculate the R2 in OSMASEM}
-\description{It calculate the R2 of the moderators in explaining the
+\description{It calculates the R2 of the moderators in explaining the
   variances in the heterogeneity variances.  
 }
 \usage{

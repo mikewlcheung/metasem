@@ -2,7 +2,7 @@
 \alias{create.mxModel}
 \title{Creating mxModels
 }
-\description{It creates an mxModel from an RAM object.  
+\description{It creates a mxModel from a RAM object.  
 }
 \usage{
 create.mxModel(model.name="mxModel", RAM=NULL, Amatrix=NULL,
@@ -15,16 +15,16 @@ create.mxModel(model.name="mxModel", RAM=NULL, Amatrix=NULL,
 \arguments{
   \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. 
 }
-\item{RAM}{An RAM object including a list of matrices of the model
+\item{RAM}{A RAM object including a list of matrices of the model
   returned from \code{\link[metaSEM]{lavaan2RAM}}.}
 \item{Amatrix}{If \code{RAM} is not specified, an \code{Amatrix} is
   required. Please note that the dimension names are required in the
   \code{Amatrix$labels} when \code{RAM} is not included.}
-\item{Smatrix}{If \code{RAM} is not specified, an \code{Smatrix} is
+\item{Smatrix}{If \code{RAM} is not specified, a \code{Smatrix} is
   required.}
-\item{Fmatrix}{If \code{RAM} is not specified, an \code{Fmatrix} is
+\item{Fmatrix}{If \code{RAM} is not specified, a \code{Fmatrix} is
   required.}
-\item{Mmatrix}{If \code{RAM} is not specified, an \code{Mmatrix} is
+\item{Mmatrix}{If \code{RAM} is not specified, a \code{Mmatrix} is
   required.}
 \item{data}{A data frame for the data.}
 \item{intervals.type}{Either \code{z} (default if missing) or
@@ -43,7 +43,7 @@ create.mxModel(model.name="mxModel", RAM=NULL, Amatrix=NULL,
 \item{mxRun.Args}{A list of arguments passed to \code{\link[OpenMx]{mxRun}}.}
 \item{suppressWarnings}{Logical. If it is \code{TRUE}, warnings are
 	suppressed. This argument is passed to \code{\link[OpenMx]{mxRun}}.}
-\item{silent}{Logical. The argument is passed to \code{\link[OpenMx]{mxRun}}}
+\item{silent}{Logical. An argument is passed to \code{\link[OpenMx]{mxRun}}}
 \item{run}{Logical. If \code{FALSE}, only return the mx model without running the analysis.}
 \item{\dots}{Not used yet.}  
 }

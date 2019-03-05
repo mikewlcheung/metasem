@@ -3,7 +3,7 @@
 \docType{data}
 \title{Correlation Matrices from Scalco et al. (2017)}
 \description{
-  The data set includes correlation matrices on using the theory of planned
+  The data set includes correlation matrices using the theory of planned
   behavior to predict organic food consumption reported by Scalco17 et al. (2017). 
 }
 \usage{data(Scalco17)}

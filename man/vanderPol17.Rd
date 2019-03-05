@@ -28,8 +28,8 @@ A list of data with the following structure:
   \item{Per_Males}{Percentage of males.}
   \item{Per_Minorities}{Percentage of minorities.}
   \item{Per_Conduct_disorder}{Percentage of participants with conduct disorder}
-  \item{Per_Servere_cannabis_users}{Percentage of participants of
-	servere cannabis use.}
+  \item{Per_Severe_cannabis_users}{Percentage of participants of
+	severe cannabis use.}
   \item{Outcome_measure}{Either substance abuse, delinquency, externalizing and internalizing psychopathology, and
 family functioning}
   \item{d}{Effect size in Cohen's d.}

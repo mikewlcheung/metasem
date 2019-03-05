@@ -87,7 +87,7 @@ tssem2(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
 	}
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
 	suppressed. The argument to be passed to \code{\link[OpenMx]{mxRun}}.}
-  \item{silent}{Logical. The argument to be passed to \code{\link[OpenMx]{mxRun}}}
+  \item{silent}{Logical. An argument to be passed to \code{\link[OpenMx]{mxRun}}}
   \item{run}{Logical. If \code{FALSE}, only return the mx model without running the analysis.}  
   \item{\dots}{Further arguments to be passed to \code{\link[OpenMx]{mxRun}}.
 }
@@ -96,7 +96,7 @@ tssem2(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
 \value{An object of class \code{wls} with a list of
 \item{call}{The matched call}
 \item{Cov}{Input data of either a covariance or correlation matrix}
-\item{asyCov}{Asymptotic covariance matrix of the input data}
+\item{asyCov}{The asymptotic covariance matrix of the input data}
 \item{noObservedStat}{Number of observed statistics}
 \item{n}{Sample size}
 \item{cor.analysis}{logical}

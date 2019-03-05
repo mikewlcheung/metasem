@@ -18,7 +18,7 @@
 \alias{print.summary.reml}
 \alias{print.summary.CorPop}
 \alias{print.summary.bootuniR2}
-\title{Summary Method for tssem1, wls, meta and meta3X Objects
+\title{Summary Method for tssem1, wls, meta, and meta3X Objects
 }
 \description{It summaries results for various class.
 }
@@ -68,12 +68,12 @@ cutoff.RMSEA=0.05, \dots)
   \item{probs}{Quantiles for the parameter estimates.}
   \item{cutoff.chisq.pvalue}{Cutoff of the p-value for the chi-square
 	statistic.}
-  \item{cutoff.CFI}{Cutoff of the CFI.}
-  \item{cutoff.SRMR}{Cutoff of the SRMR.}
-  \item{cutoff.RMSEA}{Cutoff of the RMSEA.}
+  \item{cutoff.CFI}{The cutoff of the CFI.}
+  \item{cutoff.SRMR}{The cutoff of the SRMR.}
+  \item{cutoff.RMSEA}{The cutoff of the RMSEA.}
   \item{Saturated}{Whether to calculate the saturated model for
 	osmasem.}
-  \item{numObs}{Number of observations in calculating the fit statistics
+  \item{numObs}{The number of observations in calculating the fit statistics
 	in osmasem. If it is missing, the total number of observations is used.}
   \item{\dots}{Further arguments to be passed to \code{\link[stats]{printCoefmat}}
 }

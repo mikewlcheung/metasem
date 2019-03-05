@@ -17,9 +17,9 @@
   \item{v}{Sampling variance of logOR}
   \item{Year}{Year of publication}
   \item{Type}{Type of proposal: either \bold{Grant} or \bold{Fellowship}}
-  \item{Discipline}{Discipline of proposal: either \bold{Physical sciences}, \bold{Life sciences/biology},
+  \item{Discipline}{Discipline of the proposal: either \bold{Physical sciences}, \bold{Life sciences/biology},
 	\bold{Social sciences/humanities} or \bold{Multidisciplinary})}
-  \item{Country}{Country of proposal: either \bold{United States},
+  \item{Country}{Country of the proposal: either the \bold{United States},
 	\bold{Canada}, \bold{Australia}, \bold{United Kingdom} or \bold{Europe}}
 }
 }

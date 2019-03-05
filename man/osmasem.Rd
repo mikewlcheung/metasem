@@ -26,7 +26,7 @@ osmasem(model.name="osmasem", Mmatrix, Tmatrix, data,
 \item{mxRun.Args}{A list of arguments passed to \code{\link[OpenMx]{mxRun}}.}
   \item{suppressWarnings}{Logical. If it is \code{TRUE}, warnings are
 	suppressed. This argument is passed to \code{\link[OpenMx]{mxRun}}.}
-  \item{silent}{Logical. The argument is passed to \code{\link[OpenMx]{mxRun}}}
+  \item{silent}{Logical. An argument is passed to \code{\link[OpenMx]{mxRun}}}
   \item{run}{Logical. If \code{FALSE}, only return the mx model without running the analysis.}
   \item{\dots}{Not used yet.}
   

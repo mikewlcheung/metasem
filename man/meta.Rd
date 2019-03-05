@@ -94,7 +94,7 @@ meta(y, v, x, data, intercept.constraints = NULL, coef.constraints = NULL,
 	}
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
 	suppressed. The argument to be passed to \code{\link[OpenMx]{mxRun}}.}
-  \item{silent}{Logical. The argument to be passed to \code{\link[OpenMx]{mxRun}}}
+  \item{silent}{Logical. An argument to be passed to \code{\link[OpenMx]{mxRun}}}
   \item{run}{Logical. If \code{FALSE}, only return the mx model without
 	running the analysis.} 
   \item{\dots}{Further arguments to be passed to \code{\link[OpenMx]{mxRun}}}    

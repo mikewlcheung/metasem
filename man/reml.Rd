@@ -66,7 +66,7 @@ reml(y, v, x, data, RE.constraints = NULL, RE.startvalues = 0.1,
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
 	suppressed. It is passed to \code{\link[OpenMx]{mxRun}}.
   }
-  \item{silent}{Logical. Argument to be passed to \code{\link[OpenMx]{mxRun}}}
+  \item{silent}{Logical. An argument to be passed to \code{\link[OpenMx]{mxRun}}}
   \item{run}{Logical. If \code{FALSE}, only return the mx model without running the analysis.}  
   \item{\dots}{Further arguments to be passed to \code{\link[OpenMx]{mxRun}}
 }

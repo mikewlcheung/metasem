@@ -34,7 +34,7 @@ asyCov(x, n, cor.analysis = TRUE, dropNA = FALSE, as.matrix = TRUE,
 	\code{FALSE} automatically. This option is useful when passing the
 	asymptotic covariance matrices to \code{\link[metaSEM]{meta}} }
   \item{acov}{If it is \code{individual} (the default), the sampling variance-covariance
-	matrices are calculated based on individual correlation/covariance
+	matrices are calculated based on the individual correlation/covariance
 	matrix. If it is either \code{unweighted} or \code{weighted}, the average
 	correlation/covariance matrix is calculated based on the unweighted
 	or weighted mean with the sample sizes. The average
@@ -42,8 +42,7 @@ asyCov(x, n, cor.analysis = TRUE, dropNA = FALSE, as.matrix = TRUE,
 	variance-covariance matrices.}
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
 	suppressed. It is passed to \code{\link[OpenMx]{mxRun}}.}
-  \item{silent}{Logical. Argument to be passed to
-	\code{\link[OpenMx]{mxRun}}}
+  \item{silent}{Logical. An argument to be passed to \code{\link[OpenMx]{mxRun}}}
   \item{run}{Logical. If \code{FALSE}, only return the mx model without
 	running the analysis.}
   \item{\dots}{Further arguments to be passed to \code{\link[OpenMx]{mxRun}}}

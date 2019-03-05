@@ -13,7 +13,7 @@ create.V(x, type = c("Symm", "Diag", "Full"), as.mxMatrix = TRUE)
   \code{"Full"}. Suppose the number of variables is \eqn{p}, the
   numbers of variable names for \code{"Symm"}, \code{"Diag"}, and
   \code{"Full"} are \eqn{p(p-1)/2 }{p(p-1)/2}, \eqn{p}{p}, and
-  \eqn{p*p}{p*p}, respectively. The elements are arranged in column major.} 
+  \eqn{p*p}{p*p}, respectively. The elements are arranged in a column major.} 
 \item{as.mxMatrix}{Logical. Whether to convert the output into \code{MxMatrix-class}.}
 }
 

@@ -59,7 +59,7 @@ reml3(y, v, cluster, x, data, RE2.startvalue=0.1, RE2.lbound=1e-10,
 \details{
 Restricted (residual) maximum likelihood obtains the parameter estimates on the transformed data that do not include the fixed-effects parameters. A transformation matrix \eqn{M=I-X(X'X)^{-1}X}{M=I-X(X'X)^{-1}X'} is created based on the design matrix \eqn{X}{X} which is just a column vector when there is no predictor in \code{x}. The last \eqn{N}{N} redundant rows of \eqn{M}{M} is removed where \eqn{N}{N} is the rank of \eqn{X}{X}. After pre-multiplying by \eqn{M} on \code{y}, the parameters of fixed-effects are removed from the model. Thus, only the parameters of random-effects are estimated.
 
-An alternative but equivalent approach is to minimize the
+An alternative but the equivalent approach is to minimize the
   -2*log-likelihood function: \deqn{
 	\log(\det|V+T^2|)+\log(\det|X'(V+T^2)^{-1}X|)+(y-X\hat{\alpha})'(V+T^2)^{-1}(y-X\hat{\alpha})}{
 	log(det|V+T^2|)+log(det|X'(V+T^2)^{-1}X|)+(y-X\alpha)'(V+T^2)^{-1}(y-X*\alpha)}
@@ -72,7 +72,7 @@ An alternative but equivalent approach is to minimize the
 }
 \value{An object of class \code{reml} with a list of
   \item{call}{Object returned by \code{\link[base]{match.call}}}
-  \item{data}{A data matrix of y, v and x  }
+  \item{data}{A data matrix of y, v, and x  }
   % \item{no.y}{No. of effect sizes}
   % \item{no.x}{No. of predictors}
   % \item{miss.vec}{A vector indicating missing data. Studies will be removed before the analysis if they are \code{TRUE}}
