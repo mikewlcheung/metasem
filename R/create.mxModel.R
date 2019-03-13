@@ -4,7 +4,8 @@ create.mxModel <- function(model.name="mxModel", RAM=NULL, Amatrix=NULL,
                            Smatrix=NULL, Fmatrix=NULL, Mmatrix=NULL,
                            data, intervals.type = c("z", "LB"),
                            mx.algebras=NULL, mxModel.Args=NULL,
-                           mxRun.Args=NULL, suppressWarnings=TRUE,
+                           mxRun.Args=NULL, var.names=NULL,
+                           suppressWarnings=TRUE,
                            silent=TRUE, run=TRUE, ...) {
 
     intervals.type <- match.arg(intervals.type)
@@ -40,13 +41,18 @@ create.mxModel <- function(model.name="mxModel", RAM=NULL, Amatrix=NULL,
     ## Some basic checking in RAM
     checkRAM(Amatrix, Smatrix, cor.analysis=FALSE)
 
+    ## Extract the dimnames from Fmatrix$values
+    if (is.null(var.names)) {
+        var.names <- colnames(Fmatrix$values)
+    }
+    
     mx.model <- mxModel(model.name, Amatrix, Smatrix, Fmatrix, Mmatrix,
                         mxData(observed=data, type="raw"), 
                         mxFitFunctionML(),
                         mxCI(c("Amatrix", "Smatrix", "Mmatrix")),
                         mxExpectationRAM(A="Amatrix", S="Smatrix", F="Fmatrix",
                                          M="Mmatrix",
-                                         dimnames=rownames(Amatrix$labels)))
+                                         dimnames=var.names))
     
     ## Add additional arguments to mxModel
     if (!is.null(mxModel.Args)) {

@@ -1,3 +1,7 @@
+Release 1.2.1.1 (Mar 13, 2019)
+====================================
+* Made as.mxMatrix() and create.mxModel() more robust
+
 Release 1.2.1 (Mar 3, 2019)
 ====================================
 * Added create.mxModel()
