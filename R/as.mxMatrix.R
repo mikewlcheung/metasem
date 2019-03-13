@@ -47,7 +47,7 @@ as.mxMatrix <- function(x, name, ...) {
     ## Add the dimnames only when there are dimnames
     if (!is.null(dimnames(x))) {
         ## Make the names valid for the Mmatrix, which has "1" as the rownames
-        dim.names <- lapply(dimnames(dimnames(x)), make.names)
+        dim.names <- lapply(dimnames(x), make.names)
         dimnames(out@values) <- dimnames(out@labels) <- dimnames(out@free) <- dim.names
    }
     
