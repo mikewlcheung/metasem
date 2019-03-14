@@ -1,5 +1,5 @@
 ## Easy creation of mx models
-## Note. Dimension names are assumed in the Amatrix
+## Note. Dimension names of variables are assumed in the RAM$F
 create.mxModel <- function(model.name="mxModel", RAM=NULL, Amatrix=NULL,
                            Smatrix=NULL, Fmatrix=NULL, Mmatrix=NULL,
                            data, intervals.type = c("z", "LB"),

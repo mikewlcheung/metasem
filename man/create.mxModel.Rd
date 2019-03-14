@@ -24,6 +24,8 @@ create.mxModel(model.name="mxModel", RAM=NULL, Amatrix=NULL,
   required.}
 \item{Fmatrix}{If \code{RAM} is not specified, a \code{Fmatrix} is
   required.}
+\item{Mmatrix}{If \code{RAM} is not specified, a \code{Mmatrix} is
+  required.}
 \item{data}{A data frame for the data.}
 \item{intervals.type}{Either \code{z} (default if missing) or
   \code{LB}. If it is \code{z}, it calculates the 95\% confidence
