@@ -7,7 +7,7 @@
 \usage{
 create.mxModel(model.name="mxModel", RAM=NULL, Amatrix=NULL,
                Smatrix=NULL, Fmatrix=NULL, Mmatrix=NULL,
-               data, intervals.type = c("z", "LB"),
+               Vmatrix=NULL, data, intervals.type = c("z", "LB"),
                mx.algebras=NULL, mxModel.Args=NULL,
                mxRun.Args=NULL, var.names=NULL,
                suppressWarnings=TRUE,
@@ -26,6 +26,8 @@ create.mxModel(model.name="mxModel", RAM=NULL, Amatrix=NULL,
   required.}
 \item{Mmatrix}{If \code{RAM} is not specified, a \code{Mmatrix} is
   required.}
+\item{Vmatrix}{A V-known matrix of the variables. If it is specified, it
+  will be added into the \code{Smatrix}.}
 \item{data}{A data frame for the data.}
 \item{intervals.type}{Either \code{z} (default if missing) or
   \code{LB}. If it is \code{z}, it calculates the 95\% confidence
@@ -72,6 +74,18 @@ plot(model)
 RAM <- lavaan2RAM(model, obs.variables=c("y", "x"))
 
 my.fit <- create.mxModel(RAM=RAM, data=my.df)
+summary(my.fit)
+
+## A meta-analysis
+model <- "yi ~~ tau2*yi
+          yi ~ mu*1"
+
+RAM <- lavaan2RAM(model, obs.variables=c("yi"))
+
+## Create a v-known matrix
+Vmatrix <- as.mxMatrix("0*data.vi", name="Vmatrix")
+
+my.fit <- create.mxModel(RAM=RAM, Vmatrix=Vmatrix, data=Hox02)
 summary(my.fit)
 }
 }

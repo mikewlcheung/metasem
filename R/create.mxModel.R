@@ -2,7 +2,7 @@
 ## Note. Dimension names of variables are assumed in the RAM$F
 create.mxModel <- function(model.name="mxModel", RAM=NULL, Amatrix=NULL,
                            Smatrix=NULL, Fmatrix=NULL, Mmatrix=NULL,
-                           data, intervals.type = c("z", "LB"),
+                           Vmatrix=NULL, data, intervals.type = c("z", "LB"),
                            mx.algebras=NULL, mxModel.Args=NULL,
                            mxRun.Args=NULL, var.names=NULL,
                            suppressWarnings=TRUE,
@@ -45,12 +45,24 @@ create.mxModel <- function(model.name="mxModel", RAM=NULL, Amatrix=NULL,
     if (is.null(var.names)) {
         var.names <- colnames(Fmatrix$values)
     }
+
+    ## Add Vmatrix if provided
+    if (!is.null(Vmatrix)) {
+        if (is.matrix(Vmatrix)) {
+            Vmatrix <- as.mxMatrix(Vmatrix)
+            Vmatrix@name <- "Vmatrix"
+        }
+        
+        Sfull <- mxAlgebra(Smatrix+Vmatrix, name="Sfull")
+    } else {
+        Sfull <- mxAlgebra(Smatrix, name="Sfull")
+    }
     
     mx.model <- mxModel(model.name, Amatrix, Smatrix, Fmatrix, Mmatrix,
-                        mxData(observed=data, type="raw"), 
+                        Vmatrix, Sfull, mxData(observed=data, type="raw"), 
                         mxFitFunctionML(),
                         mxCI(c("Amatrix", "Smatrix", "Mmatrix")),
-                        mxExpectationRAM(A="Amatrix", S="Smatrix", F="Fmatrix",
+                        mxExpectationRAM(A="Amatrix", S="Sfull", F="Fmatrix",
                                          M="Mmatrix",
                                          dimnames=var.names))
     
