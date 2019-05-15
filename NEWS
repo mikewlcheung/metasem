@@ -8,6 +8,7 @@ Release 1.2.1 (Mar 3, 2019)
 
 Release 1.2.0 (Oct 18, 2018)
 ====================================
+* Released to CRAN.
 * Added .onLoad()
 * Added osmasem() and its related functions.
 * Added the argument type=c("tssem", "osmasem") in pattern.na().

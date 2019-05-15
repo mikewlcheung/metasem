@@ -14,6 +14,10 @@ create.mxMatrix <- function(x, type=c("Full","Symm","Diag","Stand"), ncol=NA, nr
       values[free] <- sapply(freePara2, function(y){ as.numeric(y[1]) })
       labels <- rep(NA, length(y))
       labels[free] <- sapply(freePara2, function(y){ y[2] })
+
+      ## Replace TRUE by FALSE in free when there are definition variables
+      free[grep("data.", labels)] <- FALSE
+      
       out <- list(values=values, free=free, labels=labels)
     } else {
       out <- list(values=values, free=free, labels=NA)
