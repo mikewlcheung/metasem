@@ -10,7 +10,8 @@ rerun(object, ...)
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{object}{An object of either class \code{tssem1FEM},
-  class \code{tssem1REM}, class \code{wls}, class \code{meta} or class \code{reml}.
+  class \code{tssem1REM}, class \code{wls}, class \code{meta}, class
+  \code{reml}, class{MxModel}.
 }
   \item{\dots}{{Further arguments to be passed to \code{\link[OpenMx]{mxTryHard}}}}
 }
