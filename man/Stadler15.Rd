@@ -7,7 +7,6 @@
   intelligence reported by Stadler et al. (2015). 
 }
 \usage{data(Stadler15)}
-
 \details{
 A list of data with the following structure:
 \describe{
@@ -22,10 +21,6 @@ A list of data with the following structure:
 }
 }
 \source{
-  Stadler, M., Becker, N., Godker, M., Leutner, D., & Greiff, S. (2015). Complex problem solving and intelligence: A meta-analysis. \emph{Intelligence}, \bold{53}, 92–101.
-}
-
-\examples{
-data(Stadler15)
+  Stadler, M., Becker, N., Godker, M., Leutner, D., & Greiff, S. (2015). Complex problem solving and intelligence: A meta-analysis. \emph{Intelligence}, \bold{53}, 92-101.
 }
 \keyword{datasets}
