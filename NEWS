@@ -1,13 +1,7 @@
-Release 1.2.1.2 (May 23, 2019)
+Release 1.2.2 (May 29, 2019)
 ====================================
+* Released to CRAN.
 * Added dataset Stadler15.
-
-Release 1.2.1.1 (Mar 13, 2019)
-====================================
-* Made as.mxMatrix() and create.mxModel() more robust
-
-Release 1.2.1 (Mar 3, 2019)
-====================================
 * Added create.mxModel()
 
 Release 1.2.0 (Oct 18, 2018)
