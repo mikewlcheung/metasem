@@ -1,6 +1,6 @@
 \name{create.vechsR}
 \alias{create.vechsR}
-\title{Create implicit diagonal constraints on the model implied correlation matrix
+\title{Create a model implied correlation matrix with implicit diagonal constraints
 }
 \description{It creates implicit diagonal constraints on the model
   implied correlation matrix by treating the error variances as

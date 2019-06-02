@@ -1,6 +1,6 @@
 \name{create.Tau2}
 \alias{create.Tau2}
-\title{Create variance component of the heterogeneity of the random effects
+\title{Create a variance component of the heterogeneity of the random effects
 }
 \description{It creates variance component of the heterogeneity of the
   random effects by decomposing the variance component into matrices of
@@ -14,7 +14,7 @@ create.Tau2(RAM, no.var, RE.type = c("Diag", "Symm", "Zero", "User"),
 %- maybe also 'usage' for other objects documented here.
 \arguments{
 \item{RAM}{The RAM model for testing. \code{no.var} is calculated from it.}  
-\item{no.var}{If \code{RAM} is missing, the user must have to specify
+\item{no.var}{If \code{RAM} is missing, the user has to specify
   the \code{no.var} argument. It represents the \code{no.var} by \code{no.var} of the random effects).}
 \item{RE.type}{Either \code{"Diag"}, \code{"Symm"}, \code{"Zero"} or \code{"User"}. If
   it is\code{"Diag"} (the default if missing), a diagonal matrix is used

@@ -1,6 +1,6 @@
 \name{create.mxModel}
 \alias{create.mxModel}
-\title{Creating mxModels
+\title{Create an mxModel
 }
 \description{It creates a mxModel from a RAM object.  
 }
@@ -20,11 +20,11 @@ create.mxModel(model.name="mxModel", RAM=NULL, Amatrix=NULL,
   returned from \code{\link[metaSEM]{lavaan2RAM}}.}
 \item{Amatrix}{If \code{RAM} is not specified, an \code{Amatrix} is
   required.}
-\item{Smatrix}{If \code{RAM} is not specified, a \code{Smatrix} is
+\item{Smatrix}{If \code{RAM} is not specified, an \code{Smatrix} is
   required.}
-\item{Fmatrix}{If \code{RAM} is not specified, a \code{Fmatrix} is
+\item{Fmatrix}{If \code{RAM} is not specified, an \code{Fmatrix} is
   required.}
-\item{Mmatrix}{If \code{RAM} is not specified, a \code{Mmatrix} is
+\item{Mmatrix}{If \code{RAM} is not specified, an \code{Mmatrix} is
   required.}
 \item{Vmatrix}{A V-known matrix of the variables. If it is specified, it
   will be added into the \code{Smatrix}.}
