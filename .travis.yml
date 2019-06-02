@@ -17,17 +17,11 @@ addons:
     - gcc-7
     - g++-7
     - gfortran-7
-# - osx
+- osx
 
 r:
-  - release
-    #  - devel 
-
-install:
-- mkdir -p ~/.R
-- ./util/travis/install-$TRAVIS_OS_NAME
-
-script: "./util/travis/script"
+ - release
+ - devel 
 
 warnings_are_errors: true    
 r_check_args: "--run-dontrun"
