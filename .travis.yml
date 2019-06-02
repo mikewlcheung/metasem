@@ -16,7 +16,7 @@ addons:
     packages:
     - gcc-7
     - g++-7
-	- gfortran-7
+    - gfortran-7
 # - osx
 
 r:
