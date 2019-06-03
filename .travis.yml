@@ -25,7 +25,7 @@ r:
  - devel 
 
 install:
- - sudo apt-get install -yq --allow-unauthenticated --no-install-suggests --no-install-recommends r-cran-OpenMx
+ - sudo apt-get install -yq --allow-unauthenticated --no-install-suggests --no-install-recommends r-cran-openmx
 
 warnings_are_errors: true    
 r_check_args: "--run-dontrun"
