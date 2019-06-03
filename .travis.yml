@@ -2,7 +2,8 @@ language: r
 cache: packages
 sudo: required
 
-# r_packages:
+r_packages:
+  - R.rsp
 #  - sem
 #  - qgraph
 #  - semPlot
