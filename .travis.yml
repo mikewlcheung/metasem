@@ -24,6 +24,9 @@ r:
  - release
  - devel 
 
+install:
+ - sudo apt-get install -yq --allow-unauthenticated --no-install-suggests --no-install-recommends r-cran-OpenMx
+
 warnings_are_errors: true    
 r_check_args: "--run-dontrun"
 
