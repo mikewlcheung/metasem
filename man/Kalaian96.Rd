@@ -12,7 +12,6 @@
 \details{
 A list of data with the following structure:
 \describe{
-  \item{Cluster}{Independent clusters derived from \code{Study}.}
   \item{Study}{Study name}
   \item{Year}{Year of publication}
   \item{n_e}{Sample size of the experimental group}
