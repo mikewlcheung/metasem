@@ -1,5 +1,6 @@
-Release 1.2.2.1 (Jun 2, 2019)
+Release 1.2.2.1 (Jun 10, 2019)
 ====================================
+* Added dataset Kalaian96.
 * Added robust argument in vcov.meta(), vcov.meta3X(), vcov.tssem1REM(), summary.meta(), summary.meta3X(), and summary.tssem1REM()
 
 Release 1.2.2 (May 29, 2019)
