@@ -1,5 +1,6 @@
-Release 1.2.2.1 (Jun 10, 2019)
+Release 1.2.2.1 (Jun 12, 2019)
 ====================================
+* Added an argument RAM=NULL in wls() and tssem2().
 * Added dataset Kalaian96.
 * Added robust argument in vcov.meta(), vcov.meta3X(), vcov.tssem1REM(), summary.meta(), summary.meta3X(), and summary.tssem1REM()
 
@@ -14,7 +15,7 @@ Release 1.2.0 (Oct 18, 2018)
 * Released to CRAN.
 * Added .onLoad()
 * Added osmasem() and its related functions.
-* Added the argument type=c("tssem", "osmasem") in pattern.na().
+* Added an argument type=c("tssem", "osmasem") in pattern.na().
 * Added datasets Gnambs18 and vanderPol17.
 
 Release 1.1.0 (May 09, 2018)

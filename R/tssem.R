@@ -256,36 +256,55 @@ tssem1 <- function(Cov, n, method=c("REM", "FEM"), cor.analysis=TRUE, cluster=NU
 }
 
 ## Known bug: wls() will fall into loop when the Amatrix is zero
-wls <- function(Cov, aCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, 
+wls <- function(Cov, aCov, n, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, 
                 diag.constraints=FALSE, cor.analysis=TRUE, intervals.type=c("z", "LB"), 
                 mx.algebras=NULL, model.name=NULL, suppressWarnings=TRUE, 
                 silent=TRUE, run=TRUE, ...) {
-  if (is.null(Smatrix)) {
-    stop("\"Smatrix\" matrix is not specified.\n")
-  } else {
-    if (is.matrix(Smatrix)) Smatrix <- as.mxMatrix(Smatrix)
-    ## No. of observed and latent variables
-    p <- nrow(Smatrix@values)
-    Smatrix@name <- "Smatrix"
-  }
 
-  if (is.null(Amatrix)) {
-    Amatrix <- as.mxMatrix(matrix(0, nrow=p, ncol=p), name="Amatrix")
-  } else {
-    if (is.matrix(Amatrix)) Amatrix <- as.mxMatrix(Amatrix)
-    Amatrix@name <- "Amatrix"
-  }
+    ## Read RAM first. If it is not specified, read individual matrices
+    if (!is.null(RAM)) {
+        Amatrix <- as.mxMatrix(RAM$A, name="Amatrix")
+        Smatrix <- as.mxMatrix(RAM$S, name="Smatrix")
+        Fmatrix <- as.mxMatrix(RAM$F, name="Fmatrix")
+    } else {
+        if (is.null(Smatrix)) {
+            stop("\"Smatrix\" matrix is not specified.\n")
+        } else if (is.matrix(Smatrix)) {
+            Smatrix <- as.mxMatrix(Smatrix, name="Smatrix")
+        } else {
+            ## Change the name of the input mxMatrix
+            Smatrix@name <- "Smatrix"
+        }
+        
+        ## No. of observed and latent variables
+        p <- nrow(Smatrix@values)  
 
+        if (is.null(Amatrix)) {
+            ## If Amatrix is not specified, use a zero matrix.
+            Amatrix <- as.mxMatrix(matrix(0, nrow=p, ncol=p), name="Amatrix")
+        } else if (is.matrix(Amatrix)) {
+            Amatrix <- as.mxMatrix(Amatrix, name="Amatrix")
+        } else {
+            ## Change the name of the input mxMatrix
+            Amatrix@name <- "Amatrix"
+        }
+
+        if (is.null(Fmatrix)) {
+            ## If Fmatrix is not specified, use an identity matrix.
+            Fmatrix <- as.mxMatrix(Diag(rep(p,1)), name="Fmatrix")
+        } else if (is.matrix(Fmatrix)) {
+            Fmatrix <- as.mxMatrix(Fmatrix, name="Fmatrix")
+        } else {
+            ## Change the name of the input mxMatrix
+            Fmatrix@name <- "Fmatrix"
+        }    
+    }      
+    
   ## CheckRAM
   checkRAM(Amatrix=Amatrix, Smatrix=Smatrix, cor.analysis=cor.analysis)
-  
-  if (is.null(Fmatrix)) {
-    Fmatrix <- as.mxMatrix(Diag(rep(p,1)), name="Fmatrix")
-  } else {
-    if (is.matrix(Fmatrix)) Fmatrix <- as.mxMatrix(Fmatrix)
-    Fmatrix@name <- "Fmatrix"
-  }
 
+  ## No. of observed and latent variables
+  p <- nrow(Smatrix@values)      
   ## A pxp identity matrix
   Id <- as.mxMatrix(Diag(rep(p, 1)), name="Id")
 
@@ -496,7 +515,7 @@ wls <- function(Cov, aCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
 }
 
 
-tssem2 <- function(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=FALSE,
+tssem2 <- function(tssem1.obj, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=FALSE,
                    intervals.type = c("z", "LB"), mx.algebras=NULL, model.name=NULL, suppressWarnings=TRUE,
                    silent=TRUE, run=TRUE, ...) {
   if ( !is.element( class(tssem1.obj)[1], c("tssem1FEM.cluster", "tssem1FEM", "tssem1REM")) )
@@ -506,7 +525,8 @@ tssem2 <- function(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.co
          tssem1FEM.cluster = { out <- lapply(tssem1.obj, tssem2, Amatrix=Amatrix, Smatrix=Smatrix, Fmatrix=Fmatrix,
                                              diag.constraints=diag.constraints, intervals.type=intervals.type,
                                              mx.algebras=mx.algebras,
-                                             model.name=model.name, suppressWarnings=suppressWarnings, silent=silent, run=run, ...)
+                                             model.name=model.name, suppressWarnings=suppressWarnings, silent=silent,
+                                             run=run, ...)
                               class(out) <- "wls.cluster" },
          tssem1FEM = { if (tssem1.obj$cor.analysis==TRUE) {
                         if (is.null(model.name)) model.name <- "TSSEM2 Correlation"
@@ -519,7 +539,7 @@ tssem2 <- function(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.co
                       pooledS <- coef.tssem1FEM(tssem1.obj)                      
                       ## dimnames(pooledS) <- list(tssem1.obj$original.names, tssem1.obj$original.names)
                       out <- wls(Cov=coef.tssem1FEM(tssem1.obj), aCov=vcov.tssem1FEM(tssem1.obj),
-                                 n=sum(tssem1.obj$n), Amatrix=Amatrix, Smatrix=Smatrix, Fmatrix=Fmatrix,
+                                 n=sum(tssem1.obj$n), RAM=RAM, Amatrix=Amatrix, Smatrix=Smatrix, Fmatrix=Fmatrix,
                                  diag.constraints=diag.constraints, cor.analysis=tssem1.obj$cor.analysis,
                                  intervals.type=intervals.type, mx.algebras=mx.algebras,
                                  model.name=model.name, suppressWarnings=suppressWarnings,
@@ -537,7 +557,7 @@ tssem2 <- function(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.co
                       }
                       ## Use the original varible names for the observed covariance matrix
                       dimnames(pooledS) <- list(tssem1.obj$original.names, tssem1.obj$original.names)
-                      out <- wls(Cov=pooledS, aCov=aCov, n=tssem1.obj$total.n,
+                      out <- wls(Cov=pooledS, aCov=aCov, n=tssem1.obj$total.n, RAM=RAM,
                                  Amatrix=Amatrix, Smatrix=Smatrix, Fmatrix=Fmatrix, diag.constraints=diag.constraints,
                                  cor.analysis=cor.analysis, intervals.type=intervals.type, mx.algebras=mx.algebras,
                                  model.name=model.name, suppressWarnings = suppressWarnings, silent=silent, run=run, ...) })

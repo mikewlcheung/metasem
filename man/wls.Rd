@@ -9,11 +9,11 @@
   analysis of the two-stage structural equation modeling (TSSEM). \code{tssem2} is a wrapper of \code{wls}.
 }
 \usage{
-wls(Cov, aCov, n, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
+wls(Cov, aCov, n, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
     diag.constraints=FALSE, cor.analysis=TRUE, intervals.type=c("z","LB"),
     mx.algebras=NULL, model.name=NULL, suppressWarnings=TRUE,
     silent=TRUE, run=TRUE, ...)
-tssem2(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
+tssem2(tssem1.obj, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
     diag.constraints=FALSE, intervals.type=c("z", "LB"), mx.algebras=NULL,
     model.name=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) 
 }
@@ -32,11 +32,16 @@ tssem2(tssem1.obj, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
 }
   \item{n}{Sample size.
 }
-  \item{Amatrix}{An asymmetric matrix in the RAM specification with
+  \item{RAM}{A RAM object including a list of matrices of the model
+  returned from \code{\link[metaSEM]{lavaan2RAM}}.  
+}  
+  \item{Amatrix}{If \code{RAM} is not specified, an \code{Amatrix} is
+  required. An asymmetric matrix in the RAM specification with
 	\code{\link[OpenMx]{MxMatrix-class}}. If it is \code{NULL}, a matrix
 	of zero will be created. If it is a matrix, it will be converted into \code{\link[OpenMx]{MxMatrix-class}} by the \code{as.mxMatrix} function.
 }
-  \item{Smatrix}{A symmetric matrix in the RAM specification with
+  \item{Smatrix}{If \code{RAM} is not specified, an \code{Smatrix} is
+  required. A symmetric matrix in the RAM specification with
 	\code{\link[OpenMx]{MxMatrix-class}}. If it is a matrix, it will be converted into \code{\link[OpenMx]{MxMatrix-class}} by the \code{as.mxMatrix} function.
 }
   \item{Fmatrix}{A filter matrix in the RAM specification with
@@ -138,14 +143,26 @@ McArdle, J. J., & MacDonald, R. P. (1984). Some algebraic properties of the Reti
 }
 \examples{
 #### Analysis of correlation structure
+R1.labels <- c("a1", "a2", "a3", "a4")
+
 R1 <- matrix(c(1.00, 0.22, 0.24, 0.18,
                0.22, 1.00, 0.30, 0.22,
                0.24, 0.30, 1.00, 0.24,
-               0.18, 0.22, 0.24, 1.00), ncol=4, nrow=4)
+               0.18, 0.22, 0.24, 1.00), ncol=4, nrow=4,
+               dimnames=list(R1.labels, R1.labels))
 n <- 1000
 acovR1 <- asyCov(R1, n)
 
-## One-factor CFA model
+#### One-factor CFA model using lavaan specification
+model1 <- "f =~ a1 + a2 + a3 + a4"
+
+RAM1 <- lavaan2RAM(model1, obs.variables=R1.labels)
+
+wls.fit1a <- wls(Cov=R1, aCov=acovR1, n=n, RAM=RAM1,
+                 cor.analysis=TRUE, intervals="LB")
+summary(wls.fit1a)
+
+## One-factor CFA model using RAM specification
 (A1 <- cbind(matrix(0, nrow=5, ncol=4),
              matrix(c("0.2*a1","0.2*a2","0.2*a3","0.2*a4",0),
              ncol=1)))
@@ -154,18 +171,36 @@ acovR1 <- asyCov(R1, n)
 
 ## The first 4 variables are observed while the last one is latent.
 (F1 <- create.Fmatrix(c(1,1,1,1,0), name="F1"))
-wls.fit1 <- wls(Cov=R1, aCov=acovR1, n=n, Fmatrix=F1, Smatrix=S1, Amatrix=A1,
+
+wls.fit1b <- wls(Cov=R1, aCov=acovR1, n=n, Fmatrix=F1, Smatrix=S1, Amatrix=A1,
                  cor.analysis=TRUE, intervals="LB")
-summary(wls.fit1)
+summary(wls.fit1b)
 
+#### Multiple regression analysis using lavaan specification
+R2.labels <- c("y", "x1", "x2")
 
-#### Multiple regression analysis
-## Variables in R2: y, x1, x2
 R2 <- matrix(c(1.00, 0.22, 0.24, 
                0.22, 1.00, 0.30, 
                0.24, 0.30, 1.00, 
-               0.18, 0.22, 0.24), ncol=3, nrow=3)
+               0.18, 0.22, 0.24), ncol=3, nrow=3,
+               dimnames=list(R2.labels, R2.labels))
 acovR2 <- asyCov(R2, n)
+
+model2 <- "y ~ x1 + x2
+           ## Variances of x1 and x2 are 1
+           x1 ~~ 1*x1
+           x2 ~~ 1*x2
+           ## x1 and x2 are correlated
+           x1 ~~ x2"
+
+RAM2 <- lavaan2RAM(model2, obs.variables=R2.labels)
+
+wls.fit2a <- wls(Cov=R2, aCov=acovR2, n=n, RAM=RAM2,
+                 cor.analysis=TRUE, intervals="LB")
+summary(wls.fit2a)
+
+
+#### Multiple regression analysis using RAM specification
 
 ## A2: Regression coefficents
 #    y x1 x2
@@ -184,19 +219,31 @@ acovR2 <- asyCov(R2, n)
                free=c(TRUE,FALSE,FALSE,FALSE,TRUE,FALSE), name="S2"))
 
 ## F may be ignored as there is no latent variable.
-wls.fit2 <- wls(Cov=R2, aCov=acovR2, n=n, Amatrix=A2, Smatrix=S2,
-                cor.analysis=TRUE, intervals="LB")
-summary(wls.fit2)
+wls.fit2b <- wls(Cov=R2, aCov=acovR2, n=n, Amatrix=A2, Smatrix=S2,
+                 cor.analysis=TRUE, intervals="LB")
+summary(wls.fit2b)
 
 
-#### Analysis of covariance structure
+#### Analysis of covariance structure using lavaan specification
+R3.labels=c("a1", "a2", "a3", "a4")
+
 R3 <- matrix(c(1.50, 0.22, 0.24, 0.18,
                0.22, 1.60, 0.30, 0.22,
                0.24, 0.30, 1.80, 0.24,
-               0.18, 0.22, 0.24, 1.30), ncol=4, nrow=4)
+               0.18, 0.22, 0.24, 1.30), ncol=4, nrow=4,
+               dimnames=list(R3.labels, R3.labels))
 n <- 1000
 acovS3 <- asyCov(R3, n, cor.analysis=FALSE)
 
+model3 <- "f =~ a1 + a2 + a3 + a4"
+
+RAM3 <- lavaan2RAM(model3, obs.variables=R3.labels)
+
+wls.fit3a <- wls(Cov=R3, aCov=acovS3, n=n, RAM=RAM3,
+                 cor.analysis=FALSE)
+summary(wls.fit3a)
+
+#### Analysis of covariance structure using RAM specification
 (A3 <- cbind(matrix(0, nrow=5, ncol=4),
              matrix(c("0.2*a1","0.2*a2","0.2*a3","0.2*a4",0),ncol=1)))
 
@@ -205,8 +252,8 @@ acovS3 <- asyCov(R3, n, cor.analysis=FALSE)
 F3 <- c(TRUE,TRUE,TRUE,TRUE,FALSE)
 (F3 <- create.Fmatrix(F3, name="F3", as.mxMatrix=FALSE))
 
-wls.fit3 <- wls(Cov=R3, aCov=acovS3, n=n, Amatrix=A3, Smatrix=S3,
+wls.fit3b <- wls(Cov=R3, aCov=acovS3, n=n, Amatrix=A3, Smatrix=S3,
                 Fmatrix=F3, cor.analysis=FALSE)
-summary(wls.fit3)
+summary(wls.fit3b)
 }
 \keyword{ tssem }
