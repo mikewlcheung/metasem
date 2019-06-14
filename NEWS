@@ -1,6 +1,6 @@
-Release 1.2.2.1 (Jun 12, 2019)
+Release 1.2.2.1 (Jun 14, 2019)
 ====================================
-* Added an argument RAM=NULL in wls() and tssem2().
+* Added an argument RAM=NULL in wls(), tssem2(), and uniR2mx().
 * Added dataset Kalaian96.
 * Added robust argument in vcov.meta(), vcov.meta3X(), vcov.tssem1REM(), summary.meta(), summary.meta3X(), and summary.tssem1REM()
 

@@ -175,7 +175,7 @@ RAM2 <- lavaan2RAM(model2, obs.variables=c("Performance", "Cognitive",
                                            "Somatic", "Self_confidence"))
 RAM2
 
-uni2mx <- uniR2mx(uni1, Amatrix=RAM2$A, Smatrix=RAM2$S)
+uni2mx <- uniR2mx(uni1, RAM=RAM2)
 summary(uni2mx)
 
 #### Second stage of analysis Using lavaan

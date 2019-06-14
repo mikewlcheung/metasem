@@ -62,59 +62,78 @@ print.uniR1 <- function(x, ...) {
 
 ## Assuming that there are dimnames in the pooled correlation matrix
 ## it may require some safety check with try() for simulation studies
-uniR2mx <- function(x, Amatrix = NULL, Smatrix = NULL, Fmatrix = NULL,
+uniR2mx <- function(x, RAM=NULL, Amatrix = NULL, Smatrix = NULL, Fmatrix = NULL,
                     model.name=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
 
-  if (!is.element("uniR1", class(x)))
-    stop("\"x\" must be an object of class \"uniR1\".")
+    if (!is.element("uniR1", class(x)))
+        stop("\"x\" must be an object of class \"uniR1\".")
 
-  if (is.null(Smatrix)) {
-    stop("\"Smatrix\" matrix is not specified.\n")
-  } else {
-    if (is.matrix(Smatrix)) Smatrix <- as.mxMatrix(Smatrix)
+    ## Read RAM first. If it is not specified, read individual matrices
+    if (!is.null(RAM)) {
+        Amatrix <- as.mxMatrix(RAM$A, name="Amatrix")
+        Smatrix <- as.mxMatrix(RAM$S, name="Smatrix")
+        Fmatrix <- as.mxMatrix(RAM$F, name="Fmatrix")
+    } else {
+        if (is.null(Smatrix)) {
+            stop("\"Smatrix\" matrix is not specified.\n")
+        } else if (is.matrix(Smatrix)) {
+            Smatrix <- as.mxMatrix(Smatrix, name="Smatrix")
+        } else {
+            ## Change the name of the input mxMatrix
+            Smatrix@name <- "Smatrix"
+        }
+        
+        ## No. of observed and latent variables
+        p <- nrow(Smatrix@values)  
+
+        if (is.null(Amatrix)) {
+            stop("\"Amatrix\" matrix is not specified.\n")
+        } else if (is.matrix(Amatrix)) {
+            Amatrix <- as.mxMatrix(Amatrix, name="Amatrix")
+        } else {
+            ## Change the name of the input mxMatrix
+            Amatrix@name <- "Amatrix"
+        }
+
+        if (is.null(Fmatrix)) {
+            ## If Fmatrix is not specified, use an identity matrix.
+            Fmatrix <- as.mxMatrix(Diag(rep(p,1)), name="Fmatrix")
+        } else if (is.matrix(Fmatrix)) {
+            Fmatrix <- as.mxMatrix(Fmatrix, name="Fmatrix")
+        } else {
+            ## Change the name of the input mxMatrix
+            Fmatrix@name <- "Fmatrix"
+        }    
+    }
+
     ## No. of observed and latent variables
-    p <- nrow(Smatrix@values)
-    Smatrix@name <- "Smatrix"
-  }
-
-  if (is.null(Amatrix)) {
-    stop("\"Amatrix\" matrix is not specified.\n")
-  } else {
-    if (is.matrix(Amatrix)) Amatrix <- as.mxMatrix(Amatrix)
-    Amatrix@name <- "Amatrix"
-  }
-
-  if (is.null(Fmatrix)) {
-    Fmatrix <- as.mxMatrix(Diag(rep(p,1)), name="Fmatrix")
-  } else {
-    if (is.matrix(Fmatrix)) Fmatrix <- as.mxMatrix(Fmatrix)
-    Fmatrix@name <- "Fmatrix"
-  }
-
-  r.mean <- x$r.mean
-  # If no variable name is given, use x1, x2, ...
-  if (is.null(colnames(r.mean))) {
-    var.labels <- paste0("x", seq_len(ncol(r.mean)))
-    dimnames(r.mean) <- list(var.labels, var.labels)
-  } else {
-    var.labels <- colnames(r.mean)
-  }
-
-  ## Added labels for latent variables
-  if (length(var.labels) < p) {
-      var.labels <- c(var.labels, paste0("f", seq_len(p-length(var.labels))))
-  }
+    p <- nrow(Smatrix@values) 
     
-  if (is.null(model.name)) model.name <- "UniR2"
-  exp <- mxExpectationRAM(A="Amatrix", S="Smatrix", F="Fmatrix", dimnames=var.labels)
+    r.mean <- x$r.mean
 
-  mx.model <- mxModel(model.name,
-                      mxData(observed=r.mean, type ="cov", numObs=x$n.harmonic),
-                      Amatrix, Smatrix, Fmatrix, exp, mxFitFunctionML())
+    ## If no variable name is given, use x1, x2, ...
+    if (is.null(colnames(r.mean))) {
+        var.labels <- paste0("x", seq_len(ncol(r.mean)))
+        dimnames(r.mean) <- list(var.labels, var.labels)
+    } else {
+        var.labels <- colnames(r.mean)
+    }
 
-  ## Return mx model without running the analysis
-  if (run==FALSE) return(mx.model)
-  mxRun(mx.model, suppressWarnings=suppressWarnings, silent=silent, ...)
+    ## Added labels for latent variables
+    if (length(var.labels) < p) {
+        var.labels <- c(var.labels, paste0("f", seq_len(p-length(var.labels))))
+    }
+
+    if (is.null(model.name)) model.name <- "UniR2"
+    exp <- mxExpectationRAM(A="Amatrix", S="Smatrix", F="Fmatrix", dimnames=var.labels)
+
+    mx.model <- mxModel(model.name,
+                        mxData(observed=r.mean, type ="cov", numObs=x$n.harmonic),
+                        Amatrix, Smatrix, Fmatrix, exp, mxFitFunctionML())
+
+    ## Return mx model without running the analysis
+    if (run==FALSE) return(mx.model)
+    mxRun(mx.model, suppressWarnings=suppressWarnings, silent=silent, ...)
 }
 
 uniR2lavaan <- function(x, model, ...) {

@@ -7,7 +7,7 @@
   by fitting structural equation models on the average correlation matrix. 
 }
 \usage{
-uniR2mx(x, Amatrix = NULL, Smatrix = NULL, Fmatrix = NULL,
+uniR2mx(x, RAM = NULL, Amatrix = NULL, Smatrix = NULL, Fmatrix = NULL,
         model.name=NULL, suppressWarnings=TRUE, silent=TRUE,
         run=TRUE, ...)
 uniR2lavaan(x, model, ...)
@@ -16,16 +16,22 @@ uniR2lavaan(x, model, ...)
 \arguments{
   \item{x}{An object of class \code{uniR1} from
 	\code{\link[metaSEM]{uniR1}}.
-}
-  \item{Amatrix}{An asymmetric matrix in the RAM specification with
+  }
+ \item{RAM}{A RAM object including a list of matrices of the model
+  returned from \code{\link[metaSEM]{lavaan2RAM}}.  
+} 
+  \item{Amatrix}{If \code{RAM} is not specified, an \code{Amatrix} is
+  required. An asymmetric matrix in the RAM specification with
 	\code{\link[OpenMx]{MxMatrix-class}}. If it is a matrix, it will be
 	converted into \code{\link[OpenMx]{MxMatrix-class}} by the \code{as.mxMatrix} function.
 }
-  \item{Smatrix}{A symmetric matrix in the RAM specification with
+  \item{Smatrix}{If \code{RAM} is not specified, an \code{Smatrix} is
+  required. A symmetric matrix in the RAM specification with
 	\code{\link[OpenMx]{MxMatrix-class}}. If it is a matrix, it will be
 	converted into \code{\link[OpenMx]{MxMatrix-class}} by the \code{as.mxMatrix} function.
 }
-  \item{Fmatrix}{A filter matrix in the RAM specification with
+  \item{Fmatrix}{If \code{RAM} is not specified, an \code{Fmatrix} is
+  required. A filter matrix in the RAM specification with
 	\code{\link[OpenMx]{MxMatrix-class}}. If it is \code{NULL} (the default), an
 	identity matrix with the same dimensions of \code{Cov} will be
 	created. If it is a matrix, it will be converted into
