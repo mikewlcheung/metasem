@@ -216,7 +216,8 @@ summary(wls.fit2a)
 # x1 F F  F 
 # x2 F T  F
 (S2 <- mxMatrix("Symm", ncol=3, nrow=3, values=c(0.2,0,0,1,0.2,1),
-               free=c(TRUE,FALSE,FALSE,FALSE,TRUE,FALSE), name="S2"))
+                labels=c("Var_y", NA, NA, NA, "Cov_x1_x2", NA),
+                free=c(TRUE,FALSE,FALSE,FALSE,TRUE,FALSE), name="S2"))
 
 ## F may be ignored as there is no latent variable.
 wls.fit2b <- wls(Cov=R2, aCov=acovR2, n=n, Amatrix=A2, Smatrix=S2,
