@@ -5,14 +5,17 @@
 \description{It reruns models via mxTryHard().
 }
 \usage{
-rerun(object, ...)
+rerun(object, autofixtau2=TRUE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{object}{An object of either class \code{tssem1FEM},
   class \code{tssem1REM}, class \code{wls}, class \code{meta}, class
-  \code{reml}, class{MxModel}.
+  \code{reml}, class \code{osmasem}, and class \code{MxModel}.
 }
+  \item{autofixtau2}{Logical. Whether automatically fixes elements of tau2
+  with NA of standard errors. It only works for objects of
+  class \code{tssem1REM}, class \code{meta}, and class \code{osmasem}.}
   \item{\dots}{{Further arguments to be passed to \code{\link[OpenMx]{mxTryHard}}}}
 }
 
