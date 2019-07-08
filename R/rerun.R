@@ -4,6 +4,12 @@ rerun <- function(object, autofixtau2=TRUE, ...) {
     stop("\"object\" must be an object of neither class \"meta\", \"meta3X\", \"wls\",
 \"reml\", \"tssem1FEM\", \"tssem1REM\", \"tssem1FEM.cluster\", \"wls.cluster\", \"osmasem\", or \"MxModel\".")
 
+    ## Run a rerun without autofixtau2 to minimize over-fixing
+    ## Many of the NA in SEs may disappear after rerunning it.
+    if (autofixtau2 & is.element(class(object)[1], c("tssem1REM", "meta", "osmasem"))) {
+        object <- rerun(object, autofixtau2=FALSE, ...)
+    }
+    
     ## Automatically fix the problematic Tau2 into 0 for tssem1REM and meta objects
     if (autofixtau2 & is.element(class(object)[1], c("tssem1REM", "meta"))) {
         ## Get the Tau2 with NA is SE
