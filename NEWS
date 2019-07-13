@@ -1,9 +1,10 @@
-Release 1.2.2.1 (Jun 16, 2019)
+Release 1.2.2.1 (Jul 13, 2019)
 ====================================
-* Added an argument autofixtau2 for tssem1REM and osmasem objects  in rerun()
+* Added metaFIML().
+* Added an argument autofixtau2 for tssem1REM and osmasem objects  in rerun().
 * Added an argument RAM=NULL in wls(), tssem2(), and uniR2mx().
 * Added dataset Kalaian96.
-* Added robust argument in vcov.meta(), vcov.meta3X(), vcov.tssem1REM(), summary.meta(), summary.meta3X(), and summary.tssem1REM()
+* Added robust argument in vcov.meta(), vcov.meta3X(), vcov.tssem1REM(), summary.meta(), summary.meta3X(), and summary.tssem1REM().
 
 Release 1.2.2 (May 29, 2019)
 ====================================

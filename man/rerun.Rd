@@ -5,7 +5,7 @@
 \description{It reruns models via mxTryHard().
 }
 \usage{
-rerun(object, autofixtau2=TRUE, ...)
+rerun(object, autofixtau2=FALSE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

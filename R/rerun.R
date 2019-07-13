@@ -1,4 +1,4 @@
-rerun <- function(object, autofixtau2=TRUE, ...) {
+rerun <- function(object, autofixtau2=FALSE, ...) {
     if (!is.element(class(object)[1], c("wls", "tssem1FEM", "tssem1REM", "meta", "meta3X", "reml",
                                         "tssem1FEM.cluster", "wls.cluster", "osmasem", "MxModel")))
     stop("\"object\" must be an object of neither class \"meta\", \"meta3X\", \"wls\",

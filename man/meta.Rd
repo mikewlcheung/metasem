@@ -1,5 +1,6 @@
 \name{meta}
 \alias{meta}
+\alias{metaFIML}
 \title{Univariate and Multivariate Meta-Analysis with Maximum
   Likelihood Estimation
 }
@@ -16,6 +17,12 @@ meta(y, v, x, data, intercept.constraints = NULL, coef.constraints = NULL,
      intervals.type = c("z", "LB"), I2="I2q", R2=TRUE,
      model.name="Meta analysis with ML", suppressWarnings = TRUE,
      silent = TRUE, run = TRUE, ...)
+metaFIML(y, v, x, av, data, intercept.constraints=NULL,
+         coef.constraints=NULL, RE.constraints=NULL,
+         RE.startvalues=0.1, RE.lbound=1e-10,
+         intervals.type=c("z", "LB"), R2=TRUE,
+         model.name="Meta analysis with FIML",
+         suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -33,8 +40,12 @@ meta(y, v, x, data, intercept.constraints = NULL, coef.constraints = NULL,
   \item{x}{A predictor or a \eqn{k}{k} x \eqn{m}{m} matrix of predictors
 	where \eqn{m}{m} is the number of predictors. 
 }
+  \item{av}{An auxiliary variable or a \eqn{k}{k} x \eqn{m}{m} matrix of auxiliary variables
+	where \eqn{m}{m} is the number of auxiliary variables. 
+}
   \item{data}{An optional data frame containing the variables in the model.
-}  
+}
+  
   \item{intercept.constraints}{A \eqn{1}{1} x \eqn{p}{p} matrix
 	specifying whether the intercepts of the effect sizes are fixed or
 	free. If the input is not a matrix, the input is converted into a
@@ -125,7 +136,9 @@ meta(y, v, x, data, intercept.constraints = NULL, coef.constraints = NULL,
 	Equation Modeling}, \bold{16}, 267-294.
 
   Cheung, M. W.-L. (2013). Multivariate meta-analysis as structural equation models. \emph{Structural Equation Modeling}, \bold{20}, 429-454.
-  
+
+  Cheung, M. W.-L. (2015). \emph{Meta-analysis: A structural equation modeling approach}. Chichester, West Sussex: John Wiley & Sons, Inc.
+
   Hardy, R. J., & Thompson, S. G. (1996). A likelihood approach to
   meta-analysis with random effects. \emph{Statistics in Medicine},
   \bold{15}, 619-629.
@@ -143,7 +156,9 @@ meta(y, v, x, data, intercept.constraints = NULL, coef.constraints = NULL,
 \note{Missing values (NA) in y and their related elements in v
   will be removed automatically. When there are missing values in v but
   not in y, missing values will be replaced by 1e5. Effectively, these
-  effect sizes will have little impact on the analysis.
+  effect sizes will have little impact on the
+  analysis. \code{metaFIML()} uses FIML to handle missing covariates in
+  X. It is experimental. It may not be stable.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

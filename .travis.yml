@@ -2,11 +2,11 @@ language: r
 cache: packages
 sudo: required
 
-# r_packages:
-#  - R.rsp
-#  - sem
-#  - qgraph
-#  - semPlot
+r_packages:
+  - R.rsp
+  - sem
+  - qgraph
+  - semPlot
 
 os: 
 - linux
@@ -31,5 +31,5 @@ install:
 warnings_are_errors: true    
 r_check_args: "--run-dontrun"
 
-before_install:
-   Rscript -e 'install.packages(c("R.rsp", "qgraph", "semPlot"))'
+#before_install:
+#   Rscript -e 'install.packages(c("R.rsp", "qgraph", "semPlot"))'
