@@ -147,6 +147,8 @@ test_that("list2matrix() works correctly", {
                             dimnames=list(NULL, c("x_x", "y_x", "y_y"))))
 })
 
+context("Checking functions calculating effect sizes")
+
 test_that("smdMTS() works correctly", {
     ## Means
     m <- c(5,NA,7,9,NA)
@@ -256,9 +258,10 @@ test_that("smdMES() works correctly", {
     expect_identical(unname(x3$y[!is.na(x3$y)]), unname(x4$y))
     ## Check the content in V
     expect_identical(unname(x3$V[!is.na(x3$y), !is.na(x3$y)]), unname(x4$V))
-
-    
+   
 })
+
+context("Checking OSMASEM functions")
 
 test_that("checkRAM() works correctly", {
     ## Checking A
@@ -444,4 +447,107 @@ test_that("create.Tau2() works correctly", {
                             Transform="expLog", 
                             RE.User=RE.User, 
                             RE.startvalues=0.01) )  
+})
+
+context("Checking metaFIML functions")
+
+test_that("metaFIML() works correctly", {
+
+    ## Univariate meta-analysis without AV
+    fit1a <- metaFIML(y=r, v=r_v, x=JP_alpha, data=Jaramillo05)
+
+    m1 <- "fy =~ 1*r
+           r ~~ data.r_v*r
+           fx =~ 1*JP_alpha
+           JP_alpha ~~ 0*JP_alpha
+           fy ~ Slope1_1*fx
+           fy ~~ Tau2_1_1*fy
+           fx ~~ CovX1_X1*fx
+           fx ~ MeanX1*1
+           fy ~ Intercept1*1"
+
+    RAM1 <- lavaan2RAM(m1, obs.variables = c("r", "JP_alpha"), std.lv=FALSE)
+    fit1b <- create.mxModel(RAM=RAM1, data=Jaramillo05)
+
+    coef1a <- coef(fit1a)
+    names1 <- names(coef1a)
+    coef1b <- coef(fit1b)[names1] 
+    
+    ## Equal coefficients within the tolerance
+    tolerance <- 1e-5
+    expect_equal(coef1a, coef1b, tolerance=tolerance)
+    expect_equal(vcov(fit1a), vcov(fit1b)[names1, names1], tolerance=tolerance)
+    expect_equal(fit1a$mx.fit$output$Minus2LogLikelihood,
+                 fit1b$output$Minus2LogLikelihood)
+
+    ## Univariate meta-analysis with AV
+    fit2a <- metaFIML(y=r, v=r_v, x=JP_alpha, av=IDV, data=Jaramillo05)
+
+    m2 <- "fy =~ 1*r
+           r ~~ data.r_v*r
+           fx =~ 1*JP_alpha
+           JP_alpha ~~ 0*JP_alpha
+           fy ~ Slope1_1*fx
+           fy ~~ Tau2_1_1*fy
+           fx ~~ CovX1_X1*fx
+           fx ~ MeanX1*1
+           fy ~ Intercept1*1
+
+           fz =~ 1*IDV
+           IDV ~~ 0*IDV
+           fz ~ MeanX2*1
+           fz ~~ CovX2_X2*fz + start(818)*fz
+           fx ~~ CovX2_X1*fz
+           fy ~~ CovX2_Y1*fz"
+
+    RAM2 <- lavaan2RAM(m2, obs.variables = c("r", "JP_alpha", "IDV"), std.lv=FALSE)
+    fit2b <- create.mxModel(RAM=RAM2, data=Jaramillo05)
+
+    coef2a <- coef(fit2a)
+    names2 <- names(coef2a)
+    coef2b <- coef(fit2b)[names2] 
+    
+    ## Equal coefficients within the tolerance
+    expect_equal(coef2a, coef2b, tolerance=tolerance)
+    expect_equal(vcov(fit2a), vcov(fit2b)[names2, names2], tolerance=tolerance)
+    expect_equal(fit2a$mx.fit$output$Minus2LogLikelihood,
+                 fit2b$output$Minus2LogLikelihood)
+
+    ## Multivariate meta-analysis without AV
+    wvs94a$gnp <- scale(wvs94a$gnp)
+    fit3a <- metaFIML(y=cbind(lifesat, lifecon),
+                      v=cbind(lifesat_var, inter_cov, lifecon_var),
+                      x=gnp, data=wvs94a)
+
+    m3 <- "fy1 =~ 1*lifesat
+           lifesat ~~ data.lifesat_var*lifesat
+           fy2 =~ 1*lifecon
+           lifecon ~~ data.lifecon_var*lifecon
+           lifesat ~~ data.inter_cov*lifecon
+
+           fx =~ 1*gnp
+           gnp ~~ 0*gnp
+           fy1 ~ Slope1_1*fx
+           fy2 ~ Slope2_1*fx
+
+           fy1 ~~ Tau2_1_1*fy1
+           fy2 ~~ Tau2_2_2*fy2
+           fy1 ~~ Tau2_2_1*fy2
+           fx ~~ CovX1_X1*fx
+           fx ~ MeanX1*1
+           fy1 ~ Intercept1*1
+           fy2 ~ Intercept2*1"
+
+    RAM3 <- lavaan2RAM(m3, obs.variables = c("lifesat", "lifecon", "gnp"), std.lv=FALSE)
+    fit3b <- create.mxModel(RAM=RAM3, data=wvs94a)
+
+    coef3a <- coef(fit3a)
+    names3 <- names(coef3a)
+    coef3b <- coef(fit3b)[names3] 
+    
+    ## Equal coefficients within the tolerance
+    expect_equal(coef3a, coef3b, tolerance=tolerance)
+    expect_equal(vcov(fit3a), vcov(fit3b)[names3, names3], tolerance=tolerance)
+    expect_equal(fit3a$mx.fit$output$Minus2LogLikelihood,
+                 fit3b$output$Minus2LogLikelihood)    
 })
