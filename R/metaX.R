@@ -186,7 +186,7 @@ metaFIML <- function(y, v, x, av, data, intercept.constraints=NULL,
                         mxExpectationRAM(A="Amatrix", S="Smatrix", F="Fmatrix", M="Mmatrix", dimnames=all.labels),
                         mxFitFunctionML(),
                         Tau, CovX, CovYX, Amatrix, Smatrix, Fmatrix, Mmatrix, V, Vy,
-                        mxCI(c("Amatrix","Mmatrix","Smatrix")))
+                        mxCI(c("Amatrix","Mmatrix","Tau", "CovYX")))
 
     ## Calculate R2
     mx0.fit <- NA
@@ -220,6 +220,5 @@ metaFIML <- function(y, v, x, av, data, intercept.constraints=NULL,
         return(out)
     }
 
-    return(out)
 }
 
