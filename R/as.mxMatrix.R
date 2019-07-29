@@ -34,8 +34,9 @@ as.mxMatrix <- function(x, name, ...) {
         labels <- matrix(NA, ncol=nCol, nrow=nRow)
         labels[free] <- sapply(freePara2, function(x){ x[2]})
     
-        ## Replace TRUE by FALSE in free when there are definition variables
+        ## Replace TRUE by FALSE in free when there are definition variables or [,]
         free[grep("data.", labels)] <- FALSE
+        free[grep("\\[|,|\\]", labels)] <- FALSE
     
         out <- mxMatrix(type = "Full", nrow=nRow, ncol=nCol, values=values, free=free,
                         name=name, labels=labels, ...)

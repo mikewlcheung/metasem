@@ -21,19 +21,23 @@ create.mxModel <- function(model.name="mxModel", RAM=NULL, Amatrix=NULL,
         Mmatrix <- as.mxMatrix(RAM$M, name="Mmatrix")
     } else {
         if (is.matrix(Amatrix)) {
-            Amatrix <- as.mxMatrix(Amatrix)
+            Amatrix <- as.mxMatrix(Amatrix, name="Amatrix")
+        } else {    
             Amatrix@name <- "Amatrix"
         }
         if (is.matrix(Smatrix)) {
-            Smatrix <- as.mxMatrix(Smatrix)
+            Smatrix <- as.mxMatrix(Smatrix, name="Smatrix")
+        } else {    
             Smatrix@name <- "Smatrix"
         }
         if (is.matrix(Fmatrix)) {
-            Fmatrix <- as.mxMatrix(Fmatrix)
+            Fmatrix <- as.mxMatrix(Fmatrix, name="Fmatrix")
+        } else {    
             Fmatrix@name <- "Fmatrix"
         }
         if (is.matrix(Mmatrix)) {
-            Mmatrix <- as.mxMatrix(Mmatrix)
+            Mmatrix <- as.mxMatrix(Mmatrix, name="Mmatrix")
+        } else {    
             Mmatrix@name <- "Mmatrix"
         }        
     }
