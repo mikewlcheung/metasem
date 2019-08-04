@@ -64,7 +64,7 @@ create.mxModel <- function(model.name="mxModel", RAM=NULL, Amatrix=NULL,
 
     ## If matrix or data.frame is provided, setup mxData
     ## Otherwise, users have to setup mxData()
-    if (is.data.frame(data) | is.matrix) {
+    if (is.data.frame(data) | is.matrix(data)) {
         mx.data <- mxData(observed=data, type="raw")
     } else {
         mx.data <- data
