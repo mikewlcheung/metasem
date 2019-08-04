@@ -28,7 +28,8 @@ create.mxModel(model.name="mxModel", RAM=NULL, Amatrix=NULL,
   required.}
 \item{Vmatrix}{A V-known matrix of the variables. If it is specified, it
   will be added into the \code{Smatrix}.}
-\item{data}{A data frame for the data.}
+\item{data}{A data frame or matrix of data. Alternatively, users may
+  provide a \code{\link[OpenMx]{mxData}} object.}
 \item{intervals.type}{Either \code{z} (default if missing) or
   \code{LB}. If it is \code{z}, it calculates the 95\% confidence
   intervals (CIs) based on the estimated standard error. If it

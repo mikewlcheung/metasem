@@ -61,10 +61,17 @@ create.mxModel <- function(model.name="mxModel", RAM=NULL, Amatrix=NULL,
     } else {
         Sfull <- mxAlgebra(Smatrix, name="Sfull")
     }
+
+    ## If matrix or data.frame is provided, setup mxData
+    ## Otherwise, users have to setup mxData()
+    if (is.data.frame(data) | is.matrix) {
+        mx.data <- mxData(observed=data, type="raw")
+    } else {
+        mx.data <- data
+    }    
     
     mx.model <- mxModel(model.name, Amatrix, Smatrix, Fmatrix, Mmatrix,
-                        Vmatrix, Sfull, mxData(observed=data, type="raw"), 
-                        mxFitFunctionML(),
+                        Vmatrix, Sfull, mx.data, mxFitFunctionML(),
                         mxCI(c("Amatrix", "Smatrix", "Mmatrix")),
                         mxExpectationRAM(A="Amatrix", S="Sfull", F="Fmatrix",
                                          M="Mmatrix",
