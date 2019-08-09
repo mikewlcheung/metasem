@@ -12,6 +12,7 @@ importFrom(mvtnorm, rmvnorm)
 S3method(plot, meta)
 S3method(plot, character)
 S3method(plot, wls)
+S3method(plot, osmasem)
 
 S3method(summary, wls)
 S3method(summary, wls.cluster)

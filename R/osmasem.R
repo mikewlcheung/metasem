@@ -19,7 +19,8 @@ Cor2DataFrame <- function(x, n, v.na.replace=TRUE, row.names.unique=FALSE,
     ## Use unique row names if the row names are duplicated.
     if (row.names.unique) rownames(data) <- make.names(names(x), unique=TRUE)    
 
-    list(data=data, n=n, ylabels=dimnames(my.df)[[2]], vlabels=dimnames(acovR)[[2]])
+    list(data=data, n=n, obslabels=colnames(x[[1]]),
+         ylabels=dimnames(my.df)[[2]], vlabels=dimnames(acovR)[[2]])
 }
 
 
