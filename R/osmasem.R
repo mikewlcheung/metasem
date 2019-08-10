@@ -388,27 +388,48 @@ create.V <- function(x, type=c("Symm", "Diag", "Full"), as.mxMatrix=TRUE) {
 }
     
 osmasem <- function(model.name="osmasem", Mmatrix, Tmatrix, data,
-                    intervals.type = c("z", "LB"), mxModel.Args=NULL,
-                    mxRun.Args=NULL, suppressWarnings=TRUE,
-                    silent=TRUE, run=TRUE, ...) {
+                     subset=NULL, intervals.type = c("z", "LB"),
+                     mxModel.Args=NULL, mxRun.Args=NULL,
+                     suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
 
     intervals.type <- match.arg(intervals.type)
     switch(intervals.type,
            z = intervals <- FALSE,
            LB = intervals <- TRUE)
-    
+
+    ## Operator for not in
+    "%ni%" <- Negate("%in%")
+
+    ## Filter out variables not used in the analysis
+    if (!is.null(subset)) {
+        index  <- subset %ni% data$obslabels
+        if (any(index)) {
+            stop(paste0(paste0(subset[index], collapse = ", "), " are not in the ylabels.\n"))
+        }
+
+        temp <- .genCorNames(subset)
+        obslabels <- subset
+        ylabels <- temp$ylabels
+        vlabels <- temp$vlabels        
+    } else {
+        obslabels <- data$obslabels
+        ylabels <- data$ylabels
+        vlabels <- data$vlabels
+    }
+
     ## Create known sampling variance covariance matrix
-    Vmatrix <- create.V(data$vlabels, type="Symm", as.mxMatrix=TRUE)
-    
+    Vmatrix <- create.V(vlabels, type="Symm", as.mxMatrix=TRUE)
+
+    ## Dirty trick to avoid the warning of "no visible binding for global variable"
     mx.model <- eval(parse(text="mxModel(model=model.name,
                            mxData(observed=data$data, type='raw'),
                            mxExpectationNormal(covariance='expCov',
                                                means='vechsR',
-                                               dimnames=data$ylabels),
+                                               dimnames=ylabels),
                            mxFitFunctionML(), Mmatrix, Tmatrix, Vmatrix,
                            mxAlgebra(Tau2+V, name='expCov'),
                            mxCI(c('Amatrix', 'Smatrix', 'Tau2')))"))
-
+    
     ## Add additional arguments to mxModel
     if (!is.null(mxModel.Args)) {
         for (i in seq_along(mxModel.Args)) {
@@ -432,8 +453,11 @@ osmasem <- function(model.name="osmasem", Mmatrix, Tmatrix, data,
     }
 
     out <- list(call=match.call(), Mmatrix=Mmatrix, Tmatrix=Tmatrix,
-                Vmatrix=Vmatrix, data=data, mxModel.Args=mxModel.Args,
-                mxRun.Args=mxRun.Args, mx.model=mx.model, mx.fit=mx.fit)
+                Vmatrix=Vmatrix, data=data,
+                labels=list(obslabels=obslabels, ylabels=ylabels,
+                            vlabels=vlabels),
+                mxModel.Args=mxModel.Args, mxRun.Args=mxRun.Args,
+                mx.model=mx.model, mx.fit=mx.fit)
     class(out) <- 'osmasem'
     out
 }
@@ -502,8 +526,8 @@ VarCorr <- function(x, ...) {
 
 ## Fit a saturated model with either a diagonal or symmetric variance component of random effects
 .osmasemSatIndMod <- function(osmasem.obj=NULL, model=c("Saturated", "Independence"),
-                              Std.Error=FALSE, Tmatrix, data, mxModel.Args=NULL,
-                              mxRun.Args=NULL, suppressWarnings=TRUE,
+                              Std.Error=FALSE, Tmatrix, data, subset=NULL,
+                              mxModel.Args=NULL, mxRun.Args=NULL, suppressWarnings=TRUE,
                               silent=FALSE, run=TRUE, ...) {
 
     if (!is.null(osmasem.obj)) {
@@ -516,9 +540,9 @@ VarCorr <- function(x, ...) {
         p <- nrow(Tmatrix$Cor$values)
         data <- osmasem.obj$data
     } else {
-        p <- length(data$ylabels)
+        p <- length(osmasem.obj$labels$ylabels)
         ## Create known sampling variance covariance matrix
-        Vmatrix <- create.V(data$vlabels, type="Symm", as.mxMatrix=TRUE)
+        Vmatrix <- create.V(osmasem.obj$labels$vlabels, type="Symm", as.mxMatrix=TRUE)
     }    
 
     model <- match.arg(model)
@@ -532,15 +556,16 @@ VarCorr <- function(x, ...) {
         Mmatrix <- mxMatrix(type="Full", free=FALSE, labels=paste0("Mu", seq_len(p)),
                             nrow=1, ncol=p, name="Mu")        
     }
-    
+
+    ## Dirty trick to avoid the warning of "no visible binding for global variable"
     mx.model <- eval(parse(text="mxModel(model=model,
                                  mxData(observed=data$data, type='raw'),
                                  mxExpectationNormal(covariance='expCov',
                                                      means='Mu',
-                                                     dimnames=data$ylabels),
+                                                     dimnames=osmasem.obj$labels$ylabels),
                                  mxFitFunctionML(), Mmatrix, Tmatrix, Vmatrix,
                                  mxAlgebra(Tau2+V, name='expCov'))"))
-
+    
     ## Add additional arguments to mxModel
     if (!is.null(mxModel.Args)) {
         for (i in seq_along(mxModel.Args)) {
@@ -643,6 +668,21 @@ osmasemSRMR <- function(x) {
     ## SRMR (Cheung, 2015 book, Eq. 2.36)
     sqrt(mean(vechs(sampleR-impliedR)^2))
 }
+
+## Generate names for OSMASEM
+## x: a vector of observed variables
+## output: a vector of correlation coefficients and sampling covariance matrix
+## This function is used to select data in data created by Cor2DataFrame()
+.genCorNames <- function(x) {
+  ## Names for the correlation elements
+  psNames <- vechs(outer(x, x, paste, sep = "_"))
+  
+  ## Names for the sampling covariance matrix of the correlation vector
+  psCovNames <- paste("C(", outer(psNames, psNames, paste, sep = " "), ")", sep="")
+  psCovNames <- vech(matrix(psCovNames, nrow=length(psNames), ncol=length(psNames)))
+
+  list(ylabels=psNames, vlabels=psCovNames)
+}  
 
 ## RAMmodelV <- function(Amatrix, Smatrix, Fmatrix, Mmatrix, Vmatrix,
 ##                       data, obs.var, ...) {
