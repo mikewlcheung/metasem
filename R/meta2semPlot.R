@@ -133,11 +133,10 @@ plot.osmasem <- function(x, manNames=NULL, latNames=NULL, labels=c("labels", "RA
 
   ## Approximate sample covariance matrix
   ## The means in osmasem are correlation matrix
-  ObsCovs <- vec2symMat(apply(x$data$data[, x$data$ylabels], 2, mean, na.rm=TRUE),
-                        diag=FALSE)        
+  ObsCovs <- vec2symMat(apply(x$data$data[, x$labels$ylabels], 2, mean, na.rm=TRUE), diag=FALSE)        
   ImpCovs <- x$mx.fit$impliedR$result
 
-  if (is.null(manNames)) manNames <- x$data$obslabels
+  if (is.null(manNames)) manNames <- x$labels$obslabels
   ## If manNames is still NULL
   if (is.null(manNames)) manNames <- paste("X", seq(1, nrow(F), 1), sep="")
 

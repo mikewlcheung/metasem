@@ -1,23 +1,23 @@
 language: r
 cache: packages
-sudo: required
+sudo: false
 
-r_packages:
-  - R.rsp
-  - sem
-  - qgraph
+# r_packages:
+#  - R.rsp
+#  - sem
+#  - qgraph
 #  - semPlot
 
 os: 
 - linux
-addons:
-  apt:
-    sources:
-    - ubuntu-toolchain-r-test
-    packages:
-    - gcc-7
-    - g++-7
-    - gfortran-7
+#addons:
+#  apt:
+#    sources:
+#    - ubuntu-toolchain-r-test
+#    packages:
+#    - gcc-7
+#    - g++-7
+#    - gfortran-7
 #- osx
 
 r:
@@ -25,8 +25,8 @@ r:
  - release
 # - devel 
 
-install:
- - sudo apt-get install -yq --allow-unauthenticated --no-install-suggests --no-install-recommends r-cran-openmx
+#install:
+# - sudo apt-get install -yq --allow-unauthenticated --no-install-suggests --no-install-recommends r-cran-openmx
 
 warnings_are_errors: true    
 r_check_args: "--run-dontrun"
