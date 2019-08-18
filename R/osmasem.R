@@ -388,9 +388,9 @@ create.V <- function(x, type=c("Symm", "Diag", "Full"), as.mxMatrix=TRUE) {
 }
     
 osmasem <- function(model.name="osmasem", Mmatrix, Tmatrix, data,
-                     subset=NULL, intervals.type = c("z", "LB"),
-                     mxModel.Args=NULL, mxRun.Args=NULL,
-                     suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
+                    subset=NULL, intervals.type = c("z", "LB"),
+                    mxModel.Args=NULL, mxRun.Args=NULL,
+                    suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
 
     intervals.type <- match.arg(intervals.type)
     switch(intervals.type,
@@ -478,20 +478,33 @@ coef.osmasem <- function(object, select=c("fixed", "all", "random"), ...) {
     mx.coef    
 }
 
-vcov.osmasem <- function(object, select=c("fixed", "all", "random"), ...) {
+vcov.osmasem <- function(object, select=c("fixed", "all", "random"),
+                         robust=FALSE, ...) {
     if (!is.element("osmasem", class(object)))
         stop("\"object\" must be an object of class \"osmasem\".")
-    
-    mx.vcov <- vcov(object$mx.fit)
-    ## index for untransformed random effects (not the correct ones!) 
-    index <- grep("Tau1_|Cor_", rownames(mx.vcov))
 
+    # labels of the parameters    
+    ## my.name <- summary(object$mx.fit)$parameters$name
+    my.name <- names(omxGetParameters(object$mx.fit))
+    my.name <- my.name[!is.na(my.name)]
+
+    ## index for untransformed random effects (not the correct ones!) 
+    index.random <- grep("Tau1_|Cor_", my.name) 
+    
     select <- match.arg(select)
-    switch(select,
-           fixed =  mx.vcov <- mx.vcov[-index, -index],
-           random = mx.vcov <- mx.vcov[index, index])
+    switch( select,
+         ## all = my.name <- my.name,
+         fixed =  my.name <- my.name[-index.random],
+         random = my.name <- my.name[index.random]
+         )
+
+    if (robust) {
+        out <- suppressMessages(imxRobustSE(object$mx.fit, details=TRUE))$cov
+    } else {
+        out <- vcov(object$mx.fit)
+    }
     if (select!="fixed") warning("\"Tau1_xx\" is not the variance component of the random effects.")
-    mx.vcov 
+    out[my.name, my.name]
 }
 
 VarCorr <- function(x, ...) {
@@ -601,7 +614,8 @@ anova.osmasem <- function(object, ..., all=FALSE) {
   mxCompare(base=base, comparison=comparison, all=all)
 }
 
-summary.osmasem <- function(object, Saturated=FALSE, numObs, ...) {
+summary.osmasem <- function(object, Saturated=FALSE, numObs,
+                            robust=FALSE, ...) {
     if (!is.element("osmasem", class(object)))
         stop("\"object\" must be an object of class \"osmasem\".")
 
@@ -624,6 +638,12 @@ summary.osmasem <- function(object, Saturated=FALSE, numObs, ...) {
                        numObs=numObs, ...)        
     } else {
         out <- summary(object$mx.fit, numObs=numObs, ...)
+    }
+
+    ## Modified the SE with robust SE
+    if (robust) {
+        robust.SE <- suppressMessages(imxRobustSE(object$mx.fit))
+        out$parameters[, "Std.Error"] <- robust.SE[out$parameters$name]
     }
 
     ## Additional output to the mx summary

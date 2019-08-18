@@ -35,7 +35,7 @@
 \method{summary}{bootuniR2}(object, probs=c(0, 0.1, 0.5, 0.9, 1),
         cutoff.chisq.pvalue=0.05, cutoff.CFI=0.9, cutoff.SRMR=0.1,
         cutoff.RMSEA=0.05, \dots)
-\method{summary}{osmasem}(object, Saturated=FALSE, numObs, \dots)
+\method{summary}{osmasem}(object, Saturated=FALSE, numObs, robust=FALSE, \dots)
 \method{print.summary}{tssem1FEM}(x, \dots)
 \method{print.summary}{wls}(x, \dots)
 \method{print.summary}{meta}(x, \dots)

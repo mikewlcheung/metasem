@@ -131,7 +131,7 @@ summary(boot.fit2)
 my.df <- Cor2DataFrame(Nohe15A1$data, Nohe15A1$n)
 
 ## Add the centered Lag as a moderator
-my.df$data <- data.frame(my.df$data, Lag=scale(Nohe15A1$Lag, scale=FALSE),
+my.df$data <- data.frame(my.df$data, Lag=scale(Nohe15A1$Lag),
                          check.names=FALSE)
 head(my.df$data)
 
@@ -180,10 +180,6 @@ M1 <- create.vechsR(A0=RAM1$A, S0=RAM1$S, Ax=A1)
 
 fit1 <- osmasem(model.name="Lag as a moderator for Amatrix", Mmatrix=M1,
                 Tmatrix=T0, data= my.df)
-
-## Rerun it to avoid an error code
-fit1 <- rerun(fit1)    
-
 summary(fit1)
 VarCorr(fit1)
 
