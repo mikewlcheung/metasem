@@ -180,6 +180,10 @@ M1 <- create.vechsR(A0=RAM1$A, S0=RAM1$S, Ax=A1)
 
 fit1 <- osmasem(model.name="Lag as a moderator for Amatrix", Mmatrix=M1,
                 Tmatrix=T0, data= my.df)
+
+## Rerun it to avoid an error code
+fit1 <- rerun(fit1)    
+
 summary(fit1)
 VarCorr(fit1)
 

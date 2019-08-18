@@ -20,8 +20,8 @@
 \method{vcov}{tssem1FEM.cluster}(object, \dots)
 \method{vcov}{tssem1REM}(object, select = c("all", "fixed", "random"),
 robust=FALSE, \dots)
-\method{vcov}{wls}(object, R=50, \dots)
-\method{vcov}{wls.cluster}(object, R=50, \dots)
+\method{vcov}{wls}(object, \dots)
+\method{vcov}{wls.cluster}(object, \dots)
 \method{vcov}{meta}(object, select = c("all", "fixed", "random"),
 robust=FALSE, \dots)
 \method{vcov}{meta3X}(object, select = c("all", "fixed", "random",
@@ -40,9 +40,6 @@ robust=FALSE, \dots)
   all parameters including the predictors and auxiliary variables.  
 }
   \item{robust}{Logicial. Whether to use robust standard error from \code{\link[OpenMx]{imxRobustSE}}.
-}
-  \item{R}{Positive integer. The number of parameter bootstrap
-	replicates when \code{diag.constraints=TRUE}.
 }
   \item{\dots}{Further arguments; currently none is used}
 }

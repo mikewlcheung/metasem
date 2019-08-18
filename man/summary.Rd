@@ -26,15 +26,15 @@
 \method{summary}{tssem1FEM}(object, \dots)
 \method{summary}{tssem1FEM.cluster}(object, \dots)
 \method{summary}{tssem1REM}(object, robust=FALSE, \dots)
-\method{summary}{wls}(object, df.adjustment=0, R=50, \dots)
-\method{summary}{wls.cluster}(object, df.adjustment=0, R=50, \dots)
+\method{summary}{wls}(object, df.adjustment=0, \dots)
+\method{summary}{wls.cluster}(object, df.adjustment=0, \dots)
 \method{summary}{meta}(object, homoStat=TRUE, robust=FALSE, \dots)
 \method{summary}{meta3X}(object, allX=FALSE, robust=FALSE, \dots)
 \method{summary}{reml}(object, \dots)
 \method{summary}{CorPop}(object, \dots)
 \method{summary}{bootuniR2}(object, probs=c(0, 0.1, 0.5, 0.9, 1),
-cutoff.chisq.pvalue=0.05, cutoff.CFI=0.9, cutoff.SRMR=0.1,
-cutoff.RMSEA=0.05, \dots)
+        cutoff.chisq.pvalue=0.05, cutoff.CFI=0.9, cutoff.SRMR=0.1,
+        cutoff.RMSEA=0.05, \dots)
 \method{summary}{osmasem}(object, Saturated=FALSE, numObs, \dots)
 \method{print.summary}{tssem1FEM}(x, \dots)
 \method{print.summary}{wls}(x, \dots)
@@ -65,8 +65,6 @@ cutoff.RMSEA=0.05, \dots)
 	manually. It may be necessary if the df calculated is incorrect when
 	\code{diag.constraints=TRUE}.
   }
-  \item{R}{Positive integer. The number of parameter bootstrap
-	replicates when \code{diag.constraints=TRUE}.}
   \item{probs}{Quantiles for the parameter estimates.}
   \item{cutoff.chisq.pvalue}{Cutoff of the p-value for the chi-square
 	statistic.}
