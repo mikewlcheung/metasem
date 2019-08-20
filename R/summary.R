@@ -72,7 +72,7 @@ summary.wls <- function(object, df.adjustment=0, ...) {
         
       ## Use OpenMx's vcov
       if (object$diag.constraints)
-        my.para$Std.Error <- sqrt(Diag(vcov.wls(object$mx.fit)))
+        my.para$Std.Error <- sqrt(Diag(vcov.wls(object)))
         
       my.para$lbound <- my.para$Estimate - qnorm(.975)*my.para$Std.Error
       my.para$ubound <- my.para$Estimate + qnorm(.975)*my.para$Std.Error
