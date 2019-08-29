@@ -60,7 +60,7 @@ Cheung, M. W.-L., & Cheung, S.-F. (2016). Random-effects models for meta-analyti
 
 Jak, S., & Cheung, M. W.-L. (2018). Testing moderator hypotheses in meta-analytic structural equation modeling using subgroup analysis. \emph{Behavior Research Methods}, \bold{50}, 1359-1373.
 
-Jak, S., & Cheung, M. W.-L. (2018). Meta-analytic structural equation modeling with moderating effects on SEM parameters. https://doi.org/10.31234/osf.io/ce85j
+Jak, S., & Cheung, M. W.-L. (in press). Meta-analytic structural equation modeling with moderating effects on SEM parameters. \emph{Psychological Methods}. https://doi.org/10.31234/osf.io/ce85j
 }
 \keyword{ package }
 

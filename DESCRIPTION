@@ -7,8 +7,8 @@ Depends: R (>= 3.3.0), OpenMx
 Imports: Matrix, MASS, ellipse, graphics, stats, utils, mvtnorm, numDeriv, lavaan
 Suggests: metafor, semPlot, R.rsp, testthat
 VignetteBuilder: R.rsp
-Author: Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
-Maintainer: Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
+Authors@R: person(given = "Mike", family = "Cheung", role = c("aut","cre"), email = "mikewlcheung@nus.edu.sg", comment = c(ORCID = "0000-0003-0113-0758"))
+Maintainer: Mike Cheung <mikewlcheung@nus.edu.sg>
 Description: A collection of functions for conducting meta-analysis using a
              structural equation modeling (SEM) approach via the 'OpenMx' and
              'lavaan' packages. It also implements various procedures to
