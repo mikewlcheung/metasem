@@ -522,7 +522,7 @@ tssem2 <- function(tssem1.obj, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NUL
       stop("\"tssem1.obj\" must be of neither class \"tssem1FEM.cluster\", class \"tssem1FEM\" or \"tssem1REM\".")
 
   switch(class(tssem1.obj)[1],
-         tssem1FEM.cluster = { out <- lapply(tssem1.obj, tssem2, Amatrix=Amatrix, Smatrix=Smatrix, Fmatrix=Fmatrix,
+         tssem1FEM.cluster = { out <- lapply(tssem1.obj, tssem2, RAM=RAM, Amatrix=Amatrix, Smatrix=Smatrix, Fmatrix=Fmatrix,
                                              diag.constraints=diag.constraints, intervals.type=intervals.type,
                                              mx.algebras=mx.algebras,
                                              model.name=model.name, suppressWarnings=suppressWarnings, silent=silent,
