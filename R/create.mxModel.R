@@ -1,5 +1,6 @@
 ## Easy creation of mx models
-## Note. Dimension names of variables are assumed in the RAM$F
+## Note. Dimension names of variables are assumed stored in RAM$F;
+## otherwise, they have to be specified in var.names. 
 create.mxModel <- function(model.name="mxModel", RAM=NULL, Amatrix=NULL,
                            Smatrix=NULL, Fmatrix=NULL, Mmatrix=NULL,
                            Vmatrix=NULL, data, intervals.type = c("z", "LB"),

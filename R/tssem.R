@@ -1,6 +1,21 @@
 tssem1FEM <- function(Cov, n, cor.analysis=TRUE, model.name=NULL,
                       cluster=NULL, suppressWarnings=TRUE, silent=TRUE,
                       run=TRUE, ...) {
+    
+  ## Function to mark diagonals as NA when all correlation coefficients of the variable are NA
+  ## assuming matrices are symmetric
+  addDiagNA <- function(x) {
+      add_NA <- function(y) {
+          for(i in 1:nrow(y)) {
+              ## All elements in the row except the diagonal are NA
+              if (sum(is.na(y[, i]))==(nrow(y)-1)) y[i,i] <- NA
+          }
+          y
+      }
+      if (is.list(x)) lapply(x, add_NA) else add_NA(x)
+  }
+
+  ## Split the data by cluster  
   if (!is.null(cluster)) {
     data.cluster <- tapply(Cov, cluster, function(x) {x})
     n.cluster <- tapply(n, cluster, function(x) {x})
@@ -56,7 +71,10 @@ tssem1FEM <- function(Cov, n, cor.analysis=TRUE, model.name=NULL,
       S <- mxMatrix(type="Symm", nrow=no.var, ncol=no.var, free=TRUE, values=vech(sv),
                     labels=vech(ps.labels), lbound=lbound, name="S")
     }
-
+  
+    ## Mark the diagonals as NA when all correlation coefficients are NA
+    Cov <- addDiagNA(Cov)
+      
     ## Index for missing variables: only check the diagonals only!!!
     miss.index <- lapply(Cov, function(x) { is.na(Diag(x)) })
 
@@ -93,10 +111,6 @@ tssem1FEM <- function(Cov, n, cor.analysis=TRUE, model.name=NULL,
         # Expected covariance matrix
         expC <- mxAlgebra(SD %&% S, name="expC", dimnames=list(var.names[!miss.index.i],
                           var.names[!miss.index.i]))
-        # Create mxModel
-        ## model <- mxModel(paste("group",i,sep=""), S, Dmatrix, expC,
-        ##                      mxData(observed=Cov.i, type="cov", numObs=n[i]),
-        ##                      mxMLObjective(expC, dimnames=var.names[!miss.index[[i]]]))
 
         fitFunction <- mxFitFunctionML()
 
@@ -105,26 +119,6 @@ tssem1FEM <- function(Cov, n, cor.analysis=TRUE, model.name=NULL,
                 "]), fitFunction, mxExpectationNormal(covariance=\"expC\", means=NA, dimnames=var.names[!miss.index[[", i, "]]]))", sep = "")
         eval(parse(text = g.model))
     }
-
-    ## if (cor.analysis==TRUE) {
-    ##     tssem1.model <- paste("tssem1 <- mxModel(\"", model.name, "\", ", paste("S",
-    ##         1:no.groups, sep = "", collapse = ","), ", ", paste("D", 1:no.groups,
-    ##         sep = "", collapse = ","), ", ", paste("expC", 1:no.groups, sep = "",
-    ##         collapse = ","), ", ", paste("g", 1:no.groups, sep = "", collapse = ","),
-    ##         ", mxAlgebra(", paste("g", 1:no.groups, ".objective", sep = "", collapse = "+"),
-    ##         ", name=\"obj\"), mxAlgebraObjective(\"obj\"))", sep = "")
-    ## } else {
-    ##     tssem1.modelb <- paste("tssem1 <- mxModel(\"", model.name, "\", ", paste("S",
-    ##         1:no.groups, sep = "", collapse = ","), ", ", paste("g", 1:no.groups,
-    ##         sep = "", collapse = ","), ", mxAlgebra(", paste("g", 1:no.groups, ".objective",
-    ##         sep = "", collapse = "+"), ", name=\"obj\"), mxAlgebraObjective(\"obj\"))",
-    ##         sep = "")
-    ## }
-      
-    ## tssem1.model <- paste("tssem1 <- mxModel(\"", model.name, "\", S, ",
-    ##                       paste("g", 1:no.groups, sep = "", collapse = ","),
-    ##                       ", mxAlgebra(", paste("g", 1:no.groups, ".objective", sep = "", collapse = "+"),
-    ##                       ", name=\"obj\"), mxFitFunctionAlgebra(algebra =\"obj\"))", sep = "")
 
     ## Replaced mxFitFunctionAlgebra() with mxFitFunctionMultigroup()  
     tssem1.model <- paste0("tssem1 <- mxModel(\"", model.name, "\", S, ",
