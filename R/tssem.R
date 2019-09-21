@@ -13,8 +13,18 @@ tssem1FEM <- function(Cov, n, cor.analysis=TRUE, model.name=NULL,
           y
       }
       if (is.list(x)) lapply(x, add_NA) else add_NA(x)
-  }
+  }  
+  ## Mark the diagonals as NA when all correlation coefficients are NA
+  Cov <- addDiagNA(Cov)
 
+  ## Smooth non-symmetric matrices probably due to rounding
+  ## assuming no input error in the matrices
+  if (is.list(Cov)) {
+      Cov <- lapply(Cov, function(x) {x <- (x+t(x))/2; x})
+  } else {
+      Cov <- (Cov+t(Cov))/2
+  }
+        
   ## Split the data by cluster  
   if (!is.null(cluster)) {
     data.cluster <- tapply(Cov, cluster, function(x) {x})
@@ -71,9 +81,6 @@ tssem1FEM <- function(Cov, n, cor.analysis=TRUE, model.name=NULL,
       S <- mxMatrix(type="Symm", nrow=no.var, ncol=no.var, free=TRUE, values=vech(sv),
                     labels=vech(ps.labels), lbound=lbound, name="S")
     }
-  
-    ## Mark the diagonals as NA when all correlation coefficients are NA
-    Cov <- addDiagNA(Cov)
       
     ## Index for missing variables: only check the diagonals only!!!
     miss.index <- lapply(Cov, function(x) { is.na(Diag(x)) })

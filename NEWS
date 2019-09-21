@@ -1,5 +1,6 @@
 Release 1.2.2.1 (Sep 21, 2019)
 ====================================
+* Fixed a minor bug in lavaan2RAM() that arranges variables according to x1, x10, x2, ...
 * Improved tssem1FEM() in handling missing variables.
 * Replaced bootstrap vcov() with OpenMx's vcov() when there are constraints in wls().
 * Added a subset argument in osmasem().

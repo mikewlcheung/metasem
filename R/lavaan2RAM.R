@@ -25,7 +25,8 @@ lavaan2RAM <- function(model, obs.variables = NULL, A.notation="ON", S.notation=
     }
         
     ## all variables
-    all.var <- sort(unique(c(my.model$lhs, my.model$rhs)))
+    ## Removed sort(); otherwise, the variables will be arranged as x1, x10, x2, x3...
+    all.var <- unique(c(my.model$lhs, my.model$rhs))
     ## latent variables: (with indicators)
     latent <- unique(my.model[my.model$op== "=~", ]$lhs)
     ## observed variables: not latent
