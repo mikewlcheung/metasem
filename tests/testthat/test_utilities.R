@@ -551,3 +551,31 @@ test_that("metaFIML() works correctly", {
     expect_equal(fit3a$mx.fit$output$Minus2LogLikelihood,
                  fit3b$output$Minus2LogLikelihood)    
 })
+
+test_that("Handling NA in diagonals in tssem1FEM() correctly", {
+
+    var.names <- paste0("x", 1:4) 
+    ## All correlations of a variables are NA but the diagonal is 1
+    C1 <- matrix(.5, ncol=4, nrow=4)
+    diag(C1) <- 1
+    C2 <- matrix(.5, ncol=4, nrow=4)
+    C2[2, ] <- C2[, 2] <- NA
+    diag(C2) <- 1
+    C3 <- matrix(.5, ncol=4, nrow=4)
+    C3[1, ] <- C3[, 1] <- NA
+    diag(C3) <- 1
+    dimnames(C1) <- dimnames(C2) <- dimnames(C3) <- list(var.names, var.names)
+
+    C2.NA <- C2
+    C2.NA[2,2] <- NA
+    C3.NA <- C3
+    C3.NA[1,1] <- NA
+    
+    fit <- tssem1(Cov=list(C1, C2,C3), n=c(50, 50, 50), method="FEM")
+    expect_identical(list(C1, C2.NA, C3.NA), fit$data)
+
+    ## Not all correlations are NA. Thus, they cannot be corrected.
+    C2[2,3] <- C2[3,2] <- .5
+    C3[1,2] <- C3[2,1] <- .5
+    expect_error(tssem1(Cov=list(C1, C2,C3), n=c(50, 50, 50), method="FEM"))
+})
