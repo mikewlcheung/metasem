@@ -7,9 +7,9 @@
 
 The `metaSEM` package conducts univariate and multivariate meta-analyses using a structural equation modeling (SEM) approach via the `OpenMx` package. It also implements the two-stage SEM approach to conduct meta-analytic structural equation modeling on correlation/covariance matrices.
 
-* [Examples](https://cran.r-project.org/web/packages/metaSEM/vignettes/Examples.html)
-* [Vignettes](https://cran.r-project.org/web/packages/metaSEM/vignettes/metaSEM.pdf)
-* [Reference manual](https://cran.r-project.org/web/packages/metaSEM/metaSEM.pdf)
+* [Examples](https://cran.r-project.org/package=metaSEM/vignettes/Examples.html)
+* [Vignettes](https://cran.r-project.org/package=metaSEM/vignettes/metaSEM.pdf)
+* [Reference manual](https://cran.r-project.org/package=metaSEM/metaSEM.pdf)
 
 The stable version can be installed from CRAN by:
 ```

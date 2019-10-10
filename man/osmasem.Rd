@@ -41,7 +41,7 @@ osmasem(model.name="osmasem", Mmatrix, Tmatrix, data, subset=NULL,
 
 \references{
 Jak, S., & Cheung, M. W.-L. (in press). Meta-analytic structural equation
-modeling with moderating effects on SEM parameters. \emph{Psychological Methods}. https://doi.org/10.31234/osf.io/ce85j
+modeling with moderating effects on SEM parameters. \emph{Psychological Methods}.
 }  
 \seealso{ \code{\link[metaSEM]{Cor2DataFrame}}, \code{\link[metaSEM]{create.vechsR}},
   \code{\link[metaSEM]{create.Tau2}}, \code{\link[metaSEM]{create.V}}, \code{\link[metaSEM]{Nohe15}}

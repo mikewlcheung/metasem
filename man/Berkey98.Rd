@@ -31,6 +31,7 @@ data(Berkey98)
 #### ML estimation method
 ## Multivariate meta-analysis
 x <- meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL), data=Berkey98)
+x <- rerun(x)
 summary(x)
 plot(x)
 

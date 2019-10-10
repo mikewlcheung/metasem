@@ -1,4 +1,4 @@
-Release 1.2.2.1 (Sep 21, 2019)
+Release 1.2.3 (Oct 10, 2019)
 ====================================
 * Fixed a minor bug in lavaan2RAM() that arranges variables according to x1, x10, x2, ...
 * Improved tssem1FEM() in handling missing variables.
@@ -9,8 +9,7 @@ Release 1.2.2.1 (Sep 21, 2019)
 * Added an argument autofixtau2 for tssem1REM and osmasem objects in rerun().
 * Added an argument RAM=NULL in wls(), tssem2(), and uniR2mx().
 * Added dataset Kalaian96.
-* Added robust argument in vcov.meta(), vcov.meta3X(), vcov.osmasem(), vcov.tssem1REM(), summary.meta(),
-  summary.meta3X(), summary.osmasem(), and summary.tssem1REM().
+* Added robust argument in vcov.meta(), vcov.meta3X(), vcov.osmasem(), vcov.tssem1REM(), summary.meta(), summary.meta3X(), summary.osmasem(), and summary.tssem1REM().
 
 Release 1.2.2 (May 29, 2019)
 ====================================

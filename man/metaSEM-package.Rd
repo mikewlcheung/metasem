@@ -14,8 +14,8 @@
 \tabular{ll}{
 Package: \tab metaSEM\cr
 Type: \tab Package\cr
-Version: \tab 1.2.2.1\cr
-Date: \tab 2019-09-21\cr
+Version: \tab 1.2.3\cr
+Date: \tab 2019-10-10\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }
@@ -47,7 +47,7 @@ Cheung, M. W.-L. (2018). Issues in solving the problem of effect size heterogene
 
 Cheung, M. W.-L. (2018). Computing multivariate effect sizes and their sampling covariance matrices with structural equation modeling: Theory, examples, and computer simulations. \emph{Frontiers in Psychology}, \bold{9}(1387). https://doi.org/10.3389/fpsyg.2018.01387
 
-Cheung, M. W.-L. (2019). Some reflections on combining meta-analysis and structural equation modeling. \emph{Research Synthesis Methods}, \bold{10}(1), 15-22. https://doi.org/10.1002/jrsm.1321
+Cheung, M. W.-L. (2019). Some reflections on combining meta-analysis and structural equation modeling. \emph{Research Synthesis Methods}, \bold{10}(1), 15-22. 
 
 Cheung, M. W.-L., & Chan, W. (2004). Testing dependent correlation coefficients via structural equation modeling. \emph{Organizational Research Methods}, \bold{7}, 206-223.
 
@@ -59,7 +59,7 @@ Cheung, M. W.-L., & Cheung, S.-F. (2016). Random-effects models for meta-analyti
 
 Jak, S., & Cheung, M. W.-L. (2018). Testing moderator hypotheses in meta-analytic structural equation modeling using subgroup analysis. \emph{Behavior Research Methods}, \bold{50}, 1359-1373.
 
-Jak, S., & Cheung, M. W.-L. (in press). Meta-analytic structural equation modeling with moderating effects on SEM parameters. \emph{Psychological Methods}. https://doi.org/10.31234/osf.io/ce85j
+Jak, S., & Cheung, M. W.-L. (in press). Meta-analytic structural equation modeling with moderating effects on SEM parameters. \emph{Psychological Methods}. 
 }
 \keyword{ package }
 
