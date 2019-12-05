@@ -1,6 +1,6 @@
 Diag <- function(x, ...) {
 #Diag <- function(x, nrow, ncol) {
-  if (class(x)=="character" & missing(...)) {
+  if (inherits(x, "character") & missing(...)) {
     p <- length(x)
     out <- matrix(0, nrow=p, ncol=p)
     diag(out) <- x

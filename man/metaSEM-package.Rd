@@ -14,8 +14,8 @@
 \tabular{ll}{
 Package: \tab metaSEM\cr
 Type: \tab Package\cr
-Version: \tab 1.2.3\cr
-Date: \tab 2019-10-10\cr
+Version: \tab 1.2.3.1\cr
+Date: \tab 2019-12-05\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }
@@ -59,7 +59,7 @@ Cheung, M. W.-L., & Cheung, S.-F. (2016). Random-effects models for meta-analyti
 
 Jak, S., & Cheung, M. W.-L. (2018). Testing moderator hypotheses in meta-analytic structural equation modeling using subgroup analysis. \emph{Behavior Research Methods}, \bold{50}, 1359-1373.
 
-Jak, S., & Cheung, M. W.-L. (in press). Meta-analytic structural equation modeling with moderating effects on SEM parameters. \emph{Psychological Methods}. 
+Jak, S., & Cheung, M. W.-L. (2019). Meta-analytic structural equation modeling with moderating effects on SEM parameters. \emph{Psychological Methods}. 
 }
 \keyword{ package }
 

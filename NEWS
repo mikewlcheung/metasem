@@ -1,5 +1,10 @@
+Release 1.2.3.1 (Dec 5, 2019)
+====================================
+* Changed class(x) == "foo" to inherits(x, "foo") to avoid errors in R-4.0.
+
 Release 1.2.3 (Oct 10, 2019)
 ====================================
+* Released to CRAN.
 * Fixed a minor bug in lavaan2RAM() that arranges variables according to x1, x10, x2, ...
 * Improved tssem1FEM() in handling missing variables.
 * Replaced bootstrap vcov() with OpenMx's vcov() when there are constraints in wls().

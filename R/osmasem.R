@@ -511,19 +511,7 @@ VarCorr <- function(x, ...) {
     if (!(class(x) %in% c("meta", "osmasem")))
         stop("\"x\" must be an object of either class \"meta\" or \"osmasem\".")
 
-    ## if (class(x)=="meta") {
-    ##     eval(parse(text="mxEval(Tau, x$mx.fit)"))
-    ## } else {
-    ##     out <- eval(parse(text="mxEval(Tau2, x$mx.fit)"))
-
-    ##     ## No. of variables in the model
-    ##     p <- ncol(out)
-    ##     names.tau2 <- paste0("Tau2_", seq_len(p))    
-    ##     dimnames(out) <- list(names.tau2, names.tau2)
-    ##     out
-    ## }
-
-    switch(class(x),
+    switch(class(x)[1],
            meta = out <- eval(parse(text="mxEval(Tau, x$mx.fit)")),
            osmasem = {
                out <- eval(parse(text="mxEval(Tau2, x$mx.fit)"))
@@ -531,7 +519,8 @@ VarCorr <- function(x, ...) {
                ## No. of variables in the model
                p <- ncol(out)
                names.tau2 <- paste0("Tau2_", seq_len(p))
-               dimnames(out) <- list(names.tau2, names.tau2)})
+               dimnames(out) <- list(names.tau2, names.tau2)},
+           stop("Invalid class:", class(x)))
 
     out    
 }

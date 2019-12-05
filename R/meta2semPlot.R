@@ -3,7 +3,7 @@ meta2semPlot <- function(object, manNames=NULL, latNames=NULL, labels=c("labels"
     if (!requireNamespace("semPlot", quietly=TRUE))    
         stop("\"semPlot\" package is required for this function.")
     
-    if (class(object)=="wls") {
+    if (inherits(object, "wls")) {
     ## No visible binding for global variable Note in R CMD check    
     ## A <- mxEval(Amatrix, object$mx.fit)
     ## S <- mxEval(Smatrix, object$mx.fit)
