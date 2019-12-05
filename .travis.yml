@@ -23,7 +23,7 @@ os:
 r:
 # - oldrel
  - release
-# - devel 
+ - devel 
 
 #install:
 # - sudo apt-get install -yq --allow-unauthenticated --no-install-suggests --no-install-recommends r-cran-openmx
