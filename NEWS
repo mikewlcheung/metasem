@@ -1,6 +1,7 @@
-Release 1.2.3.1 (Dec 5, 2019)
+Release 1.2.3.1 (Dec 8, 2019)
 ====================================
-* Changed class(x) == "foo" to inherits(x, "foo") to avoid errors in R-4.0.
+* Released to CRAN.
+* Changed class(x) == "foo" to inherits(x, "foo") to avoid errors in R 4.0.0.
 
 Release 1.2.3 (Oct 10, 2019)
 ====================================
