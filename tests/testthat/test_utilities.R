@@ -147,6 +147,24 @@ test_that("list2matrix() works correctly", {
                             dimnames=list(NULL, c("x_x", "y_x", "y_y"))))
 })
 
+test_that("lavaan2RAM() works correctly", {
+    ## Multiple regression with 2 groups
+    model1 <- "y ~ 1 + c(b1, b2)*x1 + c(b3, b4)*x2"
+    model2 <- list("1"="y ~ 1 + b1*x1 + b3*x2",
+                   "2"="y ~ 1 + b2*x1 + b4*x2")       
+    RAM1 <- lavaan2RAM(model1, ngroups=2)
+    RAM2 <- lapply(model2, lavaan2RAM)
+    expect_identical(RAM1, RAM2)
+
+    ## CFA with 2 groups
+    model3 <- "f =~ c(a, a)*x1 + c(b1, b2)*x2 + c(c1, c2)*x3 + c(d1, d2)*x4"
+    model4 <- list("1"="f =~ a*x1 + b1*x2 + c1*x3 + d1*x4",
+                   "2"="f =~ a*x1 + b2*x2 + c2*x3 + d2*x4")
+    RAM3 <- lavaan2RAM(model3, ngroups=2)
+    RAM4 <- lapply(model4, lavaan2RAM)
+    expect_identical(RAM3, RAM4)
+}
+
 context("Checking functions calculating effect sizes")
 
 test_that("smdMTS() works correctly", {

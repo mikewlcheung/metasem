@@ -9,7 +9,7 @@ It converts models specified in \code{lavaan} model syntax to RAM models.
 \usage{
 lavaan2RAM(model, obs.variables = NULL, A.notation = "ON",
            S.notation = "WITH", M.notation = "mean", auto.var = TRUE,
-           std.lv = TRUE, ...)
+           std.lv = TRUE, ngroups = 2, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -41,6 +41,8 @@ lavaan2RAM(model, obs.variables = NULL, A.notation = "ON",
   variable is determined by fixing their variances to 1.0. If FALSE, the
   metric of each latent variable is determined by fixing the factor
   loading of the first indicator to 1.0. See \code{\link[lavaan]{lavaanify}}.
+}
+\item{ngroups}{Number. The number of groups in the \code{model}. See \code{\link[lavaan]{lavaanify}}.
 }
 \item{\dots}{Further arguments to be passed to \code{\link[lavaan]{lavaanify}}}. Please note that \code{fixed.x} is set at \code{FALSE}. Thus it cannot be passed to \dots.
 }
@@ -93,6 +95,12 @@ model3 <- "y ~ x
            x ~ 1"
 
 lavaan2RAM(model3)
+
+## Multiple group regression model
+## Different intercepts with a common slope
+model4 <- "y ~ c(a1, a2)*1 + c(b, b)*x"
+
+lavaan2RAM(model4, ngroups=2)
 }
 \keyword{ methods }
-\keyword{ tssem }% __ONLY ONE__ keyword per line
+\keyword{ tssem }
