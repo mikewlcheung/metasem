@@ -163,7 +163,7 @@ test_that("lavaan2RAM() works correctly", {
     RAM3 <- lavaan2RAM(model3, ngroups=2)
     RAM4 <- lapply(model4, lavaan2RAM)
     expect_identical(RAM3, RAM4)
-}
+})
 
 context("Checking functions calculating effect sizes")
 
