@@ -9,7 +9,7 @@ It converts models specified in \code{lavaan} model syntax to RAM models.
 \usage{
 lavaan2RAM(model, obs.variables = NULL, A.notation = "ON",
            S.notation = "WITH", M.notation = "mean", auto.var = TRUE,
-           std.lv = TRUE, ngroups = 2, ...)
+           std.lv = TRUE, ngroups = 1, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
