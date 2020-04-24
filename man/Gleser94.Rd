@@ -24,18 +24,25 @@
 \dontrun{
 data(Gleser94)
 
-## Multiple-treatment studies
+#### Multiple-treatment studies
 Gleser94$MTS
 
 ## Assuming homogeneity of variances
-t(apply(Gleser94$MTS, MARGIN=1,
-        function(x)
+my.MTS <- t(apply(Gleser94$MTS, MARGIN=1,
+            function(x)
             smdMTS(m=x[c("Mean.C", "Mean.E1", "Mean.E2", "Mean.E3", "Mean.E4", "Mean.E5")],
                    v=x[c("SD.C", "SD.E1", "SD.E2", "SD.E3", "SD.E4", "SD.E5")]^2,
                    n=x[c("N.C", "N.E1", "N.E2", "N.E3", "N.E4", "N.E5")],
                    homogeneity="variance", list.output=FALSE)))
-                          
-## Multiple-endpoint studies
+
+## Fixed-effects multivariate meta-analysis
+fit.MTS <- meta(y=my.MTS[, 1:5], 
+                v=my.MTS[, 6:20], 
+                RE.constraints = diag(0, ncol=5, nrow=5),
+                model.name="MTS")
+summary(fit.MTS)
+
+#### Multiple-endpoint studies
 Gleser94$MES
 
 ## Calculate the sampling variances and covariance and amend into the data set
@@ -50,8 +57,8 @@ Gleser94$MES$Coached.V21 <- with(Gleser94$MES,
 Gleser94$MES$Coached.V22 <- with(Gleser94$MES, SD.Coached.Verbal^2)
 
 ## Assuming homogeneity of covariance matrices
-t(apply(Gleser94$MES, MARGIN=1,
-        function(x)
+my.MES <- t(apply(Gleser94$MES, MARGIN=1,
+            function(x)
             smdMES(m1=x[c("Mean.Uncoached.Math", "Mean.Uncoached.Verbal")],
                    m2=x[c("Mean.Coached.Math", "Mean.Coached.Verbal")],
                    V1=vec2symMat(x[c("Uncoached.V11", "Uncoached.V21", "Uncoached.V22")]),
@@ -59,6 +66,13 @@ t(apply(Gleser94$MES, MARGIN=1,
                    n1=x["N.Uncoached"],
                    n2=x["N.Coached"],
                    homogeneity="covariance", list.output=FALSE)))
+
+## Fixed-effects multivariate meta-analysis
+fit.MES <- meta(y=my.MES[, 1:2], 
+                v=my.MES[, 3:5], 
+                RE.constraints = diag(0, ncol=2, nrow=2),
+                model.name="MES")
+summary(fit.MES)
 }
 }
 \keyword{datasets}
