@@ -273,7 +273,8 @@ create.vechsR <- function(A0, S0, F0=NULL, Ax=NULL, Sx=NULL) {
     out
 }
 
-create.Tau2 <- function(RAM, no.var, RE.type=c("Diag", "Symm", "Zero", "User"),
+create.Tau2 <- function(RAM, no.var, Tau1.labels=seq(no.var),
+                        RE.type=c("Diag", "Symm", "Zero", "User"),
                         RE.User=NULL, Transform=c("expLog", "sqSD"),
                         RE.startvalues=0.05) {
     if (!missing(RAM)) {
@@ -284,6 +285,8 @@ create.Tau2 <- function(RAM, no.var, RE.type=c("Diag", "Symm", "Zero", "User"),
     
     ## It has not been tested yet. But it should work for no.var=1.
     if (no.var<1) stop("'no.var' must be at least 1.\n")
+
+    if (length(Tau1.labels) != no.var) stop("Length of \"Tau1.labels\" is different from \"no.var\".\n")
     
     RE.type <- match.arg(RE.type)
     Transform <- match.arg(Transform)
@@ -312,14 +315,14 @@ create.Tau2 <- function(RAM, no.var, RE.type=c("Diag", "Symm", "Zero", "User"),
     ## Tau2: pxp final variance component of variances
     switch(RE.type,
            Symm = {              
-               vecTau1 <- create.mxMatrix(paste0(RE.startvalues, "*Tau1_", seq(no.var)),
+               vecTau1 <- create.mxMatrix(paste0(RE.startvalues, "*Tau1_", Tau1.labels),
                                           ncol=1, nrow=no.var, name="vecTau1")
                Cor <- create.mxMatrix(vechs(outer(seq(no.var), seq(no.var),
                                             function(x,y) paste0("0*Cor_", x, "_", y))),
                                       type="Stand", ncol=no.var, nrow=no.var,
                                       lbound=-0.99, ubound=0.99, name="Cor")},
            Diag = {
-               vecTau1 <- create.mxMatrix(paste0(RE.startvalues, "*Tau1_", seq(no.var)),
+               vecTau1 <- create.mxMatrix(paste0(RE.startvalues, "*Tau1_", Tau1.labels),
                                           ncol=1, nrow=no.var, name="vecTau1")
                ## Uncorrelated
                Cor <- as.mxMatrix(diag(no.var), name="Cor")},
@@ -340,7 +343,7 @@ create.Tau2 <- function(RAM, no.var, RE.type=c("Diag", "Symm", "Zero", "User"),
                                stop("RE.User[",j,",",i,"] is free but either RE.User[",i,",",
                                     i,"] or RE.User[",j,",",j,"] is fixed.\n") }}}}
                               
-               vecTau1 <- paste0(RE.startvalues, "*Tau1_", seq(no.var))
+               vecTau1 <- paste0(RE.startvalues, "*Tau1_", Tau1.labels)
                vecTau1[diag(RE.User)==FALSE] <- 0
                vecTau1 <- create.mxMatrix(vecTau1, ncol=1, nrow=no.var, name="vecTau1")
                Cor <- outer(seq(no.var), seq(no.var),
@@ -387,7 +390,7 @@ create.V <- function(x, type=c("Symm", "Diag", "Full"), as.mxMatrix=TRUE) {
     out
 }
     
-osmasem <- function(model.name="osmasem", Mmatrix, Tmatrix, data,
+osmasem <- function(model.name="osmasem", Mmatrix, Tmatrix, Jmatrix, data,
                     subset=NULL, intervals.type = c("z", "LB"),
                     mxModel.Args=NULL, mxRun.Args=NULL,
                     suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
@@ -420,14 +423,25 @@ osmasem <- function(model.name="osmasem", Mmatrix, Tmatrix, data,
     ## Create known sampling variance covariance matrix
     Vmatrix <- create.V(vlabels, type="Symm", as.mxMatrix=TRUE)
 
+    ## If Jmatrix is not specified, create an identify matrix
+    ## Use Vmatrix$Cor$values as it is an identity matrix
+    if (missing(Jmatrix)) {
+        Jmatrix <- Vmatrix$values
+        diag(Jmatrix) <- 1
+        Jmatrix <- as.mxMatrix(Jmatrix, name="Jmatrix")
+    } else {
+        Jmatrix$name  <- "Jmatrix"
+    }
+    
     ## Dirty trick to avoid the warning of "no visible binding for global variable"
     mx.model <- eval(parse(text="mxModel(model=model.name,
                            mxData(observed=data$data, type='raw'),
                            mxExpectationNormal(covariance='expCov',
                                                means='vechsR',
                                                dimnames=ylabels),
-                           mxFitFunctionML(), Mmatrix, Tmatrix, Vmatrix,
-                           mxAlgebra(Tau2+V, name='expCov'),
+                           mxFitFunctionML(),
+                           Mmatrix, Tmatrix, Vmatrix, Jmatrix,
+                           mxAlgebra(Jmatrix %&% Tau2 + V, name='expCov'),
                            mxCI(c('Amatrix', 'Smatrix', 'Tau2')))"))
     
     ## Add additional arguments to mxModel
@@ -536,7 +550,7 @@ VarCorr <- function(x, ...) {
         if (!is.element("osmasem", class(osmasem.obj)))
             stop("\"osmasem.obj\" must be an object of class \"osmasem\".")
 
-        Tmatrix <- osmasem.obj$Tmatrix
+        if (missing(Tmatrix)) Tmatrix <- osmasem.obj$Tmatrix
         Vmatrix <- osmasem.obj$Vmatrix
         ## No. of variables in the model
         p <- nrow(Tmatrix$Cor$values)
@@ -619,8 +633,36 @@ summary.osmasem <- function(object, Saturated=FALSE, numObs,
 
     ## Calculate chi-square statistic
     if (Saturated) {
-        Sat.stat <- summary(.osmasemSatIndMod(object, model="Saturated",
-                                              Std.Error=FALSE, silent=TRUE))
+        ## Check if the dimensions of Tmatrix and Vmatrix match.
+        ## They can be different for rcmasem
+        ## No. of effect sizes
+        p <- dim(object$Vmatrix$values)[1]
+        
+        if (length(object$Tmatrix$vecTau1$labels) != p) {
+            ## Check if there are correlations,
+            ## If yes -> Symm, no -> Diag
+            ## if (sum(object$Tmatrix$Cor$free)>0) RE.type="Symm" else RE.type="Diag"
+            ## T0 <- create.Tau2(no.var=p, RE.type=RE.type)
+
+            ## For rcmasem, the variance component cannot be Diag;
+            ## otherwise, the saturated model fits poorer than the rcmasem.
+            T0 <- create.Tau2(no.var=p, RE.type="Symm")
+            
+            Sat.stat <- .osmasemSatIndMod(object, model="Saturated", Tmatrix=T0,
+                                          Std.Error=FALSE, silent=TRUE)
+        } else {
+            Sat.stat <- .osmasemSatIndMod(object, model="Saturated",
+                                          Std.Error=FALSE, silent=TRUE)
+        }
+
+        ## NA for saturated model if there are either errors or nonconvergent.
+        if ( inherits(Sat.stat, "error") | !(Sat.stat$output$status$code %in% c(0,1)) ) {
+            Sat.stat <- list()
+            Sat.stat$Minus2LogLikelihood  <- Sat.stat$degreesOfFreedom <- NA
+        } else {
+            Sat.stat <- summary(Sat.stat)
+        }
+        
         out <- summary(object$mx.fit,
                        SaturatedLikelihood=Sat.stat$Minus2LogLikelihood,
                        SaturatedDoF=Sat.stat$degreesOfFreedom,
@@ -715,4 +757,3 @@ osmasemSRMR <- function(x) {
 ##     mxModel(mxData(observed=data, type="raw"),
 ##             Mu, Sigma, Fmatrix, Vmatrix, Sfull, fitfun, fit, ...)
 ## }
-

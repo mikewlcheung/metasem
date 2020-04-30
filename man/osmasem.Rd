@@ -5,7 +5,7 @@
 \description{It fits MASEM with the one-stage MASEM (OSMASEM) approach.  
 }
 \usage{
-osmasem(model.name="osmasem", Mmatrix, Tmatrix, data, subset=NULL,
+osmasem(model.name="osmasem", Mmatrix, Tmatrix, Jmatrix, data, subset=NULL,
         intervals.type=c("z", "LB"), mxModel.Args=NULL,
         mxRun.Args=NULL, suppressWarnings=TRUE,
         silent=TRUE, run=TRUE, ...)
@@ -17,6 +17,9 @@ osmasem(model.name="osmasem", Mmatrix, Tmatrix, data, subset=NULL,
   matrix created by the \code{create.vechsR}.}
 \item{Tmatrix}{A list of matrices of the heterogeneity
   variance-covariance matrix created by the \code{create.Tau2}.}
+\item{Jmatrix}{The Jacobian matrix of the mean structure in
+  mxMatrix. The covariance structure is Jmatrix \%&\% Tau2 + Vi. If it is
+not givin, an identity matrix will be used. }
 \item{data}{A list of data created by the \code{Cor2DataFrame}.}
 \item{subset}{A character vector of the observed variables selected for
   the analysis.}
@@ -44,7 +47,7 @@ Jak, S., & Cheung, M. W.-L. (2019). Meta-analytic structural equation
 modeling with moderating effects on SEM parameters. \emph{Psychological Methods}.
 }  
 \seealso{ \code{\link[metaSEM]{Cor2DataFrame}}, \code{\link[metaSEM]{create.vechsR}},
-  \code{\link[metaSEM]{create.Tau2}}, \code{\link[metaSEM]{create.V}}, \code{\link[metaSEM]{Nohe15}}
+  \code{\link[metaSEM]{create.Tau2}}, \code{\link[metaSEM]{create.V}}, \code{\link[metaSEM]{osmasem}}, \code{\link[metaSEM]{Nohe15}}
 }
 
 % Add one or more standard keywords, see file 'KEYWORDS' in the
