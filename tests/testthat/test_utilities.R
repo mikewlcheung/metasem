@@ -165,6 +165,41 @@ test_that("lavaan2RAM() works correctly", {
     expect_identical(RAM3, RAM4)
 })
 
+test_that("as.symMatrix() works correctly", {
+    A1 <- matrix(c(1:3, "a", "*b", "6*c", 7:9), ncol=3, nrow=3)
+    A2 <- matrix(c(1:3, "a", "b", "c", 7:9), ncol=3, nrow=3)    
+    A3 <- as.symMatrix(A1)
+    expect_identical(A2, A3)
+
+    B1 <- diag(4)
+    B2 <- Diag(rep("1", 4))
+    B3 <- as.symMatrix(B1)
+    expect_identical(B2, B3)
+    
+    model <- "y ~ b*m + c*x
+              m ~ a*x
+              x ~~ 1*x
+              m ~~ Errm*m
+              y ~~ Erry*y
+              x ~ meanx*1
+              m ~ interceptm*1
+              y ~ intercepty*1"
+    RAM1 <- lavaan2RAM(model, obs.variables =c("y", "m", "x"))
+    RAM2 <- RAM1
+    RAM2$A[1, 2] <- "b"
+    RAM2$A[1, 3] <- "c"
+    RAM2$A[2, 3] <- "a"
+    RAM2$S[1, 1] <- "Erry"
+    RAM2$S[2, 2] <- "Errm"
+    RAM2$M[1, 1] <- "intercepty"
+    RAM2$M[1, 2] <- "interceptm"
+    RAM2$M[1, 3] <- "meanx"
+    RAM2$F[] <- as.character(RAM2$F)
+    RAM3 <- as.symMatrix(RAM1)
+    expect_identical(RAM2, RAM3)
+})
+
+
 context("Checking functions calculating effect sizes")
 
 test_that("smdMTS() works correctly", {

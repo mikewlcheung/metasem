@@ -59,3 +59,15 @@ as.mxMatrix <- function(x, name, ...) {
   ## options(warn=warn)
   out
 }
+
+
+as.symMatrix <- function(x) {
+    if (is.list(x)) {
+        for (i in seq_along(x)) {
+            x[[i]][] <- vapply(x[[i]], function(z) gsub(".*\\*", "", z), character(1))
+        }
+    } else {
+        x[] <- vapply(x, function(z) gsub(".*\\*", "", z), character(1))
+    }
+    x
+}

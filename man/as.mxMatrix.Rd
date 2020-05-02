@@ -41,7 +41,8 @@ as.mxMatrix(x, name, ...)
 	\code{\link[metaSEM]{create.mxMatrix}},
 	\code{\link[metaSEM]{create.Fmatrix}},
 	\code{\link[metaSEM]{checkRAM}},
-    \code{\link[metaSEM]{lavaan2RAM}}
+    \code{\link[metaSEM]{lavaan2RAM}},
+	\code{\link[metaSEM]{as.symMatrix}}
 }
 \examples{
 ## a and b are free parameters with starting values and labels
