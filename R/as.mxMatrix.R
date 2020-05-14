@@ -60,7 +60,6 @@ as.mxMatrix <- function(x, name, ...) {
   out
 }
 
-
 as.symMatrix <- function(x) {
     if (is.list(x)) {
         for (i in seq_along(x)) {
@@ -70,4 +69,49 @@ as.symMatrix <- function(x) {
         x[] <- vapply(x, function(z) gsub(".*\\*", "", z), character(1))
     }
     x
+}
+
+as.mxAlgebra <- function(x, name="X") {
+
+    ## Xvars: a column vector of the parameters in x, e.g., a, b, c.
+    vars <- sort(all.vars(parse(text=x)))
+    ## Provide 0 as starting value 
+    Xvars <- create.mxMatrix(paste0("0*", vars), ncol=1, nrow=length(vars))
+    ## Change the matrix name
+    Xvars@name <- paste0(name, "vars")
+
+    xrow <- nrow(x)
+    xcol <- ncol(x)
+
+    ## This is general but not efficient
+    ## The mxAlgebra matrix is built on rbind(cbind(...)) of each Xi_j
+    ## If x[i,j] = a^b, then Xij <- mxAlgebra(a^b, name="xi_j")
+    for (j in seq_len(xcol))
+        for (i in seq_len(xrow)) {
+            ## Elements of each Xi_j
+            Xij <- paste0(name,i,"_",j, " <- mxAlgebra(",x[i,j], ", name='",name,i,"_",j,"')")
+            eval(parse(text=Xij))               
+    }
+
+    ## Xmat: a matrix of the named Xi_j of mxalgebra
+    Xmat <- outer(seq_len(xrow), seq_len(xcol), function(x, y) paste0(name,x,"_",y))
+    Xmat <- paste0("cbind(", apply(Xmat, 1, paste0, collapse=", "), ")")
+    Xmatrix  <- paste0(name, " <- mxAlgebra(rbind(", paste0(Xmat, collapse=", "), "), name='", name,"')")
+    eval(parse(text=Xmatrix))
+
+    ## Prepare mxalgebra matrices for output
+    ## "name", e.g., A: the mxAlgebra object
+    ## Xvars, e.g., Avars: the variables (parameters) to build the mxAlgebra
+    ## names: a list of the names of these matrices
+    ## Xlist, e.g., Alist: a list of mxalgebra of X1_1, X1_2, X2_1, ...
+    Xlist <- outer(seq_len(xrow), seq_len(xcol), function(x,y) paste0(name,x,"_",y))
+    Xnames <- c(name, Xvars@name, Xlist)
+    Xlist <- paste0("list(", paste0(Xlist, "=", Xlist, collapse=", "), ")")
+    Xlist <- eval(parse(text=Xlist))
+    # list(Xmatrix=Xmatrix, Xvars=Xvars, Xnames=Xnames, Xlist=Xlist)
+
+    out <- paste0("out <- list(", name, "=", name, ", names=Xnames, ", name, 
+                  "vars=Xvars, ", name, "list=Xlist",")" )
+    eval(parse(text=out))
+    out
 }
