@@ -390,7 +390,9 @@ create.V <- function(x, type=c("Symm", "Diag", "Full"), as.mxMatrix=TRUE) {
     out
 }
     
-osmasem <- function(model.name="osmasem", Mmatrix, Tmatrix, Jmatrix, data,
+osmasem <- function(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
+                    Tmatrix=NULL, Jmatrix=NULL, Ax=NULL, Sx=NULL,
+                    RE.type=c("Diag", "Symm"), data,
                     subset=NULL, intervals.type = c("z", "LB"),
                     mxModel.Args=NULL, mxRun.Args=NULL,
                     suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
@@ -401,11 +403,11 @@ osmasem <- function(model.name="osmasem", Mmatrix, Tmatrix, Jmatrix, data,
            LB = intervals <- TRUE)
 
     ## Operator for not in
-    "%ni%" <- Negate("%in%")
+    ## "%ni%" <- Negate("%in%")
 
     ## Filter out variables not used in the analysis
     if (!is.null(subset)) {
-        index  <- subset %ni% data$obslabels
+        index  <- !(subset %in% data$obslabels)
         if (any(index)) {
             stop(paste0(paste0(subset[index], collapse = ", "), " are not in the ylabels.\n"))
         }
@@ -420,12 +422,18 @@ osmasem <- function(model.name="osmasem", Mmatrix, Tmatrix, Jmatrix, data,
         vlabels <- data$vlabels
     }
 
+    ## If RAM is provided, create the matrices based on it.
+    if (!is.null(RAM)) {
+        Mmatrix <- create.vechsR(A0=RAM$A, S0=RAM$S, F0=RAM$F, Ax=Ax, Sx=Sx)
+        Tmatrix <- create.Tau2(RAM=RAM, RE.type="Diag", Transform="expLog")
+    }
+
     ## Create known sampling variance covariance matrix
     Vmatrix <- create.V(vlabels, type="Symm", as.mxMatrix=TRUE)
 
     ## If Jmatrix is not specified, create an identify matrix
     ## Use Vmatrix$Cor$values as it is an identity matrix
-    if (missing(Jmatrix)) {
+    if (is.null(Jmatrix)) {
         Jmatrix <- Vmatrix$values
         diag(Jmatrix) <- 1
         Jmatrix <- as.mxMatrix(Jmatrix, name="Jmatrix")
@@ -467,7 +475,7 @@ osmasem <- function(model.name="osmasem", Mmatrix, Tmatrix, Jmatrix, data,
     }
 
     out <- list(call=match.call(), Mmatrix=Mmatrix, Tmatrix=Tmatrix,
-                Vmatrix=Vmatrix, data=data,
+                Vmatrix=Vmatrix, Jmatrix=Jmatrix, data=data,
                 labels=list(obslabels=obslabels, ylabels=ylabels,
                             vlabels=vlabels),
                 mxModel.Args=mxModel.Args, mxRun.Args=mxRun.Args,
@@ -530,9 +538,13 @@ VarCorr <- function(x, ...) {
            osmasem = {
                out <- eval(parse(text="mxEval(Tau2, x$mx.fit)"))
 
-               ## No. of variables in the model
-               p <- ncol(out)
-               names.tau2 <- paste0("Tau2_", seq_len(p))
+               ## ## No. of variables in the model
+               ## p <- ncol(out)
+               ## names.tau2 <- paste0("Tau2_", seq_len(p))
+
+               ## Get the names Tau1_1, Tau1_2... or Tau1_a, Tau1_b... from x$Tmatrix
+               ## Replace Tau1 with Tau2
+               names.tau2 <- gsub("Tau1", "Tau2", c(x$Tmatrix$vecTau1$labels))
                dimnames(out) <- list(names.tau2, names.tau2)},
            stop("Invalid class:", class(x)))
 
@@ -541,6 +553,7 @@ VarCorr <- function(x, ...) {
 
 
 ## Fit a saturated model with either a diagonal or symmetric variance component of random effects
+## TODO: need to catch error, mx code so that summary can get NA
 .osmasemSatIndMod <- function(osmasem.obj=NULL, model=c("Saturated", "Independence"),
                               Std.Error=FALSE, Tmatrix, data, subset=NULL,
                               mxModel.Args=NULL, mxRun.Args=NULL, suppressWarnings=TRUE,
@@ -687,8 +700,10 @@ osmasemR2 <- function(model1, model0, R2.truncate=TRUE) {
     if (!all(c(class(model0), class(model1)) %in% "osmasem"))
         stop("Both \"model0\" and \"model1\" must be objects of class \"osmasem\".")
 
-    Tau2.0 <- diag(eval(parse(text = "mxEval(Tau2, model0$mx.fit)")))       
-    Tau2.1 <- diag(eval(parse(text = "mxEval(Tau2, model1$mx.fit)")))
+    ## Tau2.0 <- diag(eval(parse(text = "mxEval(Tau2, model0$mx.fit)")))       
+    ## Tau2.1 <- diag(eval(parse(text = "mxEval(Tau2, model1$mx.fit)")))
+    Tau2.0 <- diag(VarCorr(model0))
+    Tau2.1 <- diag(VarCorr(model1))               
 
     R2 <- (Tau2.0-Tau2.1)/Tau2.0
 

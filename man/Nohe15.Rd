@@ -152,15 +152,19 @@ RAM1
 
 ## Create vechs of the model implied correlation matrix
 ## with implicit diagonal constraints
-M0 <- create.vechsR(A0=RAM1$A, S0=RAM1$S)
+## M0 <- create.vechsR(A0=RAM1$A, S0=RAM1$S)
 
 ## Create heterogeneity variances
 ## RE.type= either "Diag" or "Symm"
+##
 ## Transform= either "expLog" or "sqSD" for better estimation on variances
-T0 <- create.Tau2(RAM=RAM1, RE.type="Diag")
+## T0 <- create.Tau2(RAM=RAM1, RE.type="Diag")
+##
+## Fit the model    
+## fit0 <- osmasem(model.name="No moderator", Mmatrix=M0, Tmatrix=T0, data=my.df)
 
 ## Fit the model
-fit0 <- osmasem(model.name="No moderator", Mmatrix=M0, Tmatrix=T0, data=my.df)
+fit0 <- osmasem(model.name="No moderator", RAM=RAM1, data=my.df)
 summary(fit0)
 
 ## Get the SRMR
@@ -176,10 +180,14 @@ A1 <- matrix(c(0,0,0,0,
                "0*data.Lag","0*data.Lag",0,0),
              nrow=4, ncol=4, byrow=TRUE)
               
-M1 <- create.vechsR(A0=RAM1$A, S0=RAM1$S, Ax=A1)
-
-fit1 <- osmasem(model.name="Lag as a moderator for Amatrix", Mmatrix=M1,
-                Tmatrix=T0, data= my.df)
+## M1 <- create.vechsR(A0=RAM1$A, S0=RAM1$S, Ax=A1)
+##
+## Fit the nodel
+## fit1 <- osmasem(model.name="Lag as a moderator for Amatrix", Mmatrix=M1,
+##                 Tmatrix=T0, data= my.df)
+    
+fit1 <- osmasem(model.name="Lag as a moderator for Amatrix",
+                RAM=RAM1, Ax=A1, data= my.df)
 summary(fit1)
 VarCorr(fit1)
 

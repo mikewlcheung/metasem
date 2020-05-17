@@ -5,21 +5,33 @@
 \description{It fits MASEM with the one-stage MASEM (OSMASEM) approach.  
 }
 \usage{
-osmasem(model.name="osmasem", Mmatrix, Tmatrix, Jmatrix, data, subset=NULL,
-        intervals.type=c("z", "LB"), mxModel.Args=NULL,
-        mxRun.Args=NULL, suppressWarnings=TRUE,
-        silent=TRUE, run=TRUE, ...)
+osmasem(model.name="osmasem", RAM=NULL,  Mmatrix=NULL,
+        Tmatrix=NULL, Jmatrix=NULL, Ax=NULL, Sx=NULL,
+        RE.type=("Diag", "Symm"), data,
+        subset=NULL, intervals.type = c("z", "LB"),
+        mxModel.Args=NULL, mxRun.Args=NULL,
+        suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...)
 }
 \arguments{
-  \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. 
-}
+\item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. 
+  }
+\item{RAM}{A RAM object including a list of matrices of the model
+  returned from \code{\link[metaSEM]{lavaan2RAM}}. If it is given,
+  \code{Mmatrix} and \code{Tmatrix} arguments will be ignored. 
+}  
 \item{Mmatrix}{A list of matrices of the model implied correlation
-  matrix created by the \code{create.vechsR}.}
+  matrix created by the \code{create.vechsR}. It is only required when
+  \code{RAM} is null.}
 \item{Tmatrix}{A list of matrices of the heterogeneity
-  variance-covariance matrix created by the \code{create.Tau2}.}
+  variance-covariance matrix created by the \code{create.Tau2}. It is only required when \code{RAM} is null.}
 \item{Jmatrix}{The Jacobian matrix of the mean structure in
   mxMatrix. The covariance structure is Jmatrix \%&\% Tau2 + Vi. If it is
 not givin, an identity matrix will be used. }
+\item{Ax}{A Amatrix of a list of Amatrix with definition variables as
+  the moderators of the Amatrix. It is used to create the \code{Mmatrix}.}
+\item{Sx}{A Smatrix of a list of Smatrix with definition variables as
+  the moderators of the Smatrix. It is used to create the \code{Mmatrix}.}
+\item{RE.type}{Type of the random effects.}
 \item{data}{A list of data created by the \code{Cor2DataFrame}.}
 \item{subset}{A character vector of the observed variables selected for
   the analysis.}
