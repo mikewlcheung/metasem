@@ -5,12 +5,12 @@
 \description{It fits MASEM with the one-stage MASEM (OSMASEM) approach.  
 }
 \usage{
-osmasem(model.name="osmasem", RAM=NULL,  Mmatrix=NULL,
+osmasem(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
         Tmatrix=NULL, Jmatrix=NULL, Ax=NULL, Sx=NULL,
-        RE.type=("Diag", "Symm"), data,
+        RE.type=c("Diag", "Symm"), data,
         subset=NULL, intervals.type = c("z", "LB"),
         mxModel.Args=NULL, mxRun.Args=NULL,
-        suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...)
+        suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) 
 }
 \arguments{
 \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. 
