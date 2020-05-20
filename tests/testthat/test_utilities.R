@@ -33,6 +33,20 @@ test_that("is.pd() works correctly", {
     expect_identical(is.pd(list(x1, x2, x3)), c(TRUE, FALSE, NA)) 
 })
 
+test_that("as.mxMatrix() works correctly", {
+
+    x1 <- matrix(c(1, "2*a", "3@b", 4), ncol=2, nrow=2)
+    x1.labels <- c(NA, "a", "b", NA)
+    x1.values <- 1:4
+    x1.free <- c(FALSE, TRUE, FALSE, FALSE)
+    x2 <- mxMatrix(type="Full", nrow=2, ncol=2,
+                   free=x1.free, values=x1.values,
+                   labels=x1.labels, name="x1")
+ 
+    expect_identical(x2, as.mxMatrix(x1))
+})
+
+
 test_that("vec2symMat() works correctly", {
 
     x1 <- vec2symMat(1:10)

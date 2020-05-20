@@ -1,5 +1,6 @@
-Release 1.2.3.3 (May 14, 2020)
+Release 1.2.3.3 (May 20, 2020)
 ====================================
+* Added "@" in the syntax of as.mxMatrix().
 * Added as.mxAlgebra().
 * Added as.symMatrix().
 * Added an argument Jmatrix in osmasem().

@@ -30,14 +30,25 @@ as.mxMatrix <- function(x, name, ...) {
     if (length(freePara1)>0) {
         freePara2 <- strsplit(freePara1, "*", fixed=TRUE)
         # replace NA with starting values 0.5 before "0.5*a"
-        values[free] <- sapply(freePara2, function(x){ as.numeric(x[1])})
+        values[free] <- suppressWarnings(sapply(freePara2, function(x){ as.numeric(x[1])}))
         labels <- matrix(NA, ncol=nCol, nrow=nRow)
         labels[free] <- sapply(freePara2, function(x){ x[2]})
     
         ## Replace TRUE by FALSE in free when there are definition variables or [,]
         free[grep("data.", labels)] <- FALSE
         free[grep("\\[|,|\\]", labels)] <- FALSE
-    
+
+        ## Check any "@"
+        x_pos <- grep("@", x, fixed=TRUE)
+        if (length(x_pos)>0) {
+            x_at <- strsplit(x=x[x_pos], split="@", fixed=TRUE)
+            for (i in seq_along(x_at)) {
+                values[x_pos[i]] <- as.numeric(x_at[[i]][1])
+                labels[x_pos[i]] <- x_at[[i]][2]
+                free[x_pos[i]] <- FALSE                
+            }
+        }
+        
         out <- mxMatrix(type = "Full", nrow=nRow, ncol=nCol, values=values, free=free,
                         name=name, labels=labels, ...)
     } else {

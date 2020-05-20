@@ -24,9 +24,10 @@ as.mxMatrix(x, name, ...)
 }
 }
 \details{If there are non-numeric values in \code{x}, they are treated
-  as the labels of the free parameters. If a "*" is
+  as the labels of the parameters. If a "*" is
   present, the numeric value on the left-hand side will be treated as
-  the starting value for a free parameter or a fixed value for a fixed parameter. If it is a matrix of numeric values, there are
+  the starting value for a free parameter. If an "@" is present, the numeric value on the left-hand
+  side will be considered as the value for a fixed parameter. If it is a matrix of numeric values, there are
   no free parameters in the output matrix. 
 }
 \value{A \code{\link[OpenMx]{MxMatrix-class}} object with the same
@@ -84,5 +85,10 @@ a4 <- as.mxMatrix(a4)
 ## Convert a scalar into mxMatrix object
 ## "name" is required as "3*a" is not a valid name.
 (a5 <- as.mxMatrix("3*a", name="a5"))
+
+## Free and fixed parameters
+(a6 <- matrix(c(1, "2*a", "3@b", 4), ncol=2, nrow=2))
+
+as.mxMatrix(a6)
 }
 \keyword{utilities}
