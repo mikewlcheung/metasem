@@ -630,7 +630,7 @@ anova.osmasem <- function(object, ..., all=FALSE) {
   mxCompare(base=base, comparison=comparison, all=all)
 }
 
-summary.osmasem <- function(object, Saturated=FALSE, numObs,
+summary.osmasem <- function(object, fitIndices=FALSE, numObs,
                             robust=FALSE, ...) {
     if (!is.element("osmasem", class(object)))
         stop("\"object\" must be an object of class \"osmasem\".")
@@ -644,8 +644,8 @@ summary.osmasem <- function(object, Saturated=FALSE, numObs,
         numObs <- sum(object$data$n)
     }
 
-    ## Calculate chi-square statistic
-    if (Saturated) {
+    ## Calculate chi-square statistic and other fit indices
+    if (fitIndices) {
         ## Check if the dimensions of Tmatrix and Vmatrix match.
         ## They can be different for rcmasem
         ## No. of effect sizes
@@ -663,9 +663,13 @@ summary.osmasem <- function(object, Saturated=FALSE, numObs,
             
             Sat.stat <- .osmasemSatIndMod(object, model="Saturated", Tmatrix=T0,
                                           Std.Error=FALSE, silent=TRUE)
+            Ind.stat <- .osmasemSatIndMod(object, model="Independence", Tmatrix=T0,
+                                          Std.Error=FALSE, silent=TRUE)            
         } else {
             Sat.stat <- .osmasemSatIndMod(object, model="Saturated",
                                           Std.Error=FALSE, silent=TRUE)
+            Ind.stat <- .osmasemSatIndMod(object, model="Independence", 
+                                          Std.Error=FALSE, silent=TRUE) 
         }
 
         ## NA for saturated model if there are either errors or nonconvergent.
@@ -675,10 +679,20 @@ summary.osmasem <- function(object, Saturated=FALSE, numObs,
         } else {
             Sat.stat <- summary(Sat.stat)
         }
+
+        ## NA for independence model if there are either errors or nonconvergent.
+        if ( inherits(Ind.stat, "error") | !(Ind.stat$output$status$code %in% c(0,1)) ) {
+            Ind.stat <- list()
+            Ind.stat$Minus2LogLikelihood  <- Ind.stat$degreesOfFreedom <- NA
+        } else {
+            Ind.stat <- summary(Ind.stat)
+        }
         
         out <- summary(object$mx.fit,
                        SaturatedLikelihood=Sat.stat$Minus2LogLikelihood,
                        SaturatedDoF=Sat.stat$degreesOfFreedom,
+                       IndependenceLikelihood=Ind.stat$Minus2LogLikelihood,
+                       IndependenceDoF=Ind.stat$degreesOfFreedom,
                        numObs=numObs, ...)        
     } else {
         out <- summary(object$mx.fit, numObs=numObs, ...)

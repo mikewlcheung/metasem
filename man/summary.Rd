@@ -35,7 +35,7 @@
 \method{summary}{bootuniR2}(object, probs=c(0, 0.1, 0.5, 0.9, 1),
         cutoff.chisq.pvalue=0.05, cutoff.CFI=0.9, cutoff.SRMR=0.1,
         cutoff.RMSEA=0.05, \dots)
-\method{summary}{osmasem}(object, Saturated=FALSE, numObs, robust=FALSE, \dots)
+\method{summary}{osmasem}(object, fitIndices=FALSE, numObs, robust=FALSE, \dots)
 \method{print.summary}{tssem1FEM}(x, \dots)
 \method{print.summary}{wls}(x, \dots)
 \method{print.summary}{meta}(x, \dots)
@@ -71,8 +71,9 @@
   \item{cutoff.CFI}{The cutoff of the CFI.}
   \item{cutoff.SRMR}{The cutoff of the SRMR.}
   \item{cutoff.RMSEA}{The cutoff of the RMSEA.}
-  \item{Saturated}{Whether to calculate the saturated model for
-	osmasem.}
+  \item{fitIndices}{Whether to calculate the chi-square statistic and
+	various goodness-of-fit indices in osmasem. Note. It may take a
+	while since statistics of the saturated and independence models are required.}
   \item{numObs}{The number of observations in calculating the fit statistics
 	in osmasem. If it is missing, the total number of observations is used.}
   \item{\dots}{Further arguments to be passed to \code{\link[stats]{printCoefmat}}
