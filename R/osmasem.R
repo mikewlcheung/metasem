@@ -427,7 +427,7 @@ osmasem <- function(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
     ## If RAM is provided, create the matrices based on it.
     if (!is.null(RAM)) {
         Mmatrix <- create.vechsR(A0=RAM$A, S0=RAM$S, F0=RAM$F, Ax=Ax, Sx=Sx)
-        Tmatrix <- create.Tau2(RAM=RAM, RE.type=Re.type, Transform="expLog")
+        Tmatrix <- create.Tau2(RAM=RAM, RE.type=RE.type, Transform="expLog")
     }
 
     ## Create known sampling variance covariance matrix
