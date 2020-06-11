@@ -397,6 +397,8 @@ osmasem <- function(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
                     mxModel.Args=NULL, mxRun.Args=NULL,
                     suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
 
+    RE.type <- match.arg(RE.type)
+    
     intervals.type <- match.arg(intervals.type)
     switch(intervals.type,
            z = intervals <- FALSE,
@@ -425,7 +427,7 @@ osmasem <- function(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
     ## If RAM is provided, create the matrices based on it.
     if (!is.null(RAM)) {
         Mmatrix <- create.vechsR(A0=RAM$A, S0=RAM$S, F0=RAM$F, Ax=Ax, Sx=Sx)
-        Tmatrix <- create.Tau2(RAM=RAM, RE.type="Diag", Transform="expLog")
+        Tmatrix <- create.Tau2(RAM=RAM, RE.type=Re.type, Transform="expLog")
     }
 
     ## Create known sampling variance covariance matrix
@@ -553,7 +555,6 @@ VarCorr <- function(x, ...) {
 
 
 ## Fit a saturated model with either a diagonal or symmetric variance component of random effects
-## TODO: need to catch error, mx code so that summary can get NA
 .osmasemSatIndMod <- function(osmasem.obj=NULL, model=c("Saturated", "Independence"),
                               Std.Error=FALSE, Tmatrix, data, subset=NULL,
                               mxModel.Args=NULL, mxRun.Args=NULL, suppressWarnings=TRUE,
@@ -618,9 +619,9 @@ VarCorr <- function(x, ...) {
     }
     
     # try to run it with error message as output
-    if (inherits(mx.fit, "error")) {
-        warning(print(mx.fit))
-    }
+    ## if (inherits(mx.fit, "error")) {
+    ##     warning(print(mx.fit))
+    ## }
     mx.fit
 }
 
@@ -645,14 +646,14 @@ summary.osmasem <- function(object, fitIndices=FALSE, numObs,
     }
 
     ## Calculate chi-square statistic and other fit indices
-    if (fitIndices) {
-        ## Check if the dimensions of Tmatrix and Vmatrix match.
+    if (fitIndices)
+    {   ## Check if the dimensions of Tmatrix and Vmatrix match.
         ## They can be different for rcmasem
         ## No. of effect sizes
         p <- dim(object$Vmatrix$values)[1]
         
-        if (length(object$Tmatrix$vecTau1$labels) != p) {
-            ## Check if there are correlations,
+        if (length(object$Tmatrix$vecTau1$labels) != p)
+        {   ## Check if there are correlations,
             ## If yes -> Symm, no -> Diag
             ## if (sum(object$Tmatrix$Cor$free)>0) RE.type="Symm" else RE.type="Diag"
             ## T0 <- create.Tau2(no.var=p, RE.type=RE.type)
@@ -671,29 +672,56 @@ summary.osmasem <- function(object, fitIndices=FALSE, numObs,
             Ind.stat <- .osmasemSatIndMod(object, model="Independence", 
                                           Std.Error=FALSE, silent=TRUE) 
         }
-
-        ## NA for saturated model if there are either errors or nonconvergent.
-        if ( inherits(Sat.stat, "error") | !(Sat.stat$output$status$code %in% c(0,1)) ) {
-            Sat.stat <- list()
-            Sat.stat$Minus2LogLikelihood  <- Sat.stat$degreesOfFreedom <- NA
+       
+        ## Sat.model=FALSE for saturated model if there are either errors or nonconvergent.
+        if ( inherits(Sat.stat, "error") | !(Sat.stat$output$status$code %in% c(0,1)) )
+        {
+            Sat.model <- FALSE
         } else {
             Sat.stat <- summary(Sat.stat)
+            if (Sat.stat$degreesOfFreedom <= 0) {
+                Sat.model <- FALSE
+            } else {
+                Sat.model <- TRUE
+            }
         }
 
-        ## NA for independence model if there are either errors or nonconvergent.
-        if ( inherits(Ind.stat, "error") | !(Ind.stat$output$status$code %in% c(0,1)) ) {
-            Ind.stat <- list()
-            Ind.stat$Minus2LogLikelihood  <- Ind.stat$degreesOfFreedom <- NA
+        ## Ind.model=FALSE for independence model if there are either errors or nonconvergent.
+        if ( inherits(Ind.stat, "error") | !(Ind.stat$output$status$code %in% c(0,1)) )
+        {
+            Ind.model <- FALSE
         } else {
             Ind.stat <- summary(Ind.stat)
+            if (Ind.stat$degreesOfFreedom <= 0) { 
+                Ind.model <- FALSE
+            } else {
+                Ind.model <- TRUE
+            }
         }
-        
-        out <- summary(object$mx.fit,
-                       SaturatedLikelihood=Sat.stat$Minus2LogLikelihood,
-                       SaturatedDoF=Sat.stat$degreesOfFreedom,
-                       IndependenceLikelihood=Ind.stat$Minus2LogLikelihood,
-                       IndependenceDoF=Ind.stat$degreesOfFreedom,
-                       numObs=numObs, ...)        
+
+        ## If sat.model is defined
+        if (Sat.model)
+        {
+            if (Ind.model) {
+                out <- summary(object$mx.fit,
+                               SaturatedLikelihood=Sat.stat$Minus2LogLikelihood,
+                               SaturatedDoF=Sat.stat$degreesOfFreedom,
+                               IndependenceLikelihood=Ind.stat$Minus2LogLikelihood,
+                               IndependenceDoF=Ind.stat$degreesOfFreedom,
+                               numObs=numObs, ...)
+            } else {
+                out <- summary(object$mx.fit,
+                               SaturatedLikelihood=Sat.stat$Minus2LogLikelihood,
+                               SaturatedDoF=Sat.stat$degreesOfFreedom,
+                               numObs=numObs, ...)
+                warning("There are errors in fitting the independence model or its degree of freedom is non-positive.\n")
+            }
+            ## if Sat.model is not defined, no chi-square and fit indices    
+        } else {
+            out <- summary(object$mx.fit, numObs=numObs, ...)
+            warning("There are errors in fitting the saturated model or its degree of freedom is non-positive.\n")
+        }
+    ## fitIndices=FALSE 
     } else {
         out <- summary(object$mx.fit, numObs=numObs, ...)
     }
