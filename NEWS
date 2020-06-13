@@ -1,5 +1,6 @@
 Release 1.2.4 (Jun 13, 2020)
 ====================================
+* Released to CRAN.
 * Added CFI and TLI in summary.osmasem(). 
 * Renamed the "Saturated" argument to "fitIndices" in summary.osmasem().
 * Added "@" in the syntax of as.mxMatrix().

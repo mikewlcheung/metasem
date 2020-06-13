@@ -38,14 +38,15 @@ readLowTriMat(file, no.var, ...)
 # 1.0 NA 0.4
 # NA NA NA
 # 0.4 NA 1.0
-cat("1.0 0.3 0.4\n0.3 1.0 0.5\n0.4 0.5 1.0
-1.0 NA 0.4\nNA NA NA\n0.4 NA 1.0",
-file="fullmat.dat", sep="")
+
+## cat("1.0 0.3 0.4\n0.3 1.0 0.5\n0.4 0.5 1.0
+## 1.0 NA 0.4\nNA NA NA\n0.4 NA 1.0",
+## file="fullmat.dat", sep="")
 
 ## Read the correlation matrices
-my.full <- readFullMat("fullmat.dat")
+## my.full <- readFullMat("fullmat.dat")
 
-my.full
+## my.full
 # $`1`
 #     x1  x2  x3
 # x1 1.0 0.3 0.4
@@ -67,13 +68,13 @@ my.full
 # 1.0
 # NA NA 
 # 0.4 NA 1.0
-cat("1.0\n0.3 1.0\n0.4 0.5 1.0\n1.0\nNA NA\n0.4 NA 1.0",
-    file="lowertriangle.dat", sep="")
+## cat("1.0\n0.3 1.0\n0.4 0.5 1.0\n1.0\nNA NA\n0.4 NA 1.0",
+##     file="lowertriangle.dat", sep="")
 
 ## Read the lower triangle correlation matrices
-my.lowertri <- readLowTriMat(file = "lowertriangle.dat", no.var = 3)
+## my.lowertri <- readLowTriMat(file = "lowertriangle.dat", no.var = 3)
 
-my.lowertri
+## my.lowertri
 # $`1`
 #     x1  x2  x3
 # x1 1.0 0.3 0.4
@@ -92,12 +93,12 @@ my.lowertri
 ## The content of "stackvec.dat" is
 # 1.0 0.3 0.4 1.0 0.5 1.0
 # 1.0 NA 0.4 NA NA 1.0
-cat("1.0 0.3 0.4 1.0 0.5 1.0\n1.0 NA 0.4 NA NA 1.0\n",
-    file="stackvec.dat", sep="")
+## cat("1.0 0.3 0.4 1.0 0.5 1.0\n1.0 NA 0.4 NA NA 1.0\n",
+##     file="stackvec.dat", sep="")
 
-my.vec <- readStackVec("stackvec.dat")
+## my.vec <- readStackVec("stackvec.dat")
 
-my.vec
+## my.vec
 # $`1`
 #     x1  x2  x3
 # x1 1.0 0.3 0.4
