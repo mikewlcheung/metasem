@@ -30,8 +30,8 @@ data(Becker92)
 ## First stage analysis
 ## Replicate Becker's (1992) analysis using 4 studies only
 
-## fixed1 <- tssem1(Becker92$data[1:4], Becker92$n[1:4], method="FEM")
-## summary(fixed1)
+fixed1 <- tssem1(Becker92$data[1:4], Becker92$n[1:4], method="FEM")
+summary(fixed1)
 
 ## ## Prepare a regression model using create.mxMatrix()
 ## A1 <- create.mxMatrix(c(0,0,0,"0.2*Spatial2Math",
@@ -69,7 +69,7 @@ model <- "## Regression paths
 ## Display the model
 plot(model)
 
-RAM <- lavaan2RAM(model, obs.variables=var.names)
+RAM <- lavaan2RAM(model, obs.variables=c("Math", "Spatial", "Verbal"))
 RAM
 
 ################################################################################
