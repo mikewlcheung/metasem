@@ -11,7 +11,8 @@ This data set includes six studies of correlation matrices reported by Becker (1
 A list of data with the following structure:
 \describe{
   \item{data}{A list of 6 studies of correlation matrices. The
-	variables are \emph{Math_aptitude}, \emph{Spatial_ability} and \emph{Verbal_ability}}
+	variables are \emph{Math} (math aptitude), \emph{Spatial} (spatial
+	ability), and \emph{Verbal} (verbal ability)}
   \item{n}{A vector of sample sizes}
 }
 }
@@ -28,41 +29,42 @@ data(Becker92)
 #### Fixed-effects model
 ## First stage analysis
 ## Replicate Becker's (1992) analysis using 4 studies only
-fixed1 <- tssem1(Becker92$data[1:4], Becker92$n[1:4], method="FEM")
-summary(fixed1)
 
-## Prepare a regression model using create.mxMatrix()
-A1 <- create.mxMatrix(c(0,0,0,"0.2*Spatial2Math",
-                        0,0,"0.2*Verbal2Math",0,0), type="Full",
-                        ncol=3, nrow=3, as.mxMatrix=FALSE)
+## fixed1 <- tssem1(Becker92$data[1:4], Becker92$n[1:4], method="FEM")
+## summary(fixed1)
 
-var.names <- c("Math_aptitude","Spatial_ability","Verbal_ability") 
+## ## Prepare a regression model using create.mxMatrix()
+## A1 <- create.mxMatrix(c(0,0,0,"0.2*Spatial2Math",
+##                         0,0,"0.2*Verbal2Math",0,0), type="Full",
+##                         ncol=3, nrow=3, as.mxMatrix=FALSE)
 
-## This step is not necessary but it is useful for inspecting the model.
-dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- var.names
+## var.names <- c("Math_aptitude","Spatial","Verbal") 
 
-## Display A1
-A1
+## ## This step is not necessary but it is useful for inspecting the model.
+## dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- var.names
 
-S1 <- create.mxMatrix(c("0.2*ErrorVarMath",0,0,1,"0.2*CorSpatialVerbal",1),
-                        type="Symm", as.mxMatrix=FALSE)
+## ## Display A1
+## A1
 
-## This step is not necessary but it is useful for inspecting the model.
-dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- var.names
+## S1 <- create.mxMatrix(c("0.2*ErrorVarMath",0,0,1,"0.2*CorSpatialVerbal",1),
+##                         type="Symm", as.mxMatrix=FALSE)
 
-## Display S1
-S1
+## ## This step is not necessary but it is useful for inspecting the model.
+## dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- var.names
+
+## ## Display S1
+## S1
 
 ################################################################################
 ## Alternative model specification in lavaan model syntax
 model <- "## Regression paths
-          Math_aptitude ~ Spatial2Math*Spatial_ability + Verbal2Math*Verbal_ability
-          Spatial_ability ~~ CorSpatialVerbal*Verbal_ability
+          Math ~ Spatial2Math*Spatial + Verbal2Math*Verbal
+          Spatial ~~ CorSpatialVerbal*Verbal
           ## Fix the variances of Spatial and Verbal at 1
-          Spatial_ability ~~ 1*Spatial_ability
-          Verbal_ability ~~ 1*Verbal_ability
+          Spatial ~~ 1*Spatial
+          Verbal ~~ 1*Verbal
           ## Label the error variance of Math
-          Math_aptitude ~~ ErrorVarMath*Math_aptitude + start(0.2)*Math_aptitude"
+          Math ~~ ErrorVarMath*Math + start(0.2)*Math"
 
 ## Display the model
 plot(model)
