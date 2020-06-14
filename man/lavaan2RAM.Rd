@@ -35,19 +35,19 @@ lavaan2RAM(model, obs.variables = NULL, A.notation = "ON",
 }
 \item{auto.var}{Logical. If \code{TRUE}, the residual variances and the
   variances of exogenous latent variables are included in the model and
-  set free. See \code{\link[lavaan]{lavaanify}}.
+  set free. See \code{\link[lavaan]{model.syntax}}.
 }
 \item{std.lv}{Logical. If \code{TRUE}, the metric of each latent
   variable is determined by fixing their variances to 1.0. If FALSE, the
   metric of each latent variable is determined by fixing the factor
-  loading of the first indicator to 1.0. See \code{\link[lavaan]{lavaanify}}.
+  loading of the first indicator to 1.0. See \code{\link[lavaan]{model.syntax}}.
 }
-\item{ngroups}{Number. The number of groups in the \code{model}. See \code{\link[lavaan]{lavaanify}}.
+\item{ngroups}{Number. The number of groups in the \code{model}. See \code{\link[lavaan]{model.syntax}}.
 }
-\item{\dots}{Further arguments to be passed to \code{\link[lavaan]{lavaanify}}}. Please note that \code{fixed.x} is set at \code{FALSE}. Thus it cannot be passed to \dots.
+\item{\dots}{Further arguments to be passed to \code{\link[lavaan]{model.syntax}}}. Please note that \code{fixed.x} is set at \code{FALSE}. Thus it cannot be passed to \dots.
 }
 \details{
-It uses the \code{\link[lavaan]{lavaanify}} to do the conversion.
+It uses the \code{\link[lavaan]{model.syntax}} to do the conversion.
 }
 \value{
   A list of RAM specification with \code{A}, \code{S}, \code{F}, and \code{M} matrices.

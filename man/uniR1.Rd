@@ -46,7 +46,6 @@ uniR1(Cor, n, ...)
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
-\seealso{ \code{\link[metaSEM]{uniR2mx}}, \code{\link[metaSEM]{uniR2lavaan}},
-    \code{\link[metaSEM]{Becker09}}
+\seealso{ \code{\link[metaSEM]{uniR2}}, \code{\link[metaSEM]{Becker09}}
 }
 \keyword{uniR}
