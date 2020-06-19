@@ -14,8 +14,13 @@ A list of data with the following structure:
   \item{data}{A list of correlation matrices. The variables are
 	\emph{SN} (subjective norm), \emph{ATT} (attitude), \emph{PBC}
 	(perceived behavior control), \emph{BI} (behavioral intention), and
-	\emph{BEH} (behavior)}
-  \item{n}{A vector of sample sizes}
+	\emph{BEH} (behavior).}
+  \item{n}{A vector of sample sizes.}
+\item{MeanAge}{Mean age of the participants except for \code{Ajzen and
+	Sheikh (2013)}, which is the median age, and \code{Glassman, et
+	al. (2010a)} to \code{Glassman, et al. (2010d)}, which are based on
+  the range of 18 to 24.}
+\item{Female}{Percentage of female participants.}
 }
 }
 \source{

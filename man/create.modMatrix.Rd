@@ -1,5 +1,5 @@
-\name{create.modModel}
-\alias{create.modModel}
+\name{create.modMatrix}
+\alias{create.modMatrix}
 \title{Create a moderator matrix used in OSMASEM
 }
 \description{It creates a moderator matrix used in OSMASEM.  
