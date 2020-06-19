@@ -1,5 +1,6 @@
 \name{Cor2DataFrame}
 \alias{Cor2DataFrame}
+\alias{tssem2DataFrame}
 \title{Convert correlation or covariance matrices into a dataframe of correlations or
   covariances with their sampling covariance matrices
 }
@@ -10,11 +11,16 @@
 \usage{
 Cor2DataFrame(x, n, v.na.replace = TRUE, row.names.unique = FALSE,
               cor.analysis = TRUE, acov="weighted", ...)
+tssem2DataFrame(X, v.na.replace = TRUE, row.names.unique = FALSE,
+                cor.analysis = TRUE, acov="weighted", ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{x}{A correlation/covariance matrix or a list of
 	correlation/covariance matrices.}
+   \item{X}{A list of correlation/covariance matrix in \code{X$data} and
+   a list of sample sizes \code{X$n}. More variables can be included in
+   \code{X}. These variables will be added in the output's \code{data}.} 
 \item{n}{Sample size or a vector of sample sizes}
 \item{v.na.replace}{Logical. Missing value is not allowed in definition
   variables. If it is \code{TRUE} (the default), missing value is
@@ -42,20 +48,26 @@ Cor2DataFrame(x, n, v.na.replace = TRUE, row.names.unique = FALSE,
 
 
 \examples{
-\dontrun{
-my.df <- Cor2DataFrame(Nohe15A1$data, Nohe15A1$n)
+\dontrun{   
+my.df1 <- Cor2DataFrame(Nohe15A1$data, Nohe15A1$n)
+
+## Add Lag time as a variable
+my.df1$data <- data.frame(my.df1$data, Lag=Nohe15A1$Lag, check.names=FALSE)
 
 ## Data
-my.df$data
+my.df1$data
 
 ## Sample sizes
-my.df$n
+my.df1$n
 
 ## ylabels
-my.df$ylabels
+my.df1$ylabels
 
 ## vlabels
-my.df$vlabels
+my.df1$vlabels
+
+#### Simplified version to do it
+my.df2 <- tssem2DataFrame(Nohe15A1)
 }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

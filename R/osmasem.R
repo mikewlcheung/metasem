@@ -1,29 +1,3 @@
-Cor2DataFrame <- function(x, n, v.na.replace=TRUE, row.names.unique=FALSE,
-                          cor.analysis=TRUE, acov="weighted", ...) {
-    if (length(x) != length(n)) stop("Lengths of 'x' and 'n' are different.\n")
-    
-    if (cor.analysis) {
-        my.df <- list2matrix(x=suppressWarnings(lapply(x, cov2cor)), diag=FALSE)
-    } else {
-        my.df <- list2matrix(x=x, diag=TRUE)
-    }
-
-    acovR <- asyCov(x=x, n=n, cor.analysis=cor.analysis, acov=acov, ...)
-
-    ## NA is not allowed in definition variables
-    ## They are replaced by 1e10
-    if (v.na.replace) acovR[is.na(acovR)] <- 1e10
-
-    data <- suppressWarnings(data.frame(my.df, acovR, check.names=FALSE))
-    
-    ## Use unique row names if the row names are duplicated.
-    if (row.names.unique) rownames(data) <- make.names(names(x), unique=TRUE)    
-
-    list(data=data, n=n, obslabels=colnames(x[[1]]),
-         ylabels=dimnames(my.df)[[2]], vlabels=dimnames(acovR)[[2]])
-}
-
-
 ## A function to extract levels of path directions started from IVs to DVs
 .pathLevels <- function(A) {
     ## assuming non-recursive models

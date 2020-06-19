@@ -1,6 +1,7 @@
-Release 1.2.4.1 (Jun 18, 2020)
+Release 1.2.4.1 (Jun 19, 2020)
 ====================================
 * Added create.modMatrix(). 
+* Added tssem2DataFrame() to simplify the calculations for Cor2DataFrame().
 
 Release 1.2.4 (Jun 13, 2020)
 ====================================
