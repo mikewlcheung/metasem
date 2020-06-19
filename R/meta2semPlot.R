@@ -156,7 +156,7 @@ plot.osmasem <- function(x, manNames=NULL, latNames=NULL, labels=c("labels", "RA
   }
 
   out <- semPlot::ramModel(A=A, S=S, F=F, manNames=manNames, latNames=latNames, ObsCovs=ObsCovs, 
-                           ImpCovs=ImpCovs, ...)
+                           ImpCovs=ImpCovs)
     
   labels <- match.arg(labels)
   if (labels=="labels") {
