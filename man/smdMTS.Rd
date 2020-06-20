@@ -54,7 +54,7 @@ smdMTS(m, v, n, homogeneity=c("variance", "none"), bias.adjust=TRUE,
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
-\seealso{\code{\link[metaSEM]{Gleser94}}
+\seealso{\code{\link[metaSEM]{Gleser94}}, \code{\link[metaSEM]{smdMES}}, \code{\link[metaSEM]{calEffSizes}}
 }
 
 \examples{

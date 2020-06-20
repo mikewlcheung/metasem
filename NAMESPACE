@@ -80,7 +80,5 @@ importFrom("stats", "as.formula", "coef", "cov2cor", "deriv",
            "cov", "cor", "rWishart", "sd", "quantile")
 importFrom("utils", "read.table")
 
-importFrom(lavaan, sem)
-importFrom(lavaan, lavaanify)
-importFrom(lavaan, inspect)
+importFrom("lavaan", "sem", "lavaanify", "inspect", "coef", "vcov")
 

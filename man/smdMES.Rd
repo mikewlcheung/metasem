@@ -60,7 +60,7 @@ smdMES(m1, m2, V1, V2, n1, n2,
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
-\seealso{\code{\link[metaSEM]{Gleser94}}
+\seealso{\code{\link[metaSEM]{Gleser94}}, \code{\link[metaSEM]{smdMTS}}, \code{\link[metaSEM]{calEffSizes}}
 }
 
 \examples{
