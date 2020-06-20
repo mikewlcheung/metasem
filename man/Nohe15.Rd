@@ -128,11 +128,11 @@ summary(boot.fit2)
 #### OSMASEM    
 
 ## Calculate the sampling variance-covariance matrix of the correlation matrices.    
-my.df <- Cor2DataFrame(Nohe15A1$data, Nohe15A1$n)
+my.df <- Cor2DataFrame(Nohe15A1)
 
-## Add the centered Lag as a moderator
-my.df$data <- data.frame(my.df$data, Lag=scale(Nohe15A1$Lag),
-                         check.names=FALSE)
+## Standardize the moderator "Lag"
+my.df$data$Lag <- scale(my.df$data$Lag)
+    
 head(my.df$data)
 
 ## Proposed model
