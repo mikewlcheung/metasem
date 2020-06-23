@@ -1,5 +1,6 @@
-Release 1.2.4.1 (Jun 20, 2020)
+Release 1.2.4.1 (Jun 23, 2020)
 ====================================
+* Added dataset Mathieu15.
 * Added calEffSizes().
 * Added create.modMatrix(). 
 * Rewrote Cor2DataFrame() to automatically append additional variables.
