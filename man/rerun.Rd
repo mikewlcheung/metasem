@@ -5,7 +5,7 @@
 \description{It reruns models via mxTryHard().
 }
 \usage{
-rerun(object, autofixtau2=FALSE, ...)
+rerun(object, autofixtau2=FALSE, extraTries=10, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -16,6 +16,7 @@ rerun(object, autofixtau2=FALSE, ...)
   \item{autofixtau2}{Logical. Whether automatically fixes elements of tau2
   with NA of standard errors. It only works for objects of
   class \code{tssem1REM}, class \code{meta}, and class \code{osmasem}.}
+\item{extraTries}{The number of attempts to run the model in addition to the first.}  
   \item{\dots}{{Further arguments to be passed to \code{\link[OpenMx]{mxTryHard}}}}
 }
 
