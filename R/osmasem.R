@@ -367,7 +367,8 @@ create.V <- function(x, type=c("Symm", "Diag", "Full"), as.mxMatrix=TRUE) {
 osmasem <- function(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
                     Tmatrix=NULL, Jmatrix=NULL, Ax=NULL, Sx=NULL,
                     RE.type=c("Diag", "Symm"), data,
-                    subset=NULL, intervals.type = c("z", "LB"),
+                    subset.variables=NULL, subset.rows=NULL, 
+                    intervals.type = c("z", "LB"),
                     mxModel.Args=NULL, mxRun.Args=NULL,
                     suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
 
@@ -382,14 +383,14 @@ osmasem <- function(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
     ## "%ni%" <- Negate("%in%")
 
     ## Filter out variables not used in the analysis
-    if (!is.null(subset)) {
-        index  <- !(subset %in% data$obslabels)
+    if (!is.null(subset.variables)) {
+        index  <- !(subset.variables %in% data$obslabels)
         if (any(index)) {
-            stop(paste0(paste0(subset[index], collapse = ", "), " are not in the ylabels.\n"))
+            stop(paste0(paste0(subset.variables[index], collapse = ", "), " are not in the ylabels.\n"))
         }
 
-        temp <- .genCorNames(subset)
-        obslabels <- subset
+        temp <- .genCorNames(subset.variables)
+        obslabels <- subset.variables
         ylabels <- temp$ylabels
         vlabels <- temp$vlabels        
     } else {
@@ -417,9 +418,13 @@ osmasem <- function(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
         Jmatrix$name  <- "Jmatrix"
     }
     
+    if (is.null(subset.rows)) {
+        subset.rows <- rep(TRUE, nrow(data$data))
+    }
+
     ## Dirty trick to avoid the warning of "no visible binding for global variable"
     mx.model <- eval(parse(text="mxModel(model=model.name,
-                           mxData(observed=data$data, type='raw'),
+                           mxData(observed=data$data[subset.rows, ], type='raw'),
                            mxExpectationNormal(covariance='expCov',
                                                means='vechsR',
                                                dimnames=ylabels),
@@ -455,6 +460,7 @@ osmasem <- function(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
                 labels=list(obslabels=obslabels, ylabels=ylabels,
                             vlabels=vlabels),
                 mxModel.Args=mxModel.Args, mxRun.Args=mxRun.Args,
+                subset.rows=subset.rows,
                 mx.model=mx.model, mx.fit=mx.fit)
     class(out) <- 'osmasem'
     out
@@ -530,7 +536,7 @@ VarCorr <- function(x, ...) {
 
 ## Fit a saturated model with either a diagonal or symmetric variance component of random effects
 .osmasemSatIndMod <- function(osmasem.obj=NULL, model=c("Saturated", "Independence"),
-                              Std.Error=FALSE, Tmatrix, data, subset=NULL,
+                              Std.Error=FALSE, Tmatrix, data, 
                               mxModel.Args=NULL, mxRun.Args=NULL, suppressWarnings=TRUE,
                               silent=FALSE, run=TRUE, ...) {
 
@@ -563,7 +569,7 @@ VarCorr <- function(x, ...) {
 
     ## Dirty trick to avoid the warning of "no visible binding for global variable"
     mx.model <- eval(parse(text="mxModel(model=model,
-                                 mxData(observed=data$data, type='raw'),
+                                 mxData(observed=data$data[osmasem.obj$subset.rows, ], type='raw'),
                                  mxExpectationNormal(covariance='expCov',
                                                      means='Mu',
                                                      dimnames=osmasem.obj$labels$ylabels),

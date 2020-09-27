@@ -1,5 +1,7 @@
-Release 1.2.4.1 (Jun 24, 2020)
+Release 1.2.4.1 (Sep 27, 2020)
 ====================================
+* Added subset.rows argument in osmasem().
+* Renamed subset argument in osmasem() to subset.variables.
 * Added an argument extraTries in rerun().
 * Added dataset Mathieu15.
 * Added calEffSizes().

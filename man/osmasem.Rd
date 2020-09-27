@@ -8,7 +8,8 @@
 osmasem(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
         Tmatrix=NULL, Jmatrix=NULL, Ax=NULL, Sx=NULL,
         RE.type=c("Diag", "Symm"), data,
-        subset=NULL, intervals.type = c("z", "LB"),
+        subset.variables=NULL, subset.rows=NULL, 
+        intervals.type = c("z", "LB"),
         mxModel.Args=NULL, mxRun.Args=NULL,
         suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) 
 }
@@ -33,8 +34,9 @@ not givin, an identity matrix will be used. }
   the moderators of the Smatrix. It is used to create the \code{Mmatrix}.}
 \item{RE.type}{Type of the random effects.}
 \item{data}{A list of data created by the \code{Cor2DataFrame}.}
-\item{subset}{A character vector of the observed variables selected for
+\item{subset.variables}{A character vector of the observed variables selected for
   the analysis.}
+\item{subset.rows}{A logical vector of the same length as the number of rows in the data to select which rows are used in the analysis.}  
 \item{intervals.type}{Either \code{z} (default if missing) or
   \code{LB}. If it is \code{z}, it calculates the 95\% confidence
   intervals (CIs) based on the estimated standard error. If it
