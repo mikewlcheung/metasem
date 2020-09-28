@@ -388,7 +388,6 @@ osmasem <- function(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
         if (any(index)) {
             stop(paste0(paste0(subset.variables[index], collapse = ", "), " are not in the ylabels.\n"))
         }
-
         temp <- .genCorNames(subset.variables)
         obslabels <- subset.variables
         ylabels <- temp$ylabels
@@ -421,10 +420,12 @@ osmasem <- function(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
     if (is.null(subset.rows)) {
         subset.rows <- rep(TRUE, nrow(data$data))
     }
+    ## Select data for the analaysis
+    mx.data <- data$data[subset.rows, ]
 
     ## Dirty trick to avoid the warning of "no visible binding for global variable"
     mx.model <- eval(parse(text="mxModel(model=model.name,
-                           mxData(observed=data$data[subset.rows, ], type='raw'),
+                           mxData(observed=mx.data, type='raw'),
                            mxExpectationNormal(covariance='expCov',
                                                means='vechsR',
                                                dimnames=ylabels),
@@ -455,11 +456,16 @@ osmasem <- function(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
         warning(print(mx.fit))
     }
 
-    out <- list(call=match.call(), Mmatrix=Mmatrix, Tmatrix=Tmatrix,
-                Vmatrix=Vmatrix, Jmatrix=Jmatrix, data=data,
-                labels=list(obslabels=obslabels, ylabels=ylabels,
-                            vlabels=vlabels),
-                mxModel.Args=mxModel.Args, mxRun.Args=mxRun.Args,
+    out <- list(call=match.call(), 
+                Mmatrix=Mmatrix, 
+                Tmatrix=Tmatrix,
+                Vmatrix=Vmatrix, 
+                Jmatrix=Jmatrix, 
+                data=data,
+                labels=list(obslabels=obslabels, ylabels=ylabels, vlabels=vlabels),
+                mxModel.Args=mxModel.Args,
+                mxRun.Args=mxRun.Args,
+                subset.variables=subset.variables,
                 subset.rows=subset.rows,
                 mx.model=mx.model, mx.fit=mx.fit)
     class(out) <- 'osmasem'
@@ -550,6 +556,7 @@ VarCorr <- function(x, ...) {
         p <- nrow(Tmatrix$Cor$values)
         data <- osmasem.obj$data
     } else {
+        ## If there is no osmasem.obj, create a new saturated/independence model from data.
         p <- length(osmasem.obj$labels$ylabels)
         ## Create known sampling variance covariance matrix
         Vmatrix <- create.V(osmasem.obj$labels$vlabels, type="Symm", as.mxMatrix=TRUE)
@@ -567,9 +574,12 @@ VarCorr <- function(x, ...) {
                             nrow=1, ncol=p, name="Mu")        
     }
 
+    ## Filter the data for the analysis
+    mx.data <- data$data[osmasem.obj$subset.rows, ]
+
     ## Dirty trick to avoid the warning of "no visible binding for global variable"
     mx.model <- eval(parse(text="mxModel(model=model,
-                                 mxData(observed=data$data[osmasem.obj$subset.rows, ], type='raw'),
+                                 mxData(observed=mx.data, type='raw'),
                                  mxExpectationNormal(covariance='expCov',
                                                      means='Mu',
                                                      dimnames=osmasem.obj$labels$ylabels),
@@ -585,17 +595,17 @@ VarCorr <- function(x, ...) {
 
     ## It may speed up the analysis
     if (Std.Error==FALSE) {
-        mx.model <- mxOption(mx.model, "Calculate Hessian", "No") 
-        mx.model <- mxOption(mx.model, "Standard Errors"  , "No")
+        mx.model <- mxOption(mx.model, "Calculate Hessian", "No")
+        mx.model <- mxOption(mx.model, "Standard Errors", "No")
     }
     
     ## Return mx model without running the analysis
     if (run==FALSE) {
         return(mx.model)
-    } else {        
+    } else {
         mx.fit <- tryCatch(do.call(mxRun, c(list(mx.model, silent=silent,
                                                  suppressWarnings=suppressWarnings),
-                                             mxRun.Args)), error = function(e) e)
+                                                 mxRun.Args)), error = function(e) e)
     }
     
     # try to run it with error message as output
@@ -622,7 +632,7 @@ summary.osmasem <- function(object, fitIndices=FALSE, numObs,
     ## If numObs is not provided, use the total N
     if (missing(numObs)) {
         ## numObs <- sum(object$data$n)-length(object$data$n)
-        numObs <- sum(object$data$n)
+        numObs <- sum(object$data$n[object$subset.rows])
     }
 
     ## Calculate chi-square statistic and other fit indices
@@ -638,7 +648,7 @@ summary.osmasem <- function(object, fitIndices=FALSE, numObs,
             ## if (sum(object$Tmatrix$Cor$free)>0) RE.type="Symm" else RE.type="Diag"
             ## T0 <- create.Tau2(no.var=p, RE.type=RE.type)
 
-            ## For rcmasem, the variance component cannot be Diag;
+            ## TODO: For rcmasem, the variance component cannot be Diag;
             ## otherwise, the saturated model fits poorer than the rcmasem.
             T0 <- create.Tau2(no.var=p, RE.type="Symm")
             
@@ -694,12 +704,12 @@ summary.osmasem <- function(object, fitIndices=FALSE, numObs,
                                SaturatedLikelihood=Sat.stat$Minus2LogLikelihood,
                                SaturatedDoF=Sat.stat$degreesOfFreedom,
                                numObs=numObs, ...)
-                warning("There are errors in fitting the independence model or its degree of freedom is non-positive.\n")
+                warning("There are errors in either fitting the independence model or its degree of freedom being non-positive.\n")
             }
             ## if Sat.model is not defined, no chi-square and fit indices    
         } else {
             out <- summary(object$mx.fit, numObs=numObs, ...)
-            warning("There are errors in fitting the saturated model or its degree of freedom is non-positive.\n")
+            warning("There are errors in either fitting the saturated model or its degree of freedom being non-positive.\n")
         }
     ## fitIndices=FALSE 
     } else {
@@ -745,10 +755,10 @@ osmasemSRMR <- function(x) {
         stop("Moderators are not allowed in calculating the SRMR in OSMASEM.\n")
 
     ## Saturated model which should be very close to the stage 1 results in the TSSEM
-    fit.sat <- .osmasemSatIndMod(x, model="Saturated", Std.Error=FALSE, silent=TRUE)
+    Sat.stat <- .osmasemSatIndMod(x, model="Saturated", Std.Error=FALSE, silent=TRUE)
 
     ## Similar to the sample correlation matrix
-    sampleR <- vec2symMat(eval(parse(text = "mxEval(Mu, fit.sat)")), diag=FALSE)
+    sampleR <- vec2symMat(eval(parse(text = "mxEval(Mu, Sat.stat)")), diag=FALSE)
 
     ## Model implied correlation matrix
     impliedR <- mxEval(impliedR, x$mx.fit)
