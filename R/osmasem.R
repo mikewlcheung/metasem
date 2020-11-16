@@ -271,7 +271,7 @@ create.Tau2 <- function(RAM, no.var, Tau1.labels=seq(no.var),
     }    
 
     ## Convert the starting values into positive.
-    if (any(RE.startvalues <= 0)) {
+    if (any(RE.startvalues < 0)) {
         RE.startvalues <- abs(RE.startvalues) + 1e-10
         warning("Not all 'RE.startvalues' are positive.\n")
     }
@@ -316,9 +316,13 @@ create.Tau2 <- function(RAM, no.var, Tau1.labels=seq(no.var),
                            if (RE.User[i,j] & !all(RE.User[i,i], RE.User[j,j])) {
                                stop("RE.User[",j,",",i,"] is free but either RE.User[",i,",",
                                     i,"] or RE.User[",j,",",j,"] is fixed.\n") }}}}
-                              
+                                               
                vecTau1 <- paste0(RE.startvalues, "*Tau1_", Tau1.labels)
-               vecTau1[diag(RE.User)==FALSE] <- 0
+               ## Fixed a bug that RE.startvalues are not used when the variances are not free.
+               ## vecTau1[diag(RE.User)==FALSE] <- 0                                
+               switch(Transform,
+                      expLog = vecTau1[diag(RE.User)==FALSE] <- log(0),
+                      sqSD =   vecTau1[diag(RE.User)==FALSE] <- sqrt(0))
                vecTau1 <- create.mxMatrix(vecTau1, ncol=1, nrow=no.var, name="vecTau1")
                Cor <- outer(seq(no.var), seq(no.var),
                             function(x,y) paste0("0*Cor_", x, "_", y))

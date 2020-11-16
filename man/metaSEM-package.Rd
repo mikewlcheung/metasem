@@ -15,7 +15,7 @@
 Package: \tab metaSEM\cr
 Type: \tab Package\cr
 Version: \tab 1.2.4.1\cr
-Date: \tab 2020-09-27\cr
+Date: \tab 2020-11-16\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }
@@ -103,9 +103,9 @@ meta-analytic structural equation modeling using subgroup
 analysis. \emph{Behavior Research Methods}, \bold{50} (4),
 1359-1373. https://doi.org/10.3758/s13428-018-1046-3
 
-Jak, S., & Cheung, M. W.-L. (2019). Meta-analytic structural equation
+Jak, S., & Cheung, M. W.-L. (2020). Meta-analytic structural equation
 modeling with moderating effects on SEM parameters. \emph{Psychological
-  Methods}. https://doi.org/10.1037/met0000245
+  Methods}, \bold{25} (4), 430-455. https://doi.org/10.1037/met0000245
 }
 \keyword{ package }
 

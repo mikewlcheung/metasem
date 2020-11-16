@@ -1,5 +1,6 @@
-Release 1.2.4.1 (Sep 27, 2020)
+Release 1.2.4.1 (Nov 16, 2020)
 ====================================
+* Fixed a bug in create.Tau2() with the RE.type = "User" argument that incorrectly fixes all fixed parameters at 0.
 * Added subset.rows argument in osmasem().
 * Renamed subset argument in osmasem() to subset.variables.
 * Added an argument extraTries in rerun().

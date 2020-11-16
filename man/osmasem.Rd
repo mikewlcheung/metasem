@@ -57,8 +57,9 @@ not givin, an identity matrix will be used. }
 }
 
 \references{
-Jak, S., & Cheung, M. W.-L. (2019). Meta-analytic structural equation
-modeling with moderating effects on SEM parameters. \emph{Psychological Methods}.
+  Jak, S., & Cheung, M. W.-L. (2020). Meta-analytic structural equation
+modeling with moderating effects on SEM parameters. \emph{Psychological
+  Methods}, \bold{25} (4), 430-455. https://doi.org/10.1037/met0000245
 }  
 \seealso{ \code{\link[metaSEM]{Cor2DataFrame}}, \code{\link[metaSEM]{create.vechsR}},
   \code{\link[metaSEM]{create.Tau2}}, \code{\link[metaSEM]{create.V}}, \code{\link[metaSEM]{osmasem}}, \code{\link[metaSEM]{Nohe15}}
