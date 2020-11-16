@@ -488,7 +488,8 @@ test_that("create.Tau2() works correctly", {
                     RE.User=RE.User, 
                     RE.startvalues=0.01)
   vecTau3 <- paste0(log(0.01), "*Tau1_", seq(6))
-  vecTau3[diag(RE.User)==FALSE] <- 0
+  ## Fixed a bug that the values should be log(0) rather than 0 when they are fixed parameters.  
+  vecTau3[diag(RE.User)==FALSE] <- log(0)
   vecTau3 <- create.mxMatrix(vecTau3, ncol=1, nrow=6, name="vecTau1")
   Cor3 <- outer(seq(6), seq(6),
                 function(x,y) paste0("0*Cor_", x, "_", y))
