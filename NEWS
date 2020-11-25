@@ -1,5 +1,6 @@
-Release 1.2.4.1 (Nov 16, 2020)
+Release 1.2.4.1 (Nov 25, 2020)
 ====================================
+* Fixed a bug in create.vechsR() with S0 argument to ensure that diagonals are 0.
 * Fixed a bug in create.Tau2() with the RE.type = "User" argument that incorrectly fixes all fixed parameters at 0.
 * Added subset.rows argument in osmasem().
 * Renamed subset argument in osmasem() to subset.variables.
