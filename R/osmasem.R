@@ -171,6 +171,10 @@ create.vechsR <- function(A0, S0, F0=NULL, Ax=NULL, Sx=NULL) {
             text3 <- paste0("Sx",i, " <- as.mxMatrix(Sx[[",
                             i, "]], name='Sx",i, "')")
             eval(parse(text=text3))
+
+            ## Fix the diagonals of S1, S2... to 0
+            text4 <- paste0("diag(S",i,"$values) <- 0")
+            eval(parse(text=text4))
         }  ## from 'if else' 
 
         ## Not the final Smatrix as it does not include the error variances
