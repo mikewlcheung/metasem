@@ -7,13 +7,13 @@ citEntry(entry="Article",
          year         = "2015",
          volume       = "5",
          number       = "1521",
-         url          = "http://journal.frontiersin.org/article/10.3389/fpsyg.2014.01521/full",
+         url          = "https://www.frontiersin.org/articles/10.3389/fpsyg.2014.01521/full",
          doi          = "10.3389/fpsyg.2014.01521",
          
          textVersion = 
          paste("Cheung, M.W.L. (2015).", 
                "{metaSEM}: An R Package for Meta-Analysis using Structural Equation Modeling.",
                "Frontiers in Psychology 5, 1521.",
-	           "URL http://journal.frontiersin.org/article/10.3389/fpsyg.2014.01521/full",
+	           "URL https://www.frontiersin.org/articles/10.3389/fpsyg.2014.01521/full",
                "DOI 10.3389/fpsyg.2014.01521")
 )

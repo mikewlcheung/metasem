@@ -28,7 +28,7 @@
   C. S. (2009). Bisphosphonate and atrial fibrillation: Bayesian
   meta-analyses of randomized controlled trials and observational
   studies. \emph{BMC Musculoskeletal Disorders},
-  \bold{10(113)}. doi:10.1186/1471-2474-10-113 Available at \url{http://www.biomedcentral.com/1471-2474/10/113}.
+  \bold{10(113)}. doi:10.1186/1471-2474-10-113 Available at \url{https://bmcmusculoskeletdisord.biomedcentral.com/articles/10.1186/1471-2474-10-113}.
 }
 \references{
  Cheung, M. W.-L., Ho, R. C. M., Lim, Y., & Mak, A. (2012). Conducting a

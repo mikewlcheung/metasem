@@ -1,8 +1,8 @@
 [![Build Status](https://travis-ci.org/mikewlcheung/metasem.svg?branch=master)](https://travis-ci.org/mikewlcheung/metasem)
 [![cran version](http://www.r-pkg.org/badges/version/metaSEM)](https://cran.r-project.org/package=metaSEM)
-[![Monthly Downloads](http://cranlogs.r-pkg.org/badges/metaSEM)](http://cranlogs.r-pkg.org/badges/metaSEM)
-[![Total Downloads](http://cranlogs.r-pkg.org/badges/grand-total/metaSEM)](http://cranlogs.r-pkg.org/badges/grand-total/metaSEM)
-[![Rdoc](http://www.rdocumentation.org/badges/version/metaSEM)](http://www.rdocumentation.org/packages/metaSEM)
+[![Monthly Downloads](https://cranlogs.r-pkg.org/badges/metaSEM)](https://cranlogs.r-pkg.org/badges/metaSEM)
+[![Total Downloads](https://cranlogs.r-pkg.org/badges/grand-total/metaSEM)](https://cranlogs.r-pkg.org/badges/grand-total/metaSEM)
+[![Rdoc](https://www.rdocumentation.org/badges/version/metaSEM)](https://www.rdocumentation.org/packages/metaSEM)
 [![DOI](https://img.shields.io/badge/doi-10.3389/fpsyg.2014.01521-yellow.svg?style=flat)](https://doi.org/10.3389/fpsyg.2014.01521)
 
 The `metaSEM` package conducts univariate and multivariate meta-analyses using a structural equation modeling (SEM) approach via the `OpenMx` package. It also implements the two-stage SEM approach to conduct meta-analytic structural equation modeling on correlation/covariance matrices.
