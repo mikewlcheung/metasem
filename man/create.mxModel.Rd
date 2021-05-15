@@ -37,7 +37,10 @@ create.mxModel(model.name="mxModel", RAM=NULL, Amatrix=NULL,
   parameter estimates.}
 \item{mx.algebras}{A list of \code{\link[OpenMx]{mxMatrix}} or
   \code{\link[OpenMx]{mxAlgebra}} objects on the \code{Amatrix},
-  \code{Smatrix}, \code{Fmatrx}, and \code{Mmatrix}. It can be used to
+  \code{Smatrix}, \code{Fmatrx}, \code{Mmatrix}, \code{Id} (identity
+  matrix), \code{expCov} (expected covariance matrix of the observed and
+  latent variables), and \code{expMean} (expected means of the observed
+  and latent variables). It can be used to
   define new functions of parameters and their LBCIs. For example, if
   the regression coefficients to calculate an indirect effect are stored
   in A[1,2] and A[1,3], we may define \code{list(ind=mxAlgebra(Amatrix[1,2]*Amatrix[1,3], name="ind"))}

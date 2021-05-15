@@ -70,9 +70,18 @@ create.mxModel <- function(model.name="mxModel", RAM=NULL, Amatrix=NULL,
     } else {
         mx.data <- data
     }    
+
+    ## Create an identity matrix from the dimensions of Amatrix
+    Id <- as.mxMatrix(diag(nrow(Amatrix$values)), name="Id")
+
+    ## Expected covariance matrix and means of the observed and latent variables
+    Id_A <- mxAlgebra(solve(Id - Amatrix), name="Id_A")
+    expCov <- mxAlgebra(Id_A %&% Smatrix, name="expCov")
+    expMean <- mxAlgebra(Mmatrix %*% t(Id_A), name="expMean")
     
     mx.model <- mxModel(model.name, Amatrix, Smatrix, Fmatrix, Mmatrix,
-                        Vmatrix, Sfull, mx.data, mxFitFunctionML(),
+                        Vmatrix, Sfull, Id, Id_A, expCov, expMean,
+                        mx.data, mxFitFunctionML(),
                         mxCI(c("Amatrix", "Smatrix", "Mmatrix")),
                         mxExpectationRAM(A="Amatrix", S="Sfull", F="Fmatrix",
                                          M="Mmatrix",
