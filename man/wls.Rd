@@ -181,8 +181,7 @@ R2.labels <- c("y", "x1", "x2")
 
 R2 <- matrix(c(1.00, 0.22, 0.24, 
                0.22, 1.00, 0.30, 
-               0.24, 0.30, 1.00, 
-               0.18, 0.22, 0.24), ncol=3, nrow=3,
+               0.24, 0.30, 1.00), ncol=3, nrow=3,
                dimnames=list(R2.labels, R2.labels))
 acovR2 <- asyCov(R2, n)
 

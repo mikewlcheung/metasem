@@ -1,5 +1,6 @@
-Release 1.2.5.1 (May 15, 2021)
+Release 1.2.5.1 (May 16, 2021)
 ====================================
+* Fixed a bug in an example in wls.Rd that triggers warning in R-Devel.
 * Added Id, expCov, and expMean in create.mxModel().
 
 Release 1.2.5 (Nov 29, 2020)
