@@ -486,6 +486,8 @@ wls <- function(Cov, aCov, n, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL
   }
 
   ## Add additiona mxalgebras from RAM
+  ## Initialize as NULL  
+  algebra.names <- NULL  
   if (!is.null(RAM$mxalgebra)) {
     for (i in seq_along(RAM$mxalgebra)) {
       mx.model <- mxModel(mx.model, RAM$mxalgebra[[i]])
@@ -494,7 +496,9 @@ wls <- function(Cov, aCov, n, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL
     algebra.names <- names(RAM$mxalgebra)
     isalgebra <- !grepl("^constraint[0-9]+", algebra.names)
     if (any(isalgebra)) {
-        mx.model <- mxModel(mx.model, mxCI(algebra.names[isalgebra]))
+        ## Remove names for mxconstraints
+        algebra.names <- algebra.names[isalgebra]
+        mx.model <- mxModel(mx.model, mxCI(algebra.names))
     }
   }  
     
@@ -521,8 +525,9 @@ wls <- function(Cov, aCov, n, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL
       out <- list(call=match.call(), Cov=Cov, aCov=aCov, noObservedStat=ps, n=n, cor.analysis=cor.analysis, 
                   diag.constraints=diag.constraints, Constraints=Constraints,
                   indepModelChisq=.indepwlsChisq(S=Cov, aCov=aCov, cor.analysis=cor.analysis),
-                  indepModelDf=no.var*(no.var-1)/2, mx.model=mx.model, mx.fit=mx.fit, mx.algebras=names(mx.algebras), 
-                  intervals.type=intervals.type, RAM=RAM)
+                  indepModelDf=no.var*(no.var-1)/2, mx.model=mx.model, mx.fit=mx.fit,
+                  mx.algebras=c(names(mx.algebras), algebra.names), 
+                  intervals.type=intervals.type)
       class(out) <- 'wls'
   }
   out
