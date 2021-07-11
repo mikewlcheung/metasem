@@ -130,11 +130,19 @@ summary.wls <- function(object, df.adjustment=0, ...) {
     coefficients$"Pr(>|z|)" <- 2*(1-pnorm(abs(coefficients$"z value")))
     
     ## Extract mx.algebras (and CI)
-    if (is.null(object$mx.algebras)) {
+    ## mx.algebras and RAM[[1]]$mxalgebra are NULL
+    algebra.names <- names(object$RAM$mxalgebra)
+    ## Exclude mxconstraints
+    isalgebra <- !grepl("^constraint[0-9]+", algebra.names)
+    algebra.names <- algebra.names[isalgebra]
+    ## Combine the algebra names
+    algebra.names <- c(algebra.names, object$mx.algebras)
+    
+    if (is.null(algebra.names)) {
       mx.algebras <- NULL
     } else {
       if (object$intervals.type=="z") {
-        mx.algebras <- object$mx.fit@algebras[object$mx.algebras]
+        mx.algebras <- object$mx.fit@algebras[algebra.names]
         mx.algebras <- sapply(mx.algebras, function(x) { if (!is.null(x)) x@result})
         ## remove lists with NA names
         mx.algebras <- unlist(mx.algebras[!is.na(names(mx.algebras))])

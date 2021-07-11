@@ -51,7 +51,7 @@ It uses the \code{\link[lavaan]{model.syntax}} to do the
 conversion. Experimental: functions of parameters (`:=` in lavaan) and
 constraints (`==`, `>`, and `<` in lavaan) will be converted to
 mxAlgebra and mxConstraint in OpenMx. As there are differences between
-lavaan and OpenMx, they may not work.
+lavaan and OpenMx, they may not work properly.
 }
 \value{
   A list of RAM specification with \code{A}, \code{S}, \code{F}, and \code{M} matrices.
@@ -68,7 +68,7 @@ lavaan and OpenMx, they may not work.
 \examples{
 ## Regression model on correlation matrix
 model1 <- "## y is modelled by x1, x2, and x3
-           y ~ x1 + x2 + x3
+           y ~ b1*x1 + b2*x2 + b3*x3
            ## Fix the independent variables at 1
            x1 ~~ 1*x1
            x2 ~~ 1*x2
@@ -76,7 +76,11 @@ model1 <- "## y is modelled by x1, x2, and x3
            ## Declare the correlations among the independent variables
            x1 ~~ x2
            x1 ~~ x3
-           x2 ~~ x3"
+           x2 ~~ x3
+           ## Constraint
+           b3 == b1 + b2
+           ## Function of parameters
+           fn1 := b1*b2^b3"
 
 ## Compare the arrangements of variables with and without
 ## specifying the obs.variables arguments. 

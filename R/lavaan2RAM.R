@@ -101,6 +101,9 @@ lavaan2RAM <- function(model, obs.variables = NULL, A.notation="ON", S.notation=
         out[[gp]] <- list(A=Amatrix, S=Smatrix, F=Fmatrix, M=Mmatrix)
     }
 
+    ## Add group names, 1, 2, 3... to the list
+    names(out) <- seq_along(out)
+    
     ## If there are constraints such as .p1.==.p2.; remove them first
     ## otherwise, .p1.==.p2. will create an empty list in mxalgebra
     if (length(grep("^\\.", my.model$lhs)) >0 ) {

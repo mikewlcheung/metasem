@@ -442,6 +442,19 @@ osmasem <- function(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
                            mxAlgebra(Jmatrix %&% Tau2 + V, name='expCov'),
                            mxCI(c('Amatrix', 'Smatrix', 'Tau2')))"))
     
+    ## Add additiona arguments from RAM to mxModel
+    if (!is.null(RAM$mxalgebra)) {
+        for (i in seq_along(RAM$mxalgebra)) {
+            mx.model <- mxModel(mx.model, RAM$mxalgebra[[i]])
+        }
+        ## check if they are mxalgebra, not mxconstraint
+        algebra.names <- names(RAM$mxalgebra)
+        isalgebra <- !grepl("^constraint[0-9]+", algebra.names)
+        if (any(isalgebra)) {
+            mx.model <- mxModel(mx.model, mxCI(algebra.names[isalgebra]))
+        }
+    }  
+
     ## Add additional arguments to mxModel
     if (!is.null(mxModel.Args)) {
         for (i in seq_along(mxModel.Args)) {

@@ -1,4 +1,4 @@
-[![Build Status](https://travis-ci.org/mikewlcheung/metasem.svg?branch=master)](https://travis-ci.org/mikewlcheung/metasem)
+[![R build status](https://github.com/mikewlcheung/metasem/workflows/R-CMD-check/badge.svg)](https://github.com/mikewlcheung/metasem/actions)
 [![cran version](http://www.r-pkg.org/badges/version/metaSEM)](https://cran.r-project.org/package=metaSEM)
 [![Monthly Downloads](https://cranlogs.r-pkg.org/badges/metaSEM)](https://cranlogs.r-pkg.org/badges/metaSEM)
 [![Total Downloads](https://cranlogs.r-pkg.org/badges/grand-total/metaSEM)](https://cranlogs.r-pkg.org/badges/grand-total/metaSEM)
