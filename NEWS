@@ -1,5 +1,11 @@
-Release 1.2.5.1 (May 16, 2021)
+Release 1.2.5.3 (Jul 11, 2021)
 ====================================
+* Teach lavaan2RAM() to recognize functions of parameters and constraints in lavaan and convert them to mxAlgebra and mxConstraint in OpenMx.
+* Experimental: teach create.mxModel() to recognize mxAlgrebra and mxConstraint converted from lavaan2RAM().
+
+Release 1.2.5.1 (May 17, 2021)
+====================================
+* Released to CRAN.
 * Fixed a bug in an example in wls.Rd that triggers warning in R-Devel.
 * Added Id, expCov, and expMean in create.mxModel().
 

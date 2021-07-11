@@ -4,7 +4,7 @@
 create.mxModel <- function(model.name="mxModel", RAM=NULL, Amatrix=NULL,
                            Smatrix=NULL, Fmatrix=NULL, Mmatrix=NULL,
                            Vmatrix=NULL, data, intervals.type = c("z", "LB"),
-                           mx.algebras=NULL, mxModel.Args=NULL,
+                           mx.algebra=NULL, mxModel.Args=NULL,
                            mxRun.Args=NULL, var.names=NULL,
                            suppressWarnings=TRUE,
                            silent=TRUE, run=TRUE, ...) {
@@ -94,14 +94,28 @@ create.mxModel <- function(model.name="mxModel", RAM=NULL, Amatrix=NULL,
         }
     }
 
-    ## Add additional mxAlgebras
-    if (!is.null(mx.algebras)) {
-        for (i in seq_along(mx.algebras)) {
-            mx.model <- mxModel(mx.model, mx.algebras[[i]])
+    ## Add additional mxAlgebra
+    if (!is.null(mx.algebra)) {
+        for (i in seq_along(mx.algebra)) {
+            mx.model <- mxModel(mx.model, mx.algebra[[i]])
         }
         mx.model <- mxModel(mx.model,
                             mxCI(c("Amatrix", "Smatrix", "Mmatrix",
-                                   names(mx.algebras))))
+                                   names(mx.algebra))))
+    }
+    
+    ## Add mxAlgebra and mxConstraint from RAM$mxalgebra
+    if (!is.null(RAM$mxalgebra)) {
+            for (i in seq_along(RAM$mxalgebra)) {
+                mx.model <- mxModel(mx.model, RAM$mxalgebra[[i]])
+                ## Name of the mxalgebra
+                name.mxalgebra <- names(RAM$mxalgebra)[i]
+                ## Check if the name constains constraint1, constraint2, ...,
+                ## If no, they are mxalgebra, not mxconstraints. Include them in mxCI. 
+                if (!grepl("^constraint[0-9]", name.mxalgebra)) {
+                    mx.model <- mxModel(mx.model, mxCI(c(name.mxalgebra)))
+                }
+            }
     }
     
     if (run==TRUE) {

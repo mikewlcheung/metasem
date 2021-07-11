@@ -8,7 +8,7 @@
 create.mxModel(model.name="mxModel", RAM=NULL, Amatrix=NULL,
                Smatrix=NULL, Fmatrix=NULL, Mmatrix=NULL,
                Vmatrix=NULL, data, intervals.type = c("z", "LB"),
-               mx.algebras=NULL, mxModel.Args=NULL,
+               mx.algebra=NULL, mxModel.Args=NULL,
                mxRun.Args=NULL, var.names=NULL,
                suppressWarnings=TRUE,
                silent=TRUE, run=TRUE, ...)
@@ -35,7 +35,7 @@ create.mxModel(model.name="mxModel", RAM=NULL, Amatrix=NULL,
   intervals (CIs) based on the estimated standard error. If it
   is \code{LB}, it calculates the 95\% likelihood-based CIs on the
   parameter estimates.}
-\item{mx.algebras}{A list of \code{\link[OpenMx]{mxMatrix}} or
+\item{mx.algebra}{A list of \code{\link[OpenMx]{mxMatrix}} or
   \code{\link[OpenMx]{mxAlgebra}} objects on the \code{Amatrix},
   \code{Smatrix}, \code{Fmatrx}, \code{Mmatrix}, \code{Id} (identity
   matrix), \code{expCov} (expected covariance matrix of the observed and

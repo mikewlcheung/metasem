@@ -47,7 +47,11 @@ lavaan2RAM(model, obs.variables = NULL, A.notation = "ON",
 \item{\dots}{Further arguments to be passed to \code{\link[lavaan]{model.syntax}}}. Please note that \code{fixed.x} is set at \code{FALSE}. Thus it cannot be passed to \dots.
 }
 \details{
-It uses the \code{\link[lavaan]{model.syntax}} to do the conversion.
+It uses the \code{\link[lavaan]{model.syntax}} to do the
+conversion. Experimental: functions of parameters (`:=` in lavaan) and
+constraints (`==`, `>`, and `<` in lavaan) will be converted to
+mxAlgebra and mxConstraint in OpenMx. As there are differences between
+lavaan and OpenMx, they may not work.
 }
 \value{
   A list of RAM specification with \code{A}, \code{S}, \code{F}, and \code{M} matrices.

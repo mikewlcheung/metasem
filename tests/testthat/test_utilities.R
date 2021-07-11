@@ -163,11 +163,16 @@ test_that("list2matrix() works correctly", {
 
 test_that("lavaan2RAM() works correctly", {
     ## Multiple regression with 2 groups
-    model1 <- "y ~ 1 + c(b1, b2)*x1 + c(b3, b4)*x2"
-    model2 <- list("1"="y ~ 1 + b1*x1 + b3*x2",
+    model1 <- "y ~ 1 + c(b1, b2)*x1 + c(b3, b4)*x2
+               fn1 := b1 + b2
+               b3 == b4"
+    model2 <- list("1"="y ~ 1 + b1*x1 + b3*x2
+                        fn1 := b1 + b2
+                        b3 == b4",
                    "2"="y ~ 1 + b2*x1 + b4*x2")       
     RAM1 <- lavaan2RAM(model1, ngroups=2)
     RAM2 <- lapply(model2, lavaan2RAM)
+    names(RAM1) <- c("1", "2")
     expect_identical(RAM1, RAM2)
 
     ## CFA with 2 groups
@@ -176,8 +181,30 @@ test_that("lavaan2RAM() works correctly", {
                    "2"="f =~ a*x1 + b2*x2 + c2*x3 + d2*x4")
     RAM3 <- lavaan2RAM(model3, ngroups=2)
     RAM4 <- lapply(model4, lavaan2RAM)
+    names(RAM3) <- c("1", "2")
     expect_identical(RAM3, RAM4)
-})
+
+    ## Single group multiple regression
+    model5 <- "y ~ 1 + b1*x1 + b2*x2"
+    RAM5a <- lavaan2RAM(model5)
+    ## RAM5b: hard-coded
+    RAM5b <- list(A = structure(c("0", "0", "0", "0*b1", "0", "0", "0*b2", 
+                                  "0", "0"), .Dim = c(3L, 3L),
+                                .Dimnames = list(c("y", "x1", "x2"),
+                                                 c("y", "x1", "x2"))),
+                  S = structure(c("0*yWITHy", "0", "0", 
+                                  "0", "0*x1WITHx1", "0*x1WITHx2", "0",
+                                  "0*x1WITHx2", "0*x2WITHx2"), .Dim = c(3L, 3L),
+                                .Dimnames = list(c("y", "x1", "x2"),
+                                                 c("y", "x1", "x2"))),
+                  F = structure(c(1, 0, 0, 0, 1, 0, 0, 0, 1), .Dim = c(3L, 3L),
+                                .Dimnames = list(c("y", "x1", "x2"),
+                                                 c("y", "x1", "x2"))), 
+                  M = structure(c("0*ymean", "0", "0"), .Dim = c(1L, 3L),
+                                .Dimnames = list("1", c("y", "x1", "x2"))))
+    expect_identical(RAM5a, RAM5b)
+
+ })
 
 test_that("as.symMatrix() works correctly", {
     A1 <- matrix(c(1:3, "a", "*b", "6*c", 7:9), ncol=3, nrow=3)

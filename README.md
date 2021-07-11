@@ -18,8 +18,8 @@ install.packages("metaSEM")
 
 The developmental version can be installed from GitHub by:
 ```
-## Install devtools package if it has not been installed yet
-# install.packages("devtools")
+## Install remotes package if it has not been installed yet
+# install.packages("remotes")
 
-devtools::install_github("mikewlcheung/metasem")
+remotes::install_github("mikewlcheung/metasem")
 ```
