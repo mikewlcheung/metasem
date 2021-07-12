@@ -1,66 +1,28 @@
 ## Easy creation of mx models
 ## Note. Dimension names of variables are assumed stored in RAM$F;
 ## otherwise, they have to be specified in var.names. 
-create.mxModel <- function(model.name="mxModel", RAM=NULL, Amatrix=NULL,
-                           Smatrix=NULL, Fmatrix=NULL, Mmatrix=NULL,
-                           Vmatrix=NULL, data, intervals.type = c("z", "LB"),
-                           mx.algebra=NULL, mxModel.Args=NULL,
-                           mxRun.Args=NULL, var.names=NULL,
-                           suppressWarnings=TRUE,
-                           silent=TRUE, run=TRUE, ...) {
+create.mxModel <- function(model.name="mxModel", RAM=NULL,
+                           data, intervals.type = c("z", "LB"),
+                           var.names=NULL, mxModel.Args=NULL,
+                           run=TRUE, mxTryHard=FALSE,
+                           silent=TRUE, ...) {
 
     intervals.type <- match.arg(intervals.type)
     switch(intervals.type,
            z = intervals <- FALSE,
            LB = intervals <- TRUE)
 
-    ## Read RAM first. If it is not specified, read individual matrices
-    if (!is.null(RAM)) {
-        Amatrix <- as.mxMatrix(RAM$A, name="Amatrix")
-        Smatrix <- as.mxMatrix(RAM$S, name="Smatrix")
-        Fmatrix <- as.mxMatrix(RAM$F, name="Fmatrix")
-        Mmatrix <- as.mxMatrix(RAM$M, name="Mmatrix")
-    } else {
-        if (is.matrix(Amatrix)) {
-            Amatrix <- as.mxMatrix(Amatrix, name="Amatrix")
-        } else {    
-            Amatrix@name <- "Amatrix"
-        }
-        if (is.matrix(Smatrix)) {
-            Smatrix <- as.mxMatrix(Smatrix, name="Smatrix")
-        } else {    
-            Smatrix@name <- "Smatrix"
-        }
-        if (is.matrix(Fmatrix)) {
-            Fmatrix <- as.mxMatrix(Fmatrix, name="Fmatrix")
-        } else {    
-            Fmatrix@name <- "Fmatrix"
-        }
-        if (is.matrix(Mmatrix)) {
-            Mmatrix <- as.mxMatrix(Mmatrix, name="Mmatrix")
-        } else {    
-            Mmatrix@name <- "Mmatrix"
-        }        
-    }
-
+    Amatrix <- as.mxMatrix(RAM$A, name="Amatrix")
+    Smatrix <- as.mxMatrix(RAM$S, name="Smatrix")
+    Fmatrix <- as.mxMatrix(RAM$F, name="Fmatrix")
+    Mmatrix <- as.mxMatrix(RAM$M, name="Mmatrix")
+    
     ## Some basic checking in RAM
     checkRAM(Amatrix, Smatrix, cor.analysis=FALSE)
 
     ## Extract the dimnames from Fmatrix$values
     if (is.null(var.names)) {
         var.names <- colnames(Fmatrix$values)
-    }
-
-    ## Add Vmatrix if provided
-    if (!is.null(Vmatrix)) {
-        if (is.matrix(Vmatrix)) {
-            Vmatrix <- as.mxMatrix(Vmatrix)
-            Vmatrix@name <- "Vmatrix"
-        }
-        
-        Sfull <- mxAlgebra(Smatrix+Vmatrix, name="Sfull")
-    } else {
-        Sfull <- mxAlgebra(Smatrix, name="Sfull")
     }
 
     ## If matrix or data.frame is provided, setup mxData
@@ -80,11 +42,11 @@ create.mxModel <- function(model.name="mxModel", RAM=NULL, Amatrix=NULL,
     expMean <- mxAlgebra(Mmatrix %*% t(Id_A), name="expMean")
     
     mx.model <- mxModel(model.name, Amatrix, Smatrix, Fmatrix, Mmatrix,
-                        Vmatrix, Sfull, Id, Id_A, expCov, expMean,
+                        Id, Id_A, expCov, expMean,
                         mx.data, mxFitFunctionML(),
                         mxCI(c("Amatrix", "Smatrix", "Mmatrix")),
-                        mxExpectationRAM(A="Amatrix", S="Sfull", F="Fmatrix",
-                                         M="Mmatrix",
+                        mxExpectationRAM(A="Amatrix", S="Smatrix",
+                                         F="Fmatrix", M="Mmatrix",
                                          dimnames=var.names))
     
     ## Add additional arguments to mxModel
@@ -93,23 +55,13 @@ create.mxModel <- function(model.name="mxModel", RAM=NULL, Amatrix=NULL,
             mx.model <- mxModel(mx.model, mxModel.Args[[i]])
         }
     }
-
-    ## Add additional mxAlgebra
-    if (!is.null(mx.algebra)) {
-        for (i in seq_along(mx.algebra)) {
-            mx.model <- mxModel(mx.model, mx.algebra[[i]])
-        }
-        mx.model <- mxModel(mx.model,
-                            mxCI(c("Amatrix", "Smatrix", "Mmatrix",
-                                   names(mx.algebra))))
-    }
     
     ## Add mxAlgebra and mxConstraint from RAM$mxalgebra
-    if (!is.null(RAM$mxalgebra)) {
-            for (i in seq_along(RAM$mxalgebra)) {
-                mx.model <- mxModel(mx.model, RAM$mxalgebra[[i]])
+    if (!is.null(RAM$mxalgebras)) {
+            for (i in seq_along(RAM$mxalgebras)) {
+                mx.model <- mxModel(mx.model, RAM$mxalgebras[[i]])
                 ## Name of the mxalgebra
-                name.mxalgebra <- names(RAM$mxalgebra)[i]
+                name.mxalgebra <- names(RAM$mxalgebras)[i]
                 ## Check if the name constains constraint1, constraint2, ...,
                 ## If no, they are mxalgebra, not mxconstraints. Include them in mxCI. 
                 if (!grepl("^constraint[0-9]", name.mxalgebra)) {
@@ -119,10 +71,11 @@ create.mxModel <- function(model.name="mxModel", RAM=NULL, Amatrix=NULL,
     }
     
     if (run==TRUE) {
-        out <- do.call(mxRun,
-                       c(list(mx.model, intervals=intervals,
-                              suppressWarnings=suppressWarnings,
-                              silent=silent), mxRun.Args))
+        if (mxTryHard==TRUE) {
+            out <- mxTryHard(mx.model, intervals=intervals, silent=silent, ...)
+        } else {
+            out <- mxRun(mx.model, intervals=intervals, silent=silent, ...)
+        }
     } else {
         out <- mx.model
     }

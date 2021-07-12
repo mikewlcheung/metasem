@@ -8,8 +8,9 @@ It converts models specified in \code{lavaan} model syntax to RAM models.
 }
 \usage{
 lavaan2RAM(model, obs.variables = NULL, A.notation = "ON",
-           S.notation = "WITH", M.notation = "mean", auto.var = TRUE,
-           std.lv = TRUE, ngroups = 1, ...)
+           S.notation = "WITH", M.notation = "mean",
+           A.start=0.1, S.start=0.5, M.start=0,
+           auto.var = TRUE, std.lv = TRUE, ngroups = 1, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -32,6 +33,15 @@ lavaan2RAM(model, obs.variables = NULL, A.notation = "ON",
 \item{M.notation}{A character string to be used in the M matrix if the labels
   are not included in the lavaan model. For example, the label will be "ymean" for
   the mean of "y" if \code{M.notation="mean"}. 
+}
+\item{A.start}{A numeric value of starting value for the \code{Amatrix}
+  when the starting values are not provided.
+}
+\item{S.start}{A numeric value of starting value for the \code{Smatrix}
+  when the starting values are not provided.
+}
+\item{M.start}{A numeric value of starting value for the \code{Mmatrix}
+  when the starting values are not provided.
 }
 \item{auto.var}{Logical. If \code{TRUE}, the residual variances and the
   variances of exogenous latent variables are included in the model and

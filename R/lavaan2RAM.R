@@ -1,5 +1,6 @@
 lavaan2RAM <- function(model, obs.variables = NULL, A.notation="ON", S.notation="WITH",
-                       M.notation="mean", auto.var = TRUE, std.lv = TRUE,
+                       M.notation="mean", A.start=0.1, S.start=0.5, M.start=0,
+                       auto.var = TRUE, std.lv = TRUE,
                        ngroups=1, ...) {
     ## if (!requireNamespace("lavaan", quietly=TRUE))    
     ##     stop("\"lavaan\" package is required for this function.")
@@ -15,16 +16,28 @@ lavaan2RAM <- function(model, obs.variables = NULL, A.notation="ON", S.notation=
     out <- list()
     
     for (gp in seq_len(max.gp)) {
+        ## Select the ith group
         mod <- my.model[my.model$group==gp, ]
 
-        ## set the starting values in A and M as 0 if NA
-        if (any((mod$op=="=~"|mod$op=="~"|mod$op=="~1")&is.na(mod$ustart))) {
-            mod[(mod$op=="=~"|mod$op=="~"|mod$op=="~1")&is.na(mod$ustart), ]$ustart <- 0
+        ## if (any...) is required to avoid error when there is no element for the assignment
+        ## set the starting values in A if NA
+        if (any((mod$op=="=~"|mod$op=="~")&is.na(mod$ustart))) {            
+            mod[(mod$op=="=~"|mod$op=="~")&is.na(mod$ustart), ]$ustart <- A.start
         }
-    
-        ## set the starting values in S and free parameters as 0 if NA
-        if (any((mod$op=="~~"&is.na(mod$ustart)&mod$free!=0))) {
-            mod[mod$op=="~~"&is.na(mod$ustart)&mod$free!=0, ]$ustart <- 0
+        
+        ## set the starting values in M if NA
+        if (any(mod$op=="~1"&is.na(mod$ustart))) {
+            mod[mod$op=="~1"&is.na(mod$ustart), ]$ustart <- M.start      
+        }
+        
+        ## set the starting values in S and free parameters if NA (variances)
+        if (any(mod$op=="~~"&is.na(mod$ustart)&(mod$lhs==mod$rhs))) {
+            mod[mod$op=="~~"&is.na(mod$ustart)&(mod$lhs==mod$rhs), ]$ustart <- S.start
+        }
+        
+        ## Set the starting values in S and free parameters if NA (covariances)
+        if (any(mod$op=="~~"&is.na(mod$ustart)&(mod$lhs!=mod$rhs))) {
+            mod[mod$op=="~~"&is.na(mod$ustart)&(mod$lhs!=mod$rhs), ]$ustart <- 0
         }
 
         ## all variables
@@ -76,8 +89,9 @@ lavaan2RAM <- function(model, obs.variables = NULL, A.notation="ON", S.notation=
             }
         }
     
-        ## replace NA to 0 in ustart
-        mod$ustart[is.na(mod$ustart)] <- 0
+        ## Replace NA to 0 in ustart if there are still NA
+        ## mod$ustart[is.na(mod$ustart)] <- 0
+        
         ## keys in as.mxMatrix format
         key <- with(mod, ifelse(free==0, yes=ustart, no=paste(ustart, label, sep="*")))  
         
@@ -119,9 +133,7 @@ lavaan2RAM <- function(model, obs.variables = NULL, A.notation="ON", S.notation=
 
         ## Constraints and algebras only
         y <- my.model[my.model$group==0, , drop=FALSE]
-        
-
-       
+               
         for (i in seq_len(nrow(y))) {
             switch(y[i, 'op'],
                    ## mxAlgebra
@@ -140,8 +152,8 @@ lavaan2RAM <- function(model, obs.variables = NULL, A.notation="ON", S.notation=
         }  ## from for loop
 
         ## Append mxalgebra to out[[1]]
-        out[[1]]  <- list(A=out[[1]]$A, S=out[[1]]$S, F=out[[1]]$F, M=out[[1]]$M, mxalgebra=mxalgebra)
-    }
+        out[[1]]  <- list(A=out[[1]]$A, S=out[[1]]$S, F=out[[1]]$F, M=out[[1]]$M, mxalgebras=mxalgebra)
+    }  ## End if
     ## else {
     ##     out[[1]]  <- list(A=out[[1]]$A, S=out[[1]]$S, F=out[[1]]$F, M=out[[1]]$M)
     ## }

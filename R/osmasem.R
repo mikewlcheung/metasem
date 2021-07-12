@@ -443,12 +443,12 @@ osmasem <- function(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
                            mxCI(c('Amatrix', 'Smatrix', 'Tau2')))"))
     
     ## Add additiona arguments from RAM to mxModel
-    if (!is.null(RAM$mxalgebra)) {
-        for (i in seq_along(RAM$mxalgebra)) {
-            mx.model <- mxModel(mx.model, RAM$mxalgebra[[i]])
+    if (!is.null(RAM$mxalgebras)) {
+        for (i in seq_along(RAM$mxalgebras)) {
+            mx.model <- mxModel(mx.model, RAM$mxalgebras[[i]])
         }
         ## check if they are mxalgebra, not mxconstraint
-        algebra.names <- names(RAM$mxalgebra)
+        algebra.names <- names(RAM$mxalgebras)
         isalgebra <- !grepl("^constraint[0-9]+", algebra.names)
         if (any(isalgebra)) {
             mx.model <- mxModel(mx.model, mxCI(algebra.names[isalgebra]))

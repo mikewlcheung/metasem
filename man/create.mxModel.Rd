@@ -5,29 +5,17 @@
 \description{It creates a mxModel from a RAM object.  
 }
 \usage{
-create.mxModel(model.name="mxModel", RAM=NULL, Amatrix=NULL,
-               Smatrix=NULL, Fmatrix=NULL, Mmatrix=NULL,
-               Vmatrix=NULL, data, intervals.type = c("z", "LB"),
-               mx.algebra=NULL, mxModel.Args=NULL,
-               mxRun.Args=NULL, var.names=NULL,
-               suppressWarnings=TRUE,
-               silent=TRUE, run=TRUE, ...)
+create.mxModel(model.name="mxModel", RAM=NULL, data,
+                           intervals.type = c("z", "LB"),
+                           var.names=NULL, mxModel.Args=NULL,
+                           run=TRUE, mxTryHard=FALSE,
+                           silent=TRUE, ...)
 }
 \arguments{
   \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. 
 }
 \item{RAM}{A RAM object including a list of matrices of the model
   returned from \code{\link[metaSEM]{lavaan2RAM}}.}
-\item{Amatrix}{If \code{RAM} is not specified, an \code{Amatrix} is
-  required.}
-\item{Smatrix}{If \code{RAM} is not specified, an \code{Smatrix} is
-  required.}
-\item{Fmatrix}{If \code{RAM} is not specified, an \code{Fmatrix} is
-  required.}
-\item{Mmatrix}{If \code{RAM} is not specified, an \code{Mmatrix} is
-  required.}
-\item{Vmatrix}{A V-known matrix of the variables. If it is specified, it
-  will be added into the \code{Smatrix}.}
 \item{data}{A data frame or matrix of data. Alternatively, users may
   provide a \code{\link[OpenMx]{mxData}} object.}
 \item{intervals.type}{Either \code{z} (default if missing) or
@@ -35,23 +23,15 @@ create.mxModel(model.name="mxModel", RAM=NULL, Amatrix=NULL,
   intervals (CIs) based on the estimated standard error. If it
   is \code{LB}, it calculates the 95\% likelihood-based CIs on the
   parameter estimates.}
-\item{mx.algebra}{A list of \code{\link[OpenMx]{mxMatrix}} or
-  \code{\link[OpenMx]{mxAlgebra}} objects on the \code{Amatrix},
-  \code{Smatrix}, \code{Fmatrx}, \code{Mmatrix}, \code{Id} (identity
-  matrix), \code{expCov} (expected covariance matrix of the observed and
-  latent variables), and \code{expMean} (expected means of the observed
-  and latent variables). It can be used to
-  define new functions of parameters and their LBCIs. For example, if
-  the regression coefficients to calculate an indirect effect are stored
-  in A[1,2] and A[1,3], we may define \code{list(ind=mxAlgebra(Amatrix[1,2]*Amatrix[1,3], name="ind"))}
-}
+\item{var.names}{If it is \code{NULL} (the default), the
+  \code{var.names} are extracted from \code{Fmatrix$values}.}
 \item{mxModel.Args}{A list of arguments passed to \code{\link[OpenMx]{mxModel}}.}
-\item{mxRun.Args}{A list of arguments passed to \code{\link[OpenMx]{mxRun}}.}
-\item{var.names}{If it is \code{NULL} (the default), the \code{var.names} are extracted from \code{Fmatrix$values}.}
-\item{suppressWarnings}{Logical. If it is \code{TRUE}, warnings are
-	suppressed. This argument is passed to \code{\link[OpenMx]{mxRun}}.}
+\item{run}{Logical. If \code{FALSE}, only return the mx model without
+  running the analysis.}
+\item{mxTryHard}{If \code{TRUE}, call \code{mxTryHard} to run the
+  analysis. If \code{FALSE}, call \code{mxRun} to run the analysis.}
 \item{silent}{Logical. An argument is passed to \code{\link[OpenMx]{mxRun}}}
-\item{run}{Logical. If \code{FALSE}, only return the mx model without running the analysis.}
+
 \item{\dots}{Not used yet.}  
 }
 
@@ -69,7 +49,7 @@ x <- rnorm(n)
 y <- 0.5*x + rnorm(n, mean=0, sd=sqrt(1-0.5^2))
 my.df <- data.frame(y=y, x=x)
 
-## Regression model
+## A regression model
 model <- "y ~ x   # Regress y on x
           y ~ 1   # Intercept of y
           x ~ 1   # Mean of x"
@@ -81,15 +61,17 @@ my.fit <- create.mxModel(RAM=RAM, data=my.df)
 summary(my.fit)
 
 ## A meta-analysis
-model <- "yi ~~ tau2*yi
-          yi ~ mu*1"
+model <- "f =~ 1*yi
+          f ~ mu*1          ## Average effect
+          f ~~ tau2*f       ## Heterogeneity variance
+          yi ~~ data.vi*yi  ## Known sampling variance"
+plot(model)
 
-RAM <- lavaan2RAM(model, obs.variables=c("yi"))
+## Do not standardize the latent variable (f): std.lv=FALSE 
+RAM <- lavaan2RAM(model, obs.variables="yi", std.lv=FALSE)
 
-## Create a v-known matrix
-Vmatrix <- as.mxMatrix("0*data.vi", name="Vmatrix")
-
-my.fit <- create.mxModel(RAM=RAM, Vmatrix=Vmatrix, data=Hox02)
+## Use likelihood-based CI 
+my.fit <- create.mxModel(RAM=RAM, data=Hox02, intervals="LB")
 summary(my.fit)
 }
 }

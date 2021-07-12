@@ -1,4 +1,4 @@
-Release 1.2.5.3 (Jul 11, 2021)
+Release 1.2.5.3 (Jul 12, 2021)
 ====================================
 * Teach lavaan2RAM() to recognize functions of parameters and constraints in lavaan and convert them to mxAlgebra and mxConstraint in OpenMx.
 * Experimental: teach create.mxModel() to recognize mxAlgrebra and mxConstraint converted from lavaan2RAM().

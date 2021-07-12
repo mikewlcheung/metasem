@@ -188,13 +188,13 @@ test_that("lavaan2RAM() works correctly", {
     model5 <- "y ~ 1 + b1*x1 + b2*x2"
     RAM5a <- lavaan2RAM(model5)
     ## RAM5b: hard-coded
-    RAM5b <- list(A = structure(c("0", "0", "0", "0*b1", "0", "0", "0*b2", 
+    RAM5b <- list(A = structure(c("0", "0", "0", "0.1*b1", "0", "0", "0.1*b2", 
                                   "0", "0"), .Dim = c(3L, 3L),
                                 .Dimnames = list(c("y", "x1", "x2"),
                                                  c("y", "x1", "x2"))),
-                  S = structure(c("0*yWITHy", "0", "0", 
-                                  "0", "0*x1WITHx1", "0*x1WITHx2", "0",
-                                  "0*x1WITHx2", "0*x2WITHx2"), .Dim = c(3L, 3L),
+                  S = structure(c("0.5*yWITHy", "0", "0", 
+                                  "0", "0.5*x1WITHx1", "0*x1WITHx2", "0",
+                                  "0*x1WITHx2", "0.5*x2WITHx2"), .Dim = c(3L, 3L),
                                 .Dimnames = list(c("y", "x1", "x2"),
                                                  c("y", "x1", "x2"))),
                   F = structure(c(1, 0, 0, 0, 1, 0, 0, 0, 1), .Dim = c(3L, 3L),

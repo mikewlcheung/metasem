@@ -488,12 +488,12 @@ wls <- function(Cov, aCov, n, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL
   ## Add additiona mxalgebras from RAM
   ## Initialize as NULL  
   algebra.names <- NULL  
-  if (!is.null(RAM$mxalgebra)) {
-    for (i in seq_along(RAM$mxalgebra)) {
-      mx.model <- mxModel(mx.model, RAM$mxalgebra[[i]])
+  if (!is.null(RAM$mxalgebras)) {
+    for (i in seq_along(RAM$mxalgebras)) {
+      mx.model <- mxModel(mx.model, RAM$mxalgebras[[i]])
     }
     ## check if they are mxalgebra, not mxconstraint
-    algebra.names <- names(RAM$mxalgebra)
+    algebra.names <- names(RAM$mxalgebras)
     isalgebra <- !grepl("^constraint[0-9]+", algebra.names)
     if (any(isalgebra)) {
         ## Remove names for mxconstraints
