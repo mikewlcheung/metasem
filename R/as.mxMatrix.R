@@ -82,8 +82,12 @@ as.symMatrix <- function(x) {
     x
 }
 
-as.mxAlgebra <- function(x, name="X") {
-
+as.mxAlgebra <- function(x, startvalues=NULL, name="X") {
+    ## If it is a vector, the output is a column matrix.
+    if (!is.matrix(x)) {
+        x <- as.matrix(x)
+    }
+    
     ## Xvars: a column vector of the parameters in x, e.g., a, b, c.
     vars <- sort(all.vars(parse(text=x)))
     ## Provide 0 as starting value 
@@ -91,6 +95,14 @@ as.mxAlgebra <- function(x, name="X") {
     ## Change the matrix name
     Xvars@name <- paste0(name, "vars")
 
+    ## Change the starting values in Xvars, if provided
+    if (!is.null(startvalues)) {
+        for (i in seq_along(startvalues)) {
+            starti <- unlist(startvalues[i])
+            Xvars$values[Xvars$labels==names(starti)] <- starti
+        }
+    }
+    
     xrow <- nrow(x)
     xcol <- ncol(x)
 
@@ -107,7 +119,8 @@ as.mxAlgebra <- function(x, name="X") {
     ## Xmat: a matrix of the named Xi_j of mxalgebra
     Xmat <- outer(seq_len(xrow), seq_len(xcol), function(x, y) paste0(name,x,"_",y))
     Xmat <- paste0("cbind(", apply(Xmat, 1, paste0, collapse=", "), ")")
-    Xmatrix  <- paste0(name, " <- mxAlgebra(rbind(", paste0(Xmat, collapse=", "), "), name='", name,"')")
+    Xmatrix  <- paste0(name, " <- mxAlgebra(rbind(", paste0(Xmat, collapse=", "),
+                       "), name='", name,"')")
     eval(parse(text=Xmatrix))
 
     ## Prepare mxalgebra matrices for output
@@ -121,8 +134,9 @@ as.mxAlgebra <- function(x, name="X") {
     Xlist <- eval(parse(text=Xlist))
     # list(Xmatrix=Xmatrix, Xvars=Xvars, Xnames=Xnames, Xlist=Xlist)
 
-    out <- paste0("out <- list(", name, "=", name, ", names=Xnames, ", name, 
-                  "vars=Xvars, ", name, "list=Xlist",")" )
+    ## out <- paste0("out <- list(", name, "=", name, ", names=Xnames, ", name, 
+    ##               "vars=Xvars, ", name, "list=Xlist",")" )
+    out <- paste0("out <- list(mxalgebra=", name, ", parameters=Xvars, list=Xlist",")" )
     eval(parse(text=out))
     out
 }

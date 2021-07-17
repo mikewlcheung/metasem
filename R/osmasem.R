@@ -462,6 +462,9 @@ osmasem <- function(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
         }
     }
 
+    ## Assign same starting values, e.g., A and S matrices are different from those in provided in Jmatrix
+    mx.model <- omxAssignFirstParameters(mx.model)
+    
     ## Return mx model without running the analysis
     if (run==FALSE) {
         return(mx.model)

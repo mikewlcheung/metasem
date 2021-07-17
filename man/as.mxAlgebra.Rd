@@ -5,24 +5,25 @@
 \description{It converts a character matrix into \code{MxAlgebra} object.
 }
 \usage{
-as.mxAlgebra(x, name="X")
+as.mxAlgebra(x, startvalues=NULL, name="X")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{x}{A character or numeric matrix, which consists of valid
-	operators in \code{mxAlgebra}. 
-  }
-  \item{name}{A character string of the names of the objects based
-	on.}
+\item{x}{A character or numeric matrix, which consists of valid
+  operators in \code{mxAlgebra}. 
+}
+\item{startvalues}{A list of starting values of the free parameters. If it is
+  not provided, all free parameters are assumed 0.}  
+\item{name}{A character string of the names of the objects based
+  on.}
 }
 \details{Suppose the name argument is "X", the output is a list of the
   following elements. 
 }
 \value{
-  \item{X}{The \code{mxAlgebra} object.}
-  \item{names}{The names of all the matrices.}
-  \item{Avars}{A column vector \code{mxMatrix} of the parameters.}
-  \item{Alist}{A list of mxMatrix to form the \code{mxAlgebra} object.}
+  \item{mxalgebra}{An \code{mxAlgebra} object.}
+  \item{parameters}{A column vector \code{mxMatrix} of the free parameters.}
+  \item{list}{A list of mxMatrix to form the \code{mxAlgebra} object.}
 }
 
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
@@ -38,21 +39,17 @@ as.mxAlgebra(x, name="X")
 ## [1,] "1"   "a^b"   
 ## [2,] "a*b" "exp(c)"
 
-A <- as.mxAlgebra(A1, name="A")
-
-## Names of all matrices
-A$names
-## [1] "A"     "Avars" "A1_1"  "A2_1"  "A1_2"  "A2_2" 
+A <- as.mxAlgebra(A1, startvalues=list(a=1, b=2), name="A")
 
 ## An object of mxAlgebra
-A$A
+A$mxalgebra
 ## mxAlgebra 'A' 
 ## $formula:  rbind(cbind(A1_1, A1_2), cbind(A2_1, A2_2)) 
 ## $result: (not yet computed) <0 x 0 matrix>
 ## dimnames: NULL
 
 ## A matrix of parameters
-A$Avars
+A$parameters
 ## FullMatrix 'Avars' 
 
 ## $labels
@@ -63,9 +60,9 @@ A$Avars
 
 ## $values
 ##      [,1]
-## [1,]    0
-## [2,]    0
-## [3,]    0
+## [1,] 1   
+## [2,] 2   
+## [3,] 0   
 
 ## $free
 ##      [,1]
@@ -79,7 +76,7 @@ A$Avars
 
 
 ## A list of matrices of elements for the mxAlgebra
-A$Alist
+A$list
 ## $A1_1
 ## mxAlgebra 'A1_1' 
 ## $formula:  1 
