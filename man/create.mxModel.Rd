@@ -5,34 +5,36 @@
 \description{It creates a mxModel from a RAM object.  
 }
 \usage{
-create.mxModel(model.name="mxModel", RAM=NULL, data,
-                           intervals.type = c("z", "LB"),
-                           var.names=NULL, mxModel.Args=NULL,
-                           run=TRUE, mxTryHard=FALSE,
-                           silent=TRUE, ...)
+create.mxModel(model.name="mxModel", RAM=NULL, data=NULL,
+               Cov=NULL, means=NULL, numObs,
+               intervals.type = c("z", "LB"), startvalues=NULL, 
+               mxModel.Args=NULL, run=TRUE, mxTryHard=FALSE,
+               silent=TRUE, ...)
 }
 \arguments{
   \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. 
 }
 \item{RAM}{A RAM object including a list of matrices of the model
   returned from \code{\link[metaSEM]{lavaan2RAM}}.}
-\item{data}{A data frame or matrix of data. Alternatively, users may
-  provide a \code{\link[OpenMx]{mxData}} object.}
+\item{data}{A data frame or matrix of data.}
+\item{Cov}{A covariance matrix may also be used if \code{data}==NULL.}
+\item{means}{A named vector of means (options) if \code{Cov} is used.}
+\item{numObs}{If \code{Cov} is used, a sample size must be provided.}
 \item{intervals.type}{Either \code{z} (default if missing) or
   \code{LB}. If it is \code{z}, it calculates the 95\% confidence
   intervals (CIs) based on the estimated standard error. If it
   is \code{LB}, it calculates the 95\% likelihood-based CIs on the
   parameter estimates.}
-\item{var.names}{If it is \code{NULL} (the default), the
-  \code{var.names} are extracted from \code{Fmatrix$values}.}
+\item{startvalues}{A list of starting values for the free parameters.}
 \item{mxModel.Args}{A list of arguments passed to \code{\link[OpenMx]{mxModel}}.}
 \item{run}{Logical. If \code{FALSE}, only return the mx model without
   running the analysis.}
 \item{mxTryHard}{If \code{TRUE}, call \code{mxTryHard} to run the
   analysis. If \code{FALSE}, call \code{mxRun} to run the analysis.}
-\item{silent}{Logical. An argument is passed to \code{\link[OpenMx]{mxRun}}}
-
-\item{\dots}{Not used yet.}  
+\item{silent}{Logical. An argument is passed to either
+  \code{\link[OpenMx]{mxRun}} or \code{\link[OpenMx]{mxTryHard}}}
+\item{\dots}{Further arguments will be passed to either
+  \code{\link[OpenMx]{mxRun}} or \code{\link[OpenMx]{mxTryHard}}}  
 }
 
 \value{An object of class \code{mxModel}}
