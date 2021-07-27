@@ -1,5 +1,6 @@
-Release 1.2.5.3 (Jul 26, 2021)
+Release 1.2.5.3 (Jul 27, 2021)
 ====================================
+* Add a RAM argument in impliedR() and rimpliedR(). 
 * Add a starting value argument in as.mxAlgebra().
 * Teach lavaan2RAM() to recognize functions of parameters and constraints in lavaan and convert them to mxAlgebra and mxConstraint in OpenMx.
 * Experimental: teach create.mxModel() to recognize mxAlgrebra and mxConstraint converted from lavaan2RAM().

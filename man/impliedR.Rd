@@ -7,18 +7,23 @@
   matrices based on the RAM model specification.
 }
 \usage{
-impliedR(Amatrix, Smatrix, Fmatrix, corr=TRUE, labels, ...)
-rimpliedR(Amatrix, Smatrix, Fmatrix, AmatrixSD, k=1, corr=TRUE,
+impliedR(RAM, Amatrix, Smatrix, Fmatrix, corr=TRUE, labels, ...)
+rimpliedR(RAM, Amatrix, Smatrix, Fmatrix, AmatrixSD, k=1, corr=TRUE,
           nonPD.pop=c("replace", "nearPD", "accept"))
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
-  \item{Amatrix}{An asymmetric matrix in the RAM specification with
+  \item{RAM}{A RAM object including a list of matrices of the model
+	returned from \code{\link[metaSEM]{lavaan2RAM}}.
+  }
+  \item{Amatrix}{If \code{RAM} is not specified, an \code{Amatrix} is
+	required. An asymmetric matrix in the RAM specification with
 	\code{\link[OpenMx]{MxMatrix-class}}. If it is a matrix, it will be
 	converted into \code{\link[OpenMx]{MxMatrix-class}} by the
 	\code{as.mxMatrix} function.
 }
-  \item{Smatrix}{A symmetric matrix in the RAM specification with
+  \item{Smatrix}{If \code{RAM} is not specified, an \code{Smatrix} is
+	required.A symmetric matrix in the RAM specification with
 	\code{\link[OpenMx]{MxMatrix-class}}. If it is a matrix, it will be
 	converted into \code{\link[OpenMx]{MxMatrix-class}} by the
 	\code{as.mxMatrix} function.
