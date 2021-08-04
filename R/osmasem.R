@@ -701,7 +701,10 @@ summary.osmasem <- function(object, fitIndices=FALSE, numObs,
         }
 
         ## Ind.model=FALSE for independence model if there are either errors or nonconvergent.
-        if ( inherits(Ind.stat, "error") | !(Ind.stat$output$status$code %in% c(0,1)) )
+        ## NA is acceptable for independence model as it means that optimization was not attempted.
+        if ( inherits(Ind.stat, "error") |
+             !is.na(Ind.stat$output$status$code) |
+             (!is.na(Ind.stat$output$status$code) & !(Ind.stat$output$status$code %in% c(0,1))) )
         {
             Ind.model <- FALSE
         } else {
