@@ -372,7 +372,9 @@ test_that("Cor2DataFrame() works correctly", {
                               RelS2=Nohe15A1$RelS2,
                               FemalePer=Nohe15A1$FemalePer,
                               Publication=Nohe15A1$Publication,
-                              Lag=Nohe15A1$Lag, check.names=FALSE)
+                              Lag=Nohe15A1$Lag,
+                              Country=Nohe15A1$Country,
+                              check.names=FALSE)
     my.df2 <- Cor2DataFrame(Nohe15A1, append.vars=TRUE)
     expect_equal(my.df1, my.df2, tolerance = .001)  
 })
