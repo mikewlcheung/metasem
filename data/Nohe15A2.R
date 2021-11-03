@@ -81,5 +81,9 @@ structure(list(data = structure(list(`Demerouti et al. (2007)` = structure(c(1,
 30), Publication = c("P", "U", "P", "P", "P", "P", "P", "P", 
 "P", "U", "U", "U", "U", "U", "U", "U", "P", "P", "U", "P"), 
     Lag = c(1, 1, 12, 12, 24, 6, 12, 12, 3, 9, 15, 12, 15, 9, 
-    9, 5, 3, 72, 72, 0.3)), .Names = c("data", "n", "RelF1", 
-"RelF2", "RelS2", "RelS2", "FemalePer", "Publication", "Lag"))
+    9, 5, 3, 72, 72, 0.3), Country = c("the Netherlands", 
+"United States", "United States", "United States", "Norway", 
+"Canada", "Finland", "Finland", "Canada", "Switzerland", "Switzerland", 
+"Switzerland", "Switzerland", "Germany", "Germany", "Germany", 
+"New Zealand", "Finland", "Switzerland", "Israel")), .Names = c("data", "n", "RelF1", 
+"RelF2", "RelS2", "RelS2", "FemalePer", "Publication", "Lag", "Country"))

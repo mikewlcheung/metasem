@@ -1,5 +1,7 @@
-Release 1.2.5.3 (Jul 27, 2021)
+Release 1.2.5.4 (Nov 3, 2021)
 ====================================
+* Add data and group arguments in calEffSizes().
+* Modify Nohe15A1 and Nohe15A2.
 * Add a RAM argument in impliedR() and rimpliedR(). 
 * Add a starting value argument in as.mxAlgebra().
 * Teach lavaan2RAM() to recognize functions of parameters and constraints in lavaan and convert them to mxAlgebra and mxConstraint in OpenMx.

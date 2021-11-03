@@ -5,14 +5,17 @@
   as functions of SEM in lavaan.
 }
 \usage{
-calEffSizes(model, n, Cov, Mean, lavaan.output=FALSE, ...)
+calEffSizes(model, data=NULL, n, Cov, Mean=NULL, group=NULL, lavaan.output=FALSE, ...)
 }
 \arguments{
   \item{model}{A lavaan model. Effect sizes are defined as functions of
 	SEM parameters with \code{:=}.}
+  \item{data}{A data frame of the observed variables. If it is
+	\code{NULL}, summary statistics are required.}
   \item{n}{Sample sizes}
   \item{Cov}{A covariance matrix or a list of covariance matrices.}
   \item{Mean}{Optional sample means.}
+  \item{group}{A character of the variable name in the data frame defining the groups in a multiple group analysis.}
   \item{lavaan.output}{If \code{TRUE}, it returns the fitted object
 	instead of the effect sizes and their sampling covariance matrix.}
   \item{\dots}{Further arguments passed to \code{\link[lavaan]{sem}}.}

@@ -1,20 +1,26 @@
-calEffSizes <- function(model, n, Cov, Mean, lavaan.output=FALSE, ...) {
+calEffSizes <- function(model, data=NULL, n, Cov, Mean=NULL, group=NULL, lavaan.output=FALSE, ...) {
 
-    if (missing (Mean)) {
-        fit <- lavaan::sem(model, sample.cov=Cov, sample.nobs=n, sample.cov.rescale=FALSE, ...)
+    ## When raw data are present
+    if (!is.null(data)) {
+        fit <- lavaan::sem(model, data=data, group=group, lavaan.output=FALSE,  ...)
     } else {
-        fit <- lavaan::sem(model, sample.cov=Cov, sample.mean=Mean, sample.nobs=n, sample.cov.rescale=FALSE, ...)
+        ## Summary statistics as inputs     
+        if (is.null (Mean)) {
+            fit <- lavaan::sem(model, sample.cov=Cov, sample.nobs=n, group=group, sample.cov.rescale=FALSE, ...)
+        } else {
+            fit <- lavaan::sem(model, sample.cov=Cov, sample.mean=Mean, sample.nobs=n, group=group, sample.cov.rescale=FALSE, ...)
+        }
     }
     
     if (lavaan.output==FALSE) {
        
-        ## Obtain the free parameters in the model
+        ## Get the free parameters in the model
         x <- fit@Fit@x
 
-        ## Obtain the sampling covariance matrix of the parameter estimates
+        ## Get the sampling covariance matrix of the parameter estimates
         VCOV <- lavaan::vcov(fit)
 
-        ## Get the effect sizes
+        ## Compute the effect sizes
         ES <- fit@Model@def.function(.x.=x)
 
         ## Compute the jacobian for 'defined parameters'
