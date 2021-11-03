@@ -2,7 +2,7 @@ calEffSizes <- function(model, data=NULL, n, Cov, Mean=NULL, group=NULL, lavaan.
 
     ## When raw data are present
     if (!is.null(data)) {
-        fit <- lavaan::sem(model, data=data, group=group, lavaan.output=FALSE,  ...)
+        fit <- lavaan::sem(model, data=data, group=group, ...)
     } else {
         ## Summary statistics as inputs     
         if (is.null (Mean)) {
