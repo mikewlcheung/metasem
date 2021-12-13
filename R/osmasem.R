@@ -41,7 +41,8 @@
 ## A1: 1st moderator
 ## Amatrix = A0 + A1*Ax[[1]] + A1*Ax[[2]]
 ## Smatrix = S0 + S1*Sx[[1]] + S2*Sx[[2]]
-create.vechsR <- function(A0, S0, F0=NULL, Ax=NULL, Sx=NULL) {
+create.vechsR <- function(A0, S0, F0=NULL, Ax=NULL, Sx=NULL,
+                          A.lbound=NULL, A.ubound=NULL) {
 
     if (is.matrix(A0)) {
         A0 <- as.mxMatrix(A0, name="A0")
@@ -248,6 +249,36 @@ create.vechsR <- function(A0, S0, F0=NULL, Ax=NULL, Sx=NULL) {
 
     ## Add names of the elements in the list
     names(out) <- sapply(out, function(x) x$name)
+
+    ## Add lbound and ubound to A0
+    if (!is.null(A.lbound)) {
+        if (is.matrix(A.lbound)) {
+            if (dim(A.lbound)==dim(out$A0$values)) {
+                out$A0$lbound <- A.lbound
+            } else {
+                stop("The dimensions of 'A.lbound' do not match those in 'A0'.\n")
+            }
+        } else {  # lbound is not matrix
+            out$A0$lbound  <- matrix(A.lbound, nrow=nrow(out$A0$values),
+                                     ncol=ncol(out$A0$values),
+                                     dimnames=dimnames(out$A0$values))
+        }
+    }
+
+    if (!is.null(A.ubound)) {
+        if (is.matrix(A.ubound)) {
+            if (dim(A.ubound)==dim(out$A0$values)) {
+                out$A0$ubound <- A.ubound
+            } else {
+                stop("The dimensions of 'A.ubound' do not match those in 'A0'.\n")
+            }
+        } else {  # ubound is not matrix
+            out$A0$ubound  <- matrix(A.ubound, nrow=nrow(out$A0$values),
+                                     ncol=ncol(out$A0$values),
+                                     dimnames=dimnames(out$A0$values))
+        } 
+    }      
+                
     out
 }
 
@@ -374,6 +405,7 @@ create.V <- function(x, type=c("Symm", "Diag", "Full"), as.mxMatrix=TRUE) {
     
 osmasem <- function(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
                     Tmatrix=NULL, Jmatrix=NULL, Ax=NULL, Sx=NULL,
+                    A.lbound=NULL, A.ubound=NULL,
                     RE.type=c("Diag", "Symm"), data,
                     subset.variables=NULL, subset.rows=NULL, 
                     intervals.type = c("z", "LB"),
@@ -408,7 +440,8 @@ osmasem <- function(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
 
     ## If RAM is provided, create the matrices based on it.
     if (!is.null(RAM)) {
-        Mmatrix <- create.vechsR(A0=RAM$A, S0=RAM$S, F0=RAM$F, Ax=Ax, Sx=Sx)
+        Mmatrix <- create.vechsR(A0=RAM$A, S0=RAM$S, F0=RAM$F, Ax=Ax, Sx=Sx,
+                                 A.lbound=A.lbound, A.ubound=A.ubound)
         Tmatrix <- create.Tau2(RAM=RAM, RE.type=RE.type, Transform="expLog")
     }
 

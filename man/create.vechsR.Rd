@@ -7,7 +7,7 @@
   functions of other parameters. 
 }
 \usage{
-create.vechsR(A0, S0, F0 = NULL, Ax = NULL, Sx = NULL)
+create.vechsR(A0, S0, F0 = NULL, Ax = NULL, Sx = NULL, A.lbound=NULL, A.ubound=NULL)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -16,6 +16,10 @@ create.vechsR(A0, S0, F0 = NULL, Ax = NULL, Sx = NULL)
 \item{F0}{A Fmatrix, which will be converted into \code{MxMatrix-class} via \code{as.mxMatrix}.}
 \item{Ax}{A Amatrix of a list of Amatrix with definition variables as the moderators of the Amatrix.}
 \item{Sx}{A Smatrix of a list of Smatrix with definition variables as the moderators of the Smatrix.}
+\item{A.lbound}{A matrix of lower bound of the Amatrix. If a scalar is
+  given, the lbound matrix will be filled with this scalar.}
+\item{A.ubound}{A matrix of upper bound of the Amatrix. If a scalar is
+  given, the ubound matrix will be filled with this scalar.}
 }
 
 \value{A list of \code{MxMatrix-class}. The model implied correlation

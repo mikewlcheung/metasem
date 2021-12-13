@@ -12,24 +12,18 @@ matrix2bdiag(x, ...)
   \item{x}{A \eqn{k}{k} x \eqn{p}{p} matrix of numerics or characters. 
 }
   \item{\dots}{Further arguments to be passed to \code{\link[metaSEM]{vec2symMat}}
-%%     ~~Describe \code{\dots} here~~
 }
 }
 \details{Each row of \code{x} is converted into a symmetric matrix via
   \code{\link[metaSEM]{vec2symMat}}. Then the list of the symmetric matrices is
   converted into a block diagonal matrix via a function written by Scott
-  Chasalow posted at \url{http://www.math.yorku.ca/Who/Faculty/Monette/pub/stmp/0827.html}.
-%%  ~~ If necessary, more details than the description above ~~
+  Chasalow posted at http://www.math.yorku.ca/Who/Faculty/Monette/pub/stmp/0827.html.
 }
 
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
-%%  ~~who you are~~
 }
 
-%% ~Make other sections like Warning with \section{Warning }{....} ~
-
 \seealso{ \code{\link[metaSEM]{vec2symMat}}
-%% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
 (m1 <- matrix(1:12, ncol=6, byrow=TRUE))

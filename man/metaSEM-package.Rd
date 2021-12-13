@@ -14,8 +14,8 @@
 \tabular{ll}{
 Package: \tab metaSEM\cr
 Type: \tab Package\cr
-Version: \tab 1.2.5.3\cr
-Date: \tab 2021-07-26\cr
+Version: \tab 1.2.5.4\cr
+Date: \tab 2021-12-13\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }
@@ -78,6 +78,10 @@ examples, and computer simulations. \emph{Frontiers in Psychology},
 Cheung, M. W.-L. (2019). Some reflections on combining meta-analysis and
 structural equation modeling. \emph{Research Synthesis Methods},
 \bold{10} (1), 15-22. https://doi.org/10.1002/jrsm.1321
+
+Cheung, M. W.-L. (2021). Meta-analytic structural equation modeling. In
+\emph{Oxford Research Encyclopedia of Business and Management}. Oxford
+University Press. https://doi.org/10.1093/acrefore/9780190224851.013.225
 
 Cheung, M. W.-L., & Chan, W. (2004). Testing dependent correlation
 coefficients via structural equation modeling. \emph{Organizational

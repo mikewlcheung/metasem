@@ -7,6 +7,7 @@
 \usage{
 osmasem(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
         Tmatrix=NULL, Jmatrix=NULL, Ax=NULL, Sx=NULL,
+        A.lbound=NULL, A.ubound=NULL,
         RE.type=c("Diag", "Symm"), data,
         subset.variables=NULL, subset.rows=NULL, 
         intervals.type = c("z", "LB"),
@@ -31,7 +32,12 @@ not givin, an identity matrix will be used. }
 \item{Ax}{A Amatrix of a list of Amatrix with definition variables as
   the moderators of the Amatrix. It is used to create the \code{Mmatrix}.}
 \item{Sx}{A Smatrix of a list of Smatrix with definition variables as
-  the moderators of the Smatrix. It is used to create the \code{Mmatrix}.}
+  the moderators of the Smatrix. It is used to create the
+  \code{Mmatrix}.}
+\item{A.lbound}{A matrix of lower bound of the Amatrix. If a scalar is
+  given, the lbound matrix will be filled with this scalar.}
+\item{A.ubound}{A matrix of upper bound of the Amatrix. If a scalar is
+  given, the ubound matrix will be filled with this scalar.}
 \item{RE.type}{Type of the random effects.}
 \item{data}{A list of data created by the \code{Cor2DataFrame}.}
 \item{subset.variables}{A character vector of the observed variables selected for

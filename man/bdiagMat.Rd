@@ -20,7 +20,7 @@ bdiagMat(x)
 %%  \item{comp2 }{Description of 'comp2'}
 %% ...
 }
-\references{It was based on a function posted by Scott Chasalow at \url{http://www.math.yorku.ca/Who/Faculty/Monette/pub/stmp/0827.html}.
+\references{It was based on a function posted by Scott Chasalow at http://www.math.yorku.ca/Who/Faculty/Monette/pub/stmp/0827.html.
 %% ~put references to the literature/web site here ~
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
