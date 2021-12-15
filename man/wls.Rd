@@ -11,11 +11,12 @@
 \usage{
 wls(Cov, aCov, n, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
     diag.constraints=FALSE, cor.analysis=TRUE, intervals.type=c("z","LB"),
-    mx.algebras=NULL, model.name=NULL, suppressWarnings=TRUE,
-    silent=TRUE, run=TRUE, ...)
+    mx.algebras=NULL, mxModel.Args=NULL, model.name=NULL,
+    suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...)
 tssem2(tssem1.obj, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
-    diag.constraints=FALSE, intervals.type=c("z", "LB"), mx.algebras=NULL,
-    model.name=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) 
+       diag.constraints=FALSE, intervals.type=c("z", "LB"), mx.algebras=NULL,
+       mxModel.Args=NULL, model.name=NULL, suppressWarnings=TRUE,
+       silent=TRUE, run=TRUE, ...) 
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -85,6 +86,9 @@ tssem2(tssem1.obj, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
 	\code{diag.constraints=FALSE}) have been defined internally. You
 	should not create new matrices using these names.
   }
+\item{mxModel.Args}{A list of arguments passed to
+  \code{\link[OpenMx]{mxModel}}. These include, for example, additional
+  \code{\link[OpenMx]{mxMatrix}} and \code{\link[OpenMx]{mxConstraint}}.}  
   \item{model.name}{A string for the model name in
 	\code{\link[OpenMx]{mxModel}}. If it is missing, the default is
 	"TSSEM2 (or WLS) Analysis of Correlation Structure" for \code{cor.analysis=TRUE} and

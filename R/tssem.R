@@ -259,7 +259,7 @@ tssem1 <- function(Cov, n, method=c("REM", "FEM"), cor.analysis=TRUE, cluster=NU
 ## Known bug: wls() will fall into loop when the Amatrix is zero
 wls <- function(Cov, aCov, n, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, 
                 diag.constraints=FALSE, cor.analysis=TRUE, intervals.type=c("z", "LB"), 
-                mx.algebras=NULL, model.name=NULL, suppressWarnings=TRUE, 
+                mx.algebras=NULL, mxModel.Args=NULL, model.name=NULL, suppressWarnings=TRUE, 
                 silent=TRUE, run=TRUE, ...) {
 
     ## Read RAM first. If it is not specified, read individual matrices
@@ -509,7 +509,14 @@ wls <- function(Cov, aCov, n, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL
     }
     mx.model <- mxModel(mx.model, mxCI(names(mx.algebras)))
   }
-
+    
+  ## Add additional arguments to mxModel
+  if (!is.null(mxModel.Args)) {
+      for (i in seq_along(mxModel.Args)) {
+          mx.model <- mxModel(mx.model, mxModel.Args[[i]])
+      }
+  }
+    
   ## Return mx model without running the analysis
   if (run==FALSE) return(mx.model)
 
@@ -535,15 +542,15 @@ wls <- function(Cov, aCov, n, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL
 
 
 tssem2 <- function(tssem1.obj, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=FALSE,
-                   intervals.type = c("z", "LB"), mx.algebras=NULL, model.name=NULL, suppressWarnings=TRUE,
-                   silent=TRUE, run=TRUE, ...) {
+                   intervals.type = c("z", "LB"), mx.algebras=NULL, mxModel.Args=NULL,
+                   model.name=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
   if ( !is.element( class(tssem1.obj)[1], c("tssem1FEM.cluster", "tssem1FEM", "tssem1REM")) )
       stop("\"tssem1.obj\" must be of neither class \"tssem1FEM.cluster\", class \"tssem1FEM\" or \"tssem1REM\".")
 
   switch(class(tssem1.obj)[1],
          tssem1FEM.cluster = { out <- lapply(tssem1.obj, tssem2, RAM=RAM, Amatrix=Amatrix, Smatrix=Smatrix, Fmatrix=Fmatrix,
                                              diag.constraints=diag.constraints, intervals.type=intervals.type,
-                                             mx.algebras=mx.algebras,
+                                             mx.algebras=mx.algebras, mxModel.Args=mxModel.Args,
                                              model.name=model.name, suppressWarnings=suppressWarnings, silent=silent,
                                              run=run, ...)
                               class(out) <- "wls.cluster" },
@@ -560,7 +567,7 @@ tssem2 <- function(tssem1.obj, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NUL
                       out <- wls(Cov=coef.tssem1FEM(tssem1.obj), aCov=vcov.tssem1FEM(tssem1.obj),
                                  n=sum(tssem1.obj$n), RAM=RAM, Amatrix=Amatrix, Smatrix=Smatrix, Fmatrix=Fmatrix,
                                  diag.constraints=diag.constraints, cor.analysis=tssem1.obj$cor.analysis,
-                                 intervals.type=intervals.type, mx.algebras=mx.algebras,
+                                 intervals.type=intervals.type, mx.algebras=mx.algebras, mxModel.Args=mxModel.Args,
                                  model.name=model.name, suppressWarnings=suppressWarnings,
                                  silent=silent, run=run, ...) },
          tssem1REM = { cor.analysis <- tssem1.obj$cor.analysis
@@ -579,7 +586,8 @@ tssem2 <- function(tssem1.obj, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NUL
                       out <- wls(Cov=pooledS, aCov=aCov, n=tssem1.obj$total.n, RAM=RAM,
                                  Amatrix=Amatrix, Smatrix=Smatrix, Fmatrix=Fmatrix, diag.constraints=diag.constraints,
                                  cor.analysis=cor.analysis, intervals.type=intervals.type, mx.algebras=mx.algebras,
-                                 model.name=model.name, suppressWarnings = suppressWarnings, silent=silent, run=run, ...) })
+                                 mxModel.Args=mxModel.Args, model.name=model.name, suppressWarnings = suppressWarnings,
+                                 silent=silent, run=run, ...) })
   out
 }
 

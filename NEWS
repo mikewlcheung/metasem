@@ -1,5 +1,6 @@
-Release 1.2.5.4 (Dec 13, 2021)
+Release 1.2.5.4 (Dec 15, 2021)
 ====================================
+* Add a mxModel.Args in wls().
 * Add A.lbound and A.ubound arguments in create.vechsR() and osmasem().
 * Add data and group arguments in calEffSizes().
 * Modify Nohe15A1 and Nohe15A2.
