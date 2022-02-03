@@ -343,7 +343,7 @@ create.Tau2 <- function(RAM, no.var, Tau1.labels=seq(no.var),
                vecTau1 <- create.mxMatrix(paste0(RE.startvalues, "*Tau1_", Tau1.labels),
                                           ncol=1, nrow=no.var, name="vecTau1")
                ## Uncorrelated
-               Cor <- as.mxMatrix(diag(no.var), name="Cor")},
+               Cor <- as.mxMatrix(diag(no.var), name=paste0("Cor", level_suffix))},
            Zero = {
                vecTau1 <- create.mxMatrix(RE.startvalues, type="Full", ncol=1,
                                           nrow=no.var, name="vecTau1")
