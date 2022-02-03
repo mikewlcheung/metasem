@@ -284,8 +284,16 @@ create.vechsR <- function(A0, S0, F0=NULL, Ax=NULL, Sx=NULL,
 
 create.Tau2 <- function(RAM, no.var, Tau1.labels=seq(no.var),
                         RE.type=c("Diag", "Symm", "Zero", "User"),
+                        level=c("single", "between", "within"),
                         RE.User=NULL, Transform=c("expLog", "sqSD"),
                         RE.startvalues=0.05) {
+
+    level <- match.arg(level)
+    switch(level,
+           single = level_suffix <- "",
+           between= level_suffix <- "B",
+           within = level_suffix <- "W")
+
     if (!missing(RAM)) {
         p <- sum(RAM$F)
         ## no. of correlation coefficients
@@ -296,6 +304,7 @@ create.Tau2 <- function(RAM, no.var, Tau1.labels=seq(no.var),
     if (no.var<1) stop("'no.var' must be at least 1.\n")
 
     if (length(Tau1.labels) != no.var) stop("Length of \"Tau1.labels\" is different from \"no.var\".\n")
+    Tau1.labels <- paste0(Tau1.labels, level_suffix)
     
     RE.type <- match.arg(RE.type)
     Transform <- match.arg(Transform)
@@ -327,9 +336,9 @@ create.Tau2 <- function(RAM, no.var, Tau1.labels=seq(no.var),
                vecTau1 <- create.mxMatrix(paste0(RE.startvalues, "*Tau1_", Tau1.labels),
                                           ncol=1, nrow=no.var, name="vecTau1")
                Cor <- create.mxMatrix(vechs(outer(seq(no.var), seq(no.var),
-                                            function(x,y) paste0("0*Cor_", x, "_", y))),
+                                            function(x,y) paste0("0*Cor_", x, "_", y, level_suffix))),
                                       type="Stand", ncol=no.var, nrow=no.var,
-                                      lbound=-0.99, ubound=0.99, name="Cor")},
+                                      lbound=-0.99, ubound=0.99, name=paste0("Cor", level_suffix))},
            Diag = {
                vecTau1 <- create.mxMatrix(paste0(RE.startvalues, "*Tau1_", Tau1.labels),
                                           ncol=1, nrow=no.var, name="vecTau1")
@@ -338,7 +347,7 @@ create.Tau2 <- function(RAM, no.var, Tau1.labels=seq(no.var),
            Zero = {
                vecTau1 <- create.mxMatrix(RE.startvalues, type="Full", ncol=1,
                                           nrow=no.var, name="vecTau1")
-               Cor <- as.mxMatrix(diag(no.var), name="Cor")},
+               Cor <- as.mxMatrix(diag(no.var), name=paste0("Cor", level_suffix))},
            User = { if (is.null(RE.User)) stop("'RE.User', the ", no.var, " by ", no.var,
                                                " symmetric matrix of TRUE or FALSE on the variance componment, must be specified.\n")
                                                ## Check the symmetry of RE.User
@@ -360,18 +369,23 @@ create.Tau2 <- function(RAM, no.var, Tau1.labels=seq(no.var),
                       sqSD =   vecTau1[diag(RE.User)==FALSE] <- sqrt(0))
                vecTau1 <- create.mxMatrix(vecTau1, ncol=1, nrow=no.var, name="vecTau1")
                Cor <- outer(seq(no.var), seq(no.var),
-                            function(x,y) paste0("0*Cor_", x, "_", y))
+                            function(x,y) paste0("0*Cor_", x, "_", y, level_suffix))
                Cor[RE.User==FALSE] <- 0
                Cor <- create.mxMatrix(vechs(Cor), type="Stand", ncol=no.var, nrow=no.var,
-                                      lbound=-0.99, ubound=0.99, name="Cor")}
+                                      lbound=-0.99, ubound=0.99, name=paste0("Cor", level_suffix))}
                )
 
     switch(Transform,
-           expLog = Tau2 <- mxAlgebra( vec2diag(exp(vecTau1)) %&% Cor, name="Tau2" ),
-           sqSD = Tau2 <- mxAlgebra( vec2diag(vecTau1 %^% 2) %&% Cor, name="Tau2" ))
+           expLog = Tau2 <- eval(parse(text=paste0("mxAlgebra( vec2diag(sqrt(exp(vecTau1))) %&% ",
+                                                   "Cor", level_suffix,
+                                                   ", name='Tau2", level_suffix, "')"))) ,
+           sqSD = Tau2 <- eval(parse(text=paste0("mxAlgebra( vec2diag(vecTau1) %&% ",
+                                                   "Cor", level_suffix,
+                                                   ", name='Tau2", level_suffix, "')"))))
 
     ## Vectorized version of Tau2
-    vechTau2 <- mxAlgebra(vech(Tau2), name="vechTau2")
+    vechTau2 <- eval(parse(text=paste0("mxAlgebra(vech(Tau2", level_suffix,
+                                       "), name='vechTau2", level_suffix, "')")))
     
     out <- list(Tau2, vecTau1, Cor, vechTau2)
 

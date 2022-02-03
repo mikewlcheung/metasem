@@ -9,6 +9,7 @@
 \usage{
 create.Tau2(RAM, no.var, Tau1.labels=seq(no.var),
             RE.type = c("Diag", "Symm", "Zero", "User"),
+            level=c("single", "between", "within"),
             RE.User=NULL, Transform = c("expLog", "sqSD"),
             RE.startvalues=0.05)
 }
@@ -28,6 +29,8 @@ create.Tau2(RAM, no.var, Tau1.labels=seq(no.var),
 	\code{"Zero"}, a zero matrix is assumed on the variance component of
   the random effects. If it is \code{"User"}, users have to specify the
   \code{RE.User} argument.}
+\item{level}{whether it is for single-level, between-, or within-level
+  analyses. The only difference are the names of the matrices.}
 \item{RE.User}{It represents the \code{no.var} by \code{no.var} symmetric matrix
   of \code{TRUE} or \code{FALSE} for the variance component. If the
   elements are \code{FALSE}, they are fixed at 0.}
