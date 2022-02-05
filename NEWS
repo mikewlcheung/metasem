@@ -1,5 +1,6 @@
-Release 1.2.5.6 (Feb 3, 2022)
+Release 1.2.5.7 (Feb 5, 2022)
 ====================================
+* Add OSMASEM3 and the associated functions.
 * Fix a critical bug in create.Tau2() that uses variances as SDs.
 * Add a new argument 'level' in create.Tau2().
 * Add a mxModel.Args in wls().

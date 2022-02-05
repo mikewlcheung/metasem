@@ -10,6 +10,7 @@
 \alias{summary.CorPop}
 \alias{summary.bootuniR2}
 \alias{summary.osmasem}
+\alias{summary.osmasem3}
 \alias{print.summary.tssem1FEM}
 \alias{print.summary.tssem1FEM.cluster}
 \alias{print.summary.wls}
@@ -36,6 +37,7 @@
         cutoff.chisq.pvalue=0.05, cutoff.CFI=0.9, cutoff.SRMR=0.1,
         cutoff.RMSEA=0.05, \dots)
 \method{summary}{osmasem}(object, fitIndices=FALSE, numObs, robust=FALSE, \dots)
+\method{summary}{osmasem3}(object, fitIndices=FALSE, numObs, \dots)
 \method{print.summary}{tssem1FEM}(x, \dots)
 \method{print.summary}{wls}(x, \dots)
 \method{print.summary}{meta}(x, \dots)
@@ -91,7 +93,8 @@
 
 \seealso{ \code{\link[metaSEM]{tssem1}}, \code{\link[metaSEM]{wls}},
   \code{\link[metaSEM]{meta}}, \code{\link[metaSEM]{reml}},
-  \code{\link[metaSEM]{rCor}}, \code{\link[metaSEM]{bootuniR2}}, \code{\link[metaSEM]{osmasem}}
+  \code{\link[metaSEM]{rCor}}, \code{\link[metaSEM]{bootuniR2}},
+  \code{\link[metaSEM]{osmasem}}, \code{\link[metaSEM]{osmasem3}}
 }
 
 % Add one or more standard keywords, see file 'KEYWORDS' in the

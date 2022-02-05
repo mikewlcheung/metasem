@@ -9,6 +9,7 @@
 \alias{coef.reml}
 \alias{coef.MxRAMModel}
 \alias{coef.osmasem}
+\alias{coef.osmasem3}
 
 \title{Extract Parameter Estimates from various classes.
 }
@@ -26,6 +27,7 @@
 \method{coef}{reml}(object, \dots)
 \method{coef}{MxRAMModel}(object, \dots)
 \method{coef}{osmasem}(object, select=c("fixed", "all", "random"), \dots)
+\method{coef}{osmasem3}(object, select=c("fixed", "all", "random"), \dots)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -52,7 +54,8 @@
 
 \seealso{ \code{\link[metaSEM]{tssem1}}, \code{\link[metaSEM]{wls}},
   \code{\link[metaSEM]{meta}}, \code{\link[metaSEM]{reml}},
-  \code{\link[OpenMx]{omxGetParameters}}, \code{\link[metaSEM]{osmasem}}
+  \code{\link[OpenMx]{omxGetParameters}}, \code{\link[metaSEM]{osmasem}},
+  \code{\link[metaSEM]{osmasem3}}
 }
 \examples{
 ## Random-effects meta-analysis

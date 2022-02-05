@@ -11,7 +11,7 @@ rerun(object, autofixtau2=FALSE, extraTries=10, ...)
 \arguments{
   \item{object}{An object of either class \code{tssem1FEM},
   class \code{tssem1REM}, class \code{wls}, class \code{meta}, class
-  \code{reml}, class \code{osmasem}, and class \code{MxModel}.
+  \code{reml}, class \code{osmasem}, class \code{osmasem3}, and class \code{MxModel}.
 }
   \item{autofixtau2}{Logical. Whether automatically fixes elements of tau2
   with NA of standard errors. It only works for objects of

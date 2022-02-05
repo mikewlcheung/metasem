@@ -1,8 +1,8 @@
 rerun <- function(object, autofixtau2=FALSE, extraTries=10, ...) {
     if (!is.element(class(object)[1], c("wls", "tssem1FEM", "tssem1REM", "meta", "meta3X", "reml",
-                                        "tssem1FEM.cluster", "wls.cluster", "osmasem", "MxModel")))
+                                        "tssem1FEM.cluster", "wls.cluster", "osmasem", "osmasem3", "MxModel")))
     stop("\"object\" must be an object of neither class \"meta\", \"meta3X\", \"wls\",
-\"reml\", \"tssem1FEM\", \"tssem1REM\", \"tssem1FEM.cluster\", \"wls.cluster\", \"osmasem\", or \"MxModel\".")
+\"reml\", \"tssem1FEM\", \"tssem1REM\", \"tssem1FEM.cluster\", \"wls.cluster\", \"osmasem\", \"osmasem3\", or \"MxModel\".")
 
     ## Run a rerun without autofixtau2 to minimize over-fixing
     ## Many of the NA in SEs may disappear after rerunning it.
@@ -26,6 +26,7 @@ rerun <- function(object, autofixtau2=FALSE, extraTries=10, ...) {
 
     ## Automatically fix the problematic Tau2 into 0 for osmasem objects
     if (autofixtau2 & is.element(class(object)[1], "osmasem")) {
+        ## Check if there are negative variances
         tau2nan <- suppressWarnings(sqrt(diag(vcov(object, select="random"))))
 
         if (any(tau2nan <- is.nan(tau2nan))) {
@@ -35,20 +36,18 @@ rerun <- function(object, autofixtau2=FALSE, extraTries=10, ...) {
             ## Dirty fix to check whether the transformation is expLog or sqSD
             ## Remove all white spaces
             my.transform <- gsub("\\s", "", deparse(object$mx.fit$Tau2$formula)) 
-            if (my.transform=="vec2diag(exp(vecTau1))%&%Cor") {
+            if (grep("exp", my.transform)) {
                 ## exp(-Inf)=0
                 values = -Inf
-            } else if (my.transform=="vec2diag(vecTau1%^%2)%&%Cor") {
+                ## Assuming sdSD
+            } else {
                 ## 0^2=0
                 values = 0
-            } else {
-                ## Not defined yet
-                stop("Unknown \"Transform\" in creating \"T0\".\n")
             }
             object$mx.fit <- omxSetParameters(object$mx.fit, names(tau2nan), free=FALSE, values=values)
         }
     }    
-  
+   
     ## Cluster related objects
     if (is.element(class(object)[1], c("tssem1FEM.cluster", "wls.cluster"))) {
         out <- lapply(object, rerun, extraTries=extraTries, ...)

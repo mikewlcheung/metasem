@@ -29,7 +29,7 @@ meta3X(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=NULL,
 }
   \item{v}{A vector of \eqn{k}{k} studies of sampling variance.
 }
-  \item{cluster}{A vector of \eqn{k}{k} characters or numbers indicating the
+  \item{cluster}{A vector of \eqn{k}{k} string or number indicating the
 	clusters. 
 }
   \item{x}{A predictor or a \eqn{k}{k} x \eqn{m}{m} matrix of level-2

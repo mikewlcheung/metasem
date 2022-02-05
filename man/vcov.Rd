@@ -9,6 +9,7 @@
 \alias{vcov.reml}
 \alias{vcov.MxRAMModel}
 \alias{vcov.osmasem}
+\alias{vcov.osmasem3}
 \title{Extract Covariance Matrix Parameter Estimates from Objects of
   Various Classes
 }
@@ -26,6 +27,7 @@
 \method{vcov}{reml}(object, \dots)
 \method{vcov}{MxRAMModel}(object, \dots)
 \method{vcov}{osmasem}(object, select=c("fixed", "all", "random"), robust=FALSE, \dots)
+\method{vcov}{osmasem3}(object, select=c("fixed", "all", "random"), \dots)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -49,7 +51,7 @@
 \note{\code{vcov} returns \code{NA} when the \code{diag.constraints=TRUE}
   argument is used in \code{wls} objects.
 }
-%% ~Make other sections like Warning with \section{Warning }{....} ~
+
 \seealso{ \code{\link[metaSEM]{tssem1}}, \code{\link[metaSEM]{wls}},
   \code{\link[metaSEM]{meta}}, \code{\link[metaSEM]{reml}}
 }

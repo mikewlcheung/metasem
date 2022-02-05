@@ -1,6 +1,7 @@
 \name{osmasemR2}
 \alias{osmasemR2}
-\title{Calculate the R2 in OSMASEM}
+\alias{osmasem3R2}
+\title{Calculate the R2 in OSMASEM and OSMASEM3}
 \description{It calculates the R2 of the moderators in explaining the
   variances in the heterogeneity variances.  
 }
@@ -22,7 +23,7 @@ osmasemR2(model1, model0, R2.truncate=TRUE)
 
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
-\seealso{ \code{\link[metaSEM]{osmasem}}
+\seealso{ \code{\link[metaSEM]{osmasem}, \link[metaSEM]{osmasem3}}
 }
 
 \keyword{ osmasem }

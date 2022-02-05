@@ -589,8 +589,8 @@ vcov.osmasem <- function(object, select=c("fixed", "all", "random"),
 }
 
 VarCorr <- function(x, ...) {
-    if (!(class(x) %in% c("meta", "osmasem")))
-        stop("\"x\" must be an object of either class \"meta\" or \"osmasem\".")
+    if (!(class(x) %in% c("meta", "osmasem", "osmasem3")))
+        stop("\"x\" must be an object of either class \"meta\", \"osmasem\" or \"osmasem3\".")
 
     switch(class(x)[1],
            meta = out <- eval(parse(text="mxEval(Tau, x$mx.fit)")),
@@ -605,6 +605,21 @@ VarCorr <- function(x, ...) {
                ## Replace Tau1 with Tau2
                names.tau2 <- gsub("Tau1", "Tau2", c(x$Tmatrix$vecTau1$labels))
                dimnames(out) <- list(names.tau2, names.tau2)},
+           osmasem3 = {
+               ## Tau2 (within)
+               Tau2W <- eval(parse(text="mxEval(Tau2W, x$mx.fit)"))
+               ## Labels ended with "W"
+               names.tau2W <- gsub("W$", "", c(x$TmatrixW$vecTau1$labels))
+               names.tau2W <- gsub("Tau1", "Tau2", names.tau2W)               
+               dimnames(Tau2W) <- list(names.tau2W, names.tau2W)
+
+               ## Tau2 (between)
+               Tau2B <- eval(parse(text="mxEval(B.Tau2B, x$mx.fit)"))
+               ## Labels ended with "B" 
+               names.tau2B <- gsub("B$", "", c(x$TmatrixB$vecTau1$labels))
+               names.tau2B <- gsub("Tau1", "Tau2", names.tau2B)
+               dimnames(Tau2B) <- list(names.tau2B, names.tau2B)
+               out <- list(Tau2W=Tau2W, Tau2B=Tau2B)},
            stop("Invalid class:", class(x)))
 
     out    
