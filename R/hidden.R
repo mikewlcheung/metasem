@@ -114,11 +114,11 @@
 ## http://tolstoy.newcastle.edu.au/R/help/04/05/1322.html
 ## It works for character matrices.
 
-## Calculate R2 for meta and meta3 objects
+## Calculate R2 for meta and meta3L objects
 .R2 <- function(object) {
   no.y <- object$no.y
-    ## meta3 or meta3ML class
-  if ( any(c("meta3","meta3X") %in% class(object)) ) {
+    ## meta3L or meta3LML class
+  if ( any(c("meta3L","meta3LX") %in% class(object)) ) {
     ## Tau2 with predictors
     Tau2_2model <- tryCatch( eval(parse(text="mxEval(Tau2_2, object$mx.fit)")), error = function(e) NA )
     Tau2_3model <- tryCatch( eval(parse(text="mxEval(Tau2_3, object$mx.fit)")), error = function(e) NA )
@@ -147,7 +147,7 @@
   R2.values
 } 
 
-## Calculate I2 for meta and meta3 objects
+## Calculate I2 for meta and meta3L objects
 .I2 <- function(object, my.mx) {
   I2 <- object$I2
   no.y <- object$no.y
@@ -159,8 +159,8 @@
   my.ci <- my.mx$CI
   if (length(my.ci)==0) my.ci <- NULL else my.ci <- my.ci[,1:3, drop=FALSE]
       
-  ## meta3 class
-  if ( "meta3" %in% class(object) ) {
+  ## meta3L class
+  if ( "meta3L" %in% class(object) ) {
     I2.names <- c("I2q","I2hm","I2am")
     ## Rearrange different I2 into the standard format
     I2.names <- I2.names[ c("I2q","I2hm","I2am") %in% I2 ]

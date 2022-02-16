@@ -1,12 +1,13 @@
 \name{osmasemR2}
 \alias{osmasemR2}
-\alias{osmasem3R2}
-\title{Calculate the R2 in OSMASEM and OSMASEM3}
+\alias{osmasem3LR2}
+\title{Calculate the R2 in OSMASEM and OSMASEM3L}
 \description{It calculates the R2 of the moderators in explaining the
   variances in the heterogeneity variances.  
 }
 \usage{
 osmasemR2(model1, model0, R2.truncate=TRUE)
+osmasem3LR2(model1, model0, R2.truncate=TRUE)
 }
 \arguments{
   \item{model1}{An object in class \code{osmasem}.}
@@ -23,7 +24,7 @@ osmasemR2(model1, model0, R2.truncate=TRUE)
 
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
-\seealso{ \code{\link[metaSEM]{osmasem}, \link[metaSEM]{osmasem3}}
+\seealso{ \code{\link[metaSEM]{osmasem}, \link[metaSEM]{osmasem3L}}
 }
 
-\keyword{ osmasem }
+\keyword{ osmasem, osmasem3L }

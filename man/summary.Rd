@@ -5,21 +5,22 @@
 \alias{summary.wls}
 \alias{summary.wls.cluster}
 \alias{summary.meta}
-\alias{summary.meta3X}
+\alias{summary.meta3LX}
 \alias{summary.reml}
 \alias{summary.CorPop}
 \alias{summary.bootuniR2}
 \alias{summary.osmasem}
-\alias{summary.osmasem3}
+\alias{summary.osmasem3L}
+\alias{summary.tssemRobust1}
 \alias{print.summary.tssem1FEM}
 \alias{print.summary.tssem1FEM.cluster}
 \alias{print.summary.wls}
 \alias{print.summary.meta}
-\alias{print.summary.meta3X}
+\alias{print.summary.meta3LX}
 \alias{print.summary.reml}
 \alias{print.summary.CorPop}
 \alias{print.summary.bootuniR2}
-\title{Summary Method for tssem1, wls, meta, and meta3X Objects
+\title{Summary Method for tssem1, wls, meta, and meta3LX Objects
 }
 \description{It summaries results for various class.
 }
@@ -30,18 +31,19 @@
 \method{summary}{wls}(object, df.adjustment=0, \dots)
 \method{summary}{wls.cluster}(object, df.adjustment=0, \dots)
 \method{summary}{meta}(object, homoStat=TRUE, robust=FALSE, \dots)
-\method{summary}{meta3X}(object, allX=FALSE, robust=FALSE, \dots)
+\method{summary}{meta3LX}(object, allX=FALSE, robust=FALSE, \dots)
 \method{summary}{reml}(object, \dots)
 \method{summary}{CorPop}(object, \dots)
 \method{summary}{bootuniR2}(object, probs=c(0, 0.1, 0.5, 0.9, 1),
         cutoff.chisq.pvalue=0.05, cutoff.CFI=0.9, cutoff.SRMR=0.1,
         cutoff.RMSEA=0.05, \dots)
 \method{summary}{osmasem}(object, fitIndices=FALSE, numObs, robust=FALSE, \dots)
-\method{summary}{osmasem3}(object, fitIndices=FALSE, numObs, \dots)
+\method{summary}{osmasem3L}(object, fitIndices=FALSE, numObs, \dots)
+\method{summary}{tssemRobust1}(object, \dots)
 \method{print.summary}{tssem1FEM}(x, \dots)
 \method{print.summary}{wls}(x, \dots)
 \method{print.summary}{meta}(x, \dots)
-\method{print.summary}{meta3X}(x, \dots)
+\method{print.summary}{meta3LX}(x, \dots)
 \method{print.summary}{reml}(x, \dots)
 \method{print.summary}{CorPop}(x, \dots)
 \method{print.summary}{bootuniR2}(x, \dots)
@@ -50,11 +52,11 @@
   \item{object}{An object returned from either class
 	\code{tssem1FEM}, class \code{tssem1FEM.cluster},
 	class \code{tssem1REM}, class \code{wls}, class \code{wls.cluster},
-	class \code{meta}, class \code{meta3X}, class \code{reml} or class \code{CorPop}.
+	class \code{meta}, class \code{meta3LX}, class \code{reml} or class \code{CorPop}.
 }
   \item{x}{An object returned from either class \code{summary.tssem1FEM},
 	class \code{tssem1FEM.cluster}, class \code{summary.wls}, class
-	\code{summary.meta}, class \code{summary.meta3X}, class
+	\code{summary.meta}, class \code{summary.meta3LX}, class
 	\code{summary.reml} or class \code{summary.CorPop}.
 }
   \item{homoStat}{Logical. Whether to conduct a homogeneity test on the
@@ -94,7 +96,7 @@
 \seealso{ \code{\link[metaSEM]{tssem1}}, \code{\link[metaSEM]{wls}},
   \code{\link[metaSEM]{meta}}, \code{\link[metaSEM]{reml}},
   \code{\link[metaSEM]{rCor}}, \code{\link[metaSEM]{bootuniR2}},
-  \code{\link[metaSEM]{osmasem}}, \code{\link[metaSEM]{osmasem3}}
+  \code{\link[metaSEM]{osmasem}}, \code{\link[metaSEM]{osmasem3L}}
 }
 
 % Add one or more standard keywords, see file 'KEYWORDS' in the

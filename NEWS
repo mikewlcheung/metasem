@@ -1,6 +1,8 @@
-Release 1.2.5.7 (Feb 5, 2022)
+Release 1.2.5.8 (Feb 16, 2022)
 ====================================
-* Add OSMASEM3 and the associated functions.
+* Rename meta3() to meta3L() and meta3X() and meta3LX().
+* Add TSSEM3L and TSSEMRobust and their associated functions.
+* Add OSMASEM3L and the associated functions.
 * Fix a critical bug in create.Tau2() that uses variances as SDs.
 * Add a new argument 'level' in create.Tau2().
 * Add a mxModel.Args in wls().

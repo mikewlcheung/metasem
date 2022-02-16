@@ -101,7 +101,7 @@ An alternative but the equivalent approach is to minimize the
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{ \code{\link[metaSEM]{meta3}}, \code{\link[metaSEM]{reml}}, \code{\link[metaSEM]{Cooper03}}, \code{\link[metaSEM]{Bornmann07}}
+\seealso{ \code{\link[metaSEM]{meta3L}}, \code{\link[metaSEM]{reml}}, \code{\link[metaSEM]{Cooper03}}, \code{\link[metaSEM]{Bornmann07}}
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 

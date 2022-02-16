@@ -1,6 +1,8 @@
 \name{wls}
 \alias{wls}
 \alias{tssem2}
+\alias{tssem3L2}
+\alias{tssemRobust2}
 \title{Conduct a Correlation/Covariance Structure Analysis with WLS
 }
 \description{It fits a correlation or covariance structure with
@@ -16,7 +18,15 @@ wls(Cov, aCov, n, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
 tssem2(tssem1.obj, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
        diag.constraints=FALSE, intervals.type=c("z", "LB"), mx.algebras=NULL,
        mxModel.Args=NULL, model.name=NULL, suppressWarnings=TRUE,
-       silent=TRUE, run=TRUE, ...) 
+       silent=TRUE, run=TRUE, ...)
+tssem3L2(tssem1.obj, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
+         diag.constraints=FALSE, intervals.type = c("z", "LB"),
+         mx.algebras=NULL, mxModel.Args=NULL, model.name=NULL,
+         suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...)
+tssemRobust2(tssem1.obj, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
+             diag.constraints=FALSE, intervals.type = c("z", "LB"),
+             mx.algebras=NULL, mxModel.Args=NULL,
+             model.name=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) 
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

@@ -5,11 +5,12 @@
 \alias{vcov.wls}
 \alias{vcov.wls.cluster}
 \alias{vcov.meta}
-\alias{vcov.meta3X}
+\alias{vcov.meta3LX}
 \alias{vcov.reml}
 \alias{vcov.MxRAMModel}
 \alias{vcov.osmasem}
-\alias{vcov.osmasem3}
+\alias{vcov.osmasem3L}
+\alias{vcov.tssemRobust1}
 \title{Extract Covariance Matrix Parameter Estimates from Objects of
   Various Classes
 }
@@ -23,11 +24,12 @@
 \method{vcov}{wls}(object, \dots)
 \method{vcov}{wls.cluster}(object, \dots)
 \method{vcov}{meta}(object, select = c("all", "fixed", "random"), robust=FALSE, \dots)
-\method{vcov}{meta3X}(object, select = c("all", "fixed", "random","allX"), robust=FALSE, \dots)
+\method{vcov}{meta3LX}(object, select = c("all", "fixed", "random","allX"), robust=FALSE, \dots)
 \method{vcov}{reml}(object, \dots)
 \method{vcov}{MxRAMModel}(object, \dots)
 \method{vcov}{osmasem}(object, select=c("fixed", "all", "random"), robust=FALSE, \dots)
-\method{vcov}{osmasem3}(object, select=c("fixed", "all", "random"), \dots)
+\method{vcov}{osmasem3L}(object, select=c("fixed", "all", "random"), \dots)
+\method{vcov}{tssemRobust1}(object, \dots)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -35,7 +37,7 @@
   }
   \item{select}{Select \code{all} for both fixed- and random-effects parameters, \code{fixed} for the
   fixed-effects parameters or \code{random} for the random-effects
-  parameters. For \code{meta3X} objects, \code{allX} is used to extract
+  parameters. For \code{meta3LX} objects, \code{allX} is used to extract
   all parameters including the predictors and auxiliary variables.  
 }
   \item{robust}{Logicial. Whether to use robust standard error from \code{\link[OpenMx]{imxRobustSE}}.

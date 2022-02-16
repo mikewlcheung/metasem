@@ -1,6 +1,8 @@
-\name{meta3}
+\name{meta3L}
 \alias{meta3}
 \alias{meta3X}
+\alias{meta3L}
+\alias{meta3LX}
 \title{Three-Level Univariate Meta-Analysis with Maximum Likelihood Estimation
 }
 \description{
@@ -11,13 +13,27 @@ the intercepts, regression coefficients and variance components on the level-2
 and on the level-3 can be easily imposed by setting the same labels on the parameter estimates.
 }
 \usage{
+## Depreciated in the future
 meta3(y, v, cluster, x, data, intercept.constraints = NULL,
       coef.constraints = NULL , RE2.constraints = NULL,
       RE2.lbound = 1e-10, RE3.constraints = NULL, RE3.lbound = 1e-10,
       intervals.type = c("z", "LB"), I2="I2q",
       R2=TRUE, model.name = "Meta analysis with ML",
       suppressWarnings = TRUE, silent = TRUE, run = TRUE, ...)
+## Depreciated in the future
 meta3X(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=NULL,
+       coef.constraints=NULL, RE2.constraints=NULL, RE2.lbound=1e-10,
+       RE3.constraints=NULL, RE3.lbound=1e-10, intervals.type=c("z", "LB"),
+       R2=TRUE, model.name="Meta analysis with ML",
+       suppressWarnings=TRUE, silent = TRUE, run = TRUE, ...)
+
+meta3L(y, v, cluster, x, data, intercept.constraints = NULL,
+      coef.constraints = NULL , RE2.constraints = NULL,
+      RE2.lbound = 1e-10, RE3.constraints = NULL, RE3.lbound = 1e-10,
+      intervals.type = c("z", "LB"), I2="I2q",
+      R2=TRUE, model.name = "Meta analysis with ML",
+      suppressWarnings = TRUE, silent = TRUE, run = TRUE, ...)
+meta3LX(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=NULL,
        coef.constraints=NULL, RE2.constraints=NULL, RE2.lbound=1e-10,
        RE3.constraints=NULL, RE3.lbound=1e-10, intervals.type=c("z", "LB"),
        R2=TRUE, model.name="Meta analysis with ML",
@@ -117,15 +133,15 @@ meta3X(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=NULL,
 	respectively, and \eqn{e_{ij} \sim N(0, v_{ij})}{e_{ij}~ N(0,
 	  v_{ij})} is the conditional known sampling variance.
 
- \code{meta3()} does not differentiate between level-2 or level-3
+ \code{meta3L()} does not differentiate between level-2 or level-3
  variables in \code{x} since both variables are treated as a design
  matrix. When there are missing values in \code{x}, the data will be
- deleted. \code{meta3X()} treats the predictors \code{x2} and \code{x3}
+ deleted. \code{meta3LX()} treats the predictors \code{x2} and \code{x3}
  as level-2 and level-3 variables. Thus, their means and covariance
  matrix will be estimated. Missing values in \code{x2} and \code{x3}
- will be handled by (full information) maximum likelihood (FIML) in \code{meta3X()}. Moreover,
+ will be handled by (full information) maximum likelihood (FIML) in \code{meta3LX()}. Moreover,
  auxiliary variables \code{av2} at level-2 and \code{av3} at level-3 may
- be included to improve the estimation. Although \code{meta3X()} is more
+ be included to improve the estimation. Although \code{meta3LX()} is more
  flexible in handling missing covariates, it is more likely to encounter
  estimation problems. 	
 }

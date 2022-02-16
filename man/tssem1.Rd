@@ -2,6 +2,8 @@
 \alias{tssem1}
 \alias{tssem1FEM}
 \alias{tssem1REM}
+\alias{tssem3L1}
+\alias{tssemRobust1}
 \title{First Stage of the Two-Stage Structural Equation Modeling (TSSEM)
 }
 \description{It conducts the first stage analysis of TSSEM by pooling
@@ -22,6 +24,12 @@ tssem1REM(Cov, n, cor.analysis=TRUE, RE.type=c("Diag", "Symm", "Zero","User"),
           I2="I2q", acov=c("weighted", "individual", "unweighted"),
           model.name=NULL, suppressWarnings=TRUE,
           silent=TRUE, run=TRUE, ...)
+tssem3L1(Cov, n, cluster, RE.typeB=c("Diag", "Symm"),
+         RE.typeW=c("Diag", "Symm"),
+         acov=c("weighted", "individual", "unweighted"), ...)
+tssemRobust1(Cov, n, cluster, RE.type=c("Diag", "Symm", "Zero"),
+             acov=c("weighted", "individual", "unweighted"),
+             method=c("ML", "REML"), ...) 
 }
 \arguments{
   \item{Cov}{A list of correlation/covariance matrices
@@ -49,6 +57,8 @@ tssem1REM(Cov, n, cor.analysis=TRUE, RE.type=c("Diag", "Symm", "Zero","User"),
 	fixed-effects analysis.
     \code{"User"}, the user has to specify the variance component via the
 	\code{RE.constraints} argument. This argument will be ignored when \code{method="FEM"}.}
+  \item{RE.typeB}{Random effects in the between structure.}
+  \item{RE.typeW}{Random effects in the within structure.}
   \item{RE.startvalues}{Starting values on the
 	diagonals of the variance component of the random effects. It will be ignored when \code{method="FEM"}.}
   \item{RE.lbound}{Lower bounds on the diagonals of the variance

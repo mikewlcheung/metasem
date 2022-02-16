@@ -1,9 +1,9 @@
-meta3 <- function(y, v, cluster, x, data, intercept.constraints=NULL, coef.constraints=NULL, 
-                  RE2.constraints=NULL, RE2.lbound=1e-10,
-                  RE3.constraints=NULL, RE3.lbound=1e-10,
-                  intervals.type=c("z", "LB"), I2="I2q", R2=TRUE,
-                  model.name="Meta analysis with ML",
-                  suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
+meta3L <- function(y, v, cluster, x, data, intercept.constraints=NULL, coef.constraints=NULL, 
+                   RE2.constraints=NULL, RE2.lbound=1e-10,
+                   RE3.constraints=NULL, RE3.lbound=1e-10,
+                   intervals.type=c("z", "LB"), I2="I2q", R2=TRUE,
+                   model.name="Meta analysis with ML",
+                   suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
   mf <- match.call()
   if (missing(data)) {
     data <- sys.frame(sys.parent())
@@ -203,7 +203,7 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints=NULL, coef.const
                        mxCI(c("Inter","Beta","Tau")))
 
     ## Calculate R2
-    if (R2) mx0.fit <- tryCatch( meta3(y=y, v=v, cluster=cluster, data=my.long, model.name="No predictor",
+    if (R2) mx0.fit <- tryCatch( meta3L(y=y, v=v, cluster=cluster, data=my.long, model.name="No predictor",
                                        suppressWarnings=TRUE, silent=TRUE), error = function(e) e )
    }
 
@@ -229,7 +229,15 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints=NULL, coef.const
   out <- list(call=mf, I2=I2, R2=R2, data.wide=my.wide, data=my.long,
               no.y=1, no.x=no.x, miss.x=rep(FALSE, nrow(my.long)), mx.model=mx.model,
               mx.fit=mx.fit, mx0.fit=mx0.fit, intervals.type=intervals.type)
-  class(out) <- c("meta", "meta3")
+  class(out) <- c("meta", "meta3L")
   return(out)
 }
 
+meta3 <- function(y, v, cluster, x, data, intercept.constraints=NULL, coef.constraints=NULL, 
+                  RE2.constraints=NULL, RE2.lbound=1e-10,
+                  RE3.constraints=NULL, RE3.lbound=1e-10,
+                  intervals.type=c("z", "LB"), I2="I2q", R2=TRUE,
+                  model.name="Meta analysis with ML",
+                  suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) { 
+    .Deprecated("meta3L")
+}

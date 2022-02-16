@@ -5,11 +5,12 @@
 \alias{coef.wls}
 \alias{coef.wls.cluster}
 \alias{coef.meta}
-\alias{coef.meta3X}
+\alias{coef.meta3LX}
 \alias{coef.reml}
 \alias{coef.MxRAMModel}
 \alias{coef.osmasem}
-\alias{coef.osmasem3}
+\alias{coef.osmasem3L}
+\alias{coef.tssemRobust1}
 
 \title{Extract Parameter Estimates from various classes.
 }
@@ -23,11 +24,12 @@
 \method{coef}{wls}(object, \dots)
 \method{coef}{wls.cluster}(object, \dots)
 \method{coef}{meta}(object, select = c("all", "fixed", "random"), \dots)
-\method{coef}{meta3X}(object, select = c("all", "fixed", "random", "allX"), \dots)
+\method{coef}{meta3LX}(object, select = c("all", "fixed", "random", "allX"), \dots)
 \method{coef}{reml}(object, \dots)
 \method{coef}{MxRAMModel}(object, \dots)
 \method{coef}{osmasem}(object, select=c("fixed", "all", "random"), \dots)
-\method{coef}{osmasem3}(object, select=c("fixed", "all", "random"), \dots)
+\method{coef}{osmasem3L}(object, select=c("fixed", "all", "random"), \dots)
+\method{coef}{tssemRobust1}(object, \dots)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -38,7 +40,7 @@
   }
   \item{select}{Select \code{all} for both fixed- and random-effects parameters, \code{fixed} for the
   fixed-effects parameters or \code{random} for the random-effects
-  parameters. For \code{meta3X} objects, \code{allX} is used to extract
+  parameters. For \code{meta3LX} objects, \code{allX} is used to extract
   all parameters including the predictors and auxiliary variables.  
 }  
   \item{\dots}{Further arguments; currently none is used}
@@ -55,7 +57,7 @@
 \seealso{ \code{\link[metaSEM]{tssem1}}, \code{\link[metaSEM]{wls}},
   \code{\link[metaSEM]{meta}}, \code{\link[metaSEM]{reml}},
   \code{\link[OpenMx]{omxGetParameters}}, \code{\link[metaSEM]{osmasem}},
-  \code{\link[metaSEM]{osmasem3}}
+  \code{\link[metaSEM]{osmasem3L}}
 }
 \examples{
 ## Random-effects meta-analysis

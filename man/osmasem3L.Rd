@@ -1,18 +1,18 @@
-\name{osmasem3}
-\alias{osmasem3}
+\name{osmasem3L}
+\alias{osmasem3L}
 \title{Three-level one-stage meta-analytic structural equation modeling
 }
-\description{It fits MASEM with the one-stage MASEM with a three-level (OSMASEM3) approach.  
+\description{It fits MASEM with the one-stage MASEM with a three-level (OSMASEM3L) approach.  
 }
 \usage{
-osmasem3(model.name="osmasem3", RAM=NULL, cluster=NULL,
-                     Mmatrix=NULL, TmatrixB=NULL, TmatrixW=NULL,
-                     Ax=NULL, Sx=NULL, A.lbound=NULL, A.ubound=NULL,
-                     RE.type=c("Diag", "Symm"), data,
-                     subset.variables=NULL, subset.rows=NULL, 
-                     intervals.type = c("z", "LB"),
-                     mxModel.Args=NULL, mxRun.Args=NULL,
-                     suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) 
+osmasem3L(model.name="osmasem3L", RAM=NULL, cluster=NULL,
+          RE.typeB=c("Diag", "Symm"), RE.typeW=c("Diag", "Symm"),
+          data, Mmatrix=NULL, TmatrixB=NULL, TmatrixW=NULL,
+          Ax=NULL, Sx=NULL, A.lbound=NULL, A.ubound=NULL,
+          subset.variables=NULL, subset.rows=NULL, 
+          intervals.type = c("z", "LB"),
+          mxModel.Args=NULL, mxRun.Args=NULL,
+          suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) 
 }
 \arguments{
 \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. 
@@ -23,6 +23,11 @@ osmasem3(model.name="osmasem3", RAM=NULL, cluster=NULL,
 }
 \item{cluster}{A vector of string or number indicating the clusters.
 }
+\item{RE.typeB}{Type of the random effects of the between structure when
+  \code{RAM} is provided.}
+\item{RE.typeW}{Type of the random effects of the within structure when
+  \code{RAM} is provided.}
+\item{data}{A list of data created by the \code{Cor2DataFrame}.}
 \item{Mmatrix}{A list of matrices of the model implied correlation
   matrix created by the \code{create.vechsR}. It is only required when
   \code{RAM} is null.}
@@ -41,8 +46,6 @@ osmasem3(model.name="osmasem3", RAM=NULL, cluster=NULL,
   given, the lbound matrix will be filled with this scalar.}
 \item{A.ubound}{A matrix of upper bound of the Amatrix. If a scalar is
   given, the ubound matrix will be filled with this scalar.}
-\item{RE.type}{Type of the random effects.}
-\item{data}{A list of data created by the \code{Cor2DataFrame}.}
 \item{subset.variables}{A character vector of the observed variables selected for
   the analysis.}
 \item{subset.rows}{A logical vector of the same length as the number of rows in the data to select which rows are used in the analysis.}  

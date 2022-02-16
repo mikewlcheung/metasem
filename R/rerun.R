@@ -1,8 +1,8 @@
 rerun <- function(object, autofixtau2=FALSE, extraTries=10, ...) {
-    if (!is.element(class(object)[1], c("wls", "tssem1FEM", "tssem1REM", "meta", "meta3X", "reml",
-                                        "tssem1FEM.cluster", "wls.cluster", "osmasem", "osmasem3", "MxModel")))
-    stop("\"object\" must be an object of neither class \"meta\", \"meta3X\", \"wls\",
-\"reml\", \"tssem1FEM\", \"tssem1REM\", \"tssem1FEM.cluster\", \"wls.cluster\", \"osmasem\", \"osmasem3\", or \"MxModel\".")
+    if (!is.element(class(object)[1], c("wls", "tssem1FEM", "tssem1REM", "meta", "meta3LX", "reml",
+                                        "tssem1FEM.cluster", "wls.cluster", "osmasem", "osmasem3L", "MxModel")))
+    stop("\"object\" must be an object of neither class \"meta\", \"meta3LX\", \"wls\",
+\"reml\", \"tssem1FEM\", \"tssem1REM\", \"tssem1FEM.cluster\", \"wls.cluster\", \"osmasem\", \"osmasem3L\", or \"MxModel\".")
 
     ## Run a rerun without autofixtau2 to minimize over-fixing
     ## Many of the NA in SEs may disappear after rerunning it.

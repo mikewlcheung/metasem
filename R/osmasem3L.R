@@ -1,13 +1,14 @@
-osmasem3 <- function(model.name="osmasem3", RAM=NULL, cluster=NULL,
-                     Mmatrix=NULL, TmatrixB=NULL, TmatrixW=NULL,
-                     Ax=NULL, Sx=NULL, A.lbound=NULL, A.ubound=NULL,
-                     RE.type=c("Diag", "Symm"), data,
-                     subset.variables=NULL, subset.rows=NULL, 
-                     intervals.type = c("z", "LB"),
-                     mxModel.Args=NULL, mxRun.Args=NULL,
-                     suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
+osmasem3L <- function(model.name="osmasem3L", RAM=NULL, cluster=NULL,
+                      RE.typeB=c("Diag", "Symm"), RE.typeW=c("Diag", "Symm"),
+                      data, Mmatrix=NULL, TmatrixB=NULL, TmatrixW=NULL,
+                      Ax=NULL, Sx=NULL, A.lbound=NULL, A.ubound=NULL,
+                      subset.variables=NULL, subset.rows=NULL, 
+                      intervals.type = c("z", "LB"),
+                      mxModel.Args=NULL, mxRun.Args=NULL,
+                      suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
 
-    RE.type <- match.arg(RE.type)
+    RE.typeB <- match.arg(RE.typeB)
+    RE.typeW <- match.arg(RE.typeW)
     
     intervals.type <- match.arg(intervals.type)
     switch(intervals.type,
@@ -40,8 +41,8 @@ osmasem3 <- function(model.name="osmasem3", RAM=NULL, cluster=NULL,
     if (!is.null(RAM)) {
         Mmatrix <- create.vechsR(A0=RAM$A, S0=RAM$S, F0=RAM$F, Ax=Ax, Sx=Sx,
                                  A.lbound=A.lbound, A.ubound=A.ubound)
-        TmatrixB <- create.Tau2(RAM=RAM, RE.type=RE.type, Transform="expLog", level="between")
-        TmatrixW <- create.Tau2(RAM=RAM, RE.type=RE.type, Transform="expLog", level="within")
+        TmatrixB <- create.Tau2(RAM=RAM, RE.type=RE.typeB, Transform="expLog", level="between")
+        TmatrixW <- create.Tau2(RAM=RAM, RE.type=RE.typeW, Transform="expLog", level="within")
     }
 
     ## Get the labels of the latent variables in the variance component (between)
@@ -161,13 +162,13 @@ osmasem3 <- function(model.name="osmasem3", RAM=NULL, cluster=NULL,
                 subset.variables=subset.variables,
                 subset.rows=subset.rows,
                 mx.model=mx.model, mx.fit=mx.fit)
-    class(out) <- 'osmasem3'
+    class(out) <- 'osmasem3L'
     out
 }
 
-coef.osmasem3 <- function(object, select=c("fixed", "all", "random"), ...) {
-    if (!is.element("osmasem3", class(object)))
-        stop("\"object\" must be an object of class \"osmasem3\".")
+coef.osmasem3L <- function(object, select=c("fixed", "all", "random"), ...) {
+    if (!is.element("osmasem3L", class(object)))
+        stop("\"object\" must be an object of class \"osmasem3L\".")
     
     mx.coef <- coef(object$mx.fit)
     ## index for untransformed random effects (not the correct ones!) 
@@ -182,9 +183,9 @@ coef.osmasem3 <- function(object, select=c("fixed", "all", "random"), ...) {
     mx.coef    
 }
 
-vcov.osmasem3 <- function(object, select=c("fixed", "all", "random"), ...) {
-    if (!is.element("osmasem3", class(object)))
-        stop("\"object\" must be an object of class \"osmasem3\".")
+vcov.osmasem3L <- function(object, select=c("fixed", "all", "random"), ...) {
+    if (!is.element("osmasem3L", class(object)))
+        stop("\"object\" must be an object of class \"osmasem3L\".")
 
     # labels of the parameters    
     ## my.name <- summary(object$mx.fit)$parameters$name
@@ -208,11 +209,11 @@ vcov.osmasem3 <- function(object, select=c("fixed", "all", "random"), ...) {
 
 
 ## Fit a saturated model with either a diagonal or symmetric variance component of random effects
-.osmasemSatIndMod3 <- function(osmasem.obj=NULL, model=c("Saturated", "Independence"),
-                               Std.Error=FALSE, extraTries=50, run=TRUE, ...) {
+.osmasemSatIndMod3L <- function(osmasem.obj=NULL, model=c("Saturated", "Independence"),
+                                Std.Error=FALSE, extraTries=50, run=TRUE, ...) {
 
-    if (!is.element("osmasem3", class(osmasem.obj)))
-        stop("\"osmasem.obj\" must be an object of class \"osmasem3\".")
+    if (!is.element("osmasem3L", class(osmasem.obj)))
+        stop("\"osmasem.obj\" must be an object of class \"osmasem3L\".")
 
     TmatrixB <- osmasem.obj$TmatrixB
     TmatrixW <- osmasem.obj$TmatrixW
@@ -285,15 +286,15 @@ vcov.osmasem3 <- function(object, select=c("fixed", "all", "random"), ...) {
     mx.fit
 }
 
-anova.osmasem3 <- function(object, ..., all=FALSE) {
+anova.osmasem3L <- function(object, ..., all=FALSE) {
   base <- lapply(list(object), function(x) x$mx.fit)
   comparison <- lapply(list(...), function(x) x$mx.fit)
   mxCompare(base=base, comparison=comparison, all=all)
 }
 
-summary.osmasem3 <- function(object, fitIndices=FALSE, numObs, ...) {
-    if (!is.element("osmasem3", class(object)))
-        stop("\"object\" must be an object of class \"osmasem3\".")
+summary.osmasem3L <- function(object, fitIndices=FALSE, numObs, ...) {
+    if (!is.element("osmasem3L", class(object)))
+        stop("\"object\" must be an object of class \"osmasem3L\".")
 
     ## If numObs is not provided, use the total N
     if (missing(numObs)) {
@@ -303,8 +304,8 @@ summary.osmasem3 <- function(object, fitIndices=FALSE, numObs, ...) {
 
     ## Calculate chi-square statistic and other fit indices
     if (fitIndices) {
-        Sat.stat <- .osmasemSatIndMod3(object, model="Saturated", Std.Error=FALSE)
-        Ind.stat <- .osmasemSatIndMod3(object, model="Independence", Std.Error=FALSE) 
+        Sat.stat <- .osmasemSatIndMod3L(object, model="Saturated", Std.Error=FALSE)
+        Ind.stat <- .osmasemSatIndMod3L(object, model="Independence", Std.Error=FALSE) 
     
         ## Sat.model=FALSE for saturated model if there are either errors or nonconvergent.
         if ( inherits(Sat.stat, "error") | !(Sat.stat$output$status$code %in% c(0,1)) ) {
@@ -364,9 +365,9 @@ summary.osmasem3 <- function(object, fitIndices=FALSE, numObs, ...) {
     out
 }
 
-osmasem3R2 <- function(model1, model0, R2.truncate=TRUE) {
-    if (!all(c(class(model0), class(model1)) %in% "osmasem3"))
-        stop("Both \"model0\" and \"model1\" must be objects of class \"osmasem3\".")
+osmasem3LR2 <- function(model1, model0, R2.truncate=TRUE) {
+    if (!all(c(class(model0), class(model1)) %in% "osmasem3L"))
+        stop("Both \"model0\" and \"model1\" must be objects of class \"osmasem3L\".")
 
     ## Model 0
     Tau2.0 <- VarCorr(model0)
@@ -403,13 +404,13 @@ osmasem3R2 <- function(model1, model0, R2.truncate=TRUE) {
          Tau2.0B=Tau2.0B, Tau2.1B=Tau2.1B, R2B=R2B)
 }
 
-osmasem3SRMR <- function(x) {
+osmasem3LSRMR <- function(x) {
     ## Check if there are moderators in either A1 or S1
     if (!is.null(x$Mmatrix$A1) | !is.null(x$Mmatrix$S1))
-        stop("Moderators are not allowed in calculating the SRMR in OSMASEM3.\n")
+        stop("Moderators are not allowed in calculating the SRMR in osmasem3L.\n")
 
     ## Saturated model which should be very close to the stage 1 results in the TSSEM
-    Sat.stat <- .osmasemSatIndMod3(x, model="Saturated", Std.Error=FALSE)
+    Sat.stat <- .osmasemSatIndMod3L(x, model="Saturated", Std.Error=FALSE)
 
     ## Similar to the sample correlation matrix
     sampleR <- vec2symMat(eval(parse(text = "mxEval(Mu, Sat.stat)")), diag=FALSE)

@@ -1,10 +1,10 @@
 \name{anova}
 \alias{anova.wls}
 \alias{anova.meta}
-\alias{anova.meta3X}
+\alias{anova.meta3LX}
 \alias{anova.reml}
 \alias{anova.osmasem}
-\alias{anova.osmasem3}
+\alias{anova.osmasem3L}
 \title{Compare Nested Models with Likelihood Ratio Statistic
 }
 \description{It compares nested models with the likelihood ratio
@@ -13,10 +13,10 @@
 \usage{
 \method{anova}{wls}(object, \dots, all=FALSE)
 \method{anova}{meta}(object, \dots, all=FALSE)
-\method{anova}{meta3X}(object, \dots, all=FALSE)
+\method{anova}{meta3LX}(object, \dots, all=FALSE)
 \method{anova}{reml}(object, \dots, all=FALSE)
 \method{anova}{osmasem}(object, \dots, all=FALSE)
-\method{anova}{osmasem3}(object, \dots, all=FALSE)
+\method{anova}{osmasem3L}(object, \dots, all=FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
