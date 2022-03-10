@@ -13,11 +13,11 @@
 \usage{
 wls(Cov, aCov, n, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
     diag.constraints=FALSE, cor.analysis=TRUE, intervals.type=c("z","LB"),
-    mx.algebras=NULL, mxModel.Args=NULL, model.name=NULL,
+    mx.algebras=NULL, mxModel.Args=NULL, subset.variables=NULL, model.name=NULL,
     suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...)
 tssem2(tssem1.obj, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
        diag.constraints=FALSE, intervals.type=c("z", "LB"), mx.algebras=NULL,
-       mxModel.Args=NULL, model.name=NULL, suppressWarnings=TRUE,
+       mxModel.Args=NULL, subset.variables=NULL, model.name=NULL, suppressWarnings=TRUE,
        silent=TRUE, run=TRUE, ...)
 tssem3L2(tssem1.obj, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
          diag.constraints=FALSE, intervals.type = c("z", "LB"),
@@ -103,7 +103,11 @@ tssemRobust2(tssem1.obj, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
 	\code{\link[OpenMx]{mxModel}}. If it is missing, the default is
 	"TSSEM2 (or WLS) Analysis of Correlation Structure" for \code{cor.analysis=TRUE} and
 	"TSSEM2 (or WLS) Analysis of Covariance Structure" for \code{cor.analysis=FALSE}.
-	}
+  }
+\item{subset.variables}{An optional Boolean vector of \code{TRUE} or \code{FALSE}
+  to select variables in the analysis. For example, there are 10
+  variables in the stage 1 analysis, whereas you only want to select 8
+  variables in the stage 2 analysis.}  
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
 	suppressed. The argument to be passed to \code{\link[OpenMx]{mxRun}}.}
   \item{silent}{Logical. An argument to be passed to \code{\link[OpenMx]{mxRun}}}

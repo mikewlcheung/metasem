@@ -1,3 +1,4 @@
+# FIXME: ensure dimnames in Cov iputs?
 meta2semPlot <- function(object, manNames=NULL, latNames=NULL, labels=c("labels", "RAM"), ...) {
 
     if (!requireNamespace("semPlot", quietly=TRUE))    

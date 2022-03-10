@@ -259,9 +259,31 @@ tssem1 <- function(Cov, n, method=c("REM", "FEM"), cor.analysis=TRUE, cluster=NU
 ## Known bug: wls() will fall into loop when the Amatrix is zero
 wls <- function(Cov, aCov, n, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, 
                 diag.constraints=FALSE, cor.analysis=TRUE, intervals.type=c("z", "LB"), 
-                mx.algebras=NULL, mxModel.Args=NULL, model.name=NULL, suppressWarnings=TRUE, 
+                mx.algebras=NULL, mxModel.Args=NULL, subset.variables=NULL,
+                model.name=NULL, suppressWarnings=TRUE, 
                 silent=TRUE, run=TRUE, ...) {
 
+    if (!is.null(subset.variables)) {
+        if (ncol(Cov) != length(subset.variables)) {
+            stop("The length of 'subset.variables' is different from the dimensions of 'Cov'.\n")
+        }
+        
+        ## A square matrix of dimensions subset.variables
+        index.mat <- matrix(TRUE, nrow=length(subset.variables), ncol=length(subset.variables))
+
+        index.mat[!subset.variables, ] <- index.mat[, !subset.variables] <- FALSE
+
+        if (cor.analysis) {
+            subset.acov <- vechs(index.mat)
+        } else {
+            subset.acov <- vech(index.mat)
+        }
+
+        ## Filter the variables
+        Cov <- Cov[subset.variables, subset.variables]
+        aCov <- aCov[subset.acov, subset.acov]
+    }
+    
     ## Read RAM first. If it is not specified, read individual matrices
     if (!is.null(RAM)) {
         Amatrix <- as.mxMatrix(RAM$A, name="Amatrix")
@@ -542,7 +564,7 @@ wls <- function(Cov, aCov, n, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL
 
 
 tssem2 <- function(tssem1.obj, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=FALSE,
-                   intervals.type = c("z", "LB"), mx.algebras=NULL, mxModel.Args=NULL,
+                   intervals.type = c("z", "LB"), mx.algebras=NULL, mxModel.Args=NULL, subset.variables=NULL,
                    model.name=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
   if ( !is.element( class(tssem1.obj)[1], c("tssem1FEM.cluster", "tssem1FEM", "tssem1REM")) )
       stop("\"tssem1.obj\" must be of neither class \"tssem1FEM.cluster\", class \"tssem1FEM\" or \"tssem1REM\".")
@@ -551,6 +573,7 @@ tssem2 <- function(tssem1.obj, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NUL
          tssem1FEM.cluster = { out <- lapply(tssem1.obj, tssem2, RAM=RAM, Amatrix=Amatrix, Smatrix=Smatrix, Fmatrix=Fmatrix,
                                              diag.constraints=diag.constraints, intervals.type=intervals.type,
                                              mx.algebras=mx.algebras, mxModel.Args=mxModel.Args,
+                                             subset.variables=subset.variables,
                                              model.name=model.name, suppressWarnings=suppressWarnings, silent=silent,
                                              run=run, ...)
                               class(out) <- "wls.cluster" },
@@ -568,6 +591,7 @@ tssem2 <- function(tssem1.obj, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NUL
                                  n=sum(tssem1.obj$n), RAM=RAM, Amatrix=Amatrix, Smatrix=Smatrix, Fmatrix=Fmatrix,
                                  diag.constraints=diag.constraints, cor.analysis=tssem1.obj$cor.analysis,
                                  intervals.type=intervals.type, mx.algebras=mx.algebras, mxModel.Args=mxModel.Args,
+                                 subset.variables=subset.variables,
                                  model.name=model.name, suppressWarnings=suppressWarnings,
                                  silent=silent, run=run, ...) },
          tssem1REM = { cor.analysis <- tssem1.obj$cor.analysis
@@ -586,6 +610,7 @@ tssem2 <- function(tssem1.obj, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NUL
                       out <- wls(Cov=pooledS, aCov=aCov, n=tssem1.obj$total.n, RAM=RAM,
                                  Amatrix=Amatrix, Smatrix=Smatrix, Fmatrix=Fmatrix, diag.constraints=diag.constraints,
                                  cor.analysis=cor.analysis, intervals.type=intervals.type, mx.algebras=mx.algebras,
+                                 subset.variables=subset.variables,
                                  mxModel.Args=mxModel.Args, model.name=model.name, suppressWarnings = suppressWarnings,
                                  silent=silent, run=run, ...) })
   out
