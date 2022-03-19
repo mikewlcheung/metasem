@@ -49,14 +49,25 @@ tssemRobust1 <- function(Cov, n, cluster, RE.type=c("Diag", "Symm", "Zero"),
 coef.tssemRobust1 <- function(object, ...) {
     if (!is.element("tssemRobust1", class(object)))
         stop("\"object\" must be an object of class \"tssemRobust1\".")
-    coef(object$rma.fit, ...)
+    out <- coef(object$rma.fit, ...)
+
+    ## Arrange the output according to the order of ylabels
+    out <-  out[paste0("r", object$ylabels)]
+    names(out) <- object$ylabels
+    out
 }
 
 vcov.tssemRobust1 <- function(object, ...) {
     if (!is.element("tssemRobust1", class(object)))
         stop("\"object\" must be an object of class \"tssemRobust1\".")
     vc <- metafor::robust(object$rma.fit, cluster=object$cluster, ...)
-    vc$vb
+    out <- vc$vb
+
+    ## Arrange the output according to the order of ylabels
+    labels <- paste0("r", object$ylabels)
+    out <-  out[labels, labels]
+    dimnames(out) <- list(object$ylabels, object$ylabels)
+    out    
 }
 
 summary.tssemRobust1 <- function(object, ...) {
@@ -70,9 +81,7 @@ tssemRobust2 <- function(tssem1.obj, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatr
     if ( !is.element( class(tssem1.obj), "tssemRobust1") )
         stop("\"tssem1.obj\" must be of class \"tssemRobust1\".")
 
-    ## Arrange the coefficients in rma according to the order in osmasem.
-    coeffs <- coef(tssem1.obj)[paste0("r", tssem1.obj$ylabels)]
-    Cov <- vec2symMat(coeffs, diag=FALSE)
+    Cov <- vec2symMat(coef(tssem1.obj), diag=FALSE)
     dimnames(Cov) <- list(tssem1.obj$obslabels, tssem1.obj$obslabels)
 
     wls(Cov=Cov, aCov=vcov(tssem1.obj), n=sum(tssem1.obj$n),

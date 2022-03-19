@@ -50,7 +50,8 @@ tssem3L2 <- function(tssem1.obj, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=N
     if ( !is.element( class(tssem1.obj)[2], "tssem3L1") )
         stop("\"tssem1.obj\" must be of class \"tssem3L1\".")
 
-    Cov <- vec2symMat(coef(tssem1.obj, select="fixed"), diag=FALSE)
+    # Cov <- vec2symMat(coef(tssem1.obj, select="fixed"), diag=FALSE)
+    Cov <- tssem1.obj$mx.fit$impliedR$values
     dimnames(Cov) <- list(tssem1.obj$data$obslabels, tssem1.obj$data$obslabels)
 
     wls(Cov=Cov, aCov=vcov(tssem1.obj), n=sum(tssem1.obj$data$n),

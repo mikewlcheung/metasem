@@ -179,8 +179,17 @@ coef.osmasem3L <- function(object, select=c("fixed", "all", "random"), ...) {
            ## all = my.name <- my.name,
            fixed =  mx.coef <- mx.coef[-index],
            random = mx.coef <- mx.coef[index])
-    if (select!="fixed") warning("\"Tau1_xx\" is not the variance component of the random effects.\nPlease use VarCorr() to get the variance component.\n")    
-    mx.coef    
+
+    if (select!="fixed") {
+        warning("\"Tau1_xx\" is not the variance component of the random effects.\nPlease use VarCorr() to get the variance component.\n")
+    }
+    
+    ## Rearrange the elements according to the original variable order if it is a tssem3L1 object.
+    if (is.element("tssem3L1", class(object))) {
+        mx.coef[object$data$ylabels]
+    } else {    
+        mx.coef
+    }
 }
 
 vcov.osmasem3L <- function(object, select=c("fixed", "all", "random"), ...) {
@@ -200,11 +209,20 @@ vcov.osmasem3L <- function(object, select=c("fixed", "all", "random"), ...) {
          ## all = my.name <- my.name,
          fixed =  my.name <- my.name[-index],
          random = my.name <- my.name[index])
+    
+    if (select!="fixed") {
+        warning("\"Tau1_xx\" is not the variance component of the random effects.")
+    }
 
     out <- vcov(object$mx.fit)
-    
-    if (select!="fixed") warning("\"Tau1_xx\" is not the variance component of the random effects.")
-    out[my.name, my.name]
+    out <- out[my.name, my.name]
+
+    ## Rearrange the elements according to the original variable order if it is a tssem3L1 object.
+    if (is.element("tssem3L1", class(object))) {
+        out[object$data$ylabels, object$data$ylabels]
+    } else {    
+        out
+    }       
 }
 
 
