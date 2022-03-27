@@ -3,7 +3,7 @@
 \docType{data}
 \title{Correlation coefficients reported by Tenenbaum and Leaper (2002)}
 \description{
-  Fourty-eight studies reported by Tenenbaum and Leaper (2002, Table 1).
+  Forty-eight studies reported by Tenenbaum and Leaper (2002, Table 1).
 }
 \usage{data(Tenenbaum02)}
 \details{

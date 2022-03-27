@@ -8,6 +8,7 @@
 \alias{summary.meta3LX}
 \alias{summary.reml}
 \alias{summary.CorPop}
+\alias{summary.Cor3L}
 \alias{summary.bootuniR2}
 \alias{summary.osmasem}
 \alias{summary.osmasem3L}
@@ -19,6 +20,7 @@
 \alias{print.summary.meta3LX}
 \alias{print.summary.reml}
 \alias{print.summary.CorPop}
+\alias{print.summary.Cor3L}
 \alias{print.summary.bootuniR2}
 \title{Summary Method for tssem1, wls, meta, and meta3LX Objects
 }
@@ -34,6 +36,7 @@
 \method{summary}{meta3LX}(object, allX=FALSE, robust=FALSE, \dots)
 \method{summary}{reml}(object, \dots)
 \method{summary}{CorPop}(object, \dots)
+\method{summary}{Cor3L}(object, \dots)
 \method{summary}{bootuniR2}(object, probs=c(0, 0.1, 0.5, 0.9, 1),
         cutoff.chisq.pvalue=0.05, cutoff.CFI=0.9, cutoff.SRMR=0.1,
         cutoff.RMSEA=0.05, \dots)
@@ -46,6 +49,7 @@
 \method{print.summary}{meta3LX}(x, \dots)
 \method{print.summary}{reml}(x, \dots)
 \method{print.summary}{CorPop}(x, \dots)
+\method{print.summary}{Cor3L}(x, \dots)
 \method{print.summary}{bootuniR2}(x, \dots)
 }
 \arguments{

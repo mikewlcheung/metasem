@@ -27,7 +27,7 @@ tssem3L1 <- function(Cov, n, cluster, RE.typeB=c("Diag", "Symm"),
     
     ## Saturated model
     impliedR <- mxMatrix(type="Stand", nrow=p, ncol=p, free=TRUE,
-                         values=unname(apply(df$data[, ylabels], 2, mean, na.rm=TRUE)),
+                         values=unname(apply(df$data[, ylabels, drop=FALSE], 2, mean, na.rm=TRUE)),
                          labels=ylabels, name="impliedR")
 
     ## dimnames are required

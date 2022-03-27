@@ -2,9 +2,10 @@
 \alias{rCor}
 \alias{rCorPop}
 \alias{rCorSam}
-\title{Generate Sample/Population Correlation/Covariance Matrices
+\alias{rCor3L}
+\title{Generate (Nested) Sample/Population Correlation/Covariance Matrices
 }
-\description{It generates random sample or population correlation or
+\description{It generates (nested) random sample or population correlation or
   covariance matrices. \code{rCor()} is a wrapper to call
   \code{rCorPop()} and then \code{rCorSam()}.
 }
@@ -16,13 +17,19 @@ rCorPop(Sigma, V, k, corr=TRUE,
         nonPD.pop=c("replace", "nearPD", "accept"))
 rCorSam(Sigma, n, corr=TRUE, raw.data=FALSE, 
         nonPD.sam=c("stop", "nearPD"))
+rCor3L(Sigma, V.B, V.W, n, cluster, corr=TRUE, raw.data=FALSE,
+       nonPD.pop=c("replace", "nearPD", "accept"),
+       nonPD.sam=c("stop", "nearPD"))
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
   \item{Sigma}{A list of population correlation/covariance matrices or a
   single matrix}
-  \item{V}{A variance-covariance matrix of Sigma.}
-  \item{n}{A vector or a single sample sizes.}
+\item{V}{A variance-covariance matrix of Sigma.}
+\item{V.B}{A variance-covariance matrix of between-study Sigma.}
+\item{V.W}{A variance-covariance matrix of within-study Sigma}
+\item{n}{A vector or a single sample sizes.}
+\item{cluster}{A vector of number of studies in clusters.}
   \item{corr}{Logical. Whether to generate correlation or covariance matrices.}
   \item{raw.data}{Logical. Whether correlation/covariance matrices are
 	generated via raw.data or directly from a Wishart distribution.}

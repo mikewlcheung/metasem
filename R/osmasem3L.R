@@ -80,7 +80,7 @@ osmasem3L <- function(model.name="osmasem3L", RAM=NULL, cluster=NULL,
                            mxMatrix('Zero', p, p, name='A', dimnames=list(latlabelsB, latlabelsB)),
                            mxMatrix('Zero', 0, p, name='F', dimnames=list(NULL, latlabelsB)),
                            mxMatrix('Zero', 1, p, name='M', dimnames=list(NULL, latlabelsB)),
-                           mxExpectationRAM('A', 'Tau2B', 'F', 'M'))"))
+                           mxExpectationRAM(A='A', S='Tau2B', F='F', M='M'))"))
 
     ## Need to add the dimnames in the model-implied mean structure in the Within model
     Mmatrix$vechsR$.dimnames <- list(NULL, ylabels)
@@ -108,7 +108,7 @@ osmasem3L <- function(model.name="osmasem3L", RAM=NULL, cluster=NULL,
                          mxMatrix('Iden', p, p, name='F', dimnames=list(ylabels, ylabels)),
                          mxMatrix('Full', p, p, FALSE, 1, name = 'T',
                                   joinKey=cluster, joinModel='B', dimnames=list(ylabels, latlabelsB)),
-                         mxExpectationRAM('A', 'expCov', 'F', 'vechsR', between='T'),
+                         mxExpectationRAM(A='A', S='expCov', F='F', M='vechsR', between='T'),
                          mxCI(c('Amatrix', 'Smatrix', 'Tau2W', 'Bet.Tau2B')))"))
    
     ## Add additiona arguments from RAM to mxModel

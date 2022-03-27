@@ -26,7 +26,7 @@
   \item{\dots}{An object or a list of objects of various classes. It will be passed to the
 	\code{comparison} argument in \code{\link[OpenMx]{mxCompare}}.
   }  
-  \item{all}{A boolean value on whether to compare all bases with all
+  \item{all}{A Boolean value on whether to compare all bases with all
 	comparisons. It will be passed to the \code{all} argument in
 	\code{\link[OpenMx]{mxCompare}}.}
 }

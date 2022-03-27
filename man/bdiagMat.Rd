@@ -32,7 +32,7 @@ bdiagMat(x)
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-## Block diagonal matrix of numerics
+## Block diagonal matrix of numbers
 bdiagMat( list(matrix(1:4,nrow=2,ncol=2),
                matrix(5:6,nrow=1,ncol=2)) )
 #      [,1] [,2] [,3] [,4]
