@@ -12,7 +12,7 @@ tssemRobust1 <- function(Cov, n, cluster, RE.type=c("Diag", "Symm", "Zero"),
     df <- Cor2DataFrame(x=Cov, n=n, acov=acov)
 
     ## Effect sizes
-    y_wide  <- cbind(df$data[, df$ylabels], cluster=cluster)
+    y_wide  <- cbind(df$data[, df$ylabels, drop=FALSE], cluster=cluster)
     
     y_long <- reshape(y_wide, direction = "long", varying=df$ylabels, v.names="y",
                       timevar="r", times=df$ylabels)
@@ -23,15 +23,15 @@ tssemRobust1 <- function(Cov, n, cluster, RE.type=c("Diag", "Symm", "Zero"),
     ## index <- c(t(outer(seq_len(nrow(df$data)), df$ylabels,
     ##                    function(x,y) paste(x, y, sep="."))))
     
-    V_wide <- df$data[, df$vlabels]
+    V_wide <- df$data[, df$vlabels, drop=FALSE]
     V_long <- apply(V_wide, 1, function(x) vec2symMat(unlist(x), diag=TRUE, byrow=FALSE),
                     simplify=FALSE)
     V_long <- bdiagMat(V_long)
 
     ## Remove rows in y with NA and rows and columns in V with NA
     index.NA <- is.na(y_long$y)   
-    y_long <- y_long[!index.NA, ]
-    V_long <- V_long[!index.NA, !index.NA]
+    y_long <- y_long[!index.NA, , drop=FALSE]
+    V_long <- V_long[!index.NA, !index.NA, drop=FALSE]
 
     switch(RE.type,
            Diag = struct <- "DIAG",
@@ -77,14 +77,15 @@ summary.tssemRobust1 <- function(object, ...) {
 tssemRobust2 <- function(tssem1.obj, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
                          diag.constraints=FALSE, intervals.type = c("z", "LB"),
                          mx.algebras=NULL, mxModel.Args=NULL,
-                         model.name=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
+                         model.name=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE,
+                         adjust=FALSE, ...) {
     if ( !is.element( class(tssem1.obj), "tssemRobust1") )
         stop("\"tssem1.obj\" must be of class \"tssemRobust1\".")
 
     Cov <- vec2symMat(coef(tssem1.obj), diag=FALSE)
     dimnames(Cov) <- list(tssem1.obj$obslabels, tssem1.obj$obslabels)
 
-    wls(Cov=Cov, aCov=vcov(tssem1.obj), n=sum(tssem1.obj$n),
+    wls(Cov=Cov, aCov=vcov(tssem1.obj, adjust=adjust), n=sum(tssem1.obj$n),
         RAM=RAM, Amatrix=Amatrix, Smatrix=Smatrix, Fmatrix=Fmatrix,
         diag.constraints=diag.constraints, cor.analysis=TRUE,
         intervals.type=intervals.type, mx.algebras=mx.algebras, mxModel.Args=mxModel.Args,

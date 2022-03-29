@@ -8,6 +8,7 @@ importFrom(ellipse, ellipse)
 importFrom(MASS, mvrnorm)
 importFrom(MASS, ginv)
 importFrom(mvtnorm, rmvnorm)
+# importFrom(matrixcalc, D.matrix)
 
 S3method(plot, meta)
 S3method(plot, character)

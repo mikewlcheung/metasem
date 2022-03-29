@@ -215,11 +215,11 @@ vcov.osmasem3L <- function(object, select=c("fixed", "all", "random"), ...) {
     }
 
     out <- vcov(object$mx.fit)
-    out <- out[my.name, my.name]
+    out <- out[my.name, my.name, drop=FALSE]
 
     ## Rearrange the elements according to the original variable order if it is a tssem3L1 object.
     if (is.element("tssem3L1", class(object))) {
-        out[object$data$ylabels, object$data$ylabels]
+        out[object$data$ylabels, object$data$ylabels, drop=FALSE]
     } else {    
         out
     }       

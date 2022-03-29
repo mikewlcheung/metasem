@@ -5,7 +5,7 @@ Version: 1.2.5.9
 Date: 2022-03-27
 Depends: R (>= 3.4.0), OpenMx
 Imports: Matrix, MASS, ellipse, graphics, stats, utils, mvtnorm, numDeriv, lavaan
-Suggests: metafor, semPlot, R.rsp, testthat
+Suggests: metafor, semPlot, R.rsp, testthat, matrixcalc
 VignetteBuilder: R.rsp
 Authors@R: person(given = "Mike", family = "Cheung", role = c("aut","cre"), email = "mikewlcheung@nus.edu.sg", comment = c(ORCID = "0000-0003-0113-0758"))
 Maintainer: Mike Cheung <mikewlcheung@nus.edu.sg>

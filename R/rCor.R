@@ -19,6 +19,11 @@ rCor <- function(Sigma, V, n, corr=TRUE, raw.data=FALSE,
 ## Generate population correlation matrices
 rCorPop <- function(Sigma, V, k, corr=TRUE, 
                     nonPD.pop=c("replace", "nearPD", "accept")) {
+
+  ## Convert them to matrices
+  if (!is.matrix(Sigma)) Sigma <- as.matrix(Sigma)
+  if (!is.matrix(V)) V <- as.matrix(V)    
+    
   if (!is.pd(Sigma)) stop("'Sigma' is not positive definite.\n")
   if (!is.pd(V)) stop("'V' is not positive definite.\n")
   
@@ -79,16 +84,27 @@ rCorPop <- function(Sigma, V, k, corr=TRUE,
 
 summary.CorPop <- function(object, ...) {
   if (!is.element("CorPop", class(object)))
-    stop("\"object\" must be an object of class \"CorPop\".")  
+      stop("\"object\" must be an object of class \"CorPop\".")
   
   corr <- attr(object, "corr")
+  
+  ## Adhoc fix when object is not a list of matrices.
+  ## One variable or two variables with corr=TRUE
+  if ( ncol(object[[1]])==1 | (ncol(object[[1]])==2 & corr==TRUE) ) {
+      fix <- TRUE
+  } else {
+      fix <- FALSE
+  }
+
   ## R: average correlation matrix based on the generated data
   if (corr) {
-    my.df <- t(sapply(object, vechs))
-    R <- vec2symMat(colMeans(my.df), diag=FALSE)
+      my.df <- t(sapply(object, vechs))
+      if (fix) my.df <- matrix(my.df, ncol=1)
+      R <- vec2symMat(colMeans(my.df), diag=FALSE)
   } else {
-    my.df <- t(sapply(object, vech))
-    R <- vec2symMat(colMeans(my.df), diag=TRUE)
+      my.df <- t(sapply(object, vech))
+      if (fix) my.df <- matrix(my.df, ncol=1)
+      R <- vec2symMat(colMeans(my.df), diag=TRUE)
   }
   
   Sigma <- attr(object, "Sigma")
