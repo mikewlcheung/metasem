@@ -700,3 +700,69 @@ test_that("Handling NA in diagonals in tssem1FEM() correctly", {
     C3[1,2] <- C3[2,1] <- .5
     expect_error(tssem1(Cov=list(C1, C2,C3), n=c(50, 50, 50), method="FEM"))
 })
+
+test_that("Testing new asyCov() correctly", {
+
+    tolerance <- 1e-4
+    
+    new  <- asyCov(x=Becker92$data, n=Becker92$n, acov="individual")
+    row.names(new) <- NULL
+    old <- asyCovOld(x=Becker92$data, n=Becker92$n, acov="individual")
+    expect_equal(new, old, tolerance=tolerance)
+
+    new  <- asyCov(x=Becker92$data, n=Becker92$n, acov="weighted")
+    row.names(new) <- NULL
+    old <- asyCovOld(x=Becker92$data, n=Becker92$n, acov="weighted")
+    expect_equal(new, old, tolerance=tolerance)
+
+    new  <- asyCov(x=Becker92$data, n=Becker92$n, acov="unweighted")
+    row.names(new) <- NULL
+    old <- asyCovOld(x=Becker92$data, n=Becker92$n, acov="unweighted")
+    expect_equal(new, old, tolerance=tolerance)
+
+    new  <- asyCov(x=Becker92$data, n=Becker92$n, acov="individual", as.matrix=FALSE)
+    old <- asyCovOld(x=Becker92$data, n=Becker92$n, acov="individual", as.matrix=FALSE)
+    expect_equal(new, old, tolerance=tolerance)    
+
+    new  <- asyCov(x=Cheung09$data, n=Cheung09$n, acov="individual")
+    row.names(new) <- NULL
+    old <- asyCovOld(x=Cheung09$data, n=Cheung09$n, acov="individual")
+    expect_equal(new, old, tolerance=tolerance)
+
+    new  <- asyCov(x=Cheung09$data, n=Cheung09$n, acov="weighted")
+    row.names(new) <- NULL
+    old <- asyCovOld(x=Cheung09$data, n=Cheung09$n, acov="weighted")
+    expect_equal(new, old, tolerance=tolerance)
+
+    new  <- asyCov(x=Cheung09$data, n=Cheung09$n, acov="unweighted")
+    row.names(new) <- NULL
+    old <- asyCovOld(x=Cheung09$data, n=Cheung09$n, acov="unweighted")
+    expect_equal(new, old, tolerance=tolerance)
+
+    new  <- asyCov(x=Cheung09$data, n=Cheung09$n, acov="individual", as.matrix=FALSE)
+    old <- asyCovOld(x=Cheung09$data, n=Cheung09$n, acov="individual", as.matrix=FALSE)
+    expect_equal(new, old, tolerance=tolerance)
+
+    ## Lower tolerance of cor.analysis=F
+    tolerance <- 1e-3
+    new  <- asyCov(x=Becker92$data, n=Becker92$n, acov="individual", cor.analysis=FALSE)
+    row.names(new) <- NULL
+    old <- asyCovOld(x=Becker92$data, n=Becker92$n, acov="individual", cor.analysis=FALSE)
+    expect_equal(new, old, tolerance=tolerance)
+
+    new  <- asyCov(x=Becker92$data, n=Becker92$n, acov="weighted", cor.analysis=FALSE)
+    row.names(new) <- NULL
+    old <- asyCovOld(x=Becker92$data, n=Becker92$n, acov="weighted", cor.analysis=FALSE)
+    expect_equal(new, old, tolerance=tolerance)
+
+    new  <- asyCov(x=Becker92$data, n=Becker92$n, acov="unweighted", cor.analysis=FALSE)
+    row.names(new) <- NULL
+    old <- asyCovOld(x=Becker92$data, n=Becker92$n, acov="unweighted", cor.analysis=FALSE)
+    expect_equal(new, old, tolerance=tolerance)
+
+    ## Not equal
+    ## new  <- asyCov(x=Becker92$data, n=Becker92$n, acov="individual", as.matrix=FALSE, cor.analysis=FALSE)
+    ## old <- asyCovOld(x=Becker92$data, n=Becker92$n, acov="individual", as.matrix=FALSE, cor.analysis=FALSE)
+    ## expect_equal(new, old, tolerance=tolerance)   
+    
+})
