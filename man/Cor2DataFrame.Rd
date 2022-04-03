@@ -9,7 +9,8 @@
 }
 \usage{
 Cor2DataFrame(x, n, v.na.replace = TRUE, row.names.unique = FALSE,
-              cor.analysis = TRUE, acov="weighted", append.vars=TRUE, ...)
+              cor.analysis = TRUE, acov="weighted", append.vars=TRUE,
+              asyCovOld=FALSE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -32,6 +33,7 @@ Cor2DataFrame(x, n, v.na.replace = TRUE, row.names.unique = FALSE,
   variance-covariance matrices.}
 \item{append.vars}{Whether to append the additional variables to
   the output dataframe.}
+\item{asyCovOld}{Whether to use the old version of \code{asyCov}. See \code{\link[metaSEM]{asyCov}}.}
 \item{\dots}{Further arguments to be passed to \code{\link[metaSEM]{asyCov}}.}
 }
 

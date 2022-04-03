@@ -1,12 +1,15 @@
 \name{asyCov}
 \alias{asyCov}
+\alias{asyCovOld}
 \title{Compute Asymptotic Covariance Matrix of a Correlation/Covariance Matrix
 }
 \description{It computes the asymptotic sampling covariance matrix of a
   correlation/covariance matrix under the assumption of multivariate normality. 
 }
 \usage{
-asyCov(x, n, cor.analysis = TRUE, dropNA = FALSE, as.matrix = TRUE,
+asyCov(x, n, cor.analysis = TRUE, as.matrix = TRUE,
+       acov=c("weighted", "individual", "unweighted"), ...)
+asyCovOld(x, n, cor.analysis = TRUE, dropNA = FALSE, as.matrix = TRUE,
        acov=c("individual", "unweighted", "weighted"),
        suppressWarnings = TRUE,  silent = TRUE, run = TRUE, ...)
 }
@@ -45,7 +48,9 @@ asyCov(x, n, cor.analysis = TRUE, dropNA = FALSE, as.matrix = TRUE,
   \item{silent}{Logical. An argument to be passed to \code{\link[OpenMx]{mxRun}}}
   \item{run}{Logical. If \code{FALSE}, only return the mx model without
 	running the analysis.}
-  \item{\dots}{Further arguments to be passed to \code{\link[OpenMx]{mxRun}}}
+  \item{\dots}{It is ignored in \code{asyCov}. The additional arguments
+	will be passed to
+	\code{\link[OpenMx]{mxRun}} in \code{asyCovOld}.}
 }
 
 \value{An asymptotic covariance matrix of the vectorized
@@ -53,11 +58,23 @@ asyCov(x, n, cor.analysis = TRUE, dropNA = FALSE, as.matrix = TRUE,
   \code{as.matrix}=\code{TRUE} and \code{x} is a list of matrices, the output
   is a stacked matrix. }
 \references{
-Cheung, M. W.-L., & Chan, W. (2004). Testing dependent correlation coefficients via structural equation modeling. \emph{Organizational Research Methods}, \bold{7}, 206-223. 
+Cheung, M. W.-L., & Chan, W. (2004). Testing dependent correlation
+  coefficients via structural equation modeling. \emph{Organizational
+	Research Methods}, \bold{7}, 206-223.
+  
+Olkin, I., & Siotani, M. (1976). Asymptotic distribution of functions of a correlation matrix. In S. Ideka (Ed.), \emph{Essays in probability and statistics} (pp. 235-251). Shinko Tsusho.
+
+Yuan, K.-H., & Bentler, P. M. (2007). Robust procedures in structural equation modeling. In S.-Y. Lee (Ed.), \emph{Handbook of latent variable and related models} (pp. 367-397). Elsevier/North-Holland.
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
-
+\note{Before 1.2.6, \code{asyCov} used an SEM approach based on Cheung
+  and Chan (2004). After 1.2.6, \code{asyCov} was rewritten based on
+  Olkin and Siotani (1976) for correlation matrix and Yuan and Bentler
+  (2007, p. 371) for covariance matrix. Arguments such as \code{dropNA},
+  \code{suppressWarnings}, \code{silent}, and \code{run} were
+  dropped. The original version was renamed to \code{asyCovOld} for
+  compatibility.}
 
 \examples{
 \dontrun{
@@ -68,14 +85,14 @@ asyCov(C1, n=100)
 C2 <- matrix(c(1,0.4,NA,0.4,1,NA,NA,NA,NA), ncol=3)  
 C3 <- matrix(c(1,0.2,0.2,1), ncol=2)
 
-## Output is a list of asymptotic covariance matrices
-asyCov(list(C1,C2,C3), n=c(100,50,50), dropNA=TRUE, as.matrix=FALSE)
-
 ## Output is a stacked matrix of asymptotic covariance matrices
 asyCov(list(C1,C2), n=c(100,50), as.matrix=TRUE)
 
 ## Output is a stacked matrix of asymptotic covariance matrices
 asyCov(list(C3,C3), n=c(100,50), as.matrix=TRUE)
+
+## Output is a list of asymptotic covariance matrices using the old version
+asyCovOld(list(C1,C2,C3), n=c(100,50,50), dropNA=TRUE, as.matrix=FALSE)
 }
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the

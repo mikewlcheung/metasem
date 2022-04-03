@@ -1,5 +1,6 @@
-Release 1.2.5.9 (Mar 27, 2022)
+Release 1.2.6 (Apr 3, 2022)
 ====================================
+* Rewrite asyCov() and rename the old one to asyCovOld().
 * Add rCor3L() and its summary method.
 * Add subset.variables argument in tssem2() and wls().
 * Rename meta3() to meta3L() and meta3X() and meta3LX().

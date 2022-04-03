@@ -1,7 +1,7 @@
 #### Generate asymptotic covariance matrix of correlation/covariance matrix by *column major*
-asyCov <- function(x, n, cor.analysis=TRUE, dropNA=FALSE, as.matrix=TRUE,
-                   acov=c("individual", "unweighted", "weighted"),
-                   suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
+asyCovOld <- function(x, n, cor.analysis=TRUE, dropNA=FALSE, as.matrix=TRUE,
+                      acov=c("individual", "unweighted", "weighted"),
+                      suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
 
     makeSymmetric <- function(x) {x[lower.tri(x)] = t(x)[lower.tri(t(x))]; x}
     
@@ -59,7 +59,7 @@ asyCov <- function(x, n, cor.analysis=TRUE, dropNA=FALSE, as.matrix=TRUE,
           ## Fixed a bug before v.0.7-0 that uses only the first n 
           ## out.list <- lapply(x, asyCov, n = n, cor.analysis = cor.analysis, silent = silent,
           ##                    suppressWarnings = suppressWarnings, dropNA = FALSE, ...)
-          out.list <- mapply(asyCov, x, n = n, cor.analysis = cor.analysis, silent = silent,
+          out.list <- mapply(asyCovOld, x, n = n, cor.analysis = cor.analysis, silent = silent,
                              suppressWarnings = suppressWarnings, dropNA = FALSE, ..., SIMPLIFY=FALSE)          
           #output
           out <- t(sapply(out.list, function(x) {(vech(x))}))
@@ -76,7 +76,7 @@ asyCov <- function(x, n, cor.analysis=TRUE, dropNA=FALSE, as.matrix=TRUE,
           #output
           ## lapply(x, asyCov, n = n, cor.analysis = cor.analysis, silent = silent,
           ##                    suppressWarnings = suppressWarnings, dropNA = dropNA, ...)
-          mapply(asyCov, x, n = n, cor.analysis = cor.analysis, silent = silent,
+          mapply(asyCovOld, x, n = n, cor.analysis = cor.analysis, silent = silent,
                              suppressWarnings = suppressWarnings, dropNA = dropNA, ..., SIMPLIFY=FALSE)          
         }
         
@@ -155,4 +155,180 @@ asyCov <- function(x, n, cor.analysis=TRUE, dropNA=FALSE, as.matrix=TRUE,
         return(out)
     }
     
+}
+
+## Faster version without dropNA, suppressWarnings, silent, and run arguments.
+asyCov <- function(x, n, cor.analysis=TRUE, as.matrix=TRUE,
+                   acov=c("weighted", "individual", "unweighted"), ...) {
+
+    ## Copy lower tri to upper tri
+    makeSymmetric <- function(x) {x[upper.tri(x)] = t(x)[upper.tri(t(x))]; x}
+    
+    ## Main function to calculate acov for R or S multiplied by N
+    N_Acov <- function(x, cor.analysis) {
+
+        ## No. of variables
+        p <- ncol(x)
+        ## No. of correlations
+        ps <- p*(p-1)/2
+        
+        ## Formula in cor handles NA automatically
+        if (cor.analysis) {
+
+            ## Make sure that it is a correlation matrix
+            x <- suppressWarnings(cov2cor(x))  ## Suppress warnings in case of NA
+  
+            ## n*acov
+            n_acov <- function(R, s, t, u, v) {
+                0.5*R[s,t]*R[u,v]*(R[s,u]^2 + R[s,v]^2 + R[t,u]^2 + R[t,v]^2) + 
+                    R[s,u]*R[t,v] + R[s,v]*R[t,u] - 
+                    (R[s,t]*R[s,u]*R[s,v] + R[t,s]*R[t,u]*R[t,v] + R[u,s]*R[u,t]*R[u,v] + 
+                     R[v,s]*R[v,t]*R[v,u])
+            }
+    
+            ## index of variables  [1:p, 1:p] for correlation 1:p_s
+            index <- matrix(NA, ncol=2, nrow=ps)
+            k <- 1
+        
+            for (j in 1:(p-1))
+                for (i in (j+1):p) {
+                    ## cat(i, j, "\n")
+                    index[k, ] <- c(i, j)
+                    k <- k+1    
+                }
+    
+            out <- matrix(NA, ncol=ps, nrow=ps)
+            
+            for (j in 1:ps) 
+                for (i in j:ps) {
+                    out[i, j] <- n_acov(R=x, s=index[i,1], t=index[i,2], u=index[j,1], v=index[j,2])
+                }
+
+            ## Copy the lower tri to upper tri
+            out <- makeSymmetric(out)
+
+            ## Analysis of covariance matrix
+        } else {
+
+            if (!requireNamespace("matrixcalc", quietly=TRUE))    
+                stop("\"matrixcalc\" package is required for this function.")
+           
+            ## index of NA in ps x px acov
+            index_NA <- vech(is.na(x))
+
+            ## Replace NA with 0 before calculations
+            x[is.na(x)] <- 0
+            
+            ## Generalized inverse of the D matrix
+            Dm <- matrixcalc::D.matrix(p)
+            Dg <- MASS::ginv(Dm)
+            ## Yuan & Bentler (Handbook of Latent Variable and Related Models, p. 371)
+            out <- 2*Dg %*% (x %x% x) %*% t(Dg)
+
+            ## Restore NA
+            out[index_NA, ] <- out[, index_NA] <- NA
+        }
+            
+        ## Check dimnames is defined. If not, use x1, x2, etc
+        if (is.null(colnames(x))) {
+            obsvars <- paste0("x", seq_len(p))
+        } else {
+            obsvars <- colnames(x)
+        }
+            
+        if (cor.analysis) {
+            psvars <- vechs(outer(obsvars, obsvars,
+                                  function(x, y) paste(x, y, sep="_")))
+        } else {
+            psvars <- vech(outer(obsvars, obsvars,
+                                 function(x, y) paste(x, y, sep="_")))
+        }
+
+        ## out is n*acov, not acov
+        dimnames(out) <- list(psvars, psvars)
+
+        ## Avoid problems in is.pd() or OpenMx.
+        ## makeSymmetric(out)
+        out
+    }
+    
+    ## Only 1 matrix input
+    ## Note. n_acov is n*acov!
+    ## The output uses n.
+    if (!is.list(x)) {
+
+        out <- N_Acov(x, cor.analysis)
+        
+        if (length(n)==1) {
+            out <- out/n
+        } else {            
+            ## n is a vecotr, return a list
+            out <- lapply(n, function(z) out/z)
+        }
+        
+        ## from if (!is.list(x))    
+    } else {
+            
+        ## A list of matrix input
+        acov <- match.arg(acov, c("weighted", "individual", "unweighted"))
+
+        ## Calculate acov using individual correlation matrices
+        if (acov=="individual") {
+
+            ## A list of n*acov
+            out <- lapply(x, N_Acov, cor.analysis=cor.analysis)
+            ## Divide them with n
+            out <- mapply("/", out, n, SIMPLIFY=FALSE)
+
+            ## Calculate acov using an average correlation matrix
+        } else {
+            
+            ## Replace NA with 0 before calculations
+            my.x <- lapply(x, function(z) {z[is.na(z)] <- 0; z} )
+            
+            if (acov=="unweighted") {
+                ## Unweighted means = sum of correlations/no. of studies w/o NA
+                my.x <- Reduce("+", my.x)/pattern.na(x, show.na=FALSE)
+            } else {
+                ## Weighted means = cummulative sum of r*n/sum of n w/o NA
+                my.x <- mapply("*", my.x, n, SIMPLIFY=FALSE)                
+                my.x <- Reduce("+", my.x)/pattern.n(x, n)
+            }
+
+            ## my.x is one correlation matrix
+            out <- N_Acov(my.x, cor.analysis)
+            out <- lapply(n, function(z) out/z)        
+            
+        } # if (acov=="individual")
+    } ## from if (!is.list(x))
+
+
+    ## Check if it is a list of matrices
+    ## If 1 matrix, return it.
+    ## If a list of matrices and as.matrix, stack them as a matrix
+    if (is.list(out) & as.matrix) { 
+ 
+        ## Assume the first one is with variable names, p*
+        ## FIXME: psvars is a vector in ess but a column vector in RStudio. Different environments?
+        psvars <- c(colnames(out[[1]]))
+  
+        ## Variable name p**, e.g., "C(x1_x2 x2_x3)"
+        ## Name crash with matrixcalc::vech
+        pssvars <- OpenMx::vech(outer(psvars, psvars,
+                                      function(y, z) paste0("C(", y, " ", z, ")")))
+        
+        ## Return a packed matrix selecting the lower triangles including the diagonals
+        out <- t(sapply(out, vech))
+
+        ## Ad-hoc to handle when there is only a column
+        if (length(pssvars)==1) out <- matrix(out, ncol=1)
+
+        colnames(out) <- pssvars
+
+        ## Return a list of matrices
+    } else {
+        names(out) <- names(x)
+    }
+
+    out
 }

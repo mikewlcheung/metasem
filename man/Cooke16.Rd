@@ -48,7 +48,7 @@ pattern.n(my.data, my.n)
 
 ## Stage 1 analysis
 ## Random-effects model
-random1 <- tssem1(my.data, my.n, method="REM", RE.type="Diag")
+random1 <- tssem1(my.data, my.n, method="REM", RE.type="Diag", acov="weighted")
 summary(random1)
 
 A1 <- create.mxMatrix(c(0,0,0,0,0,

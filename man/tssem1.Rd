@@ -15,21 +15,19 @@
 tssem1(Cov, n, method=c("REM","FEM"), cor.analysis = TRUE, cluster=NULL,
        RE.type=c("Diag", "Symm", "Zero", "User"), RE.startvalues=0.1,
        RE.lbound=1e-10, RE.constraints=NULL, I2="I2q",
-       acov=c("weighted", "individual", "unweighted"),
+       acov=c("weighted", "individual", "unweighted"), asyCovOld=FALSE,
        model.name=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...)
 tssem1FEM(Cov, n, cor.analysis=TRUE, model.name=NULL,
           cluster=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...)
 tssem1REM(Cov, n, cor.analysis=TRUE, RE.type=c("Diag", "Symm", "Zero","User"),
           RE.startvalues=0.1, RE.lbound=1e-10, RE.constraints=NULL,
           I2="I2q", acov=c("weighted", "individual", "unweighted"),
-          model.name=NULL, suppressWarnings=TRUE,
+          asyCovOld=FALSE, model.name=NULL, suppressWarnings=TRUE,
           silent=TRUE, run=TRUE, ...)
-tssem3L1(Cov, n, cluster, RE.typeB=c("Diag", "Symm"),
-         RE.typeW=c("Diag", "Symm"),
-         acov=c("weighted", "individual", "unweighted"), ...)
-tssemRobust1(Cov, n, cluster, RE.type=c("Diag", "Symm", "Zero"),
-             acov=c("weighted", "individual", "unweighted"),
-             method=c("ML", "REML"), ...) 
+tssem3L1(cluster=NULL, RE.typeB=c("Diag", "Symm"),
+         RE.typeW=c("Diag", "Symm"), data, ...)
+tssemRobust1(cluster=NULL, RE.type=c("Diag", "Symm", "Zero"),
+             method=c("ML", "REML"), data, ...) 
 }
 \arguments{
   \item{Cov}{A list of correlation/covariance matrices
@@ -38,12 +36,15 @@ tssemRobust1(Cov, n, cluster, RE.type=c("Diag", "Symm", "Zero"),
 }
 \item{method}{Either \code{"REM"} (default if missing) or \code{"FEM"}.
   If it is "REM",a random-effects meta-analysis will be applied. If it
-  is "FEM", a fixed-effects meta-analysis will be applied. 
+  is "FEM", a fixed-effects meta-analysis will be applied. It represnts
+  whether a maximum likelihood (ML) or restricted maximum likelihood
+  (REML) method is used in \code{tssemRobust1}.
 }
   \item{cor.analysis}{Logical. The output is either a pooled correlation or a covariance matrix.
   }
-  \item{cluster}{A vector of characters or numbers indicating the
-	clusters. Analyses will be conducted for each cluster. It will be
+  \item{cluster}{A character vector in \code{tssem3L1} and
+	\code{tssemRobust1} or a vector of characters or numbers indicating the
+	clusters in \code{tssem1}. Analyses will be conducted for each cluster. It will be
 	ignored when \code{method="REM"}.
   }
   \item{RE.type}{Either \code{"Diag"}, \code{"Symm"},  
@@ -80,7 +81,7 @@ tssemRobust1(Cov, n, cluster, RE.type=c("Diag", "Symm", "Zero"),
 	harmonic mean and the arithmetic mean of the within-study sampling
 	variances (Xiong, Miller, & Morris, 2010). More than one options are possible. If \code{intervals.type="LB"}, 95\% confidence intervals on the heterogeneity indices will be constructed. 
   }
-  \item{acov}{If it is \code{individual}, the sampling variance-covariance
+\item{acov}{If it is \code{individual}, the sampling variance-covariance
 	matrices are calculated based on individual correlation/covariance
 	matrix. If it is either \code{unweighted} or \code{weighted} (the default), the average
 	correlation/covariance matrix is calculated based on the unweighted
@@ -88,6 +89,8 @@ tssemRobust1(Cov, n, cluster, RE.type=c("Diag", "Symm", "Zero"),
 	correlation/covariance matrix is used to calculate the sampling
 	variance-covariance matrices. This argument is ignored with the
 	\code{method="FEM"} argument.}
+\item{asyCovOld}{Whether the old \code{asyCov} is used. See \code{\link[metaSEM]{asyCov}}.}  
+  \item{data}{Data created by \code{\link[metaSEM]{asyCov}}.}
   \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. 
   }  
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
@@ -115,8 +118,8 @@ tssemRobust1(Cov, n, cluster, RE.type=c("Diag", "Symm", "Zero"),
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }
-\note{If the \code{cluster} argument is used, it returns a list of
-  results on each cluster.
+\note{\code{tssemRobust1} uses \code{\link[metafor]{rma.mv}} and
+  \code{\link[metafor]{robust}} for the analysis.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~

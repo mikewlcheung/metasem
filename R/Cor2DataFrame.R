@@ -1,6 +1,6 @@
 Cor2DataFrame <- function(x, n, v.na.replace=TRUE, row.names.unique=FALSE,
                           cor.analysis=TRUE, acov="weighted",
-                          append.vars=TRUE, ...) {
+                          append.vars=TRUE, asyCovOld=FALSE, ...) {
 
     ## x is a list of "data", "n", ...
     if (all(c("data", "n") %in% names(x))) {
@@ -23,7 +23,11 @@ Cor2DataFrame <- function(x, n, v.na.replace=TRUE, row.names.unique=FALSE,
         my.df <- list2matrix(x=my.cor, diag=TRUE)
     }
 
-    acovR <- asyCov(x=my.cor, n=n, cor.analysis=cor.analysis, acov=acov, ...)
+    if (asyCovOld) {
+        acovR <- asyCovOld(x=my.cor, n=n, cor.analysis=cor.analysis, acov=acov, ...)
+    } else {
+        acovR <- asyCov(x=my.cor, n=n, cor.analysis=cor.analysis, acov=acov, ...)
+    }
 
     ## NA is not allowed in definition variables
     ## They are replaced by 1e10

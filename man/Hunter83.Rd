@@ -90,7 +90,7 @@ vcov(fixed2)
 #### Random-effects model with diagonal elements only
 ## First stage analysis
 random1 <- tssem1(Hunter83$data, Hunter83$n, method="REM", RE.type="Diag", 
-                  acov="individual", model.name="TSSEM1 random effects model")
+                  acov="weighted", model.name="TSSEM1 random effects model")
 summary(random1)
 
 model2 <- "## Regression paths
