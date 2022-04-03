@@ -79,8 +79,7 @@ osmasem3L <- function(model.name="osmasem3L", RAM=NULL, cluster=NULL,
                            mxData(observed=mx.dataB, type='raw', primaryKey=cluster),
                            mxMatrix('Zero', p, p, name='A', dimnames=list(latlabelsB, latlabelsB)),
                            mxMatrix('Zero', 0, p, name='F', dimnames=list(NULL, latlabelsB)),
-                           mxMatrix('Zero', 1, p, name='M', dimnames=list(NULL, latlabelsB)),
-                           mxExpectationRAM(A='A', S='Tau2B', F='F', M='M'))"))
+                           mxExpectationRAM(A='A', S='Tau2B', F='F'))"))
 
     ## Need to add the dimnames in the model-implied mean structure in the Within model
     Mmatrix$vechsR$.dimnames <- list(NULL, ylabels)
@@ -100,16 +99,16 @@ osmasem3L <- function(model.name="osmasem3L", RAM=NULL, cluster=NULL,
     ## A: a pxp zero matrix
     ## S: a pxp Tau2 (within + V)
     ## M: a 1xp vector of model-implied R    
-    mx.model <- eval(parse(text="mxModel(model=model.name, type='RAM', modelB,
+    mx.model <- eval(parse(text=paste0("mxModel(model=model.name, type='RAM', modelB,
                          Mmatrix, TmatrixW, Vmatrix, manifestVars=ylabels,
                          mxData(mx.data, 'raw'),
                          mxAlgebra(Tau2W+V, name='expCov'),
                          mxMatrix('Zero', p, p, name='A', dimnames=list(ylabels, ylabels)),
                          mxMatrix('Iden', p, p, name='F', dimnames=list(ylabels, ylabels)),
-                         mxMatrix('Full', p, p, FALSE, 1, name = 'T',
+                         mxMatrix('", RE.typeW, "', p, p, FALSE, 1, name = 'T',
                                   joinKey=cluster, joinModel='B', dimnames=list(ylabels, latlabelsB)),
                          mxExpectationRAM(A='A', S='expCov', F='F', M='vechsR', between='T'),
-                         mxCI(c('Amatrix', 'Smatrix', 'Tau2W', 'Bet.Tau2B')))"))
+                         mxCI(c('Amatrix', 'Smatrix', 'Tau2W', 'Bet.Tau2B')))")))
    
     ## Add additiona arguments from RAM to mxModel
     if (!is.null(RAM$mxalgebras)) {

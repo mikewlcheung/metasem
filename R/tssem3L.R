@@ -37,8 +37,9 @@ tssem3L1 <- function(Cov, n, cluster, RE.typeB=c("Diag", "Symm"),
     TmatrixB <- create.Tau2(no.var=p_star, RE.type=RE.typeB, Transform="expLog", level="between")
     TmatrixW <- create.Tau2(no.var=p_star, RE.type=RE.typeW, Transform="expLog", level="within")
 
+    ## RE.typeW is required in osmasem3L
     mx.fit <- osmasem3L(cluster="cluster", data=df, Mmatrix=Mmatrix, TmatrixB=TmatrixB,
-                        TmatrixW=TmatrixW)
+                        TmatrixW=TmatrixW, RE.typeW=RE.typeW)
     class(mx.fit) <- c(class(mx.fit), "tssem3L1")
     mx.fit
 }
