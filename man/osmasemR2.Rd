@@ -27,4 +27,5 @@ osmasem3LR2(model1, model0, R2.truncate=TRUE)
 \seealso{ \code{\link[metaSEM]{osmasem}, \link[metaSEM]{osmasem3L}}
 }
 
-\keyword{ osmasem, osmasem3L }
+\keyword{osmasem}
+\keyword{osmasem3L}

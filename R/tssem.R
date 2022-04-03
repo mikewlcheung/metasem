@@ -164,7 +164,8 @@ tssem1FEM <- function(Cov, n, cor.analysis=TRUE, model.name=NULL,
 tssem1REM <- function(Cov, n, cor.analysis=TRUE, RE.type=c("Diag", "Symm", "Zero", "User"),
                       RE.startvalues=0.1, RE.lbound = 1e-10, RE.constraints=NULL,
                       I2="I2q", acov=c("weighted", "individual", "unweighted"),
-                      model.name=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
+                      asyCovOld=FALSE, model.name=NULL, suppressWarnings=TRUE, silent=TRUE,
+                      run=TRUE, ...) {
   ## It handles missing effect sizes rather than missing correlations. Thus, it is more flexible than tssem1FEM().
   ## ACOV is calculated without missing data by assuming 1 and 0 for the missing variances and covariances.
   ## Missing values are indicated by the missing effect sizes.
@@ -177,19 +178,27 @@ tssem1REM <- function(Cov, n, cor.analysis=TRUE, RE.type=c("Diag", "Symm", "Zero
   ## Get the original variable names
   original.names <- colnames(Cov[[1]])
 
-  if (cor.analysis) {
-      ## Replace diagonals with 1.0
-      my.complete <- lapply(Cov, function (x) { Diag(x)[is.na(Diag(x))] <- 1; x })
-  } else {
-      ## Replace diagonals with the mean of diagonals
-      my.complete <- lapply(Cov, function (x) { Diag(x)[is.na(Diag(x))] <- mean(Diag(x), na.rm=TRUE); x })
-  }
-  ## Replace missing variables with 0.0 regardless of cor.analysis
-  my.complete <- lapply(my.complete, function (x) { x[is.na(x)] <- 0; x })
-
   ## Calculate the asymptotic sampling covariance matrix of the correlation matrix
-  acovR <- asyCov(x=my.complete, n=n, cor.analysis=cor.analysis, dropNA=FALSE, as.matrix=TRUE, acov=acov)
-
+  if (asyCovOld) {
+      ## SEM approach is sensitive to NA. Additional care is required.      
+        
+      if (cor.analysis) {
+        ## Replace diagonals with 1.0
+        my.complete <- lapply(Cov, function (x) { Diag(x)[is.na(Diag(x))] <- 1; x })
+      } else {
+        ## Replace diagonals with the mean of diagonals
+        my.complete <- lapply(Cov, function (x) { Diag(x)[is.na(Diag(x))] <- mean(Diag(x), na.rm=TRUE); x })
+      }
+      
+      ## Replace missing variables with 0.0 regardless of cor.analysis
+      my.complete <- lapply(my.complete, function (x) { x[is.na(x)] <- 0; x })
+          
+      acovR <- asyCovOld(x=my.complete, n=n, cor.analysis=cor.analysis, dropNA=FALSE, as.matrix=TRUE, acov=acov)
+  } else {
+      ## asyCov() will break down when there are NA
+      acovR <- asyCov(x=Cov, n=n, cor.analysis=cor.analysis, as.matrix=TRUE, acov=acov)
+  }
+    
   ## Fixed a bug that Cov is covariance matrix while cor.analysis is TRUE
   ## When cor.analysis=TRUE, the old version just takes the lower triangle without converting covariance into correlation.
   if (cor.analysis) {
@@ -244,15 +253,15 @@ tssem1REM <- function(Cov, n, cor.analysis=TRUE, RE.type=c("Diag", "Symm", "Zero
 tssem1 <- function(Cov, n, method=c("REM", "FEM"), cor.analysis=TRUE, cluster=NULL,
                    RE.type=c("Diag", "Symm", "Zero", "User"), RE.startvalues=0.1, RE.lbound=1e-10,
                    RE.constraints=NULL, I2="I2q", acov=c("weighted", "individual", "unweighted"),
-                   model.name=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
+                   asyCovOld=FALSE, model.name=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
   method <- match.arg(method)
   switch(method,
     FEM = out <- tssem1FEM(Cov=Cov, n=n, cor.analysis=cor.analysis, model.name=model.name,
                           cluster=cluster, suppressWarnings=suppressWarnings, silent=silent, run=run, ...),
     REM = out <- tssem1REM(Cov=Cov, n=n, cor.analysis=cor.analysis, RE.type=RE.type,
                           RE.startvalues=RE.startvalues, RE.lbound=RE.lbound, RE.constraints=RE.constraints,
-                          I2=I2, acov=acov, model.name=model.name, suppressWarnings=suppressWarnings,
-                          silent=silent, run=run, ...) )
+                          I2=I2, acov=acov, asyCovOld=asyCovOld, model.name=model.name,
+                          suppressWarnings=suppressWarnings, silent=silent, run=run, ...) )
   out
 }
 

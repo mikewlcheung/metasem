@@ -23,4 +23,5 @@ the heterogeneity variances are ignored in the calculations.}
   \code{\link[metaSEM]{Nohe15}}
 }
 
-\keyword{ osmasem, osmasem3L }
+\keyword{osmasem}
+\keyword{osmasem3L}

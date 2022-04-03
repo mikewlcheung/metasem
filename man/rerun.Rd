@@ -30,4 +30,8 @@ random1_rerun <- rerun(random1)
 summary(random1_rerun)
 }
 }
-\keyword{tssem, meta, osmasem, osmasem3L, wls}
+\keyword{tssem}
+\keyword{meta}
+\keyword{osmasem}
+\keyword{osmasem3L}
+\keyword{wls}

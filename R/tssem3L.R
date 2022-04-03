@@ -1,33 +1,19 @@
-tssem3L1 <- function(Cov, n, cluster, RE.typeB=c("Diag", "Symm"),
-                     RE.typeW=c("Diag", "Symm"),
-                     acov=c("weighted", "individual", "unweighted"), ...) {
-
-    if (length(Cov)!=length(n)) stop("\"Cov\" and \"n\" are in different lengths!\n")
-    if (length(Cov)!=length(cluster)) stop("\"Cov\" and \"cluster\" are in different lengths!\n")
-    
+tssem3L1 <- function(cluster=NULL, RE.typeB=c("Diag", "Symm"), RE.typeW=c("Diag", "Symm"),
+                     data, ...) {
+  
     RE.typeB <- match.arg(RE.typeB, c("Diag", "Symm"))
     RE.typeW <- match.arg(RE.typeW, c("Diag", "Symm"))    
-    acov <- match.arg(acov, c("weighted", "individual", "unweighted"))
-
-    ## Save the original cluster (data)
-    cluster_data <- cluster
-    ## Cluster variable name
-    cluster <- "cluster"
-    
-    df <- Cor2DataFrame(x=Cov, n=n, acov=acov)
-    ## Add cluster to the dataset
-    df$data <- cbind(df$data, cluster=as.factor(cluster_data))
-
+ 
     ## No. of observed variables in RAM
-    p <- nrow(Cov[[1]])
+    p <- length(data$obslabels)
     
     ## Dimension of random effects: no.var by no.var
-    ylabels <- df$ylabels
+    ylabels <- data$ylabels
     p_star <- length(ylabels)
     
     ## Saturated model
     impliedR <- mxMatrix(type="Stand", nrow=p, ncol=p, free=TRUE,
-                         values=unname(apply(df$data[, ylabels, drop=FALSE], 2, mean, na.rm=TRUE)),
+                         values=unname(apply(data$data[, ylabels, drop=FALSE], 2, mean, na.rm=TRUE)),
                          labels=ylabels, name="impliedR")
 
     ## dimnames are required
@@ -38,7 +24,7 @@ tssem3L1 <- function(Cov, n, cluster, RE.typeB=c("Diag", "Symm"),
     TmatrixW <- create.Tau2(no.var=p_star, RE.type=RE.typeW, Transform="expLog", level="within")
 
     ## RE.typeW is required in osmasem3L
-    mx.fit <- osmasem3L(cluster="cluster", data=df, Mmatrix=Mmatrix, TmatrixB=TmatrixB,
+    mx.fit <- osmasem3L(model.name="tssem3L1", cluster=cluster, data=data, Mmatrix=Mmatrix, TmatrixB=TmatrixB,
                         TmatrixW=TmatrixW, RE.typeW=RE.typeW)
     class(mx.fit) <- c(class(mx.fit), "tssem3L1")
     mx.fit

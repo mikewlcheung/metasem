@@ -1,29 +1,25 @@
-tssemRobust1 <- function(Cov, n, cluster, RE.type=c("Diag", "Symm", "Zero"),
-                         acov=c("weighted", "individual", "unweighted"),
-                         method=c("ML", "REML"), ...) {
+tssemRobust1 <- function(cluster=NULL, RE.type=c("Diag", "Symm", "Zero"),
+                         method=c("ML", "REML"), data, ...) {
     
     if (!requireNamespace("metafor", quietly=TRUE))    
         stop("\"metafor\" package is required for this function.")
 
     RE.type <- match.arg(RE.type, c("Diag", "Symm", "Zero"))
-    acov <- match.arg(acov, c("weighted", "individual", "unweighted"))
     method <- match.arg(method, c("ML", "REML"))
     
-    df <- Cor2DataFrame(x=Cov, n=n, acov=acov)
-
     ## Effect sizes
-    y_wide  <- cbind(df$data[, df$ylabels, drop=FALSE], cluster=cluster)
+    y_wide  <- cbind(data$data[, data$ylabels, drop=FALSE], cluster=cluster)
     
-    y_long <- reshape(y_wide, direction = "long", varying=df$ylabels, v.names="y",
-                      timevar="r", times=df$ylabels)
+    y_long <- reshape(y_wide, direction = "long", varying=data$ylabels, v.names="y",
+                      timevar="r", times=data$ylabels)
 
     ## FIXME: is it safe?
     y_long <- y_long[order(y_long$id), ]
 
-    ## index <- c(t(outer(seq_len(nrow(df$data)), df$ylabels,
+    ## index <- c(t(outer(seq_len(nrow(data$data)), data$ylabels,
     ##                    function(x,y) paste(x, y, sep="."))))
     
-    V_wide <- df$data[, df$vlabels, drop=FALSE]
+    V_wide <- data$data[, data$vlabels, drop=FALSE]
     V_long <- apply(V_wide, 1, function(x) vec2symMat(unlist(x), diag=TRUE, byrow=FALSE),
                     simplify=FALSE)
     V_long <- bdiagMat(V_long)
@@ -41,7 +37,7 @@ tssemRobust1 <- function(Cov, n, cluster, RE.type=c("Diag", "Symm", "Zero"),
     fit <- eval(parse(text="metafor::rma.mv(y, V_long, mods = ~ r-1, random = ~ r | id,
                            struct=struct, method=method, sparse=TRUE, data=y_long, ...)"))
 
-    out <- list(rma.fit=fit, cluster=y_long$cluster, n=n, obslabels=rownames(Cov[[1]]), ylabels=df$ylabels)    
+    out <- list(rma.fit=fit, cluster=cluster, n=data$n, obslabels=data$obslabels, ylabels=data$ylabels)    
     class(out) <- "tssemRobust1"
     out
 }
@@ -60,7 +56,7 @@ coef.tssemRobust1 <- function(object, ...) {
 vcov.tssemRobust1 <- function(object, ...) {
     if (!is.element("tssemRobust1", class(object)))
         stop("\"object\" must be an object of class \"tssemRobust1\".")
-    vc <- metafor::robust(object$rma.fit, cluster=object$cluster, ...)
+    vc <- eval(parse(text="metafor::robust(object$rma.fit, cluster=id, ...)"))
     out <- vc$vb
 
     ## Arrange the output according to the order of ylabels
@@ -71,7 +67,7 @@ vcov.tssemRobust1 <- function(object, ...) {
 }
 
 summary.tssemRobust1 <- function(object, ...) {
-    metafor::robust(object$rma.fit, cluster=object$cluster, ...)
+    eval(parse(text="metafor::robust(object$rma.fit, cluster=id, ...)"))
 }
 
 tssemRobust2 <- function(tssem1.obj, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,

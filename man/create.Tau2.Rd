@@ -62,4 +62,5 @@ T1
 }
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
-\keyword{ osmasem, osmasem3L }
+\keyword{osmasem}
+\keyword{osmasem3L}
