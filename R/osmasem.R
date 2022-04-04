@@ -636,22 +636,32 @@ VarCorr <- function(x, ...) {
         if (!is.element("osmasem", class(osmasem.obj)))
             stop("\"osmasem.obj\" must be an object of class \"osmasem\".")
 
-        if (missing(Tmatrix)) Tmatrix <- osmasem.obj$Tmatrix
-        Vmatrix <- osmasem.obj$Vmatrix
+        if (missing(Tmatrix)) {
+            Tmatrix <- osmasem.obj$Tmatrix
+        }                
         ## No. of variables in the model
         p <- nrow(Tmatrix$Cor$values)
         data <- osmasem.obj$data
+        ylabels <- osmasem.obj$labels$ylabels
+        Vmatrix <- osmasem.obj$Vmatrix        
     } else {
+        ## FIXME: It does not work.
         ## If there is no osmasem.obj, create a new saturated/independence model from data.
-        p <- length(osmasem.obj$labels$ylabels)
+        ylabels <- data$ylabels
+        p <- length(ylabels)
         ## Create known sampling variance covariance matrix
-        Vmatrix <- create.V(osmasem.obj$labels$vlabels, type="Symm", as.mxMatrix=TRUE)
+        Vmatrix <- create.V(data$labels$vlabels, type="Symm", as.mxMatrix=TRUE)
     }    
 
     model <- match.arg(model)
 
     if (model=="Saturated") {
         ## Saturated model
+        st.values <- apply(data$data[, ylabels, drop=FALSE], 2,  mean, na.rm=TRUE)
+        Mmatrix <- mxMatrix(type="Full", free=TRUE, values=st.values,
+                            labels=paste0("Mu", seq_len(p)),
+                            nrow=1, ncol=p, dimnames=list(NULL, ylabels), name="Mu")
+        
         Mmatrix <- mxMatrix(type="Full", free=TRUE, labels=paste0("Mu", seq_len(p)),
                             nrow=1, ncol=p, name="Mu")
     } else {

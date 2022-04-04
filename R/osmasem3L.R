@@ -148,7 +148,9 @@ osmasem3L <- function(model.name="osmasem3L", RAM=NULL, cluster=NULL,
         warning(print(mx.fit))
     }
 
-    out <- list(call=match.call(), 
+    out <- list(call=match.call(),
+                RE.typeB=RE.typeB,
+                RE.typeW=RE.typeW,
                 Mmatrix=Mmatrix, 
                 TmatrixB=TmatrixB,
                 TmatrixW=TmatrixW,
@@ -246,15 +248,18 @@ vcov.osmasem3L <- function(object, select=c("fixed", "all", "random"), ...) {
 
     if (model=="Saturated") {
         ## Saturated model
-        Mmatrix <- mxMatrix(type="Full", free=TRUE, labels=paste0("Mu", seq_len(p)),
+        ## Starting values
+        st.values <- apply(data$data[, ylabels, drop=FALSE], 2,  mean, na.rm=TRUE)
+        Mmatrix <- mxMatrix(type="Full", free=TRUE, values=st.values,
+                            labels=paste0("Mu", seq_len(p)),
                             nrow=1, ncol=p, dimnames=list(NULL, ylabels), name="Mu")
     } else {
         ## Independence model
         Mmatrix <- mxMatrix(type="Full", free=FALSE, labels=paste0("Mu", seq_len(p)),
-                            nrow=1, ncol=p, , dimnames=list(NULL, ylabels), name="Mu")        
+                            nrow=1, ncol=p, dimnames=list(NULL, ylabels), name="Mu")        
     }
     
-    ## Select data for the analaysis
+    ## Select data for the analysis
     mx.data <- data$data[osmasem.obj$subset.rows, ]
     mx.data[, cluster] <- as.factor(mx.data[, cluster])
     
@@ -270,18 +275,17 @@ vcov.osmasem3L <- function(object, select=c("fixed", "all", "random"), ...) {
                            mxData(observed=mx.dataB, type='raw', primaryKey=cluster),
                            mxMatrix('Zero', p, p, name='A', dimnames=list(latlabelsB, latlabelsB)),
                            mxMatrix('Zero', 0, p, name='F', dimnames=list(NULL, latlabelsB)),
-                           mxMatrix('Zero', 1, p, name='M', dimnames=list(NULL, latlabelsB)),
-                           mxExpectationRAM('A', 'Tau2B', 'F', 'M'))"))
+                           mxExpectationRAM('A', 'Tau2B', 'F'))"))
     
-    mx.model <- eval(parse(text="mxModel(model=model, type='RAM', modelB,
+    mx.model <- eval(parse(text=paste0("mxModel(model=model, type='RAM', modelB,
                           Mmatrix, TmatrixW, Vmatrix, manifestVars=ylabels,
                           mxData(mx.data, 'raw'),
                           mxAlgebra(Tau2W+V, name='expCov'),
                           mxMatrix('Zero', p, p, name='A', dimnames=list(ylabels, ylabels)),
                           mxMatrix('Iden', p, p, name='F', dimnames=list(ylabels, ylabels)),
-                          mxMatrix('Full', p, p, FALSE, 1, name = 'T',
+                          mxMatrix('", osmasem.obj$RE.typeW, "', p, p, FALSE, 1, name = 'T',
                                    joinKey=cluster, joinModel='B', dimnames=list(ylabels, latlabelsB)),
-                          mxExpectationRAM('A', 'expCov', 'F', 'Mu', between='T'))"))
+                          mxExpectationRAM('A', 'expCov', 'F', 'Mu', between='T'))")))
      
     ## It may speed up the analysis
     if (Std.Error==FALSE) {
