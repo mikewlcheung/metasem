@@ -703,6 +703,8 @@ test_that("Handling NA in diagonals in tssem1FEM() correctly", {
 
 test_that("Testing new asyCov() correctly", {
 
+    set.seed(123456)
+    
     tolerance <- 1e-4
     
     new  <- asyCov(x=Becker92$data, n=Becker92$n, acov="individual")

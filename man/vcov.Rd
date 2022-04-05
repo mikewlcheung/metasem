@@ -42,7 +42,8 @@
 }
   \item{robust}{Logicial. Whether to use robust standard error from \code{\link[OpenMx]{imxRobustSE}}.
 }
-  \item{\dots}{Further arguments; currently none is used}
+  \item{\dots}{Further arguments; currently not in use except for
+	\code{tssemRobust1}, which to be passed to \code{\link[metafor]{robust}}.}
 }
 
 \value{A variance-covariance matrix of the parameter estimates.

@@ -7,15 +7,17 @@ tssemRobust1 <- function(cluster=NULL, RE.type=c("Diag", "Symm", "Zero"),
     RE.type <- match.arg(RE.type, c("Diag", "Symm", "Zero"))
     method <- match.arg(method, c("ML", "REML"))
     
-    ## Effect sizes
-    y_wide  <- cbind(data$data[, data$ylabels, drop=FALSE], cluster=cluster)
+    ## Effect sizes and cluster
+    y_wide  <- data$data[, c(data$ylabels, cluster), drop=FALSE]
     
     y_long <- reshape(y_wide, direction = "long", varying=data$ylabels, v.names="y",
                       timevar="r", times=data$ylabels)
 
+    ## Reorder it to group effect sizes according to study id
     ## FIXME: is it safe?
     y_long <- y_long[order(y_long$id), ]
 
+    ## A more sophisticated way to ensure the order?
     ## index <- c(t(outer(seq_len(nrow(data$data)), data$ylabels,
     ##                    function(x,y) paste(x, y, sep="."))))
     
@@ -34,6 +36,7 @@ tssemRobust1 <- function(cluster=NULL, RE.type=c("Diag", "Symm", "Zero"),
            Symm = struct <- "UN",
            Zero = struct <- "ID")
 
+    ## Normal multivariate meta-analysis
     fit <- eval(parse(text="metafor::rma.mv(y, V_long, mods = ~ r-1, random = ~ r | id,
                            struct=struct, method=method, sparse=TRUE, data=y_long, ...)"))
 
@@ -56,7 +59,10 @@ coef.tssemRobust1 <- function(object, ...) {
 vcov.tssemRobust1 <- function(object, ...) {
     if (!is.element("tssemRobust1", class(object)))
         stop("\"object\" must be an object of class \"tssemRobust1\".")
-    vc <- eval(parse(text="metafor::robust(object$rma.fit, cluster=id, ...)"))
+  
+    ## Robust SE with cluster
+    vc <- eval(parse(text=paste0("metafor::robust(object$rma.fit, cluster=",
+                                 object$cluster, ", ...)")))
     out <- vc$vb
 
     ## Arrange the output according to the order of ylabels
@@ -67,7 +73,8 @@ vcov.tssemRobust1 <- function(object, ...) {
 }
 
 summary.tssemRobust1 <- function(object, ...) {
-    eval(parse(text="metafor::robust(object$rma.fit, cluster=id, ...)"))
+    eval(parse(text=paste0("metafor::robust(object$rma.fit, cluster=",
+                           object$cluster, ", ...)")))
 }
 
 tssemRobust2 <- function(tssem1.obj, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
