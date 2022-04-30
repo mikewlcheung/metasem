@@ -954,9 +954,22 @@ coef.reml <- function(object, ...) {
 }
 
 anova.meta <- function(object, ..., all=FALSE) {
-  base <- lapply(list(object), function(x) x$mx.fit)
-  comparison <- lapply(list(...), function(x) x$mx.fit)
-  mxCompare(base=base, comparison=comparison, all=all)
+    ## Check if the numbers of studies are identical.
+    ## meta3 object
+    if (is.element("meta3", class(object))) {
+        n <- lapply(list(object, ...), function(x) summary(x$mx.fit)$observedStatistics)
+    } else {
+        ## meta object
+        n <- lapply(list(object, ...), function(x) summary(x$mx.fit)$numObs)
+    }
+  
+    if (length(unique(unlist(n))) != 1) {
+        warning("The numbers of studies appear to be different in these models. The comparisons are likely invalid.\n")
+    }
+    
+    base <- lapply(list(object), function(x) x$mx.fit)
+    comparison <- lapply(list(...), function(x) x$mx.fit)
+    mxCompare(base=base, comparison=comparison, all=all)
 }
 
 anova.wls <- function(object, ..., all=FALSE) {
