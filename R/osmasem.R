@@ -571,13 +571,17 @@ vcov.osmasem <- function(object, select=c("fixed", "all", "random"),
 
     ## index for untransformed random effects (not the correct ones!) 
     index.random <- grep("Tau1_|Cor_", my.name) 
-    
+
+    ## Fix a bug reported by Zhiming Lu with index.random=integer(0) when there is no random effects with RE.type="Zero"
     select <- match.arg(select)
-    switch( select,
-         ## all = my.name <- my.name,
-         fixed =  my.name <- my.name[-index.random],
-         random = my.name <- my.name[index.random]
-         )
+    
+    if (length(index.random) != 0) {             
+        switch( select,
+               ## all = my.name <- my.name,
+               fixed =  my.name <- my.name[-index.random],
+               random = my.name <- my.name[index.random]
+               )
+    }
 
     if (robust) {
         out <- suppressMessages(imxRobustSE(object$mx.fit, details=TRUE))$cov

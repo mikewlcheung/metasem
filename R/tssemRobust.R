@@ -10,7 +10,7 @@ tssemRobust1 <- function(cluster=NULL, RE.type=c("Diag", "Symm", "Zero"),
     ## Effect sizes and cluster
     y_wide  <- data$data[, c(data$ylabels, cluster), drop=FALSE]
     
-    y_long <- reshape(y_wide, direction = "long", varying=data$ylabels, v.names="y",
+    y_long <- reshape(y_wide, direction="long", varying=data$ylabels, v.names="y",
                       timevar="r", times=data$ylabels)
 
     ## Reorder it to group effect sizes according to study id
