@@ -240,4 +240,11 @@ meta3 <- function(y, v, cluster, x, data, intercept.constraints=NULL, coef.const
                   model.name="Meta analysis with ML",
                   suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) { 
     .Deprecated("meta3L")
+    meta3L(y=y, v=v, cluster=cluster, x=x, data=data,
+           intercept.constraints=intercept.constraints, coef.constraints=coef.constraints,
+           RE2.constraints=RE2.constraints, RE2.lbound=RE2.lbound,
+           RE3.constraints=RE3.constraints, RE3.lbound=RE3.lbound,
+           intervals.type=intervals.type, I2=I2, R2=R2,
+           model.name=model.name, suppressWarnings=suppressWarnings,
+           silent=silent, run=run, ...)
 }

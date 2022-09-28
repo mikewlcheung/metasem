@@ -596,7 +596,9 @@ VarCorr <- function(x, ...) {
     if (all(!is.element(c("meta", "osmasem", "osmasem3L"), class(x))))
         stop("\"x\" must be an object of either class \"meta\", \"osmasem\" or \"osmasem3L\".")
 
-    switch(class(x)[1],
+    ## switch(class(x)[1],
+    ## Assuming only one class in x
+    switch(class(rand1)[class(rand1) %in% c("meta", "osmasem", "osmasem3L")],
            meta = out <- eval(parse(text="mxEval(Tau, x$mx.fit)")),
            osmasem = {
                out <- eval(parse(text="mxEval(Tau2, x$mx.fit)"))
