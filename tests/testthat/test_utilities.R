@@ -768,3 +768,10 @@ test_that("Testing new asyCov() correctly", {
     ## expect_equal(new, old, tolerance=tolerance)   
     
 })
+
+context("Checking meta function")
+test_that("meta() observed statistics is correct", {
+
+    fit <- summary(meta(r, r_v, data=Jaramillo05))
+    expect_equal(fit$obsStat, 61)
+})

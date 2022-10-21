@@ -59,6 +59,10 @@ meta <- function(y, v, x, data, intercept.constraints=NULL, coef.constraints=NUL
   ## Missing y is automatically handled by OpenMx
   my.df <- input.df[!miss.x, ]
 
+  ## Fix a bug reported by Noel Card that the number of statistics are incorrect and with negative dfs.
+  ## It is due to my.df is a matrix, whereas OpenMx expects a data frame. ???
+  my.df <- as.data.frame(my.df)
+  
   ## Preparing the Beta1 matrix for the intercept vector
   ## Inter is a 1 by no.y row vector
   if (is.null(intercept.constraints)) {
@@ -89,7 +93,7 @@ meta <- function(y, v, x, data, intercept.constraints=NULL, coef.constraints=NUL
       xVar <- paste("x", seq(1,no.x), sep="", collapse="+")
       # Use lm() coefficients as starting values
       startValues <- tryCatch( eval(parse(text=paste("t(coefficients(lm(cbind(",
-                                                     yVar, ")~", xVar,", data=data.frame(my.df))))", sep=""))),
+                                                     yVar, ")~", xVar,", data=my.df)))", sep=""))),
                                error = function(e) e )
       # If error, replace it with 0. Added a column of intercepts
       # Fixed a minor bug that no starting value on the last predictor

@@ -65,7 +65,7 @@ asyCovOld <- function(x, n, cor.analysis=TRUE, dropNA=FALSE, as.matrix=TRUE,
           out <- t(sapply(out.list, function(x) {(vech(x))}))
           
           ## http://stackoverflow.com/questions/17772916/using-correlation-matrices-for-meta-analytic-sem
-          # Fixed a BUG when 2x2 matrices of correlation
+          # Fixed a bug when 2x2 matrices of correlation
           # The output are incorrectly arranged in a row rather than in a column.
           if (dim(out)[1]==1) out <- t(out)
           ## A list(NULL, psCovNames) is required
