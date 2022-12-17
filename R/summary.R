@@ -382,7 +382,7 @@ print.tssem1REM <- function(x, ...) {
 summary.tssem1REM <- function(object, robust=FALSE, ...) {
   if (!is.element("tssem1REM", class(object)))
     stop("\"object\" must be an object of class \"tssem1REM\".")
-  summary.meta(object, robust=robust)
+  summary.meta(object, robust=robust, ...)
 }
    
 print.wls <- function(x, ...) {
