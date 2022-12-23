@@ -1,4 +1,4 @@
-reml3 <- function(y, v, cluster, x, data, RE2.startvalue=0.1, RE2.lbound=1e-10,
+reml3L <- function(y, v, cluster, x, data, RE2.startvalue=0.1, RE2.lbound=1e-10,
                   RE3.startvalue=RE2.startvalue, RE3.lbound=RE2.lbound, RE.equal=FALSE,
                   intervals.type=c("z", "LB"), model.name="Variance component with REML",
                   suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
@@ -134,7 +134,7 @@ reml3 <- function(y, v, cluster, x, data, RE2.startvalue=0.1, RE2.lbound=1e-10,
   ##   ##                  mxCI(c("inter","coeff","Tau2","Tau3")))
 
   ##   ## Calculate R2
-  ##   if (R2) reml0.fit <- tryCatch( reml3(y=y, v=v, cluster=cluster, data=my.long, model.name="No predictor",
+  ##   if (R2) reml0.fit <- tryCatch( reml3L(y=y, v=v, cluster=cluster, data=my.long, model.name="No predictor",
   ##                                  suppressWarnings=TRUE, silent=TRUE), error = function(e) e )    
   ## }
 
@@ -161,6 +161,18 @@ reml3 <- function(y, v, cluster, x, data, RE2.startvalue=0.1, RE2.lbound=1e-10,
   ## mx.fit@runstate$objectives[[1]]@numStats <- numStats
   
   out <- list(call = mf, data=data, mx.model=reml.model, mx.fit=mx.fit, intervals.type=intervals.type, numObs=no.studies, numStats=numStats)
-  class(out) <- c("reml", "reml3")
+  class(out) <- c("reml", "reml3L")
   return(out)
+}
+
+reml3 <- function(y, v, cluster, x, data, RE2.startvalue=0.1, RE2.lbound=1e-10,
+                  RE3.startvalue=RE2.startvalue, RE3.lbound=RE2.lbound, RE.equal=FALSE,
+                  intervals.type=c("z", "LB"), model.name="Variance component with REML",
+                  suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
+
+    .Deprecated("reml3L")
+    reml3L(y=y, v=v, cluster=cluster, x=x, data=data, RE2.startvalue=RE2.startvalue,
+           RE2.lbound=RE2.lbound, RE3.startvalue=RE3.startvalue, RE3.lbound=RE3.lbound,
+           RE.equal=RE.equal, intervals.type=intervals.type, model.name=model.name,
+           suppressWarnings=suppressWarnings, silent=silent, run=run, ...)
 }

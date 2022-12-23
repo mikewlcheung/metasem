@@ -1,4 +1,4 @@
-meta3LX <- function(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=NULL,
+meta3LFIML <- function(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=NULL,
                    coef.constraints=NULL, RE2.constraints=NULL, RE2.lbound=1e-10,
                    RE3.constraints=NULL, RE3.lbound=1e-10, intervals.type=c("z", "LB"), R2=TRUE,
                    model.name="Meta analysis with ML", suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
@@ -443,7 +443,7 @@ meta3LX <- function(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints
   
   ## Calculate R2
   if (R2) {
-    mx0text <- "tryCatch( meta3LX(y=y, v=v, cluster=cluster,"
+    mx0text <- "tryCatch( meta3LFIML(y=y, v=v, cluster=cluster,"
     if (no.x2!=0)
         mx0text <- paste(mx0text, " x2=my.long[, x2.labels],", sep="")
     if (no.x3!=0)
@@ -494,7 +494,7 @@ meta3LX <- function(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints
               no.y=1, no.x2=no.x2, no.x3=no.x3, no.av2=no.av2, no.av3=no.av3,
               miss.x=rep(FALSE, nrow(my.long)), mx.model=mx.model,
               mx.fit=mx.fit, mx0.fit=mx0.fit, intervals.type=intervals.type)
-  class(out) <- "meta3LX"
+  class(out) <- "meta3LFIML"
   out
 }
 
@@ -502,5 +502,10 @@ meta3X <- function(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=
                    coef.constraints=NULL, RE2.constraints=NULL, RE2.lbound=1e-10,
                    RE3.constraints=NULL, RE3.lbound=1e-10, intervals.type=c("z", "LB"), R2=TRUE,
                    model.name="Meta analysis with ML", suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
-    .Deprecated("meta3LX")
+    .Deprecated("meta3LFIML")
+    meta3LFIML(y=y, v=v, cluster=cluster, x2=x2, x3=x3, av2=av2, av3=av3, data=data,
+               intercept.constraints=intercept.constraints, coef.constraints=coef.constraints,
+               RE2.constraints=RE2.constraints, RE2.lbound=RE2.lbound, RE3.constraints=RE3.constraints,
+               RE3.lbound=RE3.lbound, intervals.type=intervals.type, R2=R2, model.name=model.name,
+               suppressWarnings=suppressWarnings, silent=silent, run=run, ...)
 }

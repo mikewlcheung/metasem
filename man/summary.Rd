@@ -5,7 +5,7 @@
 \alias{summary.wls}
 \alias{summary.wls.cluster}
 \alias{summary.meta}
-\alias{summary.meta3LX}
+\alias{summary.meta3LFIML}
 \alias{summary.reml}
 \alias{summary.CorPop}
 \alias{summary.Cor3L}
@@ -17,12 +17,12 @@
 \alias{print.summary.tssem1FEM.cluster}
 \alias{print.summary.wls}
 \alias{print.summary.meta}
-\alias{print.summary.meta3LX}
+\alias{print.summary.meta3LFIML}
 \alias{print.summary.reml}
 \alias{print.summary.CorPop}
 \alias{print.summary.Cor3L}
 \alias{print.summary.bootuniR2}
-\title{Summary Method for tssem1, wls, meta, and meta3LX Objects
+\title{Summary Method for tssem1, wls, meta, and meta3LFIML Objects
 }
 \description{It summaries results for various class.
 }
@@ -33,7 +33,7 @@
 \method{summary}{wls}(object, df.adjustment=0, \dots)
 \method{summary}{wls.cluster}(object, df.adjustment=0, \dots)
 \method{summary}{meta}(object, homoStat=TRUE, robust=FALSE, \dots)
-\method{summary}{meta3LX}(object, allX=FALSE, robust=FALSE, \dots)
+\method{summary}{meta3LFIML}(object, allX=FALSE, robust=FALSE, \dots)
 \method{summary}{reml}(object, \dots)
 \method{summary}{CorPop}(object, \dots)
 \method{summary}{Cor3L}(object, \dots)
@@ -46,7 +46,7 @@
 \method{print.summary}{tssem1FEM}(x, \dots)
 \method{print.summary}{wls}(x, \dots)
 \method{print.summary}{meta}(x, \dots)
-\method{print.summary}{meta3LX}(x, \dots)
+\method{print.summary}{meta3LFIML}(x, \dots)
 \method{print.summary}{reml}(x, \dots)
 \method{print.summary}{CorPop}(x, \dots)
 \method{print.summary}{Cor3L}(x, \dots)
@@ -56,11 +56,11 @@
   \item{object}{An object returned from either class
 	\code{tssem1FEM}, class \code{tssem1FEM.cluster},
 	class \code{tssem1REM}, class \code{wls}, class \code{wls.cluster},
-	class \code{meta}, class \code{meta3LX}, class \code{reml} or class \code{CorPop}.
+	class \code{meta}, class \code{meta3LFIML}, class \code{reml} or class \code{CorPop}.
 }
   \item{x}{An object returned from either class \code{summary.tssem1FEM},
 	class \code{tssem1FEM.cluster}, class \code{summary.wls}, class
-	\code{summary.meta}, class \code{summary.meta3LX}, class
+	\code{summary.meta}, class \code{summary.meta3LFIML}, class
 	\code{summary.reml} or class \code{summary.CorPop}.
 }
   \item{homoStat}{Logical. Whether to conduct a homogeneity test on the

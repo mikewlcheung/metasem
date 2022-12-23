@@ -1,5 +1,6 @@
-\name{reml3}
+\name{reml3L}
 \alias{reml3}
+\alias{reml3L}
 \title{Estimate Variance Components in Three-Level Univariate
   Meta-Analysis with Restricted (Residual) Maximum
   Likelihood Estimation
@@ -9,7 +10,12 @@ It estimates the variance components of random-effects in three-level
 univariate meta-analysis with restricted (residual) maximum likelihood (REML) estimation method.
 }
 \usage{
+## Depreciated in the future
 reml3(y, v, cluster, x, data, RE2.startvalue=0.1, RE2.lbound=1e-10,
+      RE3.startvalue=RE2.startvalue, RE3.lbound=RE2.lbound, RE.equal=FALSE,
+      intervals.type=c("z", "LB"), model.name="Variance component with REML",
+      suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...)
+reml3L(y, v, cluster, x, data, RE2.startvalue=0.1, RE2.lbound=1e-10,
       RE3.startvalue=RE2.startvalue, RE3.lbound=RE2.lbound, RE.equal=FALSE,
       intervals.type=c("z", "LB"), model.name="Variance component with REML",
       suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) 

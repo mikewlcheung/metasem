@@ -5,7 +5,7 @@
 \alias{coef.wls}
 \alias{coef.wls.cluster}
 \alias{coef.meta}
-\alias{coef.meta3LX}
+\alias{coef.meta3LFIML}
 \alias{coef.reml}
 \alias{coef.MxRAMModel}
 \alias{coef.osmasem}
@@ -24,7 +24,7 @@
 \method{coef}{wls}(object, \dots)
 \method{coef}{wls.cluster}(object, \dots)
 \method{coef}{meta}(object, select = c("all", "fixed", "random"), \dots)
-\method{coef}{meta3LX}(object, select = c("all", "fixed", "random", "allX"), \dots)
+\method{coef}{meta3LFIML}(object, select = c("all", "fixed", "random", "allX"), \dots)
 \method{coef}{reml}(object, \dots)
 \method{coef}{MxRAMModel}(object, \dots)
 \method{coef}{osmasem}(object, select=c("fixed", "all", "random"), \dots)
@@ -40,7 +40,7 @@
   }
   \item{select}{Select \code{all} for both fixed- and random-effects parameters, \code{fixed} for the
   fixed-effects parameters or \code{random} for the random-effects
-  parameters. For \code{meta3LX} objects, \code{allX} is used to extract
+  parameters. For \code{meta3LFIML} objects, \code{allX} is used to extract
   all parameters including the predictors and auxiliary variables.  
 }  
   \item{\dots}{Further arguments; currently none is used}

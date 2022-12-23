@@ -52,14 +52,14 @@ anova(model1, model2)
 
 #### REML estimation method
 ## No predictor
-summary( reml3(y=y, v=v, cluster=District, data=Cooper03) )
+summary( reml3L(y=y, v=v, cluster=District, data=Cooper03) )
 
 ## Level-2 and level-3 variances are constrained equally 
-summary( reml3(y=y, v=v, cluster=District, data=Cooper03,
+summary( reml3L(y=y, v=v, cluster=District, data=Cooper03,
                RE.equal=TRUE, model.name="Equal Tau2") )
 
 ## Year as a predictor
-summary( reml3(y=y, v=v, cluster=District, x=scale(Year, scale=FALSE),
+summary( reml3L(y=y, v=v, cluster=District, x=scale(Year, scale=FALSE),
                data=Cooper03, intervals.type="LB") )
 
 ## Handling missing covariates with FIML
@@ -67,8 +67,8 @@ summary( reml3(y=y, v=v, cluster=District, x=scale(Year, scale=FALSE),
 set.seed(10000)
 Year_MCAR <- Cooper03$Year
 Year_MCAR[sample(56, 20)] <- NA
-summary( meta3LX(y=y, v=v, cluster=District, x2=scale(Year_MCAR, scale=FALSE),
-                data=Cooper03, model.name="NA in Year_MCAR") )
+summary( meta3LFIML(y=y, v=v, cluster=District, x2=scale(Year_MCAR, scale=FALSE),
+                    data=Cooper03, model.name="NA in Year_MCAR") )
 }
 }
 \keyword{datasets}

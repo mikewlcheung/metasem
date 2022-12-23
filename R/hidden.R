@@ -118,7 +118,7 @@
 .R2 <- function(object) {
   no.y <- object$no.y
     ## meta3L or meta3LML class
-  if ( any(c("meta3L","meta3LX") %in% class(object)) ) {
+  if ( any(c("meta3L","meta3LFIML") %in% class(object)) ) {
     ## Tau2 with predictors
     Tau2_2model <- tryCatch( eval(parse(text="mxEval(Tau2_2, object$mx.fit)")), error = function(e) NA )
     Tau2_3model <- tryCatch( eval(parse(text="mxEval(Tau2_3, object$mx.fit)")), error = function(e) NA )

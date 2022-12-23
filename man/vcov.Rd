@@ -5,7 +5,7 @@
 \alias{vcov.wls}
 \alias{vcov.wls.cluster}
 \alias{vcov.meta}
-\alias{vcov.meta3LX}
+\alias{vcov.meta3LFIML}
 \alias{vcov.reml}
 \alias{vcov.MxRAMModel}
 \alias{vcov.osmasem}
@@ -24,7 +24,7 @@
 \method{vcov}{wls}(object, \dots)
 \method{vcov}{wls.cluster}(object, \dots)
 \method{vcov}{meta}(object, select = c("all", "fixed", "random"), robust=FALSE, \dots)
-\method{vcov}{meta3LX}(object, select = c("all", "fixed", "random","allX"), robust=FALSE, \dots)
+\method{vcov}{meta3LFIML}(object, select = c("all", "fixed", "random","allX"), robust=FALSE, \dots)
 \method{vcov}{reml}(object, \dots)
 \method{vcov}{MxRAMModel}(object, \dots)
 \method{vcov}{osmasem}(object, select=c("fixed", "all", "random"), robust=FALSE, \dots)
@@ -37,7 +37,7 @@
   }
   \item{select}{Select \code{all} for both fixed- and random-effects parameters, \code{fixed} for the
   fixed-effects parameters or \code{random} for the random-effects
-  parameters. For \code{meta3LX} objects, \code{allX} is used to extract
+  parameters. For \code{meta3LFIML} objects, \code{allX} is used to extract
   all parameters including the predictors and auxiliary variables.  
 }
   \item{robust}{Logicial. Whether to use robust standard error from \code{\link[OpenMx]{imxRobustSE}}.

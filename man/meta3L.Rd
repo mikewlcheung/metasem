@@ -2,7 +2,7 @@
 \alias{meta3}
 \alias{meta3X}
 \alias{meta3L}
-\alias{meta3LX}
+\alias{meta3LFIML}
 \title{Three-Level Univariate Meta-Analysis with Maximum Likelihood Estimation
 }
 \description{
@@ -33,7 +33,7 @@ meta3L(y, v, cluster, x, data, intercept.constraints = NULL,
       intervals.type = c("z", "LB"), I2="I2q",
       R2=TRUE, model.name = "Meta analysis with ML",
       suppressWarnings = TRUE, silent = TRUE, run = TRUE, ...)
-meta3LX(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=NULL,
+meta3LFIML(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=NULL,
        coef.constraints=NULL, RE2.constraints=NULL, RE2.lbound=1e-10,
        RE3.constraints=NULL, RE3.lbound=1e-10, intervals.type=c("z", "LB"),
        R2=TRUE, model.name="Meta analysis with ML",
@@ -136,12 +136,12 @@ meta3LX(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=NULL,
  \code{meta3L()} does not differentiate between level-2 or level-3
  variables in \code{x} since both variables are treated as a design
  matrix. When there are missing values in \code{x}, the data will be
- deleted. \code{meta3LX()} treats the predictors \code{x2} and \code{x3}
+ deleted. \code{meta3LFIML()} treats the predictors \code{x2} and \code{x3}
  as level-2 and level-3 variables. Thus, their means and covariance
  matrix will be estimated. Missing values in \code{x2} and \code{x3}
- will be handled by (full information) maximum likelihood (FIML) in \code{meta3LX()}. Moreover,
+ will be handled by (full information) maximum likelihood (FIML) in \code{meta3LFIML()}. Moreover,
  auxiliary variables \code{av2} at level-2 and \code{av3} at level-3 may
- be included to improve the estimation. Although \code{meta3LX()} is more
+ be included to improve the estimation. Although \code{meta3LFIML()} is more
  flexible in handling missing covariates, it is more likely to encounter
  estimation problems. 	
 }
@@ -149,8 +149,7 @@ meta3LX(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=NULL,
 \references{
   Cheung, M. W.-L. (2014). Modeling dependent effect sizes with three-level meta-analyses: A structural equation modeling approach. \emph{Psychological Methods}, \bold{19}, 211-229.
 
-  Enders, C. K. (2010). \emph{Applied missing data analysis}. New York:
-  Guilford Press.
+  Enders, C. K. (2010). \emph{Applied missing data analysis}. New York: Guilford Press.
 
   Graham, J. (2003). Adding missing-data-relevant variables to
  FIML-based structural equation models. \emph{Structural Equation
@@ -166,7 +165,7 @@ meta3LX(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=NULL,
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
 
-\seealso{\code{\link[metaSEM]{reml3}}, \code{\link[metaSEM]{Cooper03}}, \code{\link[metaSEM]{Bornmann07}}
+\seealso{\code{\link[metaSEM]{reml3L}}, \code{\link[metaSEM]{Cooper03}}, \code{\link[metaSEM]{Bornmann07}}
 }
 
 % Add one or more standard keywords, see file 'KEYWORDS' in the

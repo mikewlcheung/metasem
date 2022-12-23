@@ -51,17 +51,17 @@ summary( meta3L(y=logOR, v=v, x=scale(Year, scale=FALSE),
 
 #### REML estimation method
 ## No predictor
-summary( reml3(y=logOR, v=v, cluster=Cluster, data=Bornmann07) )
+summary( reml3L(y=logOR, v=v, cluster=Cluster, data=Bornmann07) )
 
 ## Type as a predictor
 ## Grants: 0
 ## Fellowship: 1
-summary( reml3(y=logOR, v=v, x=(as.numeric(Type)-1),
-               cluster=Cluster, data=Bornmann07) )
+summary( reml3L(y=logOR, v=v, x=(as.numeric(Type)-1),
+                cluster=Cluster, data=Bornmann07) )
 
 ## Centered Year as a predictor
-summary( reml3(y=logOR, v=v, x=scale(Year, scale=FALSE),
-               cluster=Cluster, data=Bornmann07) )
+summary( reml3L(y=logOR, v=v, x=scale(Year, scale=FALSE),
+                cluster=Cluster, data=Bornmann07) )
 
 ## Handling missing covariates with FIML
 ## MCAR
@@ -75,7 +75,7 @@ my.df$Type_MCAR <- ifelse(Bornmann07$Type=="Fellowship", yes=1, no=0)
 
 ## Create 17 out of 66 missingness with MCAR
 my.df$Type_MCAR[sample(1:66, 17)] <- NA
-summary(meta3LX(y=logOR, v=v, cluster=Cluster, x2=Type_MCAR, data=my.df))
+summary(meta3LFIML(y=logOR, v=v, cluster=Cluster, x2=Type_MCAR, data=my.df))
 
 ## MAR
 Type_MAR <- ifelse(Bornmann07$Type=="Fellowship", yes=1, no=0)
@@ -85,7 +85,7 @@ index_MAR <- ifelse(Bornmann07$Year<1996, yes=TRUE, no=FALSE)
 Type_MAR[index_MAR] <- NA
 
 ## Include auxiliary variable
-summary(meta3LX(y=logOR, v=v, cluster=Cluster, x2=Type_MAR, av2=Year, data=my.df))
+summary(meta3LFIML(y=logOR, v=v, cluster=Cluster, x2=Type_MAR, av2=Year, data=my.df))
 }
 }
 \keyword{datasets}

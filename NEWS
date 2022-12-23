@@ -1,12 +1,11 @@
-Release 1.2.6.1 (Oct 21, 2022)
+Release 1.2.6.2 (Dec 23, 2022)
 ====================================
 * Fix a bug reported by Noel Card that meta() reported incorrect number of statistics and dfs.
 * Rewrite asyCov() and rename the old one to asyCovOld().
 * Add rCor3L() and its summary method.
 * Add subset.variables argument in tssem2() and wls().
-* Rename meta3() to meta3L() and meta3X() and meta3LX().
-* Add TSSEM3L and TSSEMRobust and their associated functions.
-* Add OSMASEM3L and the associated functions.
+* Rename meta3() to meta3L() and meta3X() and meta3LFIML().
+* Add OSMASEM3L, TSSEM3L, and TSSEMRobust and their associated functions.
 * Fix a critical bug in create.Tau2() that uses variances as SDs.
 * Add a new argument 'level' in create.Tau2().
 * Add a mxModel.Args in wls().
