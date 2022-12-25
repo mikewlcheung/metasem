@@ -287,3 +287,22 @@
     
     acov    
 }
+
+## Generate names for OSMASEM
+## x: a vector of observed variables
+## output: a vector of correlation coefficients and sampling covariance matrix
+## This function is used to select data in data created by Cor2DataFrame()
+.genCorNames <- function(x, cor.analysis=TRUE) {
+    ## Names for the correlation elements
+    if (cor.analysis) {
+        psNames <- vechs(outer(x, x, paste, sep = "_"))
+    } else {
+        psNames <- vech(outer(x, x, paste, sep = "_"))
+    }
+    
+    ## Names for the sampling covariance matrix of the correlation vector
+    psCovNames <- paste("C(", outer(psNames, psNames, paste, sep = " "), ")", sep="")
+    psCovNames <- vech(matrix(psCovNames, nrow=length(psNames), ncol=length(psNames)))
+
+    list(ylabels=psNames, vlabels=psCovNames)
+}

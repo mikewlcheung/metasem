@@ -442,7 +442,7 @@ osmasem <- function(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
         if (any(index)) {
             stop(paste0(paste0(subset.variables[index], collapse = ", "), " are not in the ylabels.\n"))
         }
-        temp <- .genCorNames(subset.variables)
+        temp <- .genCorNames(subset.variables, cor.analysis=TRUE)
         obslabels <- subset.variables
         ylabels <- temp$ylabels
         vlabels <- temp$vlabels        
@@ -870,21 +870,6 @@ osmasemSRMR <- function(x) {
     ## SRMR (Cheung, 2015 book, Eq. 2.36)
     sqrt(mean(vechs(sampleR-impliedR)^2))
 }
-
-## Generate names for OSMASEM
-## x: a vector of observed variables
-## output: a vector of correlation coefficients and sampling covariance matrix
-## This function is used to select data in data created by Cor2DataFrame()
-.genCorNames <- function(x) {
-  ## Names for the correlation elements
-  psNames <- vechs(outer(x, x, paste, sep = "_"))
-  
-  ## Names for the sampling covariance matrix of the correlation vector
-  psCovNames <- paste("C(", outer(psNames, psNames, paste, sep = " "), ")", sep="")
-  psCovNames <- vech(matrix(psCovNames, nrow=length(psNames), ncol=length(psNames)))
-
-  list(ylabels=psNames, vlabels=psCovNames)
-}  
 
 ## RAMmodelV <- function(Amatrix, Smatrix, Fmatrix, Mmatrix, Vmatrix,
 ##                       data, obs.var, ...) {

@@ -105,10 +105,11 @@ tssemRobust2(tssem1.obj, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
 	"TSSEM2 (or WLS) Analysis of Correlation Structure" for \code{cor.analysis=TRUE} and
 	"TSSEM2 (or WLS) Analysis of Covariance Structure" for \code{cor.analysis=FALSE}.
   }
-\item{subset.variables}{An optional Boolean vector of \code{TRUE} or \code{FALSE}
-  to select variables in the analysis. For example, there are 10
-  variables in the stage 1 analysis, whereas you only want to select 8
-  variables in the stage 2 analysis.}  
+\item{subset.variables}{An optional character vector of variable names to select variables in the analysis. For example, there are 10
+  variables in \code{Cov}, say, x1 to x10. We may use
+  \code{c("x1", "x2", "x3")} to select three variables in the analysis. Please note that this argument does not reorder the
+  data. That is, \code{c("x3", "x2", "x1")} is the same as
+	\code{c("x1", "x2", "x3")}.}  
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
 	suppressed. The argument to be passed to \code{\link[OpenMx]{mxRun}}.}
   \item{silent}{Logical. An argument to be passed to \code{\link[OpenMx]{mxRun}}}
@@ -200,6 +201,15 @@ wls.fit1b <- wls(Cov=R1, aCov=acovR1, n=n, Fmatrix=F1, Smatrix=S1, Amatrix=A1,
                  cor.analysis=TRUE, intervals="LB")
 summary(wls.fit1b)
 
+## Select 3 variables to analyze
+model2 <- "f =~ a1 + a2 + a3"
+
+RAM2 <- lavaan2RAM(model2, obs.variables=R1.labels[-4])
+
+wls.fit1c <- wls(Cov=R1, aCov=acovR1, n=n, RAM=RAM2,
+                 cor.analysis=TRUE, subset.variables=c("a1", "a2", "a3"))
+summary(wls.fit1c)
+
 #### Multiple regression analysis using lavaan specification
 R2.labels <- c("y", "x1", "x2")
 
@@ -209,17 +219,17 @@ R2 <- matrix(c(1.00, 0.22, 0.24,
                dimnames=list(R2.labels, R2.labels))
 acovR2 <- asyCov(R2, n)
 
-model2 <- "y ~ x1 + x2
+model3 <- "y ~ x1 + x2
            ## Variances of x1 and x2 are 1
            x1 ~~ 1*x1
            x2 ~~ 1*x2
            ## x1 and x2 are correlated
            x1 ~~ x2"
 
-RAM2 <- lavaan2RAM(model2, obs.variables=R2.labels)
+RAM3 <- lavaan2RAM(model3, obs.variables=R2.labels)
 
-wls.fit2a <- wls(Cov=R2, aCov=acovR2, n=n, RAM=RAM2,
-                 cor.analysis=TRUE, intervals="LB")
+wls.fit2a <- wls(Cov=R2, aCov=acovR2, n=n, RAM=RAM3,
+                 cor.analysis=TRUE, intervals="z")
 summary(wls.fit2a)
 
 

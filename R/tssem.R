@@ -13,7 +13,7 @@ tssem1FEM <- function(Cov, n, cor.analysis=TRUE, model.name=NULL,
           y
       }
       if (is.list(x)) lapply(x, add_NA) else add_NA(x)
-  }  
+  }
   ## Mark the diagonals as NA when all correlation coefficients are NA
   Cov <- addDiagNA(Cov)
 
@@ -24,13 +24,13 @@ tssem1FEM <- function(Cov, n, cor.analysis=TRUE, model.name=NULL,
   } else {
       Cov <- (Cov+t(Cov))/2
   }
-        
-  ## Split the data by cluster  
+
+  ## Split the data by cluster
   if (!is.null(cluster)) {
     data.cluster <- tapply(Cov, cluster, function(x) {x})
     n.cluster <- tapply(n, cluster, function(x) {x})
     out <- list()
-    for (i in 1:length(data.cluster)) {
+    for (i in seq_along(data.cluster)) {
       ## Need to correct it to tssem1()
       out[[i]] <- tssem1FEM(data.cluster[[i]], n.cluster[[i]],
                            cor.analysis=cor.analysis, model.name=model.name,
@@ -272,15 +272,17 @@ wls <- function(Cov, aCov, n, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL
                 model.name=NULL, suppressWarnings=TRUE, 
                 silent=TRUE, run=TRUE, ...) {
 
+    ## Filter out variables not used in the analysis
     if (!is.null(subset.variables)) {
-        if (ncol(Cov) != length(subset.variables)) {
-            stop("The length of 'subset.variables' is different from the dimensions of 'Cov'.\n")
+        obslabels <- rownames(Cov)
+        index  <- !(subset.variables %in% obslabels)
+        if (any(index)) {
+            stop(paste0(paste0(subset.variables[index], collapse = ", "), " are not in the \"Cov\".\n"))
         }
-        
+        index <- (obslabels %in% subset.variables)
         ## A square matrix of dimensions subset.variables
-        index.mat <- matrix(TRUE, nrow=length(subset.variables), ncol=length(subset.variables))
-
-        index.mat[!subset.variables, ] <- index.mat[, !subset.variables] <- FALSE
+        index.mat <- matrix(TRUE, nrow=length(index), ncol=length(index))
+        index.mat[!index, ] <- index.mat[, !index] <- FALSE
 
         if (cor.analysis) {
             subset.acov <- vechs(index.mat)
@@ -606,9 +608,12 @@ tssem2 <- function(tssem1.obj, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NUL
          tssem1REM = { cor.analysis <- tssem1.obj$cor.analysis
                       ## Extract the pooled correlation matrix
                       pooledS <- vec2symMat( coef(tssem1.obj, select="fixed"), diag=!cor.analysis)
-                      ## Extract the asymptotic covariance matrix of the pooled correlations
+                      dimnames(pooledS) <- list(tssem1.obj$original.names, tssem1.obj$original.names) 
+                      ## Extract the asymptotic covariance matrix of the pooled correlations                      
                       aCov <- vcov(tssem1.obj, select="fixed")
-
+                      aCov.names <- .genCorNames(x=tssem1.obj$original.names, cor.analysis=cor.analysis)
+                      dimnames(aCov) <- list(aCov.names$ylabels, aCov.names$ylabels)
+      
                       if (cor.analysis==TRUE) {
                         if (is.null(model.name)) model.name <- "TSSEM2 Correlation"
                       } else {
