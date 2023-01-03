@@ -130,35 +130,39 @@ print.impliedR <- function(x, ...) {
     cat("\nCorrelation matrix:", x$corr)
     cat("\nSigma of the observed variables is positive definite:", is.pd(x$SigmaObs))
     cat("\nSigma of both the observed and latent variables is positive definite:", is.pd(x$SigmaAll))
-    cat("\nMinimum value of the fit function (it should be close to 0 for correlation solution: ", x$minFit)
-    cat("\nStatus code of the optimization (it should be 0 for correlation solution: ", x$status, "\n")
+    if (x$corr) {
+        cat("\nMinimum value of the fit function (it should be close to 0 for correlation analysis): ", x$minFit)
+        cat("\nStatus code of the optimization (it should be 0 for correlation analysis): ", x$status, "\n")
+    }
 }
 
 ## Generate model implied matrices from random parameters
-## It only allows random paths in the Amatrix
-rimpliedR <- function(RAM, Amatrix, Smatrix, Fmatrix, AmatrixSD, k=1, corr=TRUE,
-                      nonPD.pop=c("replace", "nearPD", "accept")) {
+## Random effects are independent.
+rimpliedR <- function(RAM, Amatrix, Smatrix, Fmatrix, AmatrixSD, SmatrixSD, k=1,
+                      corr=TRUE, nonPD.pop=c("replace", "nearPD", "accept")) {
 
     ## Only values are used in matrices
     if (!missing(RAM)) {
-        Amatrix <- as.mxMatrix(RAM$A)$values
-        Smatrix <- as.mxMatrix(RAM$S)$values
-        Fmatrix <- as.mxMatrix(RAM$F)$values
+        Amatrix <- RAM$A
+        Smatrix <- RAM$S
+        Fmatrix <- RAM$F
     }
  
     ## No. of observed variables
     p <- ncol(Amatrix)
     ## No. of elements in Amatrix
-    n <- p*p
+    # n <- p*p
   
     ## All variables are observed.
     if (missing(Fmatrix)) Fmatrix <- Diag(p)
 
-    ## If missing AmatrixSD, use a zero matrix  
+    ## If missing SD matrices, use a zero matrix  
     if (missing(AmatrixSD)) AmatrixSD <- matrix(0, ncol=p, nrow=p)
-
-    if (!all(sapply(list(dim(Amatrix), dim(Smatrix)), FUN=identical, dim(AmatrixSD))))
-        stop("Dimensions of \"Amatrix\", \"Smatrix\", and \"AmatrixSD\" must be the same.")   
+    if (missing(SmatrixSD)) SmatrixSD <- matrix(0, ncol=p, nrow=p)
+    
+    if (!all(sapply(list(dim(Amatrix), dim(Smatrix), dim(SmatrixSD)),
+                    FUN=identical, dim(AmatrixSD))))
+        stop("Dimensions of \"Amatrix\", \"Smatrix\", \"AmatrixSD\", and \"SmatrixSD\" must be the same.")   
     
     ## Try to get the labels of all variables from A and then S
     labels <- colnames(Amatrix)
@@ -166,25 +170,50 @@ rimpliedR <- function(RAM, Amatrix, Smatrix, Fmatrix, AmatrixSD, k=1, corr=TRUE,
   
     ## Select the labels of the observed variables
     if (!is.null(labels)) labels <- labels[as.logical(colSums(Fmatrix))]
-
-    ## A vector of the means of Amatrix by column major
-    A.mean <- c(Amatrix)
-  
-    ## A vector of the variances of Amatrix by column major
+    
+    ## A vector of means of Amatrix by column major
+    A.mean <- as.numeric(Amatrix)  
+    ## A diagonal matrix of variances of Amatrix by column major
     A.var <- diag(c(AmatrixSD^2))
 
-    nonPD.pop <- match.arg(nonPD.pop)
-  
+    ## Model implied R or S
+    impR1 <- impliedR(Amatrix=Amatrix, Smatrix=Smatrix, corr=corr)
+    ## A vector of means of Smatrix
+    if (corr) {
+        S.mean <- vechs(impR1$S)
+        S.var <- diag(vechs(SmatrixSD^2))
+    } else {
+        S.mean <- vech(impR1$S)
+        S.var <- diag(vech(SmatrixSD^2))
+    }
+    
+    nonPD.pop <- match.arg(nonPD.pop)  
     ## Count for nonPD matrices
     nonPD.count <- 0
-  
-    genCor <- function() {
+
+    ## Generate a model implied R and return if it is PD
+    genImpR <- function() {
         ## Generate random A matrix
         A <- matrix(mvtnorm::rmvnorm(n=1, mean=A.mean, sigma=A.var), ncol=p, nrow=p)
-        impR <- impliedR(Amatrix=A, Smatrix=Smatrix, Fmatrix=Fmatrix, corr=corr)
-        R <- impR$SigmaObs
+        ## Generate random S matrix
+        S <- mvtnorm::rmvnorm(n=1, mean=S.mean, sigma=S.var)
+        ## Convert S back to a pxp matrix
+        S <- vec2symMat(S, diag=!corr)
+        ## Replace the diagonals from the model implied R
+        ## Elements are either 1 or starting values
+        if (corr) diag(S) <- diag(Smatrix)
+   
+        impR2 <- impliedR(Amatrix=A, Smatrix=S, Fmatrix=Fmatrix, corr=corr)
+
         ## isPD includes: status=0 and PD
-        isPD <- impR$status==0 & is.pd(R)
+        list(R=impR2$SigmaObs, isPD=(impR2$status==0 & is.pd(impR2$SigmaObs)))
+    }
+
+    ## Generate random correlation matrices
+    genCor <- function() {
+        impR3 <- genImpR()
+        R <- impR3$R
+        isPD <- impR3$isPD
     
         ## R is nonPD
         if (!isPD) {
@@ -192,13 +221,10 @@ rimpliedR <- function(RAM, Amatrix, Smatrix, Fmatrix, AmatrixSD, k=1, corr=TRUE,
             nonPD.count <<- nonPD.count+1
             switch(nonPD.pop,
                    replace = while (!isPD) {
-                A <- matrix(mvtnorm::rmvnorm(n=1, mean=A.mean, sigma=A.var), 
-                            ncol=p, nrow=p)
-                impR <- impliedR(Amatrix=A, Smatrix=Smatrix, Fmatrix=Fmatrix, 
-                                 corr=corr)
-                R <- impR$SigmaObs
+                impR4 <- genImpR()
+                R <- impR4$R
                 ## isPD includes: status=0 and PD
-                isPD <- impR$status==0 & is.pd(R)
+                isPD <- impR4$isPD
                 nonPD.count <<- nonPD.count+1
             },
             nearPD = {R <- as.matrix(Matrix::nearPD(R, corr=corr, 
@@ -212,8 +238,8 @@ rimpliedR <- function(RAM, Amatrix, Smatrix, Fmatrix, AmatrixSD, k=1, corr=TRUE,
     }  
   
     ## Repeat it k times
-    ## Simplify it when AmatrixSD=0
-    if (all(AmatrixSD==0)) {
+    ## Simplify it when AmatrixSD=0 and SmatrixSD=0
+    if (all(c(AmatrixSD, SmatrixSD)==0)) {
         tmp <- genCor()
         out <- replicate(n=k, tmp, simplify=FALSE)
     } else {

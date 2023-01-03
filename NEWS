@@ -1,5 +1,6 @@
-Release 1.2.6.2 (Dec 23, 2022)
+Release 1.2.6.3 (Jan 3, 2022)
 ====================================
+* Add SmatrixSD argument in rimpliedR().
 * Fix a bug reported by Noel Card that meta() reported incorrect number of statistics and dfs.
 * Rewrite asyCov() and rename the old one to asyCovOld().
 * Add rCor3L() and its summary method.
