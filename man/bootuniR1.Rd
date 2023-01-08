@@ -34,7 +34,7 @@ commentary and simulation study on Yu, Downes, Carter, and O'Boyle
   Yu, J. (Joya), Downes, P. E., Carter, K. M., & O'Boyle,
   E. H. (2016). The problem of effect size heterogeneity 
   in meta-analytic structural equation modeling.
-  \emph{Journal of Applied Psychology}, \emph{101}, 1457-1473. 
+  \emph{Journal of Applied Psychology}, \bold{101}, 1457-1473. 
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }

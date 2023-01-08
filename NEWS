@@ -1,19 +1,17 @@
-Release 1.2.6.3 (Jan 3, 2022)
+Release 1.3.0 (Jan 7, 2022)
 ====================================
-* Add SmatrixSD argument in rimpliedR().
 * Fix a bug reported by Noel Card that meta() reported incorrect number of statistics and dfs.
 * Rewrite asyCov() and rename the old one to asyCovOld().
 * Add rCor3L() and its summary method.
 * Add subset.variables argument in tssem2() and wls().
 * Rename meta3() to meta3L() and meta3X() and meta3LFIML().
-* Add OSMASEM3L, TSSEM3L, and TSSEMRobust and their associated functions.
 * Fix a critical bug in create.Tau2() that uses variances as SDs.
 * Add a new argument 'level' in create.Tau2().
 * Add a mxModel.Args in wls().
 * Add A.lbound and A.ubound arguments in create.vechsR() and osmasem().
 * Add data and group arguments in calEffSizes().
 * Modify Nohe15A1 and Nohe15A2.
-* Add a RAM argument in impliedR() and rimpliedR(). 
+* Add a RAM argument in impliedR() and rimpliedR() and an SmatrixSD argument in rimpliedR(). 
 * Add a starting value argument in as.mxAlgebra().
 * Teach lavaan2RAM() to recognize functions of parameters and constraints in lavaan and convert them to mxAlgebra and mxConstraint in OpenMx.
 * Experimental: teach create.mxModel() to recognize mxAlgrebra and mxConstraint converted from lavaan2RAM().

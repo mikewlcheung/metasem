@@ -64,7 +64,7 @@ Cheung, M. W.-L., & Chan, W. (2004). Testing dependent correlation
   
 Olkin, I., & Siotani, M. (1976). Asymptotic distribution of functions of a correlation matrix. In S. Ideka (Ed.), \emph{Essays in probability and statistics} (pp. 235-251). Shinko Tsusho.
 
-Yuan, K.-H., & Bentler, P. M. (2007). Robust procedures in structural equation modeling. In S.-Y. Lee (Ed.), \emph{Handbook of latent variable and related models} (pp. 367-397). Elsevier/North-Holland.
+Yuan, K.-H., & Bentler, P. M. (2007). Robust procedures in structural equation modeling. In S.-Y. Lee (Ed.), \emph{Handbook of Latent Variable and Related Models} (pp. 367-397). Elsevier/North-Holland.
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
 }

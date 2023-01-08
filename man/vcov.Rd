@@ -9,8 +9,6 @@
 \alias{vcov.reml}
 \alias{vcov.MxRAMModel}
 \alias{vcov.osmasem}
-\alias{vcov.osmasem3L}
-\alias{vcov.tssemRobust1}
 \title{Extract Covariance Matrix Parameter Estimates from Objects of
   Various Classes
 }
@@ -28,8 +26,6 @@
 \method{vcov}{reml}(object, \dots)
 \method{vcov}{MxRAMModel}(object, \dots)
 \method{vcov}{osmasem}(object, select=c("fixed", "all", "random"), robust=FALSE, \dots)
-\method{vcov}{osmasem3L}(object, select=c("fixed", "all", "random"), \dots)
-\method{vcov}{tssemRobust1}(object, \dots)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

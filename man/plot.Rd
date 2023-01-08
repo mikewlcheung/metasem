@@ -3,12 +3,11 @@
 \alias{plot.character}
 \alias{plot.wls}
 \alias{plot.osmasem}
-\alias{plot.osmasem3L}
 
 \title{Plot methods for various objects
 }
 \description{It plots the models from either the lavaan model or
-  \code{meta}, \code{wls}, \code{osmasem}, and \code{osmasem3} objects.
+  \code{meta}, \code{wls}, and \code{osmasem} objects.
 }
 \usage{
 \method{plot}{meta}(x, effect.sizes, add.margin = 0.1, interval = 0.95,
@@ -42,11 +41,6 @@
      layout=c("tree", "circle", "spring", "tree2", "circle2"),
      sizeMan=8, sizeLat=8, edge.label.cex=1.3, color="white",
     weighted=FALSE, \dots)
-\method{plot}{osmasem3L}(x, manNames=NULL, latNames=NULL, labels=c("labels", "RAM"),
-     what="est", nCharNodes=0, nCharEdges=0,
-     layout=c("tree", "circle", "spring", "tree2", "circle2"),
-     sizeMan=8, sizeLat=8, edge.label.cex=1.3, color="white",
-     weighted=FALSE, \dots)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

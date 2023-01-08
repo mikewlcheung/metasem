@@ -26,6 +26,7 @@
   Berkey, C. S., Hoaglin, D. C., Antczak-Bouckoms, A., Mosteller, F, & Colditz, G. A. (1998). Meta-analysis of multiple outcomes by regression with random effects. \emph{Statistics in Medicine}, \bold{17}, 2537-2550.
 }
 \examples{
+\dontrun{
 data(Berkey98)
 
 #### ML estimation method
@@ -69,5 +70,6 @@ summary( reml(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
 summary( reml(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL),
               RE.constraints=Diag(c("1e-5*Tau2_1_1", "1e-5*Tau2_2_2")),
               x=scale(pub_year, center=1979), data=Berkey98) )
+}
 }
 \keyword{datasets}

@@ -1,8 +1,6 @@
 \name{wls}
 \alias{wls}
 \alias{tssem2}
-\alias{tssem3L2}
-\alias{tssemRobust2}
 \title{Conduct a Correlation/Covariance Structure Analysis with WLS
 }
 \description{It fits a correlation or covariance structure with
@@ -19,15 +17,6 @@ tssem2(tssem1.obj, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
        diag.constraints=FALSE, intervals.type=c("z", "LB"), mx.algebras=NULL,
        mxModel.Args=NULL, subset.variables=NULL, model.name=NULL, suppressWarnings=TRUE,
        silent=TRUE, run=TRUE, ...)
-tssem3L2(tssem1.obj, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
-         diag.constraints=FALSE, intervals.type = c("z", "LB"),
-         mx.algebras=NULL, mxModel.Args=NULL, model.name=NULL,
-         suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...)
-tssemRobust2(tssem1.obj, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
-             diag.constraints=FALSE, intervals.type = c("z", "LB"),
-             mx.algebras=NULL, mxModel.Args=NULL,
-             model.name=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE,
-             adjust=FALSE, ...) 
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -115,11 +104,7 @@ tssemRobust2(tssem1.obj, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL,
   \item{silent}{Logical. An argument to be passed to \code{\link[OpenMx]{mxRun}}}
   \item{run}{Logical. If \code{FALSE}, only return the mx model without
 	running the analysis.} 
-  \item{adjust}{Logical. Whether a small-sample correction
-	should be applied to the variance-covariance matrix. It is passed as
-	the \code{adjust} argument to \code{\link[metafor]{vcov}} in obtaining the sampling
-variance-covariance matrix.}
-  \item{\dots}{Further arguments to be passed to \code{\link[OpenMx]{mxRun}}.
+   \item{\dots}{Further arguments to be passed to \code{\link[OpenMx]{mxRun}}.
 }
 }
 
@@ -167,6 +152,7 @@ McArdle, J. J., & MacDonald, R. P. (1984). Some algebraic properties of the Reti
   \code{\link[metaSEM]{Hunter83}}, \code{\link[metaSEM]{issp89}}, \code{\link[metaSEM]{issp05}}
 }
 \examples{
+\dontrun{
 #### Analysis of correlation structure
 R1.labels <- c("a1", "a2", "a3", "a4")
 
@@ -289,5 +275,6 @@ F3 <- c(TRUE,TRUE,TRUE,TRUE,FALSE)
 wls.fit3b <- wls(Cov=R3, aCov=acovS3, n=n, Amatrix=A3, Smatrix=S3,
                 Fmatrix=F3, cor.analysis=FALSE)
 summary(wls.fit3b)
+}
 }
 \keyword{ tssem }

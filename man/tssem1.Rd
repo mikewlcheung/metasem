@@ -2,8 +2,6 @@
 \alias{tssem1}
 \alias{tssem1FEM}
 \alias{tssem1REM}
-\alias{tssem3L1}
-\alias{tssemRobust1}
 \title{First Stage of the Two-Stage Structural Equation Modeling (TSSEM)
 }
 \description{It conducts the first stage analysis of TSSEM by pooling
@@ -24,10 +22,6 @@ tssem1REM(Cov, n, cor.analysis=TRUE, RE.type=c("Diag", "Symm", "Zero","User"),
           I2="I2q", acov=c("weighted", "individual", "unweighted"),
           asyCovOld=FALSE, model.name=NULL, suppressWarnings=TRUE,
           silent=TRUE, run=TRUE, ...)
-tssem3L1(cluster=NULL, RE.typeB=c("Diag", "Symm"),
-         RE.typeW=c("Diag", "Symm"), data, ...)
-tssemRobust1(cluster=NULL, RE.type=c("Diag", "Symm", "Zero"),
-             method=c("ML", "REML"), data, ...) 
 }
 \arguments{
   \item{Cov}{A list of correlation/covariance matrices
@@ -36,9 +30,7 @@ tssemRobust1(cluster=NULL, RE.type=c("Diag", "Symm", "Zero"),
 }
 \item{method}{Either \code{"REM"} (default if missing) or \code{"FEM"}.
   If it is "REM",a random-effects meta-analysis will be applied. If it
-  is "FEM", a fixed-effects meta-analysis will be applied. It represnts
-  whether a maximum likelihood (ML) or restricted maximum likelihood
-  (REML) method is used in \code{tssemRobust1}.
+  is "FEM", a fixed-effects meta-analysis will be applied. 
 }
   \item{cor.analysis}{Logical. The output is either a pooled correlation or a covariance matrix.
   }
@@ -58,9 +50,7 @@ tssemRobust1(cluster=NULL, RE.type=c("Diag", "Symm", "Zero"),
 	fixed-effects analysis.
     \code{"User"}, the user has to specify the variance component via the
 	\code{RE.constraints} argument. This argument will be ignored when \code{method="FEM"}.}
-  \item{RE.typeB}{Random effects in the between structure.}
-  \item{RE.typeW}{Random effects in the within structure.}
-  \item{RE.startvalues}{Starting values on the
+   \item{RE.startvalues}{Starting values on the
 	diagonals of the variance component of the random effects. It will be ignored when \code{method="FEM"}.}
   \item{RE.lbound}{Lower bounds on the diagonals of the variance
 	component of the random effects. It will be ignored when
@@ -90,7 +80,6 @@ tssemRobust1(cluster=NULL, RE.type=c("Diag", "Symm", "Zero"),
 	variance-covariance matrices. This argument is ignored with the
 	\code{method="FEM"} argument.}
 \item{asyCovOld}{Whether the old \code{asyCov} is used. See \code{\link[metaSEM]{asyCov}}.}  
-  \item{data}{Data created by \code{\link[metaSEM]{asyCov}}.}
   \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. 
   }  
   \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are
@@ -117,9 +106,6 @@ tssemRobust1(cluster=NULL, RE.type=c("Diag", "Symm", "Zero"),
  Cheung, M. W.-L., & Chan, W. (2009). A two-stage approach to synthesizing covariance matrices in meta-analytic structural equation modeling. \emph{Structural Equation Modeling}, \bold{16}, 28-53.
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
-}
-\note{\code{tssemRobust1} uses \code{\link[metafor]{rma.mv}} and
-  \code{\link[metafor]{robust}} for the analysis.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
