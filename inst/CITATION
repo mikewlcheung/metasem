@@ -1,8 +1,8 @@
 citHeader("To cite the 'metaSEM' package in publications use:")
 
-citEntry(entry="Article",
+bibentry(bibtype="Article",
          title = "{metaSEM}: An R Package for Meta-Analysis using Structural Equation Modeling",
-         author = personList(as.person("Mike W.-L. Cheung")),
+         author = as.person("Mike W.-L. Cheung"),
          journal      = "Frontiers in Psychology",
          year         = "2015",
          volume       = "5",

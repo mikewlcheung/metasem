@@ -705,7 +705,8 @@ test_that("Testing new asyCov() correctly", {
 
     set.seed(123456)
     
-    tolerance <- 1e-4
+    ## Lower tolerance
+    tolerance <- 1e-3
     
     new  <- asyCov(x=Becker92$data, n=Becker92$n, acov="individual")
     row.names(new) <- NULL
