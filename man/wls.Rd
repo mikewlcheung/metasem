@@ -152,7 +152,7 @@ McArdle, J. J., & MacDonald, R. P. (1984). Some algebraic properties of the Reti
   \code{\link[metaSEM]{Hunter83}}, \code{\link[metaSEM]{issp89}}, \code{\link[metaSEM]{issp05}}
 }
 \examples{
-\dontrun{
+\donttest{
 #### Analysis of correlation structure
 R1.labels <- c("a1", "a2", "a3", "a4")
 

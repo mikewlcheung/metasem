@@ -49,7 +49,7 @@ Cor2DataFrame(x, n, v.na.replace = TRUE, row.names.unique = FALSE,
 
 
 \examples{
-\dontrun{
+\donttest{
 ## Provide a list of correlation matrices and a vector of sample sizes as the inputs
 my.df1 <- Cor2DataFrame(Nohe15A1$data, Nohe15A1$n)
 

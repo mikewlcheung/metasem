@@ -28,7 +28,7 @@ readLowTriMat(file, no.var, ...)
 }
 
 \examples{
-\dontrun{
+\donttest{
 ## Write two full correlation matrices into a file named "fullmat.dat".
 ## x2 is missing in the second matrix.
 ## The content of "fullmat.dat" is

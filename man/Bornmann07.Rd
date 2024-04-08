@@ -32,7 +32,7 @@
   Marsh, H. W., Bornmann, L., Mutz, R., Daniel, H.-D., & O'Mara, A. (2009). Gender Effects in the Peer Reviews of Grant Proposals: A Comprehensive Meta-Analysis Comparing Traditional and Multilevel Approaches. \emph{Review of Educational Research}, \bold{79(3)}, 1290-1326. doi:10.3102/0034654309334143
 }
 \examples{
-\dontrun{
+\donttest{
 data(Bornmann07)
 
 #### ML estimation method

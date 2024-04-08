@@ -36,7 +36,7 @@ with a common correlation of 0.66}
 }
 
 \examples{
-\dontrun{
+\donttest{
 data(Kalaian96)
 }
 }

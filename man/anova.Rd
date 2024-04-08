@@ -4,6 +4,7 @@
 \alias{anova.meta3LFIML}
 \alias{anova.reml}
 \alias{anova.osmasem}
+\alias{anova.mxRAMmodel}
 \title{Compare Nested Models with Likelihood Ratio Statistic
 }
 \description{It compares nested models with the likelihood ratio
@@ -15,6 +16,7 @@
 \method{anova}{meta3LFIML}(object, \dots, all=FALSE)
 \method{anova}{reml}(object, \dots, all=FALSE)
 \method{anova}{osmasem}(object, \dots, all=FALSE)
+\method{anova}{mxRAMmodel}(object, \dots, all=FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

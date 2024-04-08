@@ -3,6 +3,7 @@
 \alias{plot.character}
 \alias{plot.wls}
 \alias{plot.osmasem}
+\alias{plot.mxRAMmodel}
 
 \title{Plot methods for various objects
 }
@@ -37,6 +38,11 @@
      sizeMan=8, sizeLat=8, edge.label.cex=1.3, color="white",
      weighted=FALSE, \dots)
 \method{plot}{osmasem}(x, manNames=NULL, latNames=NULL, labels=c("labels", "RAM"),
+     what="est", nCharNodes=0, nCharEdges=0,
+     layout=c("tree", "circle", "spring", "tree2", "circle2"),
+     sizeMan=8, sizeLat=8, edge.label.cex=1.3, color="white",
+  weighted=FALSE, \dots)
+\method{plot}{mxRAMmodel}(x, manNames=NULL, latNames=NULL, labels=c("labels", "RAM"),
      what="est", nCharNodes=0, nCharEdges=0,
      layout=c("tree", "circle", "spring", "tree2", "circle2"),
      sizeMan=8, sizeLat=8, edge.label.cex=1.3, color="white",
@@ -190,7 +196,7 @@
 \seealso{ \code{\link[metaSEM]{Berkey98}}, \code{\link[metaSEM]{wvs94a}}  \code{\link[metaSEM]{meta2semPlot}} \code{\link[semPlot]{semPaths}}}
 
 \examples{
-\dontrun{
+\donttest{
 ## lavaan model
 model <- "y ~ m + x
           m ~ x"

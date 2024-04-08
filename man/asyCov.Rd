@@ -77,7 +77,7 @@ Yuan, K.-H., & Bentler, P. M. (2007). Robust procedures in structural equation m
   compatibility.}
 
 \examples{
-\dontrun{
+\donttest{
 C1 <- matrix(c(1,0.5,0.4,0.5,1,0.2,0.4,0.2,1), ncol=3)  
 asyCov(C1, n=100)
 

@@ -33,7 +33,7 @@ Cheung, M. W.-L., & Chan, W. (2009). A two-stage approach to synthesizing covari
 \seealso{ \code{\link[metaSEM]{issp05}}
 }
 \examples{
-\dontrun{
+\donttest{
 data(issp89)
 
 #### Analysis of correlation structure in Cheung and Chan (2005)

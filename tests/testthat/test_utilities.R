@@ -596,7 +596,7 @@ test_that("metaFIML() works correctly", {
     expect_equal(coef1a, coef1b, tolerance=tolerance)
     expect_equal(vcov(fit1a), vcov(fit1b)[names1, names1], tolerance=tolerance)
     expect_equal(fit1a$mx.fit$output$Minus2LogLikelihood,
-                 fit1b$output$Minus2LogLikelihood)
+                 fit1b$mx.fit$output$Minus2LogLikelihood)
 
     ## Univariate meta-analysis with AV
     fit2a <- metaFIML(y=r, v=r_v, x=JP_alpha, av=IDV, data=Jaramillo05)
@@ -632,7 +632,7 @@ test_that("metaFIML() works correctly", {
     v_fit2b <- vcov(fit2b)[names2, names2][-4, -4]
     expect_equal(v_fit2a, v_fit2b, tolerance=tolerance)
     expect_equal(fit2a$mx.fit$output$Minus2LogLikelihood,
-                 fit2b$output$Minus2LogLikelihood)
+                 fit2b$mx.fit$output$Minus2LogLikelihood)
 
     ## Multivariate meta-analysis without AV
     wvs94a$gnp <- scale(wvs94a$gnp)
@@ -670,7 +670,7 @@ test_that("metaFIML() works correctly", {
     expect_equal(coef3a, coef3b, tolerance=tolerance)
     expect_equal(vcov(fit3a), vcov(fit3b)[names3, names3], tolerance=tolerance)
     expect_equal(fit3a$mx.fit$output$Minus2LogLikelihood,
-                 fit3b$output$Minus2LogLikelihood)    
+                 fit3b$mx.fit$output$Minus2LogLikelihood)    
 })
 
 test_that("Handling NA in diagonals in tssem1FEM() correctly", {

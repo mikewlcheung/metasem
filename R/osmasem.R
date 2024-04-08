@@ -420,7 +420,7 @@ create.V <- function(x, type=c("Symm", "Diag", "Full"), as.mxMatrix=TRUE) {
 osmasem <- function(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
                     Tmatrix=NULL, Jmatrix=NULL, Ax=NULL, Sx=NULL,
                     A.lbound=NULL, A.ubound=NULL,
-                    RE.type=c("Diag", "Symm"), data,
+                    RE.type=c("Diag", "Symm", "Zero"), data,
                     subset.variables=NULL, subset.rows=NULL, 
                     intervals.type = c("z", "LB"),
                     mxModel.Args=NULL, mxRun.Args=NULL,

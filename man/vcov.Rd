@@ -7,8 +7,8 @@
 \alias{vcov.meta}
 \alias{vcov.meta3LFIML}
 \alias{vcov.reml}
-\alias{vcov.MxRAMModel}
 \alias{vcov.osmasem}
+\alias{vcov.mxRAMmodel}
 \title{Extract Covariance Matrix Parameter Estimates from Objects of
   Various Classes
 }
@@ -24,8 +24,8 @@
 \method{vcov}{meta}(object, select = c("all", "fixed", "random"), robust=FALSE, \dots)
 \method{vcov}{meta3LFIML}(object, select = c("all", "fixed", "random","allX"), robust=FALSE, \dots)
 \method{vcov}{reml}(object, \dots)
-\method{vcov}{MxRAMModel}(object, \dots)
 \method{vcov}{osmasem}(object, select=c("fixed", "all", "random"), robust=FALSE, \dots)
+\method{vcov}{mxRAMmodel}(object, robust=FALSE, \dots)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

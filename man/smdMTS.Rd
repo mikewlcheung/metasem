@@ -58,7 +58,7 @@ smdMTS(m, v, n, homogeneity=c("variance", "none"), bias.adjust=TRUE,
 }
 
 \examples{
-\dontrun{  
+\donttest{  
 ## Sample means for groups 1 to 3
 m <- c(5,7,9)
 

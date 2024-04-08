@@ -52,7 +52,7 @@ create.Tau2(RAM, no.var, Tau1.labels=seq(no.var),
 }
 
 \examples{
-\dontrun{
+\donttest{
 T0 <- create.Tau2(no.var=4, RE.type="Diag", Transform="expLog", RE.startvalues=0.05)
 T0
 

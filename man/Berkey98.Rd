@@ -26,7 +26,7 @@
   Berkey, C. S., Hoaglin, D. C., Antczak-Bouckoms, A., Mosteller, F, & Colditz, G. A. (1998). Meta-analysis of multiple outcomes by regression with random effects. \emph{Statistics in Medicine}, \bold{17}, 2537-2550.
 }
 \examples{
-\dontrun{
+\donttest{
 data(Berkey98)
 
 #### ML estimation method

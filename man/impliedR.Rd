@@ -7,7 +7,7 @@
   matrices based on the RAM model specification.
 }
 \usage{
-impliedR(RAM, Amatrix, Smatrix, Fmatrix, corr=TRUE, labels, ...)
+impliedR(RAM, Amatrix, Smatrix, Fmatrix, Mmatrix, corr=TRUE, labels, ...)
 rimpliedR(RAM, Amatrix, Smatrix, Fmatrix, AmatrixSD, SmatrixSD,
           k=1, corr=TRUE, nonPD.pop=c("replace", "nearPD", "accept"))
 }
@@ -35,6 +35,7 @@ rimpliedR(RAM, Amatrix, Smatrix, Fmatrix, AmatrixSD, SmatrixSD,
 	\code{\link[OpenMx]{MxMatrix-class}} by the \code{as.mxMatrix}
 	function. It is not required when there is no latent variable.
   }
+\item{Mmatrix}{An optional matrix of the mean vector. It is assumed zeros if missing.}
   \item{AmatrixSD}{Standard deviations (SD) of the elements in the
 	\code{Amatrix}. If it is missing, a matrix of zero is created.}
   \item{SmatrixSD}{Standard deviations (SD) of the elements in the
@@ -89,6 +90,14 @@ rimpliedR(RAM, Amatrix, Smatrix, Fmatrix, AmatrixSD, SmatrixSD,
 
 \examples{
 set.seed(100)
+
+## A one-factor CFA model
+model <- "f =~ 0.3*x1 + 0.4*x2 + 0.5*x3
+          f ~~ 1*f"
+
+RAM <- lavaan2RAM(model)
+
+impliedR(RAM, corr=TRUE)
 
 ## A simple mediation model
 ## All are population parameters in the A matrix

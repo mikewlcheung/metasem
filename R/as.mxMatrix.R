@@ -72,14 +72,16 @@ as.mxMatrix <- function(x, name, ...) {
 }
 
 as.symMatrix <- function(x) {
-    if (is.list(x)) {
-        for (i in seq_along(x)) {
-            x[[i]][] <- vapply(x[[i]], function(z) gsub(".*\\*", "", z), character(1))
-        }
-    } else {
-        x[] <- vapply(x, function(z) gsub(".*\\*", "", z), character(1))
+  if (is.list(x)) {
+    ## for (i in seq_along(x)) {
+    ## Exclude mxalgebras, which creates troubles
+    for (i in c("A", "S", "F", "M")) {
+      x[[i]][] <- vapply(x[[i]], function(z) gsub(".*\\*", "", z), character(1))
     }
-    x
+  } else {
+    x[] <- vapply(x, function(z) gsub(".*\\*", "", z), character(1))
+  }
+  x
 }
 
 as.mxAlgebra <- function(x, startvalues=NULL, name="X") {

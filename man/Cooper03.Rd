@@ -26,7 +26,7 @@
   Methods}, \bold{2}, 61-76. doi:10.1002/jrsm.35
 }
 \examples{
-\dontrun{
+\donttest{
 data(Cooper03)
 
 #### ML estimation method

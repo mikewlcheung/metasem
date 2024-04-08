@@ -29,7 +29,7 @@ achievement reported by Roorda et al. (2011).
 Methods}, \bold{50}, 1359-1373. 
 }
 \examples{
-\dontrun{
+\donttest{
 
 ## Random-effects model: First stage analysis
 random1 <- tssem1(Cov = Roorda11$data, n = Roorda11$n, method = "REM",

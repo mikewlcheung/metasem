@@ -24,7 +24,7 @@ A list of data with the following structure:
 Cheung, M. W.-L., & Chan, W. (2009). A two-stage approach to synthesizing covariance matrices in meta-analytic structural equation modeling. \emph{Structural Equation Modeling}, \bold{16}, 28-53.
 }
 \examples{
-\dontrun{
+\donttest{
 data(Cheung09)
 
 #### Fixed-effects model: Stage 1 analysis

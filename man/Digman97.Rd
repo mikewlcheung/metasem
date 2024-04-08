@@ -24,7 +24,7 @@ Digman, J.M. (1997). Higher-order factors of the Big Five. \emph{Journal of Pers
  Cheung, M. W.-L., & Chan, W. (2005). Classifying correlation matrices into relatively homogeneous subgroups: A cluster analytic approach. \emph{Educational and Psychological Measurement}, \bold{65}, 954-979.
 }
 \examples{
-\dontrun{
+\donttest{
 Digman97
 
 ##### Fixed-effects TSSEM

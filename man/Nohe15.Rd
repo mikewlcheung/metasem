@@ -32,7 +32,7 @@ A list of data with the following structure:
   Nohe, C., Meier, L. L., Sonntag, K., & Michel, A. (2015). The chicken or the egg? A meta-analysis of panel studies of the relationship between work-family conflict and strain. \emph{Journal of Applied Psychology}, \bold{100}(2), 522-536.
 }
 \examples{
-\dontrun{
+\donttest{
 #### TSSEM
     
 ## Set seed for replicability    

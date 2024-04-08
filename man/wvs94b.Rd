@@ -31,7 +31,7 @@ covariance matrices among Life Satisfaction, Job Satisfaction, and Job Autonomy 
   illustrations. \emph{Research Synthesis Methods}, \bold{7}, 140-155.
 }
 \examples{
-\dontrun{
+\donttest{
 data(wvs94b)
 
 ## Get the indirect and the direct effects and

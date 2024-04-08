@@ -32,7 +32,7 @@ A list of data with the following structure:
 
 \examples{
 
-\dontrun{
+\donttest{
 data(issp05)
 
 #### Fixed-effects TSSEM

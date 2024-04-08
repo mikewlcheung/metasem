@@ -26,7 +26,7 @@ A list of data with the following structure:
 }
 
 \examples{
-\dontrun{
+\donttest{
 data(Becker94)
 
 #### Fixed-effects model

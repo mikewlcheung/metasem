@@ -25,7 +25,7 @@ A list of data with the following structure:
   Boer, D., Deinert, A., Homan, A. C., & Voelpel, S. C. (2016). Revisiting the mediating role of leader-member exchange in transformational leadership: the differential impact model. \emph{European Journal of Work and Organizational Psychology}, \bold{25}(6), 883-899.
 }
 \examples{
-\dontrun{
+\donttest{
 ## Stage 1 analysis
 rand1 <- tssem1(Boer16$data, Boer16$n, method="REM", RE.type="Diag",
                 acov="weighted")

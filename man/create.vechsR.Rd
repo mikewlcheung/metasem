@@ -34,7 +34,7 @@ create.vechsR(A0, S0, F0 = NULL, Ax = NULL, Sx = NULL, A.lbound=NULL, A.ubound=N
 }
 
 \examples{
-\dontrun{
+\donttest{
 ## Proposed model
 model1 <- 'W2 ~ w2w*W1 + s2w*S1
            S2 ~ w2s*W1 + s2s*S1

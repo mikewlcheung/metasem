@@ -32,7 +32,7 @@ A list of data with the following structure:
   coefficients were also excluded.
   }
 \examples{
-\dontrun{
+\donttest{
 data(Cheung00)
 
 ## Variable labels

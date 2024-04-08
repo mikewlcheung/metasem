@@ -42,7 +42,7 @@ calEffSizes(model, data=NULL, n, Cov, Mean=NULL, group=NULL, lavaan.output=FALSE
 %% ~~objects to See Also as \code{\link{help}}, ~~~
 }
 \examples{
-\dontrun{ 
+\donttest{ 
 ## Select ATT, Bi, and BEH 
 obs.vars <- c("BEH", "BI", "ATT")
 

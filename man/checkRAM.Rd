@@ -27,7 +27,7 @@ checkRAM(Amatrix, Smatrix, cor.analysis=TRUE)
   \code{\link[metaSEM]{lavaan2RAM}}
 }
 \examples{
-\dontrun{ 
+\donttest{ 
 ## Digman97 example
 model1 <- "## Factor loadings
            Alpha=~A+C+ES

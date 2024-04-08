@@ -24,7 +24,7 @@ A list of data with the following structure:
   Mathieu, J. E., Kukenberger, M. R., D'Innocenzo, L., & Reilly, G. (2015). Modeling reciprocal team cohesion-performance relationships, as impacted by shared leadership and members' competence. \emph{Journal of Applied Psychology}, \bold{100}(3), 713-734. https://doi.org/10.1037/a0038898
 }
 \examples{
-\dontrun{
+\donttest{
 # TSSEM
 ## Model 1: no constraint
 ## Stage 1 analysis

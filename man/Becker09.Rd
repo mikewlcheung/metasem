@@ -27,7 +27,7 @@ Craft, L. L., Magyar, T. M., Becker, B. J., & Feltz, D. L. (2003). The relations
 Becker, B. J. (2009). Model-based meta-analysis. In H. Cooper, L. V. Hedges, & J. C. Valentine (Eds.), \emph{The handbook of research synthesis and meta-analysis} (2nd ed., pp. 377-395). New York: Russell Sage Foundation.
 }
 \examples{
-\dontrun{
+\donttest{
 data(Becker09)
 
 #### Fixed-effects model

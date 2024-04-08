@@ -1164,23 +1164,23 @@ anova.meta3LFIML <- function(object, ..., all=FALSE) {
   mxCompare(base=base, comparison=comparison, all=all)
 }
 
-coef.MxRAMModel <- function(object, ...) {
-  if (!is.element("MxRAMModel", class(object)))
-    stop("\"object\" must be an object of class \"MxRAMModel\".")
-  omxGetParameters(object, ...)
-}
+## coef.MxRAMModel <- function(object, ...) {
+##   if (!is.element("MxRAMModel", class(object)))
+##     stop("\"object\" must be an object of class \"MxRAMModel\".")
+##   omxGetParameters(object, ...)
+## }
 
-vcov.MxRAMModel <- function(object, ...) {
-    if (!is.element("MxRAMModel", class(object)))
-    stop("\"object\" must be an object of class \"MxRAMModel\".")
+## vcov.MxRAMModel <- function(object, ...) {
+##     if (!is.element("MxRAMModel", class(object)))
+##     stop("\"object\" must be an object of class \"MxRAMModel\".")
 
-    # labels of the parameters    
-    my.name <- names( omxGetParameters(object) )
-    # Remove NA labels
-    my.name <- my.name[!is.na(my.name)]
+##     # labels of the parameters    
+##     my.name <- names( omxGetParameters(object) )
+##     # Remove NA labels
+##     my.name <- my.name[!is.na(my.name)]
     
-    .solve(x=object@output$calculatedHessian, parameters=my.name)
-}
+##     .solve(x=object@output$calculatedHessian, parameters=my.name)
+## }
 
 ## VarCorr.meta <- function(x, sigma=1, ...) {
 ##     if (!is.element("meta", class(x)))

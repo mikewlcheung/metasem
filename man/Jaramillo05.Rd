@@ -29,7 +29,7 @@
 }
 
 \examples{
-\dontrun{
+\donttest{
 ## Research question 4.4.1
 summary(meta(r, r_v, data=Jaramillo05))
 

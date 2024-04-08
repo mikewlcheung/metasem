@@ -34,7 +34,7 @@ satisfaction and life control in each country were calculated as the effect size
   Cheung, M. W.-L. (2013). Multivariate meta-analysis as structural equation models. \emph{Structural Equation Modeling}, \bold{20}, 429-454. 
 }
 \examples{
-\dontrun{
+\donttest{
 data(wvs94a)
 
 ## Random-effects model

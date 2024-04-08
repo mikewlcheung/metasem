@@ -34,7 +34,7 @@
 }
 
 \examples{
-\dontrun{
+\donttest{
 data(Tenenbaum02)
 }
 }

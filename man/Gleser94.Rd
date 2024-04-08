@@ -21,7 +21,7 @@
 }
 
 \examples{
-\dontrun{
+\donttest{
 data(Gleser94)
 
 #### Multiple-treatment studies

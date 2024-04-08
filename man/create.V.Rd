@@ -27,7 +27,7 @@ create.V(x, type = c("Symm", "Diag", "Full"), as.mxMatrix = TRUE)
 }
 
 \examples{
-\dontrun{
+\donttest{
 my.df <- Cor2DataFrame(Nohe15A1)
 
 ## Create known sampling variance covariance matrix

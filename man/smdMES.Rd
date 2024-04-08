@@ -64,7 +64,7 @@ smdMES(m1, m2, V1, V2, n1, n2,
 }
 
 \examples{
-\dontrun{    
+\donttest{    
 ## Sample means for the two constructs in Group 1  
 m1 <- c(2.5, 4.5)
 

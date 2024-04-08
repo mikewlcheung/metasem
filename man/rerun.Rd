@@ -24,7 +24,7 @@ rerun(object, autofixtau2=FALSE, extraTries=10, ...)
 }
 
 \examples{
-\dontrun{
+\donttest{
 random1 <- tssem1(Digman97$data, Digman97$n, method="REM", RE.type="Diag")
 random1_rerun <- rerun(random1)
 summary(random1_rerun)

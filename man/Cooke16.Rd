@@ -31,7 +31,7 @@ A list of data with the following structure:
 }
 
 \examples{
-\dontrun{
+\donttest{
 ## Check whether the correlation matrices are valid (positive definite)
 Cooke16$data[is.pd(Cooke16$data)==FALSE]
 
