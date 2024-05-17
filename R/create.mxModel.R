@@ -173,22 +173,25 @@ create.mxModel <- function(model.name="mxModel", RAM=NULL, data=NULL,
     }
   }
     
-  if (run==FALSE) return(mx.model)
+  if (run) {
   
-  ## Default is z
-  mx.fit <- tryCatch(mxRun(mx.model, intervals=(intervals.type=="LB"),
-                           suppressWarnings=TRUE, silent=TRUE, ...),
-                     error=function(e) e)
-
-  ## Check if any errors
-  if (inherits(mx.fit, "error")) {
-    mx.fit <- mxTryHard(mx.model, extraTries=50, intervals=FALSE, silent=TRUE)                        
-    mx.fit <- tryCatch(mxRun(mx.fit, intervals=(intervals.type=="LB"),
+    ## Default is z
+    mx.fit <- tryCatch(mxRun(mx.model, intervals=(intervals.type=="LB"),
                              suppressWarnings=TRUE, silent=TRUE, ...),
                        error=function(e) e)
-    if (inherits(mx.fit, "error")) {   
-      warning("Error in running mxModel.\n")
+
+    ## Check if any errors
+    if (inherits(mx.fit, "error")) {
+      mx.fit <- mxTryHard(mx.model, extraTries=50, intervals=FALSE, silent=TRUE)                        
+      mx.fit <- tryCatch(mxRun(mx.fit, intervals=(intervals.type=="LB"),
+                               suppressWarnings=TRUE, silent=TRUE, ...),
+                         error=function(e) e)
+      if (inherits(mx.fit, "error")) {   
+        warning("Error in running mxModel.\n")
+      }
     }
+  } else {
+    mx.fit <- mx.model
   }
 
   out <- list(mx.fit=mx.fit, RAM=RAM, data=data, mxalgebras=mxalgebras.ci,

@@ -512,14 +512,13 @@ osmasem <- function(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
     ## Assign same starting values, e.g., A and S matrices are different from those in provided in Jmatrix
     mx.model <- omxAssignFirstParameters(mx.model)
     
-    ## Return mx model without running the analysis
-    if (run==FALSE) {
-        return(mx.model)
-    } else {        
+    if (run) {        
         mx.fit <- tryCatch(do.call(mxRun, c(list(mx.model, intervals=intervals,
                                                  suppressWarnings=suppressWarnings,
                                                  silent=silent),
                                             mxRun.Args)), error = function(e) e)
+    } else {
+        mx.fit <- mx.model
     }
 
     # try to run it with error message as output
@@ -538,7 +537,8 @@ osmasem <- function(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
                 mxRun.Args=mxRun.Args,
                 subset.variables=subset.variables,
                 subset.rows=subset.rows,
-                mx.model=mx.model, mx.fit=mx.fit)
+                #mx.model=mx.model,
+                mx.fit=mx.fit)
     class(out) <- 'osmasem'
     out
 }

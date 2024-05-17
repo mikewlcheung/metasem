@@ -161,8 +161,8 @@ plot.osmasem <- function(x, manNames=NULL, latNames=NULL, labels=c("labels", "RA
     
   labels <- match.arg(labels)
   if (labels=="labels") {
-      A.labels <- x$mx.model$A0$labels
-      S.labels <- x$mx.model$S0$labels
+      A.labels <- x$mx.fit$A0$labels
+      S.labels <- x$mx.fit$S0$labels
       labels <- c(c(A.labels), c(S.labels))
       row.pars <- as.numeric(row.names(out@Pars))
       out@Pars$label <- labels[row.pars]

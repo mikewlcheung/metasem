@@ -1,10 +1,12 @@
-Release 1.4.0 (Apr 8, 2024)
+Release 1.4.0 (May 15, 2024)
 ====================================
+* Release to CRAN.
 * Revise create.mxModel().
 * Replace dontrun with donttest.
 
 Release 1.3.1 (Aug 8, 2023)
 ====================================
+* Release to CRAN.
 * Lower the tolerance in testing asyCov(), which returns an error in latest R.
 
 Release 1.3.0 (Jan 7, 2023)

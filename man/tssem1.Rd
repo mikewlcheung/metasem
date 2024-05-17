@@ -41,8 +41,8 @@ tssem1REM(Cov, n, cor.analysis=TRUE, RE.type=c("Diag", "Symm", "Zero","User"),
   }
   \item{RE.type}{Either \code{"Diag"}, \code{"Symm"},  
 	\code{"Zero"} or \code{"User"}. If it is
-	\code{"Diag"}, a diagonal matrix is used for the random effects
-	meaning that the random effects are independent. If it is \code{"Symm"} (default if missing), a
+	\code{"Diag"} (default if missing), a diagonal matrix is used for the random effects
+	meaning that the random effects are independent. If it is \code{"Symm"}, a
 	symmetric matrix is used for the random effects on the covariances
 	among the correlation (or covariance) vectors. If it is
 	\code{"Zero"}, there is no random effects which is similar to the
