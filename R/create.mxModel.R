@@ -21,6 +21,7 @@ create.mxModel <- function(model.name="mxModel", RAM=NULL, data=NULL,
   ## Extract all observed and latent variable names
   var.names <- colnames(Fmatrix$values)
 
+
   ## Without raw data
   if (is.null(data))  {
     ## Without means
@@ -43,7 +44,8 @@ create.mxModel <- function(model.name="mxModel", RAM=NULL, data=NULL,
 
   ## Create an incomplete model, which will be used to store other mx objects.
   mx.model <- mxModel(model.name, mx.data, expFun, mxFitFunctionML())
-  
+
+  ## Note. startvalues may overwrite the starting values in RAM
   ## Collate the starting values from RAM and add them to startvalues
   para.labels <- c(Amatrix$labels[Amatrix$free], Smatrix$labels[Smatrix$free],
                    Mmatrix$labels[Mmatrix$free])
@@ -52,9 +54,22 @@ create.mxModel <- function(model.name="mxModel", RAM=NULL, data=NULL,
   ## Name the starting values with names, which is consistent with the startvalues
   names(para.values) <- para.labels
   para.values <- as.list(para.values)
-  ## Remove starting values from para.values if they are overlapped with startvalues    
-  para.values[names(para.values) %in% names(startvalues)] <- NULL
-  startvalues <- c(startvalues, para.values)
+
+  ## Prepare startvalues
+  if (is.null(startvalues)) {## Note. startvalues may overwrite the starting values in RAM
+    startvalues <- para.values
+  } else {
+    ## Remove starting values from para.values if they are overlapped with startvalues    
+    para.values[names(para.values) %in% names(startvalues)] <- NULL
+    startvalues <- c(startvalues, para.values)
+
+    ## Replace the startvalues in Amatrix, Smatrix, and Mmatrix
+    for (i in seq_along(startvalues)) {
+      Amatrix$values[Amatrix$labels==names(startvalues)[i]] <- startvalues[[i]]
+      Smatrix$values[Smatrix$labels==names(startvalues)[i]] <- startvalues[[i]]
+      Mmatrix$values[Mmatrix$labels==names(startvalues)[i]] <- startvalues[[i]]
+    }
+  }
   
   ## Extract a local copy for ease of reference
   ## Remove starting values for ease of matching
@@ -174,7 +189,6 @@ create.mxModel <- function(model.name="mxModel", RAM=NULL, data=NULL,
   }
     
   if (run) {
-  
     ## Default is z
     mx.fit <- tryCatch(mxRun(mx.model, intervals=(intervals.type=="LB"),
                              suppressWarnings=TRUE, silent=TRUE, ...),
@@ -362,6 +376,9 @@ plot.mxRAMmodel <- function(x, manNames=NULL, latNames=NULL,
   S <- x$mx.fit@matrices$Smatrix$values
   F <- x$mx.fit@matrices$Fmatrix$values
   M <- x$mx.fit@matrices$Mmatrix$values
+  ## Fixed when M is NULL, i.e., no mean structure
+  if (is.null(M)) M <- matrix(0, nrow=1, ncol=ncol(A))
+  
   RAM <- x$RAM
 
   ## When there are definition variables, data in the first role are used in

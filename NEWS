@@ -1,3 +1,12 @@
+Release 1.4.2 (Jul 10, 2024)
+====================================
+* Fix the means of the latent variables at 0 in lavaan2RAM().
+
+Release 1.4.1 (Jun 17, 2024)
+====================================
+* Add "<~" operator in lavaan2RAM().
+* Fix startvalues not assigned in create.mxModel().
+
 Release 1.4.0 (May 15, 2024)
 ====================================
 * Release to CRAN.
