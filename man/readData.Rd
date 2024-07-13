@@ -43,8 +43,19 @@ readLowTriMat(file, no.var, ...)
 ## 1.0 NA 0.4\nNA NA NA\n0.4 NA 1.0",
 ## file="fullmat.dat", sep="")
 
-## Read the correlation matrices
+## Read the correlation matrices from a file
 ## my.full <- readFullMat("fullmat.dat")
+
+## Read the correlation matrices from a string
+x <-
+"1.0 0.3 0.4
+0.3 1.0 0.5
+0.4 0.5 1.0
+1.0 NA 0.4
+NA NA NA
+0.4 NA 1.0"
+
+my.full <- readFullMat(textConnection(x))
 
 ## my.full
 # $`1`
@@ -71,8 +82,19 @@ readLowTriMat(file, no.var, ...)
 ## cat("1.0\n0.3 1.0\n0.4 0.5 1.0\n1.0\nNA NA\n0.4 NA 1.0",
 ##     file="lowertriangle.dat", sep="")
 
-## Read the lower triangle correlation matrices
+## Read the lower triangle correlation matrices from a file
 ## my.lowertri <- readLowTriMat(file = "lowertriangle.dat", no.var = 3)
+
+## Read the correlation matrices from a string
+x <-
+"1.0 
+0.3 1.0 
+0.4 0.5 1.0
+1.0
+NA NA 
+0.4 NA 1.0"
+
+my.lowertri <- readLowTriMat(textConnection(x), no.var = 3)
 
 ## my.lowertri
 # $`1`
@@ -96,7 +118,15 @@ readLowTriMat(file, no.var, ...)
 ## cat("1.0 0.3 0.4 1.0 0.5 1.0\n1.0 NA 0.4 NA NA 1.0\n",
 ##     file="stackvec.dat", sep="")
 
+## Read the stack vectors from a file
 ## my.vec <- readStackVec("stackvec.dat")
+
+## Read the stack vectors from a string
+x <- "
+1.0 0.3 0.4 1.0 0.5 1.0
+1.0 NA 0.4 NA NA 1.0"
+
+my.vec <- readStackVec(textConnection(x))
 
 ## my.vec
 # $`1`

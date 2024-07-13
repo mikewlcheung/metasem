@@ -1,3 +1,7 @@
+Release 1.4.3 (Jul 13, 2024)
+====================================
+* Support means in Cor2DataFrame().
+
 Release 1.4.2 (Jul 10, 2024)
 ====================================
 * Fix the means of the latent variables at 0 in lavaan2RAM().

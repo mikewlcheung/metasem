@@ -8,9 +8,10 @@
   sampling covariance matrices. It uses the \code{asyCov} at the backend. 
 }
 \usage{
-Cor2DataFrame(x, n, v.na.replace = TRUE, row.names.unique = FALSE,
-              cor.analysis = TRUE, acov="weighted", append.vars=TRUE,
-              asyCovOld=FALSE, ...)
+  Cor2DataFrame(x, n, v.na.replace=TRUE, cor.analysis=TRUE,
+                acov=c("weighted", "individual", "unweighted"),
+                Means, row.names.unique=FALSE, append.vars=TRUE,
+                asyCovOld=FALSE, ...)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -22,15 +23,16 @@ Cor2DataFrame(x, n, v.na.replace = TRUE, row.names.unique = FALSE,
   be provided.}
 \item{v.na.replace}{Logical. Missing value is not allowed in definition
   variables. If it is \code{TRUE} (the default), missing value is
-  replaced by a large value (1e10). These values are not used in the analysis.} 
-\item{row.names.unique}{Logical, If it is \code{FALSE} (the default), unique
-  row names are not created.}
+  replaced by a large value (1e10). These values are not used in the analysis.}
 \item{cor.analysis}{Logical. The output is either a correlation or
   covariance matrix.}
 \item{acov}{If it is \code{weighted}, the average correlation/covariance
   matrix is calculated based on the weighted mean with the sample
   sizes. The average correlation/covariance matrix is used to calculate the sampling
   variance-covariance matrices.}
+\item{Means}{An optional matrix of means. The number of rows must be the same as the length of \code{n}. The sampling covariance matrices of the means are calculated by the covariance matrices divided by the sample sizes. Therefore, it is important to make sure that covariance matrices (not correlation matrices) are used in \code{x} when \code{Means} are included; otherwise, the calculated sampling covariance matrices of the means are incorrect.}
+\item{row.names.unique}{Logical, If it is \code{FALSE} (the default), unique
+  row names are not created.}
 \item{append.vars}{Whether to append the additional variables to
   the output dataframe.}
 \item{asyCovOld}{Whether to use the old version of \code{asyCov}. See \code{\link[metaSEM]{asyCov}}.}
