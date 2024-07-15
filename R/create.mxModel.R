@@ -139,11 +139,14 @@ create.mxModel <- function(model.name="mxModel", RAM=NULL, data=NULL,
   ## Create an identity matrix from the no. of columens of Fmatrix,
   ## including all latent and observed variables
   Id <- as.mxMatrix(diag(ncol(Fmatrix$values)), name="Id")
-
-  ## Expected covariance matrix and means of the observed and latent variables
   Id_A <- mxAlgebra(solve(Id - Amatrix), name="Id_A")
+  
+  ## Note. expCov and expMean are NOT used in the fit function.
+  ## They are included so the implied structures include the latent variables.
+  ## It may be useful for future applications.
   expCov <- mxAlgebra(Id_A %&% Smatrix, name="expCov")   
-    
+  expMean <- mxAlgebra(Mmatrix %*% t(Id_A), name="expMean")
+  
   ## Add the mean structure only if there are means
   if (!is.null(data) | !is.null(means)) {
 
@@ -153,8 +156,7 @@ create.mxModel <- function(model.name="mxModel", RAM=NULL, data=NULL,
       M <- as.mxAlgebra(M, startvalues=startvalues, name="Mmatrix")
       mx.model <- mxModel(mx.model, M$mxalgebra, M$parameters, M$list)
     }
-        
-    expMean <- mxAlgebra(Mmatrix %*% t(Id_A), name="expMean")
+          
     mx.model <- mxModel(mx.model, Fmatrix, Id, Id_A, expCov, expMean,
                         mxCI(c("Amatrix", "Smatrix", "Mmatrix")))
   } else {

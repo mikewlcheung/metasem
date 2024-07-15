@@ -2,18 +2,23 @@ rerun <- function(object, autofixtau2=FALSE, extraTries=10, ...) {
   if (!is.element(class(object)[1], c("wls", "tssem1FEM", "tssem1REM", "meta",
                                       "meta3LFIML", "reml",
                                       "tssem1FEM.cluster", "wls.cluster",
-                                      "osmasem", "osmasem3L", "MxModel",
-                                      "mxRAMmodel")))
-    stop("\"object\" must be an object of neither class \"meta\", \"meta3LFIML\", \"wls\", \"reml\", \"tssem1FEM\", \"tssem1REM\", \"tssem1FEM.cluster\", \"wls.cluster\", \"osmasem\", \"osmasem3L\", \"MxModel\", or \"mxRAMModel\".")
+                                      "osmasem", "osmasem2", "osmasem3L",
+                                      "MxModel", "mxRAMmodel")))
+    stop("'object' must be an object of neither class 'meta', 'meta3LFIML',
+'wls', 'reml', 'tssem1FEM', 'tssem1REM', 'tssem1FEM.cluster', 'wls.cluster',
+'osmasem', 'osmasem2', 'osmasem3L', 'MxModel', or 'mxRAMModel'.")
 
   ## Run a rerun without autofixtau2 to minimize over-fixing
   ## Many of the NA in SEs may disappear after rerunning it.
-  if (autofixtau2 & is.element(class(object)[1], c("tssem1REM", "meta", "osmasem"))) {
+  if (autofixtau2 & is.element(class(object)[1], c("tssem1REM", "meta",
+                                                   "osmasem", "osmasem2"))) {
     object <- rerun(object, autofixtau2=FALSE, extraTries=extraTries, ...)
   }
   
   ## Automatically fix the problematic Tau2 into 0 for tssem1REM and meta objects
-  if (autofixtau2 & is.element(class(object)[1], c("tssem1REM", "meta"))) {
+  ## osmasem2 object is similar to meta object as it uses Tau2
+  if (autofixtau2 & is.element(class(object)[1], c("tssem1REM", "meta",
+                                                   "osmasem2"))) {
     ## Get the Tau2 with NA is SE
     tau2nan <- suppressWarnings(sqrt(diag(vcov(object, select="random"))))
     
@@ -78,6 +83,11 @@ rerun <- function(object, autofixtau2=FALSE, extraTries=10, ...) {
                                          bestInitsOutput=FALSE,
                                          intervals=TRUE, ...))
     }
-  }    
+  }
+  ## Run it again as the SEs sometimes diasapper
+  fit <- out$mx.fit
+  fit <- mxOption(fit, "Calculate Hessian", "Yes")
+  fit <- mxOption(fit, "Standard Errors", "Yes")
+  out$mx.fit <- mxRun(fit, silent=TRUE, suppressWarnings=TRUE)
   out
 }
