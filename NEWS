@@ -1,3 +1,8 @@
+Release 1.4.4 (Jul 27, 2024)
+====================================
+* Add osmasem2() and friends.
+* Add mean data in issp05.
+
 Release 1.4.3 (Jul 13, 2024)
 ====================================
 * Support means in Cor2DataFrame().

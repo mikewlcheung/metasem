@@ -1,5 +1,6 @@
 \name{osmasem}
 \alias{osmasem}
+\alias{osmasem2}
 \title{One-stage meta-analytic structural equation modeling
 }
 \description{It fits MASEM with the one-stage MASEM (OSMASEM) approach.  
@@ -12,7 +13,14 @@ osmasem(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
         subset.variables=NULL, subset.rows=NULL, 
         intervals.type = c("z", "LB"),
         mxModel.Args=NULL, mxRun.Args=NULL,
-        suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) 
+        suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...)
+osmasem2(model.name="osmasem2", RAM, data, cor.analysis=TRUE,
+         RE.type.Sigma=c("Diag", "Symm", "Zero"),
+         RE.type.Mu=c("Diag", "Symm", "Zero"),
+         RE.type.SigmaMu=c("Zero", "Full"),
+         mean.analysis=FALSE, intervals.type=c("z", "LB"),
+         startvalues=NULL, replace.constraints=FALSE,
+         mxModel.Args=NULL, run=TRUE, ...)
 }
 \arguments{
 \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. 
@@ -49,14 +57,25 @@ not givin, an identity matrix will be used. }
   is \code{LB}, it calculates the 95\% likelihood-based CIs on the parameter estimates.}
 \item{mxModel.Args}{A list of arguments passed to \code{\link[OpenMx]{mxModel}}.}
 \item{mxRun.Args}{A list of arguments passed to \code{\link[OpenMx]{mxRun}}.}
-  \item{suppressWarnings}{Logical. If it is \code{TRUE}, warnings are
+\item{suppressWarnings}{Logical. If it is \code{TRUE}, warnings are
 	suppressed. This argument is passed to \code{\link[OpenMx]{mxRun}}.}
-  \item{silent}{Logical. An argument is passed to \code{\link[OpenMx]{mxRun}}}
-  \item{run}{Logical. If \code{FALSE}, only return the mx model without running the analysis.}
-  \item{\dots}{Not used yet.}
-  
+\item{silent}{Logical. An argument is passed to \code{\link[OpenMx]{mxRun}}}
+\item{run}{Logical. If \code{FALSE}, only return the mx model without running the analysis.}
+\item{\dots}{Not used yet.}
+\item{cor.analysis}{Whether to analyze correlation or covariance structure analysis.}
+\item{RE.type.Sigma}{Type of the random effects of the correlation or covariance vectors.}
+\item{RE.type.Mu}{Type of the random effects of the mean vectors.}
+\item{RE.type.SigmaMu}{Type of the random effects between the correlation/covariance vectors and the mean vectors.}
+\item{mean.analysis}{Whether to include the analysis of the mean structure.}
+\item{startvalues}{An optional list of starting values. It is useful when there are new parameters in RAM.}
+\item{replace.constraints}{It is relevant only when there are constraints in RAM. If it is \code{FALSE}, these constraints will be impose. If it is \code{FALSE}, the parameters on the left-hand side will be replaced by the algebras on the right-hand side.}
 }
-
+\details{osmasem was implemented based on Jak and Cheung (2020) for meta-analyzing correlation matrices. osmasem2 was a rewrite designed to handle correlation or covariance matrices, including the means. There are several major differences between them:
+1. osmasem allows the use of RAM or (Mmatrix and Tmatrix), while osmasem2 calculates the Mmatrix and Tmatrix based on the RAM input.
+2. RE.type is used to specify the type of random effects on the correlations in osmasem. On the contrary, osmasem2 has three types of random effects: correlations/covariances, means, and covariance between correlations/covariance and means.
+3. osmasem reports the transformed random effects in the parameter table. Users have to use VarCorr to obtain the heterogeneity matrix of the random effects. In contrast, osmasem2 reports the heterogeneity matrix in the parameter table.
+4. osmasem2 allows the imposition of linear and nonlinear constraints and the creation of parameter functions in RAM, which osmasem does not.
+}
 \value{An object of class \code{osmasem}}
 
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>
@@ -73,4 +92,4 @@ modeling with moderating effects on SEM parameters. \emph{Psychological
 
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
-\keyword{ osmasem }
+\keyword{ osmasem, osmasemCovMean }

@@ -157,12 +157,10 @@ create.mxModel <- function(model.name="mxModel", RAM=NULL, data=NULL,
       mx.model <- mxModel(mx.model, M$mxalgebra, M$parameters, M$list)
     }
           
-    mx.model <- mxModel(mx.model, Fmatrix, Id, Id_A, expCov, expMean,
-                        mxCI(c("Amatrix", "Smatrix", "Mmatrix")))
+    mx.model <- mxModel(mx.model, Fmatrix, Id, Id_A, expCov, expMean)
   } else {
     ## No mean structure
-    mx.model <- mxModel(mx.model, Fmatrix, Id, Id_A, expCov, 
-                        mxCI(c("Amatrix", "Smatrix")))
+    mx.model <- mxModel(mx.model, Fmatrix, Id, Id_A, expCov)
   }
   
   ## Add additional arguments to mxModel
@@ -172,6 +170,14 @@ create.mxModel <- function(model.name="mxModel", RAM=NULL, data=NULL,
     }
   }
 
+  ## New parameter labels including those in constraints
+  new.para.labels <- unique(c(A, S, M))
+  ## Get the variable names
+  new.para.labels <- all.vars(parse(text=new.para.labels))
+  ## Drop the definition variables
+  new.para.labels <- new.para.labels[!grepl("data.", new.para.labels)]
+  mx.model <- mxModel(mx.model, mxCI(new.para.labels))
+  
   ## A list of mxalgebras required SE or CI
   mxalgebras.ci <- NULL
   

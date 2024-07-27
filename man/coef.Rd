@@ -8,6 +8,7 @@
 \alias{coef.meta3LFIML}
 \alias{coef.reml}
 \alias{coef.osmasem}
+\alias{coef.osmasem2}
 \alias{coef.mxRAMmodel}
 
 \title{Extract Parameter Estimates from various classes.
@@ -25,6 +26,7 @@
 \method{coef}{meta3LFIML}(object, select = c("all", "fixed", "random", "allX"), \dots)
 \method{coef}{reml}(object, \dots)
 \method{coef}{osmasem}(object, select=c("fixed", "all", "random"), \dots)
+\method{coef}{osmasem2}(object, select=c("fixed", "all", "random"), \dots)
 \method{coef}{mxRAMmodel}(object, \dots)
 }
 %- maybe also 'usage' for other objects documented here.
@@ -32,7 +34,7 @@
   \item{object}{An object returned from either class
 	\code{tssem1FEM}, class \code{tssem1FEM.cluster}, class \code{tssem1REM}, 
 	class \code{wls}, class \code{wls.cluster}, class \code{meta}, class
-	\code{reml} or class \code{mxRAMmodel}
+	\code{reml}, class \code{osmasem}, class \code{osmasem2}, or class \code{mxRAMmodel}
   }
   \item{select}{Select \code{all} for both fixed- and random-effects parameters, \code{fixed} for the
   fixed-effects parameters or \code{random} for the random-effects

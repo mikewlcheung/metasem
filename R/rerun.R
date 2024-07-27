@@ -67,7 +67,11 @@ rerun <- function(object, autofixtau2=FALSE, extraTries=10, ...) {
                      bestInitsOutput=FALSE, ...)
     ## Other metaSEM objects    
   } else {
-    out <- object   
+
+    out <- object
+    object$mx.fit <- mxOption(object$mx.fit, "Calculate Hessian", "Yes")
+    object$mx.fit <- mxOption(object$mx.fit, "Standard Errors", "Yes")
+    
     ## No LB option
     if (is.null(object$intervals.type)) {
       out$mx.fit <- mxTryHard(object$mx.fit, extraTries=extraTries,
@@ -84,10 +88,11 @@ rerun <- function(object, autofixtau2=FALSE, extraTries=10, ...) {
                                          intervals=TRUE, ...))
     }
   }
-  ## Run it again as the SEs sometimes diasapper
-  fit <- out$mx.fit
-  fit <- mxOption(fit, "Calculate Hessian", "Yes")
-  fit <- mxOption(fit, "Standard Errors", "Yes")
-  out$mx.fit <- mxRun(fit, silent=TRUE, suppressWarnings=TRUE)
+  ## Run it again as the SEs sometimes disappear
+  ## fit <- out$mx.fit
+  ## fit <- mxOption(fit, "Calculate Hessian", "Yes")
+  ## fit <- mxOption(fit, "Standard Errors", "Yes")
+  ## out$mx.fit <- mxRun(fit, silent=TRUE, intervals=(intervals.type=="LB"),
+  ##                     suppressWarnings=TRUE)
   out
 }

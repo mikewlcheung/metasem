@@ -2,7 +2,9 @@ Cor2DataFrame <- function(x, n, v.na.replace=TRUE, cor.analysis=TRUE,
                           acov=c("weighted", "individual", "unweighted"),
                           Means, row.names.unique=FALSE, append.vars=TRUE,
                           asyCovOld=FALSE, ...) {
-
+  
+  acov <- match.arg(acov, c("weighted", "individual", "unweighted"))
+  
   ## x is a list of "data", "n", ...
   if (all(c("data", "n") %in% names(x))) {
     my.cov <- x$data
@@ -24,15 +26,33 @@ Cor2DataFrame <- function(x, n, v.na.replace=TRUE, cor.analysis=TRUE,
     my.df <- list2matrix(x=my.cov, diag=TRUE)
   }
 
+  ## NA is not allowed in definition variables
+  ## Check if there are NAs in my.cov and replace them with the weighted or unweighted averages
+  if (any(sapply(my.cov, is.na)) & v.na.replace) {
+    ## Replace NA with 0 before calculations
+    my.x <- lapply(my.cov, function(z) {z[is.na(z)] <- 0; z} )
+    if (acov=="unweighted") {
+      ## x: original covariance matrices in the input
+      ## Unweighted means = sum of r/(no. of studies)
+      cov.mean <- Reduce("+", my.x)/pattern.na(x, show.na = FALSE)
+    } else if (acov=="weighted") {
+      my.x <- mapply("*", my.x, n, SIMPLIFY = FALSE)
+      ## Weighted means = Cummulative sum of r*n/(sum of n)
+      cov.mean <- Reduce("+", my.x)/pattern.n(x, n)
+    }
+    
+    my.cov <- lapply(my.cov,
+                     function(z) {
+                       na.index <- is.na(z)
+                       z[na.index] <- cov.mean[na.index]
+                       z})
+  }
+   
   if (asyCovOld) {
     acovR <- asyCovOld(x=my.cov, n=n, cor.analysis=cor.analysis, acov=acov, ...)
   } else {
     acovR <- asyCov(x=my.cov, n=n, cor.analysis=cor.analysis, acov=acov, ...)
   }
-
-  ## NA is not allowed in definition variables
-  ## They are replaced by 1e10
-  if (v.na.replace) acovR[is.na(acovR)] <- 1e10
 
   ## x is a list of "data", "n", and moderators, and append
   ## Append the moderators x[-c(1,2)] into data
@@ -56,20 +76,16 @@ Cor2DataFrame <- function(x, n, v.na.replace=TRUE, cor.analysis=TRUE,
       stop("Number of columns of 'Means' and covariance matrices are different.\n")
     }
     if (!identical(colnames(my.cov[[1]]), colnames(Means))) {
-      stop("The variable names are not in the same order in 'x' and 'Means'. The results are likely incorrect unless this is what you want.\n")
+      stop("The variable names are not in the same order in 'x' and 'Means'.
+The results are likely incorrect unless this is what you want.\n")
     }
-    
+
     ## Sampling covariance matrices of the means: covariance matrices/n
-    ## NA are replaced with 10^5
-    acov_mean <- mapply(function(x, y) {
-      out <- x/y
-      out[is.na(out)] <- 1e10
-      out},
-      my.cov, n, SIMPLIFY=FALSE)
+    acov_mean <- mapply(function(x, y) {x/y}, my.cov, n, SIMPLIFY=FALSE)
     acov_mean <- t(sapply(acov_mean, function(x) vech(x)))
 
     ## Variable names of p (sampling covariance matrix of the means
-    pCovNames <- matrix(paste("M(",
+    pCovNames <- matrix(paste("C(",
                               outer(obslabels, obslabels, paste, sep = " "), 
                               ")", sep=""),
                         nrow=length(obslabels), ncol=length(obslabels))
@@ -80,12 +96,22 @@ Cor2DataFrame <- function(x, n, v.na.replace=TRUE, cor.analysis=TRUE,
       rownames(acov_mean) <- make.names(rownames(acov_mean), unique=TRUE)    
     }
     
-    list(data=cbind(data, Means, acov_mean), n=n, obslabels=obslabels,
-         ylabels=colnames(my.df), vlabels=colnames(acovR),
-         Meanvlabels=pCovNames)
+    out <- list(data=cbind(data, Means, acov_mean), n=n, obslabels=obslabels,
+                ylabels=colnames(my.df), vlabels=colnames(acovR),
+                vMlabels=pCovNames, VyMlabels=NULL)
   } else {
     ## Without the means
-    list(data=data, n=n, obslabels=obslabels, ylabels=colnames(my.df),
-         vlabels=colnames(acovR))
+    out <- list(data=data, n=n, obslabels=obslabels, ylabels=colnames(my.df),
+                vlabels=colnames(acovR), VyMlabels=NULL)
   }
+
+  ## obslabels: labels of the means (Means) and dimnames in the
+  ## correlation/covariance matrices (Cov)
+  ## ylabels: vech(Cov) generated from list2matrix()
+  ## vlabels: Acov of vech(Cov) generated from asyCov()
+  ## Mlabels: labels of the means (not included as they are identical to obslabels)
+  ## vMlabels: Acov of Means
+  ## VyMlabels: Acov of Cov and Means (not included as Cov and Means are independent)
+
+  out
 }
