@@ -401,10 +401,10 @@ osmasem2 <- function(model.name="osmasem2", RAM, data, cor.analysis=TRUE,
   } else {
     mx.fit <- mx.model
   }
-
+  
   out <- list(mx.fit=mx.fit, mx.ind=mx.ind, mx.sat=mx.sat,
               cor.analysis=cor.analysis, mean.analysis=mean.analysis,
-              n=sum(data$n), intervals.type=intervals.type)
+              n=sum(data$n), intervals.type=intervals.type, data=data)
   class(out) <- "osmasem2"
   out
 }  

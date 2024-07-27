@@ -14,6 +14,7 @@ S3method(plot, meta)
 S3method(plot, character)
 S3method(plot, wls)
 S3method(plot, osmasem)
+S3method(plot, osmasem2)
 S3method(plot, mxRAMmodel)
 # S3method(plot, osmasem3L)
 
