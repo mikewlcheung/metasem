@@ -2,11 +2,10 @@
 ## intervals.type="LB", it returns an error because some parameters are
 ## replaced with the new parameters in the constraints. However, the
 ## names of these new parameters are not in the CI object.
-create.mxModel <- function(model.name="mxModel", RAM=NULL, data=NULL,
-                           Cov=NULL, means=NULL, numObs,
-                           intervals.type=c("z", "LB"), startvalues=NULL,
-                           replace.constraints=FALSE, mxModel.Args=NULL,
-                           run=TRUE, silent=TRUE, ...) {
+sem <- function(model.name="sem", RAM=NULL, data=NULL, Cov=NULL,
+                means=NULL, numObs, intervals.type=c("z", "LB"),
+                startvalues=NULL, replace.constraints=FALSE,
+                mxModel.Args=NULL, run=TRUE, silent=TRUE, ...) {
 
   intervals.type <- match.arg(intervals.type)
     
@@ -20,7 +19,6 @@ create.mxModel <- function(model.name="mxModel", RAM=NULL, data=NULL,
 
   ## Extract all observed and latent variable names
   var.names <- colnames(Fmatrix$values)
-
 
   ## Without raw data
   if (is.null(data))  {
@@ -218,13 +216,27 @@ create.mxModel <- function(model.name="mxModel", RAM=NULL, data=NULL,
 
   out <- list(mx.fit=mx.fit, RAM=RAM, data=data, mxalgebras=mxalgebras.ci,
               intervals.type=intervals.type)
-  class(out) <- "mxRAMmodel"
+  class(out) <- "sem"
   out
 }
 
-summary.mxRAMmodel <- function(object, robust=FALSE, ...) {
-  if (!is.element("mxRAMmodel", class(object)))
-    stop("\"object\" must be an object of class \"mxRAMmodel\".")
+## Will be depreciated in the future
+create.mxModel <- function(model.name="sem", RAM=NULL, data=NULL,
+                           Cov=NULL, means=NULL, numObs,
+                           intervals.type=c("z", "LB"), startvalues=NULL,
+                           replace.constraints=FALSE, mxModel.Args=NULL,
+                           run=TRUE, silent=TRUE, ...) {
+  .Deprecated("create.mxModel")
+  sem(model.name=model.name, RAM=RAM, data=data, Cov=Cov, means=means,
+      numObs=numObs, intervals.type=intervals.type, startvalues=startvalues,
+      replace.constraints=replace.constraints, mxModel.Args=mxModel.Args,
+      run=run, silent=silent, ...)
+}
+
+
+summary.sem <- function(object, robust=FALSE, ...) {
+  if (!is.element("sem", class(object)))
+    stop("\"object\" must be an object of class \"sem\".")
 
   # calculate coefficients    
   my.mx <- summary(object$mx.fit)
@@ -308,13 +320,13 @@ summary.mxRAMmodel <- function(object, robust=FALSE, ...) {
               Minus2LL=my.mx$Minus2LogLikelihood,
               Mx.status1=object$mx.fit@output$status[[1]],
               informationCriteria=informationCriteria)
-    class(out) <- "summary.mxRAMmodel"
+    class(out) <- "summary.sem"
     out
 }
 
-print.summary.mxRAMmodel <- function(x, ...) {
-    if (!is.element("summary.mxRAMmodel", class(x))) {
-      stop("\"x\" must be an object of class \"summary.mxRAMmodel\".")
+print.summary.sem <- function(x, ...) {
+    if (!is.element("summary.sem", class(x))) {
+      stop("\"x\" must be an object of class \"summary.sem\".")
     }
     
     cat("95% confidence intervals: ")
@@ -343,16 +355,16 @@ print.summary.mxRAMmodel <- function(x, ...) {
     if (!(x$Mx.status1 %in% c(0,1))) warning("OpenMx status1 is neither 0 or 1. You are advised to 'rerun' it again.\n")
 }
 
-coef.mxRAMmodel <- function(object, ...) {
-  if (!is.element("mxRAMmodel", class(object)))
-    stop("\"object\" must be an object of class \"mxRAMmodel\".")
+coef.sem <- function(object, ...) {
+  if (!is.element("sem", class(object)))
+    stop("\"object\" must be an object of class \"sem\".")
 
   coef(object$mx.fit)
 }
 
-vcov.mxRAMmodel <- function(object, robust=FALSE, ...) {
-  if (!is.element("mxRAMmodel", class(object)))
-    stop("\"object\" must be an object of class \"mxRAMmodel\".")
+vcov.sem <- function(object, robust=FALSE, ...) {
+  if (!is.element("sem", class(object)))
+    stop("\"object\" must be an object of class \"sem\".")
   
   if (robust) {
     suppressMessages(imxRobustSE(object$mx.fit, details=TRUE)$cov)
@@ -361,24 +373,24 @@ vcov.mxRAMmodel <- function(object, robust=FALSE, ...) {
   } 
 }
 
-anova.mxRAMmodel <- function(object, ..., all=FALSE) {
+anova.sem <- function(object, ..., all=FALSE) {
   base <- lapply(list(object), function(x) x$mx.fit)
   comparison <- lapply(list(...), function(x) x$mx.fit)
   mxCompare(base=base, comparison=comparison, all=all)
 }
 
-plot.mxRAMmodel <- function(x, manNames=NULL, latNames=NULL,
-                            labels=c("labels", "RAM"), what="est", nCharNodes=0,
-                            nCharEdges=0, layout=c("tree", "circle", "spring",
-                                                   "tree2", "circle2"),
-                            sizeMan=8, sizeLat=8, edge.label.cex=1.3,
-                            color="white", weighted=FALSE, ...) {
-
+plot.sem <- function(x, manNames=NULL, latNames=NULL,
+                     labels=c("labels", "RAM"), what="est", nCharNodes=0,
+                     nCharEdges=0, layout=c("tree", "circle", "spring",
+                                            "tree2", "circle2"),
+                     sizeMan=8, sizeLat=8, edge.label.cex=1.3,
+                     color="white", weighted=FALSE, ...) {
+  
   if (!requireNamespace("semPlot", quietly=TRUE))    
     stop("\"semPlot\" package is required for this function.")
     
-  if (!inherits(x, "mxRAMmodel"))
-    stop("'mxRAMmodel' object is required.\n")
+  if (!inherits(x, "sem"))
+    stop("'sem' object is required.\n")
   
   A <- x$mx.fit@matrices$Amatrix$values
   S <- x$mx.fit@matrices$Smatrix$values

@@ -585,7 +585,7 @@ test_that("metaFIML() works correctly", {
            fy ~ Intercept1*1"
 
     RAM1 <- lavaan2RAM(m1, obs.variables = c("r", "JP_alpha"), std.lv=FALSE)
-    fit1b <- create.mxModel(RAM=RAM1, data=Jaramillo05)
+    fit1b <- sem(RAM=RAM1, data=Jaramillo05)
 
     coef1a <- coef(fit1a)
     names1 <- names(coef1a)
@@ -619,7 +619,7 @@ test_that("metaFIML() works correctly", {
            fy ~~ CovX2_Y1*fz"
 
     RAM2 <- lavaan2RAM(m2, obs.variables = c("r", "JP_alpha", "IDV"), std.lv=FALSE)
-    fit2b <- create.mxModel(RAM=RAM2, data=Jaramillo05)
+    fit2b <- sem(RAM=RAM2, data=Jaramillo05)
 
     coef2a <- coef(fit2a)
     names2 <- names(coef2a)
@@ -660,7 +660,7 @@ test_that("metaFIML() works correctly", {
            fy2 ~ Intercept2*1"
 
     RAM3 <- lavaan2RAM(m3, obs.variables = c("lifesat", "lifecon", "gnp"), std.lv=FALSE)
-    fit3b <- create.mxModel(RAM=RAM3, data=wvs94a)
+    fit3b <- sem(RAM=RAM3, data=wvs94a)
 
     coef3a <- coef(fit3a)
     names3 <- names(coef3a)

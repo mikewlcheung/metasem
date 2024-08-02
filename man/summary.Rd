@@ -12,7 +12,7 @@
 \alias{summary.bootuniR2}
 \alias{summary.osmasem}
 \alias{summary.osmasem2}
-\alias{summary.mxRAMmodel}
+\alias{summary.sem}
 \alias{print.summary.tssem1FEM}
 \alias{print.summary.tssem1FEM.cluster}
 \alias{print.summary.wls}
@@ -22,7 +22,7 @@
 \alias{print.summary.CorPop}
 \alias{print.summary.Cor3L}
 \alias{print.summary.bootuniR2}
-\alias{print.summary.mxRAMmodel}
+\alias{print.summary.sem}
 \title{Summary Method for tssem1, wls, meta, and meta3LFIML Objects
 }
 \description{It summaries results for various class.
@@ -36,7 +36,7 @@
 \method{summary}{meta}(object, homoStat=TRUE, robust=FALSE, \dots)
 \method{summary}{meta3LFIML}(object, allX=FALSE, robust=FALSE, \dots)
 \method{summary}{reml}(object, \dots)
-\method{summary}{mxRAMmodel}(object, robust=FALSE, \dots)
+\method{summary}{sem}(object, robust=FALSE, \dots)
 \method{summary}{CorPop}(object, \dots)
 \method{summary}{Cor3L}(object, \dots)
 \method{summary}{bootuniR2}(object, probs=c(0, 0.1, 0.5, 0.9, 1),
@@ -49,7 +49,7 @@
 \method{print.summary}{meta}(x, \dots)
 \method{print.summary}{meta3LFIML}(x, \dots)
 \method{print.summary}{reml}(x, \dots)
-\method{print.summary}{mxRAMmodel}(x, \dots)
+\method{print.summary}{sem}(x, \dots)
 \method{print.summary}{CorPop}(x, \dots)
 \method{print.summary}{Cor3L}(x, \dots)
 \method{print.summary}{bootuniR2}(x, \dots)

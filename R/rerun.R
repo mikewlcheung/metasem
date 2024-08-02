@@ -3,7 +3,7 @@ rerun <- function(object, autofixtau2=FALSE, extraTries=10, ...) {
                                       "meta3LFIML", "reml",
                                       "tssem1FEM.cluster", "wls.cluster",
                                       "osmasem", "osmasem2", "osmasem3L",
-                                      "MxModel", "mxRAMmodel")))
+                                      "MxModel", "sem")))
     stop("'object' must be an object of neither class 'meta', 'meta3LFIML',
 'wls', 'reml', 'tssem1FEM', 'tssem1REM', 'tssem1FEM.cluster', 'wls.cluster',
 'osmasem', 'osmasem2', 'osmasem3L', 'MxModel', or 'mxRAMModel'.")

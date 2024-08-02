@@ -1,15 +1,22 @@
-\name{create.mxModel}
+\name{sem}
+\alias{sem}
 \alias{create.mxModel}
-\title{Create an mxModel
+\title{Fit a structural equation model using OpenMx
 }
-\description{It creates a mxModel from a RAM object.  
+\description{It fits a structural equation model by creating a mxModel from a RAM object.  
 }
 \usage{
-create.mxModel(model.name="mxModel", RAM=NULL, data=NULL,
+## Depreciated in the future
+create.mxModel(model.name="sem", RAM=NULL, data=NULL,
                Cov=NULL, means=NULL, numObs,
                intervals.type=c("z", "LB"), startvalues=NULL,
                replace.constraints=FALSE, mxModel.Args=NULL,
                run=TRUE, silent=TRUE, ...)
+sem(model.name="sem", RAM=NULL, data=NULL,
+    Cov=NULL, means=NULL, numObs,
+    intervals.type=c("z", "LB"), startvalues=NULL,
+    replace.constraints=FALSE, mxModel.Args=NULL,
+    run=TRUE, silent=TRUE, ...)
 }
 \arguments{
   \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. 
@@ -58,7 +65,7 @@ plot(model)
 
 RAM <- lavaan2RAM(model, obs.variables=c("y", "x"))
 
-my.fit <- create.mxModel(RAM=RAM, data=my.df)
+my.fit <- sem(RAM=RAM, data=my.df)
 summary(my.fit)
 
 ## A meta-analysis
@@ -72,7 +79,7 @@ plot(model)
 RAM <- lavaan2RAM(model, obs.variables="yi", std.lv=FALSE)
 
 ## Use likelihood-based CI 
-my.fit <- create.mxModel(RAM=RAM, data=Hox02, intervals="LB")
+my.fit <- sem(RAM=RAM, data=Hox02, intervals="LB")
 summary(my.fit)
 }
 }

@@ -1,3 +1,7 @@
+Release 1.4.5 (Aug 1, 2024)
+====================================
+Rename create.mxModel() to sum().
+
 Release 1.4.4 (Jul 27, 2024)
 ====================================
 * Add osmasem2() and friends.
