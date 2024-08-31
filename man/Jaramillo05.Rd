@@ -1,7 +1,7 @@
 \name{Jaramillo05}
 \alias{Jaramillo05}
 \docType{data}
-\title{Dataset from Jaramillo, Mulki & Marshall (2005)
+\title{Dataset from Jaramillo, Mulki and Marshall (2005)
 }
 \description{A dataset of the relationship between organizational
   commitment (OC) and salesperson job performance (JP) from Jaramillo, Mulki & Marshall (2005).
@@ -22,6 +22,7 @@
     \item{\code{r}}{correlation between organizational commitment and
 	  job performance}
     \item{\code{r_v}}{sampling variance of r}
+    \item{Citations}{Citations from Google Scholar as of 27 August 2024}
   }
 }
 

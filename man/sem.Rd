@@ -15,8 +15,8 @@ create.mxModel(model.name="sem", RAM=NULL, data=NULL,
 sem(model.name="sem", RAM=NULL, data=NULL,
     Cov=NULL, means=NULL, numObs,
     intervals.type=c("z", "LB"), startvalues=NULL,
-    replace.constraints=FALSE, mxModel.Args=NULL,
-    run=TRUE, silent=TRUE, ...)
+    lbound=NULL, ubound=NULL, replace.constraints=FALSE,
+    mxModel.Args=NULL, run=TRUE, silent=TRUE, ...)
 }
 \arguments{
   \item{model.name}{A string for the model name in \code{\link[OpenMx]{mxModel}}. 
@@ -33,6 +33,10 @@ sem(model.name="sem", RAM=NULL, data=NULL,
   is \code{LB}, it calculates the 95\% likelihood-based CIs on the
   parameter estimates.}
 \item{startvalues}{A list of named starting values of the free parameters, e.g., list(a=1, b=2)}
+\item{lbound}{A list of lower bound of the free parameters. If it is
+  not provided, all free parameters are assumed \code{NA}.}
+\item{ubound}{A list of upper bound of the free parameters. If it is
+  not provided, all free parameters are assumed \code{NA}.}  
 \item{replace.constraints}{Logical. If \code{TRUE}, the parameters on the left hand side will be replaced by the constraints on the right hand side. That is, the parameters on the left hand side are no longer parameters in the model.}
 \item{mxModel.Args}{A list of arguments passed to \code{\link[OpenMx]{mxModel}}.}
 \item{run}{Logical. If \code{FALSE}, only return the mx model without

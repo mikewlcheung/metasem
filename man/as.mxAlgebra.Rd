@@ -5,7 +5,7 @@
 \description{It converts a character matrix into \code{MxAlgebra} object.
 }
 \usage{
-as.mxAlgebra(x, startvalues=NULL, name="X")
+as.mxAlgebra(x, startvalues=NULL, lbound=NULL, ubound=NULL, name="X")
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{
@@ -13,7 +13,11 @@ as.mxAlgebra(x, startvalues=NULL, name="X")
   operators in \code{mxAlgebra}. 
 }
 \item{startvalues}{A list of starting values of the free parameters. If it is
-  not provided, all free parameters are assumed 0.}  
+  not provided, all free parameters are assumed 0.}
+\item{lbound}{A list of lower bound of the free parameters. If it is
+  not provided, all free parameters are assumed \code{NA}.}
+\item{ubound}{A list of upper bound of the free parameters. If it is
+  not provided, all free parameters are assumed \code{NA}.}  
 \item{name}{A character string of the names of the objects based
   on.}
 }
@@ -39,7 +43,9 @@ as.mxAlgebra(x, startvalues=NULL, name="X")
 ## [1,] "1"   "a^b"   
 ## [2,] "a*b" "exp(c)"
 
-A <- as.mxAlgebra(A1, startvalues=list(a=1, b=2), name="A")
+A <- as.mxAlgebra(A1, startvalues=list(a=1, b=2),
+                  lbound=list(a=0), ubound=list(b=1, c=2),
+                  name="A")
 
 ## An object of mxAlgebra
 A$mxalgebra
@@ -70,10 +76,17 @@ A$parameters
 ## [2,] TRUE
 ## [3,] TRUE
 
-## $lbound: No lower bounds assigned.
+## $lbound
+##      [,1]
+## [1,]    0
+## [2,]   NA
+## [3,]   NA
 
-## $ubound: No upper bounds assigned.
-
+## $ubound
+##      [,1]
+## [1,]   NA
+## [2,]    1
+## [3,]    2
 
 ## A list of matrices of elements for the mxAlgebra
 A$list

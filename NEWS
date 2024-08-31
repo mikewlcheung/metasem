@@ -1,3 +1,11 @@
+Release 1.4.7 (Aug 31, 2024)
+====================================
+Add lbound and ubound in sem() and as.mxAlgebra().
+
+Release 1.4.6 (Aug 28, 2024)
+====================================
+Add a field of citations in the Jaramillo05 dataset.
+
 Release 1.4.5 (Aug 1, 2024)
 ====================================
 Rename create.mxModel() to sum().

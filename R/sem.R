@@ -4,7 +4,8 @@
 ## names of these new parameters are not in the CI object.
 sem <- function(model.name="sem", RAM=NULL, data=NULL, Cov=NULL,
                 means=NULL, numObs, intervals.type=c("z", "LB"),
-                startvalues=NULL, replace.constraints=FALSE,
+                startvalues=NULL, lbound=NULL, ubound=NULL,
+                replace.constraints=FALSE,
                 mxModel.Args=NULL, run=TRUE, silent=TRUE, ...) {
 
   intervals.type <- match.arg(intervals.type)
@@ -68,6 +69,11 @@ sem <- function(model.name="sem", RAM=NULL, data=NULL, Cov=NULL,
       Mmatrix$values[Mmatrix$labels==names(startvalues)[i]] <- startvalues[[i]]
     }
   }
+
+  ## Add lbound and ubound
+  Amatrix <- .addbound(Amatrix, lbound=lbound, ubound=ubound)
+  Smatrix <- .addbound(Smatrix, lbound=lbound, ubound=ubound)
+  Mmatrix <- .addbound(Mmatrix, lbound=lbound, ubound=ubound)
   
   ## Extract a local copy for ease of reference
   ## Remove starting values for ease of matching
@@ -123,14 +129,16 @@ sem <- function(model.name="sem", RAM=NULL, data=NULL, Cov=NULL,
   if (all(A==as.symMatrix(RAM$A))) {
     mx.model <- mxModel(mx.model, Amatrix)
   } else {
-    A <- as.mxAlgebra(A, startvalues=startvalues, name="Amatrix")
+    A <- as.mxAlgebra(A, startvalues=startvalues, lbound=lbound, ubound=ubound,
+                      name="Amatrix")
     mx.model <- mxModel(mx.model, A$mxalgebra, A$parameters, A$list)
   }
 
   if (all(S==as.symMatrix(RAM$S))) {
     mx.model <- mxModel(mx.model, Smatrix)
   } else {
-    S <- as.mxAlgebra(S, startvalues=startvalues, name="Smatrix")
+    S <- as.mxAlgebra(S, startvalues=startvalues, lbound=lbound, ubound=ubound,
+                      name="Smatrix")
     mx.model <- mxModel(mx.model, S$mxalgebra, S$parameters, S$list)
   }
          
@@ -151,7 +159,8 @@ sem <- function(model.name="sem", RAM=NULL, data=NULL, Cov=NULL,
     if (all(M==as.symMatrix(RAM$M))) {
       mx.model <- mxModel(mx.model, Mmatrix)
     } else {
-      M <- as.mxAlgebra(M, startvalues=startvalues, name="Mmatrix")
+      M <- as.mxAlgebra(M, startvalues=startvalues, lbound=lbound,
+                        ubound=ubound, name="Mmatrix")
       mx.model <- mxModel(mx.model, M$mxalgebra, M$parameters, M$list)
     }
           
@@ -439,4 +448,25 @@ plot.sem <- function(x, manNames=NULL, latNames=NULL,
                                sizeMan=sizeMan, sizeLat=sizeLat,
                                edge.label.cex=edge.label.cex, color=color,
                                weighted=weighted, ...) )
+}
+
+## Add lbound and ubound to Amatrix, Smatrix, and Mmatrix
+.addbound <- function(x, lbound=NULL, ubound=NULL) {
+  if (!is.null(lbound)) {
+    for (i in seq_along(lbound)) {
+      index <- x$labels==names(lbound)[i]
+      ## NAs are treated as FALSE
+      index[is.na(index)] <- FALSE
+      x$lbound[index] <- lbound[[i]]
+    }
+  }
+  
+  if (!is.null(ubound)) {
+    for (i in seq_along(ubound)) {
+      index <- x$labels==names(ubound)[i]
+      index[is.na(index)] <- FALSE
+      x$ubound[index] <- ubound[[i]]
+    }
+  }
+  x
 }
