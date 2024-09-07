@@ -384,7 +384,7 @@ osmasem2 <- function(model.name="osmasem2", RAM, data, cor.analysis=TRUE,
   
   if (run) {
     ## Default is z
-    mx.fit <- tryCatch(mxRun(mx.model, intervals=FALSE,
+    mx.fit <- tryCatch(mxRun(mx.model, intervals=(intervals.type=="LB"),
                              suppressWarnings=TRUE, silent=TRUE),
                        error=function(e) e)
 
