@@ -9,7 +9,7 @@
 \alias{coef.reml}
 \alias{coef.osmasem}
 \alias{coef.osmasem2}
-\alias{coef.sem}
+\alias{coef.mxsem}
 
 \title{Extract Parameter Estimates from various classes.
 }
@@ -27,7 +27,7 @@
 \method{coef}{reml}(object, \dots)
 \method{coef}{osmasem}(object, select=c("fixed", "all", "random"), \dots)
 \method{coef}{osmasem2}(object, select=c("fixed", "all", "random"), \dots)
-\method{coef}{sem}(object, \dots)
+\method{coef}{mxsem}(object, \dots)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

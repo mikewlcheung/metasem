@@ -9,7 +9,7 @@
 \alias{vcov.reml}
 \alias{vcov.osmasem}
 \alias{vcov.osmasem2}
-\alias{vcov.sem}
+\alias{vcov.mxsem}
 \title{Extract Covariance Matrix Parameter Estimates from Objects of
   Various Classes
 }
@@ -27,7 +27,7 @@
 \method{vcov}{reml}(object, \dots)
 \method{vcov}{osmasem}(object, select=c("fixed", "all", "random"), robust=FALSE, \dots)
 \method{vcov}{osmasem2}(object, select=c("fixed", "all", "random"), robust=FALSE, \dots)
-\method{vcov}{sem}(object, robust=FALSE, \dots)
+\method{vcov}{mxsem}(object, robust=FALSE, \dots)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

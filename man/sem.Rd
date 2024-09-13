@@ -46,7 +46,7 @@ sem(model.name="sem", RAM=NULL, data=NULL,
 \item{\dots}{Further arguments will be passed to either
   \code{\link[OpenMx]{mxRun}} or \code{\link[OpenMx]{mxTryHard}}}  
 }
-\value{An object of class \code{mxRAMmodel}}
+\value{An object of class \code{mxsem}}
 \note{when there are constraints with \code{replace.constraints=TRUE} and \code{intervals.type="LB"}, it returns an error because some parameters in the model are replaced with the new parameters in the constraints. However, the names of these new parameters are not captured in the CI object. Users are advised to use \code{intervals.type="z"} before it is fixed.
 }
 \author{Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>

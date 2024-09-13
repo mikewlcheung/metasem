@@ -12,7 +12,7 @@
 \alias{summary.bootuniR2}
 \alias{summary.osmasem}
 \alias{summary.osmasem2}
-\alias{summary.sem}
+\alias{summary.mxsem}
 \alias{print.summary.tssem1FEM}
 \alias{print.summary.tssem1FEM.cluster}
 \alias{print.summary.wls}
@@ -22,7 +22,7 @@
 \alias{print.summary.CorPop}
 \alias{print.summary.Cor3L}
 \alias{print.summary.bootuniR2}
-\alias{print.summary.sem}
+\alias{print.summary.mxsem}
 \title{Summary Method for tssem1, wls, meta, and meta3LFIML Objects
 }
 \description{It summaries results for various class.
@@ -36,7 +36,7 @@
 \method{summary}{meta}(object, homoStat=TRUE, robust=FALSE, \dots)
 \method{summary}{meta3LFIML}(object, allX=FALSE, robust=FALSE, \dots)
 \method{summary}{reml}(object, \dots)
-\method{summary}{sem}(object, robust=FALSE, \dots)
+\method{summary}{mxsem}(object, robust=FALSE, \dots)
 \method{summary}{CorPop}(object, \dots)
 \method{summary}{Cor3L}(object, \dots)
 \method{summary}{bootuniR2}(object, probs=c(0, 0.1, 0.5, 0.9, 1),
@@ -49,7 +49,7 @@
 \method{print.summary}{meta}(x, \dots)
 \method{print.summary}{meta3LFIML}(x, \dots)
 \method{print.summary}{reml}(x, \dots)
-\method{print.summary}{sem}(x, \dots)
+\method{print.summary}{mxsem}(x, \dots)
 \method{print.summary}{CorPop}(x, \dots)
 \method{print.summary}{Cor3L}(x, \dots)
 \method{print.summary}{bootuniR2}(x, \dots)
@@ -58,7 +58,7 @@
   \item{object}{An object returned from either class
 	\code{tssem1FEM}, class \code{tssem1FEM.cluster},
 	class \code{tssem1REM}, class \code{wls}, class \code{wls.cluster},
-	class \code{meta}, class \code{meta3LFIML}, class \code{reml} or class \code{CorPop}.
+	class \code{meta}, class \code{meta3LFIML}, class \code{reml}, class \code{mxsem} or class \code{CorPop}.
 }
   \item{x}{An object returned from either class \code{summary.tssem1FEM},
 	class \code{tssem1FEM.cluster}, class \code{summary.wls}, class

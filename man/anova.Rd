@@ -5,7 +5,7 @@
 \alias{anova.reml}
 \alias{anova.osmasem}
 \alias{anova.osmasem2}
-\alias{anova.sem}
+\alias{anova.mxsem}
 \title{Compare Nested Models with Likelihood Ratio Statistic
 }
 \description{It compares nested models with the likelihood ratio
@@ -18,7 +18,7 @@
 \method{anova}{reml}(object, \dots, all=FALSE)
 \method{anova}{osmasem}(object, \dots, all=FALSE)
 \method{anova}{osmasem2}(object, \dots, all=FALSE)
-\method{anova}{sem}(object, \dots, all=FALSE)
+\method{anova}{mxsem}(object, \dots, all=FALSE)
 }
 %- maybe also 'usage' for other objects documented here.
 \arguments{

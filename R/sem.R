@@ -225,7 +225,7 @@ sem <- function(model.name="sem", RAM=NULL, data=NULL, Cov=NULL,
 
   out <- list(mx.fit=mx.fit, RAM=RAM, data=data, mxalgebras=mxalgebras.ci,
               intervals.type=intervals.type)
-  class(out) <- "sem"
+  class(out) <- "mxsem"
   out
 }
 
@@ -235,7 +235,7 @@ create.mxModel <- function(model.name="sem", RAM=NULL, data=NULL,
                            intervals.type=c("z", "LB"), startvalues=NULL,
                            replace.constraints=FALSE, mxModel.Args=NULL,
                            run=TRUE, silent=TRUE, ...) {
-  .Deprecated("create.mxModel")
+  .Deprecated("sem")
   sem(model.name=model.name, RAM=RAM, data=data, Cov=Cov, means=means,
       numObs=numObs, intervals.type=intervals.type, startvalues=startvalues,
       replace.constraints=replace.constraints, mxModel.Args=mxModel.Args,
@@ -243,9 +243,9 @@ create.mxModel <- function(model.name="sem", RAM=NULL, data=NULL,
 }
 
 
-summary.sem <- function(object, robust=FALSE, ...) {
-  if (!is.element("sem", class(object)))
-    stop("\"object\" must be an object of class \"sem\".")
+summary.mxsem <- function(object, robust=FALSE, ...) {
+  if (!is.element("mxsem", class(object)))
+    stop("\"object\" must be an object of class \"mxsem\".")
 
   # calculate coefficients    
   my.mx <- summary(object$mx.fit)
@@ -329,13 +329,13 @@ summary.sem <- function(object, robust=FALSE, ...) {
               Minus2LL=my.mx$Minus2LogLikelihood,
               Mx.status1=object$mx.fit@output$status[[1]],
               informationCriteria=informationCriteria)
-    class(out) <- "summary.sem"
+    class(out) <- "summary.mxsem"
     out
 }
 
-print.summary.sem <- function(x, ...) {
-    if (!is.element("summary.sem", class(x))) {
-      stop("\"x\" must be an object of class \"summary.sem\".")
+print.summary.mxsem <- function(x, ...) {
+    if (!is.element("summary.mxsem", class(x))) {
+      stop("\"x\" must be an object of class \"summary.mxsem\".")
     }
     
     cat("95% confidence intervals: ")
@@ -364,16 +364,15 @@ print.summary.sem <- function(x, ...) {
     if (!(x$Mx.status1 %in% c(0,1))) warning("OpenMx status1 is neither 0 or 1. You are advised to 'rerun' it again.\n")
 }
 
-coef.sem <- function(object, ...) {
-  if (!is.element("sem", class(object)))
-    stop("\"object\" must be an object of class \"sem\".")
-
+coef.mxsem <- function(object, ...) {
+  if (!is.element("mxsem", class(object)))
+    stop("\"object\" must be an object of class \"mxsem\".")
   coef(object$mx.fit)
 }
 
-vcov.sem <- function(object, robust=FALSE, ...) {
-  if (!is.element("sem", class(object)))
-    stop("\"object\" must be an object of class \"sem\".")
+vcov.mxsem <- function(object, robust=FALSE, ...) {
+  if (!is.element("mxsem", class(object)))
+    stop("\"object\" must be an object of class \"mxsem\".")
   
   if (robust) {
     suppressMessages(imxRobustSE(object$mx.fit, details=TRUE)$cov)
@@ -382,24 +381,24 @@ vcov.sem <- function(object, robust=FALSE, ...) {
   } 
 }
 
-anova.sem <- function(object, ..., all=FALSE) {
+anova.mxsem <- function(object, ..., all=FALSE) {
   base <- lapply(list(object), function(x) x$mx.fit)
   comparison <- lapply(list(...), function(x) x$mx.fit)
   mxCompare(base=base, comparison=comparison, all=all)
 }
 
-plot.sem <- function(x, manNames=NULL, latNames=NULL,
-                     labels=c("labels", "RAM"), what="est", nCharNodes=0,
-                     nCharEdges=0, layout=c("tree", "circle", "spring",
-                                            "tree2", "circle2"),
-                     sizeMan=8, sizeLat=8, edge.label.cex=1.3,
-                     color="white", weighted=FALSE, ...) {
+plot.mxsem <- function(x, manNames=NULL, latNames=NULL,
+                       labels=c("labels", "RAM"), what="est", nCharNodes=0,
+                       nCharEdges=0, layout=c("tree", "circle", "spring",
+                                              "tree2", "circle2"),
+                       sizeMan=8, sizeLat=8, edge.label.cex=1.3,
+                       color="white", weighted=FALSE, ...) {
   
   if (!requireNamespace("semPlot", quietly=TRUE))    
     stop("\"semPlot\" package is required for this function.")
     
-  if (!inherits(x, "sem"))
-    stop("'sem' object is required.\n")
+  if (!inherits(x, "mxsem"))
+    stop("'mxsem' object is required.\n")
   
   A <- x$mx.fit@matrices$Amatrix$values
   S <- x$mx.fit@matrices$Smatrix$values
