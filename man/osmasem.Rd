@@ -16,7 +16,7 @@ osmasem(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
         suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...)
 osmasem2(model.name="osmasem2", RAM, data, cor.analysis=TRUE,
          RE.type.Sigma=c("Diag", "Symm", "Zero"),
-         RE.type.Mu=c("Diag", "Symm", "Zero"),
+         RE.type.Mu=c("Symm", "Diag", "Zero"),
          RE.type.SigmaMu=c("Zero", "Full"),
          mean.analysis=FALSE, intervals.type=c("z", "LB"),
          startvalues=NULL, replace.constraints=FALSE,

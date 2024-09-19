@@ -1,6 +1,6 @@
 osmasem2 <- function(model.name="osmasem2", RAM, data, cor.analysis=TRUE,
                      RE.type.Sigma=c("Diag", "Symm", "Zero"),
-                     RE.type.Mu=c("Diag", "Symm", "Zero"),
+                     RE.type.Mu=c("Symm", "Diag", "Zero"),
                      RE.type.SigmaMu=c("Zero", "Full"),
                      mean.analysis=FALSE, intervals.type=c("z", "LB"),
                      startvalues=NULL, replace.constraints=FALSE,
@@ -8,7 +8,7 @@ osmasem2 <- function(model.name="osmasem2", RAM, data, cor.analysis=TRUE,
 
   intervals.type <- match.arg(intervals.type, c("z", "LB"))
   RE.type.Sigma <- match.arg(RE.type.Sigma, c("Diag", "Symm", "Zero"))
-  RE.type.Mu <- match.arg(RE.type.Mu, c("Diag", "Symm", "Zero"))
+  RE.type.Mu <- match.arg(RE.type.Mu, c("Symm", "Diag", "Zero"))
   RE.type.SigmaMu <- match.arg(RE.type.SigmaMu, c("Zero", "Full"))
   
   ## Names of the observed variables

@@ -1,5 +1,6 @@
 Release 1.4.7 (Aug 31, 2024)
 ====================================
+Add Chan17.
 Add lbound and ubound in sem() and as.mxAlgebra().
 
 Release 1.4.6 (Aug 28, 2024)
