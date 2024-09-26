@@ -92,4 +92,4 @@ modeling with moderating effects on SEM parameters. \emph{Psychological
 
 % Add one or more standard keywords, see file 'KEYWORDS' in the
 % R documentation directory.
-\keyword{ osmasem, osmasemCovMean }
+\keyword{meta-analysis}

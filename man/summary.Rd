@@ -94,7 +94,7 @@
 }
 \note{If the OpenMx status1 is either 0 or 1, the estimation is
   considered fine. If the OpenMx status1 is other values, it indicates
-  estimation problems. Users should refer to \url{https://openmx.ssri.psu.edu//wiki/errors} for more details.
+  estimation problems. Users should refer to `OpenMx` website for more details.
 }
 
 %% ~Make other sections like Warning with \section{Warning }{....} ~
