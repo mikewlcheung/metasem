@@ -1,3 +1,7 @@
+Release 1.5.1 (Mar 07, 2025)
+====================================
+* Add error and warning messages in mxsem and osmasem objects.
+
 Release 1.5.0 (Sep 26, 2024)
 ====================================
 * Add dataset Chan17.

@@ -209,12 +209,30 @@ sem <- function(model.name="sem", RAM=NULL, data=NULL, Cov=NULL,
                              suppressWarnings=TRUE, silent=TRUE, ...),
                        error=function(e) e)
 
-    ## Check if any errors
+    ## Check if any errors or warnings
+    warning.msg <- error.msg <- NULL
     if (inherits(mx.fit, "error")) {
-      mx.fit <- mxTryHard(mx.model, extraTries=50, intervals=FALSE, silent=TRUE)                        
+      mx.fit <- tryCatch(mxTryHard(mx.model, extraTries=50, intervals=FALSE,
+                                   silent=TRUE),
+                         warning = function(w) {
+                           warning.msg <<- conditionMessage(w)
+                           cat(warning.msg)
+                         },
+                         error=function(e) {
+                           error.msg <<- conditionMessage(e)
+                           cat(error.msg)
+                         })
+                         
       mx.fit <- tryCatch(mxRun(mx.fit, intervals=(intervals.type=="LB"),
                                suppressWarnings=TRUE, silent=TRUE, ...),
-                         error=function(e) e)
+                         warning = function(w) {
+                           warning.msg <<- conditionMessage(w)
+                           cat(warning.msg)
+                         },
+                         error=function(e) {
+                           error.msg <<- conditionMessage(e)
+                           cat(error.msg)
+                         })
       if (inherits(mx.fit, "error")) {   
         warning("Error in running mxModel.\n")
       }
@@ -224,7 +242,8 @@ sem <- function(model.name="sem", RAM=NULL, data=NULL, Cov=NULL,
   }
 
   out <- list(mx.fit=mx.fit, RAM=RAM, data=data, mxalgebras=mxalgebras.ci,
-              intervals.type=intervals.type)
+              intervals.type=intervals.type, warning=warning.msg,
+              error=error.msg)
   class(out) <- "mxsem"
   out
 }
