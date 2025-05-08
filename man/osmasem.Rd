@@ -18,8 +18,8 @@ osmasem2(model.name="osmasem2", RAM, data, cor.analysis=TRUE,
          RE.type.Sigma=c("Diag", "Symm", "Zero"),
          RE.type.Mu=c("Symm", "Diag", "Zero"),
          RE.type.SigmaMu=c("Zero", "Full"),
-         mean.analysis=FALSE, intervals.type=c("z", "LB"),
-         startvalues=NULL, replace.constraints=FALSE,
+         mean.analysis=FALSE, startvalues=NULL,
+         replace.constraints=FALSE,
          mxModel.Args=NULL, run=TRUE, ...)
 }
 \arguments{
@@ -70,11 +70,12 @@ not givin, an identity matrix will be used. }
 \item{startvalues}{An optional list of starting values. It is useful when there are new parameters in RAM.}
 \item{replace.constraints}{It is relevant only when there are constraints in RAM. If it is \code{FALSE}, these constraints will be impose. If it is \code{FALSE}, the parameters on the left-hand side will be replaced by the algebras on the right-hand side.}
 }
-\details{osmasem was implemented based on Jak and Cheung (2020) for meta-analyzing correlation matrices. osmasem2 was a rewrite designed to handle correlation or covariance matrices, including the means. There are several major differences between them:
-1. osmasem allows the use of RAM or (Mmatrix and Tmatrix), while osmasem2 calculates the Mmatrix and Tmatrix based on the RAM input.
-2. RE.type is used to specify the type of random effects on the correlations in osmasem. On the contrary, osmasem2 has three types of random effects: correlations/covariances, means, and covariance between correlations/covariance and means.
-3. osmasem reports the transformed random effects in the parameter table. Users have to use VarCorr to obtain the heterogeneity matrix of the random effects. In contrast, osmasem2 reports the heterogeneity matrix in the parameter table.
-4. osmasem2 allows the imposition of linear and nonlinear constraints and the creation of parameter functions in RAM, which osmasem does not.
+\details{\code{osmasem()} was implemented based on Jak and Cheung (2020) for meta-analyzing correlation matrices. \code{osmasem2()} was a rewritten version to handle correlation or covariance matrices with the means. There are several major differences between them:
+1. \code{osmasem()} allows the use of \code{RAM} or (\code{Mmatrix} and \code{Tmatrix}), while \code{osmasem2()} only accepts the \code{RAM} input.
+2. \code{RE.type} is used to specify the type of random effects on the correlations in \code{osmasem()}. On the contrary, \code{osmasem2()} has three types of random effects: correlations/covariances, means, and covariance between correlations/covariance and means.
+3. \code{osmasem()} reports the transformed random effects in the parameter table. Users have to use \code{VarCorr()} to obtain the heterogeneity matrix of the random effects. In contrast, \code{osmasem2()} reports the heterogeneity matrix in the parameter table.
+4. \code{osmasem()} accepts either \code{intervals.type="z"} or \code{intervals.type="LB"}, whereas \code{osmasem2()} only uses \code{intervals.type="z"}. Thus, this argument is removed in \code{osmasem2()}.
+5. \code{osmasem2()} allows the imposing linear and nonlinear constraints and the creation of parameter functions in \code{RAM}, which \code{osmasem} cannot.
 }
 \value{An object of class \code{osmasem}}
 
@@ -82,9 +83,11 @@ not givin, an identity matrix will be used. }
 }
 
 \references{
-  Jak, S., & Cheung, M. W.-L. (2020). Meta-analytic structural equation
-modeling with moderating effects on SEM parameters. \emph{Psychological
+  Jak, S., & Cheung, M. W.-L. (2020). Meta-analytic structural equation modeling with moderating effects on SEM parameters. \emph{Psychological
   Methods}, \bold{25} (4), 430-455. https://doi.org/10.1037/met0000245
+
+  Jak, S., Cheung, M. W.-L., Acar, S., & Kindred, R. (December 18, 2024). Evaluating differences in latent means across studies: Extending meta-analytic confirmatory factor analysis with the analysis of means. OSF. https://doi.org/10.31234/osf.io/35gtz.
+
 }  
 \seealso{ \code{\link[metaSEM]{Cor2DataFrame}}, \code{\link[metaSEM]{create.vechsR}},
   \code{\link[metaSEM]{create.Tau2}}, \code{\link[metaSEM]{create.V}}, \code{\link[metaSEM]{osmasem}}, \code{\link[metaSEM]{Nohe15}}, \code{\link[metaSEM]{issp05}}

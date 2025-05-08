@@ -14,8 +14,8 @@
 \tabular{ll}{
 Package: \tab metaSEM\cr
 Type: \tab Package\cr
-Version: \tab 1.5.1\cr
-Date: \tab 2025-03-07\cr
+Version: \tab 1.5.2\cr
+Date: \tab 2025-05-08\cr
 License: \tab GPL (>=2)\cr
 LazyLoad: \tab yes\cr
 }
@@ -110,6 +110,11 @@ analysis. \emph{Behavior Research Methods}, \bold{50} (4),
 Jak, S., & Cheung, M. W.-L. (2020). Meta-analytic structural equation
 modeling with moderating effects on SEM parameters. \emph{Psychological
   Methods}, \bold{25} (4), 430-455. https://doi.org/10.1037/met0000245
+
+Jak, S., & Cheung, M. W.-L. (2024). A cautionary note on using univariate
+methods for meta-analytic structural equation modeling.
+\emph{Advances in Methods and Practices in Psychological Science},
+\bold{7}(4), 1-24. https://doi.org/10.1177/25152459241274249
 }
 \keyword{ package }
 

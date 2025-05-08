@@ -110,9 +110,21 @@ summary.CorPop <- function(object, ...) {
   Sigma <- attr(object, "Sigma")
   dimnames(R) <- dimnames(Sigma)
   V_Samp <- cov(my.df) 
+
+  ## Add dimnames to V_Samp
+  V.names <- outer(colnames(Sigma), colnames(Sigma), paste0)
+  if (corr) {
+    V.names <- OpenMx::vechs(V.names)
+  } else {
+    V.names <- OpenMx::vech(V.names)
+  }
+  dimnames(V_Samp) <- list(V.names, V.names)
+
+  V_Pop <- attr(object, "V") 
+  dimnames(V_Pop) <- list(V.names, V.names)
   
-  out <- list(Sigma=Sigma, V_Pop=attr(object, "V"),
-              R=R, V_Samp=V_Samp, k=attr(object, "k"), corr=corr,
+  out <- list(Sigma=Sigma, V_Pop=V_Pop, R=R, V_Samp=V_Samp,
+              k=attr(object, "k"), corr=corr,
               nonPD.count=attr(object, "nonPD.count"),
               nonPD.pop=attr(object, "nonPD.pop"))
   class(out) <- "summary.CorPop"
@@ -132,7 +144,8 @@ print.summary.CorPop <- function(x, ...) {
   cat("\nEmpirical V:\n")
   print(x$V_Samp)
   cat("\nMethod to handle non-positive definite matrices:", x$nonPD.pop)
-  cat("\nNumber of samples:", x$k)
+  cat("\nNumber of samples requested:", x$k, "\n")
+  cat("\nCount of total samples generated:", x$k+x$nonPD.count, "\n")
   cat("\nCount of non-positive definite matrices:", x$nonPD.count, "\n")
 }  
                   

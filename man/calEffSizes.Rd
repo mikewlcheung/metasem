@@ -5,7 +5,8 @@
   as functions of SEM in lavaan.
 }
 \usage{
-calEffSizes(model, data=NULL, n, Cov, Mean=NULL, group=NULL, lavaan.output=FALSE, ...)
+  calEffSizes(model, data=NULL, n, Cov, Mean=NULL, group=NULL, lavaan.output=FALSE,
+              warn=FALSE, ...)
 }
 \arguments{
   \item{model}{A lavaan model. Effect sizes are defined as functions of
@@ -17,7 +18,8 @@ calEffSizes(model, data=NULL, n, Cov, Mean=NULL, group=NULL, lavaan.output=FALSE
   \item{Mean}{Optional sample means.}
   \item{group}{A character of the variable name in the data frame defining the groups in a multiple group analysis.}
   \item{lavaan.output}{If \code{TRUE}, it returns the fitted object
-	instead of the effect sizes and their sampling covariance matrix.}
+    instead of the effect sizes and their sampling covariance matrix.}
+  \item{warn}{If \code{FALSE}, it suppresses lavaan related warnings.}
   \item{\dots}{Further arguments passed to \code{\link[lavaan]{sem}}.}
 }
 

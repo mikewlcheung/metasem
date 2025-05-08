@@ -98,7 +98,7 @@ plot.wls <- function(x, manNames=NULL, latNames=NULL, labels=c("labels", "RAM"),
   if (!requireNamespace("semPlot", quietly=TRUE))    
     stop("\"semPlot\" package is required for this function.")
 
-  if (!is.element(class(x), "wls"))
+  if (!is.element("wls", class(x)))
     stop("\"x\" must be an object of class \"wls\".")
 
   sem.plot <- meta2semPlot(object=x, manNames=manNames, latNames=latNames, 

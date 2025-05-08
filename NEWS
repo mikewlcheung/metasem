@@ -1,6 +1,8 @@
-Release 1.5.1 (Mar 07, 2025)
+Release 1.5.2 (May 08, 2025)
 ====================================
-* Add error and warning messages in mxsem and osmasem objects.
+* Add datasets Jansen19 and Sheeran20.
+* Update sem() and osmasem2().
+* Add error and warning messages in mxsem and osmasem2 objects.
 
 Release 1.5.0 (Sep 26, 2024)
 ====================================

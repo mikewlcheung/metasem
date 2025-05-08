@@ -18,7 +18,7 @@ asyCovOld <- function(x, n, cor.analysis=TRUE, dropNA=FALSE, as.matrix=TRUE,
                 my.x <- Reduce("+", my.x)/pattern.na(x, show.na = FALSE)
             } else {
                 my.x <- mapply("*", my.x, n, SIMPLIFY = FALSE)
-                ## Weighted means = Cummulative sum of r*n/sum of n
+                ## Weighted means = Cumulative sum of r*n/sum of n
                 my.x <- Reduce("+", my.x)/pattern.n(x, n)
             }
 

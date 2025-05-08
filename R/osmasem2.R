@@ -2,11 +2,10 @@ osmasem2 <- function(model.name="osmasem2", RAM, data, cor.analysis=TRUE,
                      RE.type.Sigma=c("Diag", "Symm", "Zero"),
                      RE.type.Mu=c("Symm", "Diag", "Zero"),
                      RE.type.SigmaMu=c("Zero", "Full"),
-                     mean.analysis=FALSE, intervals.type=c("z", "LB"),
-                     startvalues=NULL, replace.constraints=FALSE,
-                     mxModel.Args=NULL, run=TRUE, ...) {
+                     mean.analysis=FALSE, startvalues=NULL,
+                     replace.constraints=FALSE, mxModel.Args=NULL,
+                     run=TRUE, ...) {
 
-  intervals.type <- match.arg(intervals.type, c("z", "LB"))
   RE.type.Sigma <- match.arg(RE.type.Sigma, c("Diag", "Symm", "Zero"))
   RE.type.Mu <- match.arg(RE.type.Mu, c("Symm", "Diag", "Zero"))
   RE.type.SigmaMu <- match.arg(RE.type.SigmaMu, c("Zero", "Full"))
@@ -19,23 +18,23 @@ osmasem2 <- function(model.name="osmasem2", RAM, data, cor.analysis=TRUE,
 
   ## Check if it is a correlation or covariance analysis
   if ((cor.analysis) & (no.ps != no.p*(no.p-1)/2)) {
-      stop("Lengths of 'data$obslabels' and 'data$ylabels' do not match for 'cor.analysis=TRUE'.\n")   
+      stop("Lengths of 'data$obslabels' and 'data$ylabels' do not match that in 'cor.analysis=TRUE'.\n")   
   } else if ((cor.analysis==FALSE) & (no.ps != no.p*(no.p+1)/2)) {
-     stop("Lengths of 'data$obslabels' and 'data$ylabels' do not match for 'cor.analysis=FALSE'.\n")
+     stop("Lengths of 'data$obslabels' and 'data$ylabels' do not match that in 'cor.analysis=FALSE'.\n")
   }
   
   ## No sampling covariance matrix of the means in the dataset
   if (is.null(data$vMlabels) & mean.analysis) {
     mean.analysis <- FALSE
-    warning("'mean.analysis' is 'TRUE' but the data do not contain the means.
-'mean.analysis' is ignored.\n")
+    warning("'mean.analysis=TRUE' but the data do not contain the means.
+'mean.analysis=FALSE' is used.\n")
   } 
 
   if (mean.analysis & (length(data$vMlabels) != no.p*(no.p+1)/2)) {
     stop("The length of 'data$vMlabels' does not match that of the number of variables.\n")
   }
 
-  
+ 
   #### Create heterogeneity matrix on the covariance structure (no.ps x no.ps)
   labels <- outer(seq_len(no.ps), seq_len(no.ps),
                   function(x, y) {paste0("tau2Cov", x, "_", y)})
@@ -60,7 +59,7 @@ osmasem2 <- function(model.name="osmasem2", RAM, data, cor.analysis=TRUE,
          Zero = TauCov <- mxMatrix("Zero", ncol=no.ps, nrow=no.ps, free=FALSE,
                                    name="TauCov"))
    
-  ## Known sampling covariance matrix
+  ## Known sampling covariance matrix of correlation/covariance coefficients
   VCov <- mxMatrix("Symm", ncol=no.ps, nrow=no.ps, free=FALSE,
                    labels=paste0("data.", data$vlabels), name="VCov")
   
@@ -73,7 +72,7 @@ osmasem2 <- function(model.name="osmasem2", RAM, data, cor.analysis=TRUE,
 
     ## Heterogeneity of the means (no.p x no.p)
     labels <- outer(seq_len(no.p), seq_len(no.p),
-                    function(x, y) { paste0("tau2Mean", x, "_", y)})
+                    function(x, y) {paste0("tau2Mean", x, "_", y)})
     lbound <- matrix(NA, ncol=no.p, nrow=no.p)
     diag(lbound) <- 1e-10
     values <- matrix(0, ncol=no.p, nrow=no.p)
@@ -106,7 +105,8 @@ osmasem2 <- function(model.name="osmasem2", RAM, data, cor.analysis=TRUE,
                                                  {paste0("tau2CM",y,"_",z)}),
                                          name="TauCovMean"))
     
-    ## Check if the sampling covariances (a no.p x no.ps rectangle) is present in the data
+    ## Check if the sampling covariances between Cov and Means
+    ## (a no.p x no.ps rectangle matrix ) is present in the data
     ## If not, create one with zeros.
     if (is.null(data$VyMlabels)) {
       VCovMean <- mxMatrix("Zero", nrow=no.p, ncol=no.ps, name="VCovMean")
@@ -116,7 +116,7 @@ osmasem2 <- function(model.name="osmasem2", RAM, data, cor.analysis=TRUE,
                            name="VCovMean")
     }
     
-    ## Heterogeneity matrix of everything
+    ## Heterogeneity matrix of everything: cor/cov coefficients + means
     TauTotal <- mxAlgebra(rbind(cbind(TauCov, t(TauCovMean)),
                                 cbind(TauCovMean, TauMean)), name="TauTotal")
 
@@ -215,9 +215,10 @@ osmasem2 <- function(model.name="osmasem2", RAM, data, cor.analysis=TRUE,
 
   ## Prepare startvalues
   if (is.null(startvalues)) {
-    ## Note. startvalues may overwrite the starting values in RAM
+    ## Use the starting values in RAM as the starting values
     startvalues <- para.values
   } else {
+    ## Note. startvalues from users overwrite the starting values in RAM
     ## Remove para.values if they are overlapped with startvalues    
     para.values[names(para.values) %in% names(startvalues)] <- NULL
     startvalues <- c(startvalues, para.values)
@@ -236,14 +237,15 @@ osmasem2 <- function(model.name="osmasem2", RAM, data, cor.analysis=TRUE,
   S <- as.symMatrix(RAM$S)
   M <- as.symMatrix(RAM$M)
   mxalgebras <- RAM$mxalgebras
-  
+
   ## Any names of the constraints == parameters?
   ## If yes, these parameters are replaced by the constraints
+  ## It ignores the ":=", which is an algebra function, not a constraint.
   index <- sapply(mxalgebras, function(x) {
     ## Convert R language to a vector string
-    ## form[1]: "=="
-    ## form[2]: "m"
-    ## form[3]: "p1 * cos(p2 * data.x) + p2 * sin(p1 * data.x)"
+    ## form[1]: "==" (operator)
+    ## form[2]: "m" (LHS)
+    ## form[3]: "p1 * cos(p2 * data.x) + p2 * sin(p1 * data.x)" (RHS)
     form <- as.character(x$formula)
     if (form[1]=="==" & form[2]%in% para.labels) TRUE else FALSE
   })
@@ -292,8 +294,10 @@ osmasem2 <- function(model.name="osmasem2", RAM, data, cor.analysis=TRUE,
   ## Check whether there are replacements
   ## Remove the starting values before comparisons
   if (all(A==as.symMatrix(RAM$A))) {
+    ## Use the original Amatrix
     mx.model <- mxModel(mx.model, Amatrix)
   } else {
+    ## Replace the Amatrix created from the algebra
     A <- as.mxAlgebra(A, startvalues=startvalues, name="Amatrix")
     mx.model <- mxModel(mx.model, A$mxalgebra, A$parameters, A$list)
   }
@@ -344,13 +348,13 @@ osmasem2 <- function(model.name="osmasem2", RAM, data, cor.analysis=TRUE,
     expMu <- mxAlgebra(Mmatrix %*% t(Id_A) %*% t(Fmatrix), name="expMu")
     ## Expected Cov and means combined
     expMean <- mxAlgebra(cbind(vecSigma, expMu), name="expMean")
-    mx.model <- mxModel(mx.model, expMu, expMean,
-                        mxCI(new.para.labels))
+    mx.model <- mxModel(mx.model, expMu, expMean)
+    ## Dropped mxCI in this version: mxCI(new.para.labels)
   } else {
     ## No mean structure; only cov or cor
     expMean <- mxAlgebra(vecSigma, name="expMean")
-    mx.model <- mxModel(mx.model, expMean,
-                        mxCI(new.para.labels))
+    mx.model <- mxModel(mx.model, expMean)
+    ## Dropped mxCI in this version: mxCI(new.para.labels)
   }
 
   ## Add additional arguments to mxModel
@@ -360,23 +364,32 @@ osmasem2 <- function(model.name="osmasem2", RAM, data, cor.analysis=TRUE,
     }
   }
 
-  ## A list of mxalgebras required SE or CI
-  mxalgebras.ci <- NULL
-  
   ## Add mxAlgebra and mxConstraint from RAM$mxalgebra
   if (!is.null(mxalgebras)) {
     for (i in seq_along(mxalgebras)) {
       mx.model <- mxModel(mx.model, mxalgebras[[i]])
-      ## Name of the mxalgebra
-      name.mxalgebra <- names(mxalgebras)[i]
-      ## Check if the name constains constraint1, constraint2, ...,
-      ## If no, they are mxalgebra, not mxconstraints. Include them in mxCI. 
-      if (!grepl("^constraint[0-9]", name.mxalgebra)) {
-        mx.model <- mxModel(mx.model, mxCI(c(name.mxalgebra)))
-        mxalgebras.ci <- c(mxalgebras.ci, name.mxalgebra)
-      }
     }
   }
+
+  #### Dropped mxCI in this version
+  
+  ## ## A list of mxalgebras required SE or CI
+  ## mxalgebras.ci <- NULL
+  
+  ## ## Add mxAlgebra and mxConstraint from RAM$mxalgebra
+  ## if (!is.null(mxalgebras)) {
+  ##   for (i in seq_along(mxalgebras)) {
+  ##     mx.model <- mxModel(mx.model, mxalgebras[[i]])
+  ##     ## Name of the mxalgebra
+  ##     name.mxalgebra <- names(mxalgebras)[i]
+  ##     ## Check if the name constains constraint1, constraint2, ...,
+  ##     ## If no, they are mxalgebra, not mxconstraints. Include them in mxCI. 
+  ##     if (!grepl("^constraint[0-9]", name.mxalgebra)) {
+  ##       mx.model <- mxModel(mx.model, mxCI(c(name.mxalgebra)))
+  ##       mxalgebras.ci <- c(mxalgebras.ci, name.mxalgebra)
+  ##     }
+  ##   }
+  ## }
 
   ## Ensure to provide SEs
   mx.model <- mxOption(mx.model, "Calculate Hessian", "Yes")
@@ -384,14 +397,14 @@ osmasem2 <- function(model.name="osmasem2", RAM, data, cor.analysis=TRUE,
   
   if (run) {
     ## Default is z
-    mx.fit <- tryCatch(mxRun(mx.model, intervals=(intervals.type=="LB"),
+    mx.fit <- tryCatch(mxRun(mx.model, intervals=FALSE,
                              suppressWarnings=TRUE, silent=TRUE),
                        error=function(e) e)
 
     ## Check if any errors
     if (inherits(mx.fit, "error") | !(mx.fit$output$status$code %in% c(0,1))) {
-      mx.fit <- mxTryHard(mx.model, extraTries=10, intervals=FALSE, silent=TRUE)                        
-      mx.fit <- tryCatch(mxRun(mx.fit, intervals=(intervals.type=="LB"),
+      mx.fit <- mxTryHard(mx.model, extraTries=30, intervals=FALSE, silent=TRUE)                        
+      mx.fit <- tryCatch(mxRun(mx.fit, intervals=FALSE,
                                suppressWarnings=TRUE, silent=TRUE, ...),
                          error=function(e) e)
       if (inherits(mx.fit, "error")) {   
@@ -404,7 +417,7 @@ osmasem2 <- function(model.name="osmasem2", RAM, data, cor.analysis=TRUE,
   
   out <- list(mx.fit=mx.fit, mx.ind=mx.ind, mx.sat=mx.sat,
               cor.analysis=cor.analysis, mean.analysis=mean.analysis,
-              n=sum(data$n), intervals.type=intervals.type, data=data)
+              n=sum(data$n), data=data)
   class(out) <- "osmasem2"
   out
 }  

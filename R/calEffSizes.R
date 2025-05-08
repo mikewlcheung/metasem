@@ -1,14 +1,18 @@
-calEffSizes <- function(model, data=NULL, n, Cov, Mean=NULL, group=NULL, lavaan.output=FALSE, ...) {
+calEffSizes <- function(model, data=NULL, n, Cov, Mean=NULL, group=NULL,
+                        lavaan.output=FALSE, warn=FALSE, ...) {
 
     ## When raw data are present
     if (!is.null(data)) {
-        fit <- lavaan::sem(model, data=data, group=group, ...)
+        fit <- lavaan::sem(model, data=data, group=group, warn=warn, ...)
     } else {
         ## Summary statistics as inputs     
         if (is.null (Mean)) {
-            fit <- lavaan::sem(model, sample.cov=Cov, sample.nobs=n, group=group, sample.cov.rescale=FALSE, ...)
+          fit <- lavaan::sem(model, sample.cov=Cov, sample.nobs=n, group=group,
+                             sample.cov.rescale=FALSE, warn=warn, ...)
         } else {
-            fit <- lavaan::sem(model, sample.cov=Cov, sample.mean=Mean, sample.nobs=n, group=group, sample.cov.rescale=FALSE, ...)
+          fit <- lavaan::sem(model, sample.cov=Cov, sample.mean=Mean,
+                             sample.nobs=n, group=group,
+                             sample.cov.rescale=FALSE, warn=warn, ...)
         }
     }
     

@@ -34,11 +34,11 @@ Cor2DataFrame <- function(x, n, v.na.replace=TRUE, cor.analysis=TRUE,
     if (acov=="unweighted") {
       ## x: original covariance matrices in the input
       ## Unweighted means = sum of r/(no. of studies)
-      cov.mean <- Reduce("+", my.x)/pattern.na(x, show.na = FALSE)
+      cov.mean <- Reduce("+", my.x)/pattern.na(my.cov, show.na = FALSE)
     } else if (acov=="weighted") {
       my.x <- mapply("*", my.x, n, SIMPLIFY = FALSE)
       ## Weighted means = Cummulative sum of r*n/(sum of n)
-      cov.mean <- Reduce("+", my.x)/pattern.n(x, n)
+      cov.mean <- Reduce("+", my.x)/pattern.n(my.cov, n)
     }
     
     my.cov <- lapply(my.cov,
