@@ -6,6 +6,23 @@ osmasem2 <- function(model.name="osmasem2", RAM, data, cor.analysis=TRUE,
                      replace.constraints=FALSE, mxModel.Args=NULL,
                      run=TRUE, ...) {
 
+  ## Define a local copy of the function to solve issues in JASP
+  `%&%` <- OpenMx::`%&%`
+  `vechs` <- OpenMx::`vechs`
+  `diag2vec` <- OpenMx::`diag2vec`
+  
+  ## If the above does not work, try to do it explicitly:
+  # `%&%` <- function (x, y) {
+  #   return(x %*% y %*% t(x))
+  # }
+  # `vechs` <- function (x) {
+  #   return(x[lower.tri(x, diag = FALSE)])
+  # }
+  # `diag2vec` <- function (x) {
+  #   return(as.matrix(diag(as.matrix(x))))
+  # }
+  
+  
   RE.type.Sigma <- match.arg(RE.type.Sigma, c("Diag", "Symm", "Zero"))
   RE.type.Mu <- match.arg(RE.type.Mu, c("Symm", "Diag", "Zero"))
   RE.type.SigmaMu <- match.arg(RE.type.SigmaMu, c("Zero", "Full"))

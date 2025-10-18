@@ -1,7 +1,17 @@
 list2matrix <- function(x, diag=FALSE) {
+  if (length(x) == 0) {
+    stop("\"x\" cannot be an empty list.")
+  }
+
+  if (!all(sapply(x, is.matrix))) {
+    stop("All elements of \"x\" must be matrices.")
+  }
+
   if (!is.list(x))
-    stop("\"x\" has to be a list.")
-  if (!identical(0, var(sapply(x, function(x){dim(x)[[1]]}))))
+    stop("Input \"x\" must be a list of matrices.")
+
+  ## if (!identical(0, var(sapply(x, function(x){dim(x)[[1]]}))))
+  if (length(unique(sapply(x, function(x) dim(x)[[1]]))) != 1)
     stop("Dimensions of matrices in \"x\" have to be the same in order to stack them together.")
   
   if (is.null(dimnames(x[[1]]))) {
@@ -22,7 +32,7 @@ list2matrix <- function(x, diag=FALSE) {
     ## out <- t(sapply(x, function(x) {(vechs(x))}))
     out <- lapply(x, vechs)
   }
-
+  
   ## convert the list into a matrix
   ## out <- matrix(unlist(out), nrow=length(out), byrow=TRUE)
   out <- do.call(rbind, out)
