@@ -8,7 +8,7 @@
 }
 \usage{
 create.Tau2(RAM, no.var, Tau1.labels=seq(no.var),
-            RE.type = c("Diag", "Symm", "Zero", "User"),
+            RE.type = c("Diag", "CSymm", "HCSymm", "Symm", "Zero", "User"),
             level=c("single", "between", "within"),
             RE.User=NULL, Transform = c("expLog", "sqSD"),
             RE.startvalues=0.05)
@@ -21,10 +21,9 @@ create.Tau2(RAM, no.var, Tau1.labels=seq(no.var),
 \item{Tau1.labels}{Parameter labels in \code{Tau1}. The default is
   \code{Tau1_1}, \code{Tau1_2}, etc.
 }
-\item{RE.type}{Either \code{"Diag"}, \code{"Symm"}, \code{"Zero"} or \code{"User"}. If
-  it is\code{"Diag"} (the default if missing), a diagonal matrix is used
+\item{RE.type}{Either \code{"Diag"}, \code{"CSymm"}, \code{"HCSymm"}, \code{"Symm"}, \code{"Zero"} or \code{"User"}. If it is\code{"Diag"} (the default if missing), a diagonal matrix is used
   for the random effects meaning that the random effects are
-  independent. If it is \code{"Symm"}, a symmetric matrix is used for the random effects on the covariances
+  independent. \code{"CSymm"} and \code{"HCSymm"} represent compound symmetry and heteroscedastic compound symmetry, respectively. If it is \code{"Symm"}, a symmetric matrix is used for the random effects on the covariances
 	among the correlation (or covariance) vectors. If it is
 	\code{"Zero"}, a zero matrix is assumed on the variance component of
   the random effects. If it is \code{"User"}, users have to specify the

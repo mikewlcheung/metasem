@@ -9,7 +9,8 @@
 osmasem(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
         Tmatrix=NULL, Jmatrix=NULL, Ax=NULL, Sx=NULL,
         A.lbound=NULL, A.ubound=NULL,
-        RE.type=c("Diag", "Symm", "Zero"), data,
+        RE.type=c("Diag", "CSymm", "HCSymm", "Symm", "Zero", "User"),
+        RE.User=NULL, data,
         subset.variables=NULL, subset.rows=NULL, 
         intervals.type = c("z", "LB"),
         mxModel.Args=NULL, mxRun.Args=NULL,
@@ -46,7 +47,8 @@ not givin, an identity matrix will be used. }
   given, the lbound matrix will be filled with this scalar.}
 \item{A.ubound}{A matrix of upper bound of the Amatrix. If a scalar is
   given, the ubound matrix will be filled with this scalar.}
-\item{RE.type}{Type of the random effects.}
+\item{RE.type}{Type of the random effects. See \code{\link[metaSEM]{create.Tau2}} for details.}
+\item{RE.User}{A symmetric matrix of \code{TRUE} or \code{FALSE} for the variance component when \code{RE.type="User"}. See \code{\link[metaSEM]{create.Tau2}} for details.}
 \item{data}{A list of data created by the \code{Cor2DataFrame}.}
 \item{subset.variables}{A character vector of the observed variables selected for
   the analysis.}

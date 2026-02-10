@@ -283,7 +283,7 @@ create.vechsR <- function(A0, S0, F0=NULL, Ax=NULL, Sx=NULL,
 }
 
 create.Tau2 <- function(RAM, no.var, Tau1.labels=seq(no.var),
-                        RE.type=c("Diag", "Symm", "Zero", "User"),
+                        RE.type=c("Diag", "CSymm", "HCSymm", "Symm", "Zero", "User"),
                         level=c("single", "between", "within"),
                         RE.User=NULL, Transform=c("expLog", "sqSD"),
                         RE.startvalues=0.05) {
@@ -312,8 +312,8 @@ create.Tau2 <- function(RAM, no.var, Tau1.labels=seq(no.var),
   ## Repeat the starting values if there is only one value.
   if (length(RE.startvalues)==1) {
     RE.startvalues <- rep(RE.startvalues, no.var)
-  }    
-
+  }
+  
   ## Convert the starting values into positive.
   if (any(RE.startvalues < 0)) {
     RE.startvalues <- abs(RE.startvalues) + 1e-10
@@ -348,6 +348,28 @@ create.Tau2 <- function(RAM, no.var, Tau1.labels=seq(no.var),
            vecTau1 <- create.mxMatrix(RE.startvalues, type="Full", ncol=1,
                                       nrow=no.var, name="vecTau1")
            Cor <- as.mxMatrix(diag(no.var), name=paste0("Cor", level_suffix))},
+         CSymm = {
+           ## Compound Symmetry: One variance label for all, one correlation label for all
+           vecTau1 <- create.mxMatrix(rep(paste0(RE.startvalues[1], "*Tau1_", Tau1.labels[1]), no.var),
+                                      ncol=1, nrow=no.var, name="vecTau1")
+           # Create a correlation matrix where all off-diagonals share the same label
+           cor_labels <- matrix(NA, nrow=no.var, ncol=no.var)
+           cor_labels[lower.tri(cor_labels)] <- paste0("Cor_csymm_", level_suffix)
+           cor_labels[upper.tri(cor_labels)] <- t(cor_labels)[upper.tri(cor_labels)]
+           Cor <- mxMatrix(type="Stand", nrow=no.var, ncol=no.var, free=TRUE, values=0,
+                           labels=cor_labels,
+                           lbound=-0.99, ubound=0.99, name=paste0("Cor", level_suffix))},
+         HCSymm = {
+           ## Heteroscedastic Compound Symmetry: Unique variances, one shared correlation
+           vecTau1 <- create.mxMatrix(paste0(RE.startvalues, "*Tau1_", Tau1.labels),
+                                      ncol=1, nrow=no.var, name="vecTau1")
+           # Create a correlation matrix where all off-diagonals share the same label
+           cor_labels <- matrix(NA, nrow=no.var, ncol=no.var)
+           cor_labels[lower.tri(cor_labels)] <- paste0("Cor_hcsymm_", level_suffix)
+           cor_labels[upper.tri(cor_labels)] <- t(cor_labels)[upper.tri(cor_labels)]
+           Cor <- mxMatrix(type="Stand", nrow=no.var, ncol=no.var, free=TRUE, values=0,
+                           labels=cor_labels,
+                           lbound=-0.99, ubound=0.99, name=paste0("Cor", level_suffix))},       
          User = { if (is.null(RE.User)) stop("'RE.User', the ", no.var, " by ", no.var,
                                              " symmetric matrix of TRUE or FALSE on the variance componment, must be specified.\n")
                                              ## Check the symmetry of RE.User
@@ -420,7 +442,8 @@ create.V <- function(x, type=c("Symm", "Diag", "Full"), as.mxMatrix=TRUE) {
 osmasem <- function(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
                     Tmatrix=NULL, Jmatrix=NULL, Ax=NULL, Sx=NULL,
                     A.lbound=NULL, A.ubound=NULL,
-                    RE.type=c("Diag", "Symm", "Zero"), data,
+                    RE.type=c("Diag", "CSymm", "HCSymm", "Symm", "Zero", "User"),
+                    RE.User=NULL, data,
                     subset.variables=NULL, subset.rows=NULL, 
                     intervals.type = c("z", "LB"),
                     mxModel.Args=NULL, mxRun.Args=NULL,
@@ -456,7 +479,7 @@ osmasem <- function(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
   if (!is.null(RAM)) {
     Mmatrix <- create.vechsR(A0=RAM$A, S0=RAM$S, F0=RAM$F, Ax=Ax, Sx=Sx,
                              A.lbound=A.lbound, A.ubound=A.ubound)
-    Tmatrix <- create.Tau2(RAM=RAM, RE.type=RE.type, Transform="expLog")
+    Tmatrix <- create.Tau2(RAM=RAM, RE.type=RE.type, RE.User=RE.User, Transform="expLog")
   }
 
   ## Create known sampling variance covariance matrix

@@ -1,3 +1,7 @@
+Release 1.5.4 (Feb 10, 2026)
+====================================
+* Extend the RE.type argument in osmasem() to include "CSymm" and "HCSymm" options.
+
 Release 1.5.3 (Oct 18, 2025)
 ====================================
 * Update sem() and osmasem2().
