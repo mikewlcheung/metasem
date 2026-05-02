@@ -15,7 +15,7 @@
 #' removed from the model. Thus, only the parameters of random-effects are
 #' estimated.
 #'
-#' An alternative but the equivalent approach is to minimize the
+#' An alternative but equivalent approach is to minimize the
 #' -2*log-likelihood function: \deqn{ }{
 #' log(det|V+T^2|)+log(det|X'(V+T^2)^{-1}X|)+(y-X\alpha)'(V+T^2)^{-1}(y-X*\alpha)}\deqn{
 #' \log(\det|V+T^2|)+\log(\det|X'(V+T^2)^{-1}X|)+(y-X\hat{\alpha})'(V+T^2)^{-1}(y-X\hat{\alpha})}{
@@ -64,7 +64,7 @@
 #' Moreover, \code{reml} is more likely to encounter errors during
 #' optimization. Since a likelihood function is directly employed to obtain the
 #' parameter estimates, there is no number of studies and number of observed
-#' statistics returned by \code{\link[OpenMx]{mxRun}}. Ad-hoc steps are used to
+#' statistics returned by \code{\link[OpenMx]{mxRun}}. Ad hoc steps are used to
 #' modify \code{mx.fit@runstate$objectives[[1]]@numObs} and
 #' \code{mx.fit@runstate$objectives[[1]]@numStats}.
 #' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>

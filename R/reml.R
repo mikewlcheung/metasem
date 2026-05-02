@@ -74,7 +74,7 @@
 #' @param \dots Further arguments to be passed to \code{\link[OpenMx]{mxRun}}
 #' @return An object of class \code{reml} with a list of \item{call}{Object
 #' returned by \code{\link[base]{match.call}}} \item{data}{A data matrix of y,
-#' v and x } \item{no.y}{No. of effect sizes} \item{no.x}{No. of predictors}
+#' v and x } \item{no.y}{Number of effect sizes} \item{no.x}{Number of predictors}
 #' \item{miss.vec}{A vector indicating missing data. Studies will be removed
 #' before the analysis if they are \code{TRUE}} \item{mx.fit}{A fitted object
 #' returned from \code{\link[OpenMx]{mxRun}}}
@@ -82,13 +82,12 @@
 #' Moreover, \code{reml} is more likely to encounter errors during
 #' optimization. Since a likelihood function is directly employed to obtain the
 #' parameter estimates, there is no number of studies and number of observed
-#' statistics returned by \code{\link[OpenMx]{mxRun}}. Ad-hoc steps are used to
+#' statistics returned by \code{\link[OpenMx]{mxRun}}. Ad hoc steps are used to
 #' modify \code{mx.fit@runstate$objectives[[1]]@numObs} and
 #' \code{mx.fit@runstate$objectives[[1]]@numStats}.
 #' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
 #' @seealso \code{\link[metaSEM]{meta}}, \code{\link[metaSEM]{reml3}},
 #' \code{\link[metaSEM]{Hox02}}, \code{\link[metaSEM]{Berkey98}}
-#' to See Also as \code{\link{help}}, ~~~
 #' @references Cheung, M. W.-L. (2013). Implementing restricted maximum
 #' likelihood estimation in structural equation models. \emph{Structural
 #' Equation Modeling}, \bold{20(1)}, 157-167.

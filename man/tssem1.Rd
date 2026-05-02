@@ -32,7 +32,7 @@ tssem1(
 \item{n}{A vector of sample sizes}
 
 \item{method}{Either \code{"REM"} (default if missing) or \code{"FEM"}.  If
-it is "REM",a random-effects meta-analysis will be applied. If it is "FEM",
+it is \code{"REM"}, a random-effects meta-analysis will be applied. If it is \code{"FEM"},
 a fixed-effects meta-analysis will be applied.}
 
 \item{cor.analysis}{Logical. The output is either a pooled correlation or a
@@ -50,7 +50,7 @@ independent. If it is \code{"Symm"}, a symmetric matrix is used for the
 random effects on the covariances among the correlation (or covariance)
 vectors. If it is \code{"Zero"}, there is no random effects which is similar
 to the conventional Generalized Least Squares (GLS) approach to
-fixed-effects analysis.  \code{"User"}, the user has to specify the variance
+fixed-effects analysis. If it is \code{"User"}, the user has to specify the variance
 component via the \code{RE.constraints} argument. This argument will be
 ignored when \code{method="FEM"}.}
 

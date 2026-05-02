@@ -24,9 +24,9 @@ Extract or replace the diagonal of a matrix, or construct a diagonal matrix
 with the same behaviors as \code{diag} prior to R-3.0.0.
 }
 \details{
-Started from R-3.0.0, \code{diag(x)} returns a numeric matrix with NA in the
+Starting from R-3.0.0, \code{diag(x)} returns a numeric matrix with NA in the
 diagonals when x is a character vector. Although this follows what the
-manual says, this breaks the metaSEM. The \code{Diag} has the same functions
+manual says, this breaks metaSEM. The \code{Diag} has the same functions
 as \code{diag} except that \code{Diag(x)} works for a character vector of x
 by returning a square matrix of character "0" with \code{x} as the
 diagonals.

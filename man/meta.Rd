@@ -136,7 +136,7 @@ auxiliary variables where \eqn{m}{m} is the number of auxiliary variables.}
 \value{
 An object of class \code{meta} with a list of \item{call}{Object
 returned by \code{\link[base]{match.call}}} \item{data}{A data matrix of y,
-v and x } \item{no.y}{No. of effect sizes} \item{no.x}{No. of predictors}
+v and x } \item{no.y}{Number of effect sizes} \item{no.x}{Number of predictors}
 \item{miss.x}{A vector indicating whether the predictors are missing.
 Studies will be removed before the analysis if they are \code{TRUE}}
 \item{I2}{Types of I2 calculated} \item{R2}{Logical} \item{mx.fit}{A fitted

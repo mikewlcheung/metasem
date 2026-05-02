@@ -62,7 +62,7 @@ matrix created by the \code{create.Tau2}. It is only required when
 \code{RAM} is null.}
 
 \item{Jmatrix}{The Jacobian matrix of the mean structure in mxMatrix. The
-covariance structure is Jmatrix \%&\% Tau2 + Vi. If it is not givin, an
+covariance structure is Jmatrix \%&\% Tau2 + Vi. If it is not given, an
 identity matrix will be used.}
 
 \item{Ax}{A Amatrix of a list of Amatrix with definition variables as the
@@ -129,8 +129,8 @@ correlation/covariance vectors and the mean vectors.}
 there are new parameters in RAM.}
 
 \item{replace.constraints}{It is relevant only when there are constraints in
-RAM. If it is \code{FALSE}, these constraints will be impose. If it is
-\code{FALSE}, the parameters on the left-hand side will be replaced by the
+RAM. If it is \code{FALSE}, these constraints will be imposed. If it is
+\code{TRUE}, the parameters on the left-hand side will be replaced by the
 algebras on the right-hand side.}
 }
 \value{

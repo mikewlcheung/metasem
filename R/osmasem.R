@@ -66,7 +66,7 @@
 #' @return A list of \code{MxMatrix-class}. The model implied correlation
 #' matrix is computed in \code{impliedR} and \code{vechsR}.
 #' @note Since \code{A0} are the intercepts and \code{Ax} are the regression
-#' coefficients. The parameters in \code{Ax} must be a subset of those in
+#' coefficients, the parameters in \code{Ax} must be a subset of those in
 #' \code{A0}.
 #' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
 #' @seealso \code{\link[metaSEM]{osmasem}}, \code{\link[metaSEM]{create.Tau2}},
@@ -632,7 +632,7 @@ create.V <- function(x, type=c("Symm", "Diag", "Full"), as.mxMatrix=TRUE) {
 #' matrix created by the \code{create.Tau2}. It is only required when
 #' \code{RAM} is null.
 #' @param Jmatrix The Jacobian matrix of the mean structure in mxMatrix. The
-#' covariance structure is Jmatrix \%&\% Tau2 + Vi. If it is not givin, an
+#' covariance structure is Jmatrix \%&\% Tau2 + Vi. If it is not given, an
 #' identity matrix will be used.
 #' @param Ax A Amatrix of a list of Amatrix with definition variables as the
 #' moderators of the Amatrix. It is used to create the \code{Mmatrix}.
@@ -676,8 +676,8 @@ create.V <- function(x, type=c("Symm", "Diag", "Full"), as.mxMatrix=TRUE) {
 #' @param startvalues An optional list of starting values. It is useful when
 #' there are new parameters in RAM.
 #' @param replace.constraints It is relevant only when there are constraints in
-#' RAM. If it is \code{FALSE}, these constraints will be impose. If it is
-#' \code{FALSE}, the parameters on the left-hand side will be replaced by the
+#' RAM. If it is \code{FALSE}, these constraints will be imposed. If it is
+#' \code{TRUE}, the parameters on the left-hand side will be replaced by the
 #' algebras on the right-hand side.
 #' @return An object of class \code{osmasem}
 #' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>

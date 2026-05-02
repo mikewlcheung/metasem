@@ -27,7 +27,7 @@
 #' correlation matrices) are used in \code{x} when \code{Means} are included;
 #' otherwise, the calculated sampling covariance matrices of the means are
 #' incorrect.
-#' @param row.names.unique Logical, If it is \code{FALSE} (the default), unique
+#' @param row.names.unique Logical. If it is \code{FALSE} (the default), unique
 #' row names are not created.
 #' @param append.vars Whether to append the additional variables to the output
 #' dataframe.
@@ -37,7 +37,7 @@
 #' \code{\link[metaSEM]{asyCov}}.
 #' @return A list of components: (1) a data frame of correlations or
 #' covariances with their sampling covariance matrices; (2) a vector of sample
-#' sizes; (3) labels of the correlations; and (3) labels of their sampling
+#' sizes; (3) labels of the correlations; and (4) labels of their sampling
 #' covariance matrices.
 #' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
 #' @seealso \code{\link[metaSEM]{asyCov}}, \code{\link[metaSEM]{osmasem}},

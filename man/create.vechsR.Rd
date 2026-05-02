@@ -46,7 +46,7 @@ matrix by treating the error variances as functions of other parameters.
 }
 \note{
 Since \code{A0} are the intercepts and \code{Ax} are the regression
-coefficients. The parameters in \code{Ax} must be a subset of those in
+coefficients, the parameters in \code{Ax} must be a subset of those in
 \code{A0}.
 }
 \examples{

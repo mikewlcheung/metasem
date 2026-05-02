@@ -34,7 +34,7 @@ from \code{\link[metaSEM]{lavaan2RAM}}.}
 
 \item{Cov}{A covariance matrix may also be used if \code{data}==NULL.}
 
-\item{means}{A named vector of means (options) if \code{Cov} is used.}
+\item{means}{A named vector of means (optional) if \code{Cov} is used.}
 
 \item{numObs}{If \code{Cov} is used, a sample size must be provided.}
 
@@ -76,7 +76,7 @@ An object of class \code{mxsem}
 It fits a structural equation model by creating a mxModel from a RAM object.
 }
 \note{
-when there are constraints with \code{replace.constraints=TRUE} and
+When there are constraints with \code{replace.constraints=TRUE} and
 \code{intervals.type="LB"}, it returns an error because some parameters in
 the model are replaced with the new parameters in the constraints. However,
 the names of these new parameters are not captured in the CI object. Users

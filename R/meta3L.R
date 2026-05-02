@@ -62,7 +62,7 @@
 #' be constrained equally by using the same label.
 #' @param RE2.lbound A scalar or a \eqn{1}{1} x \eqn{1}{1} matrix of lower
 #' bound on the level-2 variance component of the random effects.
-#' @param RE3.constraints A scalar of a \eqn{1}{1} x \eqn{1}{1} matrix
+#' @param RE3.constraints A scalar or a \eqn{1}{1} x \eqn{1}{1} matrix
 #' specifying the variance components of the random effects at level-3. The
 #' default is that the variance components are free. The format of this matrix
 #' follows \code{\link[metaSEM]{as.mxMatrix}}. Elements of the variance

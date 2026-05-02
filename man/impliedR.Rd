@@ -30,7 +30,7 @@ converted into \code{\link[OpenMx]{MxMatrix-class}} by the
 \code{as.mxMatrix} function.}
 
 \item{Smatrix}{If \code{RAM} is not specified, an \code{Smatrix} is
-required.A symmetric matrix in the RAM specification with
+required. A symmetric matrix in the RAM specification with
 \code{\link[OpenMx]{MxMatrix-class}}. If it is a matrix, it will be
 converted into \code{\link[OpenMx]{MxMatrix-class}} by the
 \code{as.mxMatrix} function.}

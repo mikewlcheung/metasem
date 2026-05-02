@@ -16,7 +16,7 @@
 #' from \code{\link[metaSEM]{lavaan2RAM}}.
 #' @param data A data frame or matrix of data.
 #' @param Cov A covariance matrix may also be used if \code{data}==NULL.
-#' @param means A named vector of means (options) if \code{Cov} is used.
+#' @param means A named vector of means (optional) if \code{Cov} is used.
 #' @param numObs If \code{Cov} is used, a sample size must be provided.
 #' @param intervals.type Either \code{z} (default if missing) or \code{LB}. If
 #' it is \code{z}, it calculates the 95\% confidence intervals (CIs) based on
@@ -41,7 +41,7 @@
 #' @param \dots Further arguments will be passed to either
 #' \code{\link[OpenMx]{mxRun}} or \code{\link[OpenMx]{mxTryHard}}
 #' @return An object of class \code{mxsem}
-#' @note when there are constraints with \code{replace.constraints=TRUE} and
+#' @note When there are constraints with \code{replace.constraints=TRUE} and
 #' \code{intervals.type="LB"}, it returns an error because some parameters in
 #' the model are replaced with the new parameters in the constraints. However,
 #' the names of these new parameters are not captured in the CI object. Users
