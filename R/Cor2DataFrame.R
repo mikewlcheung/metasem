@@ -1,3 +1,74 @@
+#' Convert correlation or covariance matrices into a dataframe of correlations
+#' or covariances with their sampling covariance matrices
+#' 
+#' It converts the correlation or covariance matrices into a dataframe of
+#' correlations or covariances with their asymptotic sampling covariance
+#' matrices. It uses the \code{asyCov} at the backend.
+#' 
+#' 
+#' @param x A list of data with correlation/covariance matrix in \code{x$data}
+#' and sample sizes \code{x$n}. Additional variables in \code{x} can be
+#' attached.
+#' @param n If \code{x} is a list of correlation matrices without \code{x$data}
+#' and \code{x$n}, a vector of sample sizes \code{n} must be provided.
+#' @param v.na.replace Logical. Missing value is not allowed in definition
+#' variables. If it is \code{TRUE} (the default), missing value is replaced by
+#' a large value (1e10). These values are not used in the analysis.
+#' @param cor.analysis Logical. The output is either a correlation or
+#' covariance matrix.
+#' @param acov If it is \code{weighted}, the average correlation/covariance
+#' matrix is calculated based on the weighted mean with the sample sizes. The
+#' average correlation/covariance matrix is used to calculate the sampling
+#' variance-covariance matrices.
+#' @param Means An optional matrix of means. The number of rows must be the
+#' same as the length of \code{n}. The sampling covariance matrices of the
+#' means are calculated by the covariance matrices divided by the sample sizes.
+#' Therefore, it is important to make sure that covariance matrices (not
+#' correlation matrices) are used in \code{x} when \code{Means} are included;
+#' otherwise, the calculated sampling covariance matrices of the means are
+#' incorrect.
+#' @param row.names.unique Logical, If it is \code{FALSE} (the default), unique
+#' row names are not created.
+#' @param append.vars Whether to append the additional variables to the output
+#' dataframe.
+#' @param asyCovOld Whether to use the old version of \code{asyCov}. See
+#' \code{\link[metaSEM]{asyCov}}.
+#' @param \dots Further arguments to be passed to
+#' \code{\link[metaSEM]{asyCov}}.
+#' @return A list of components: (1) a data frame of correlations or
+#' covariances with their sampling covariance matrices; (2) a vector of sample
+#' sizes; (3) labels of the correlations; and (3) labels of their sampling
+#' covariance matrices.
+#' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
+#' @seealso \code{\link[metaSEM]{asyCov}}, \code{\link[metaSEM]{osmasem}},
+#' \code{\link[metaSEM]{create.vechsR}}, \code{\link[metaSEM]{create.Tau2}},
+#' \code{\link[metaSEM]{create.V}}
+#' @keywords osmasem
+#' @examples
+#' 
+#' \donttest{
+#' ## Provide a list of correlation matrices and a vector of sample sizes as the inputs
+#' my.df1 <- Cor2DataFrame(Nohe15A1$data, Nohe15A1$n)
+#' 
+#' ## Add Lag time as a variable
+#' my.df1$data <- data.frame(my.df1$data, Lag=Nohe15A1$Lag, check.names=FALSE)
+#' 
+#' ## Data
+#' my.df1$data
+#' 
+#' ## Sample sizes
+#' my.df1$n
+#' 
+#' ## ylabels
+#' my.df1$ylabels
+#' 
+#' ## vlabels
+#' my.df1$vlabels
+#' 
+#' #### Simplified version to do it
+#' my.df2 <- Cor2DataFrame(Nohe15A1)
+#' }
+#' 
 Cor2DataFrame <- function(x, n, v.na.replace=TRUE, cor.analysis=TRUE,
                           acov=c("weighted", "individual", "unweighted"),
                           Means, row.names.unique=FALSE, append.vars=TRUE,

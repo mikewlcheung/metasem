@@ -1,3 +1,7 @@
+Release 1.5.5 (May 02, 2026)
+====================================
+* Use roxygen2 for documentation.
+
 Release 1.5.4 (Feb 10, 2026)
 ====================================
 * Extend the RE.type argument in osmasem() to include "CSymm" and "HCSymm" options.

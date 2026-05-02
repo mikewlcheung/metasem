@@ -15,6 +15,93 @@
     dx
 }
 
+
+
+#' Compute Effect Sizes for Multiple Treatment Studies
+#' 
+#' It computes the standardized mean differences and their asymptotic sampling
+#' covariance matrix for \emph{k} multiple treatment studies. The first group
+#' is assumed as the control group.
+#' 
+#' Gleser and Olkin (2009) introduce formulas to calculate the standardized
+#' mean differences and their sampling covariance matrix for multiple treatment
+#' studies under the assumption of homogeneity of the covariance matrix. This
+#' function uses a structural equation modeling (SEM) approach introduced in
+#' Chapter 3 of Cheung (2015) to calculate the same estimates. The SEM approach
+#' is more flexible in three ways: (1) it allows homogeneity of variances or
+#' not; (2) it allows users to test the assumption of homogeneity of variances
+#' by checking the fitted \code{\link[lavaan]{lavaan-class}} object; and (3) it
+#' may calculate all pairwise comparisons.
+#' 
+#' @param m A vector of \emph{k} sample means.
+#' @param v A vector of \emph{k} sample variances.
+#' @param n A vector of \emph{k} sample sizes.
+#' @param homogeneity If it is \code{variance} (the default), homogeneity of
+#' variances is assumed. The common standard deviation is used as the
+#' standardizer in calculating the effect sizes. If it is \code{none},
+#' homogeneity of variances is not assumed. The standard deviation of the first
+#' group is used as the standardizer in calculating the effect sizes.
+#' @param bias.adjust If it is \code{TRUE} (the default), the effect sizes are
+#' adjusted for small bias by multiplying \eqn{1-3/(4*(n1+n2)-9)}.
+#' @param all.comparisons If it is \code{FALSE} (the default), all groups
+#' (except the first group) are compared against the first group. If it is
+#' \code{TRUE}, all pairwise comparisons are calculated. This may be useful in
+#' network meta-analysis.
+#' @param list.output If it is \code{TRUE} (the default), the effect sizes and
+#' their sampling covariance matrix are outputed as a list. If it is
+#' \code{FALSE}, they will be stacked into a vector.
+#' @param lavaan.output If it is \code{FALSE} (the default), the effect sizes
+#' and its sampling covariance matrix are reported. If it is \code{TRUE}, it
+#' outputs the fitted \code{\link[lavaan]{lavaan-class}} object.
+#' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
+#' @seealso \code{\link[metaSEM]{Gleser94}}, \code{\link[metaSEM]{smdMES}},
+#' \code{\link[metaSEM]{calEffSizes}}
+#' @references Cheung, M. W.-L. (2015). \emph{Meta-analysis: A structural
+#' equation modeling approach}. Chichester, West Sussex: John Wiley & Sons,
+#' Inc.
+#' 
+#' Cheung, M. W.-L. (2018). Computing multivariate effect sizes and their
+#' sampling covariance matrices with structural equation modeling: Theory,
+#' examples, and computer simulations. \emph{Frontiers in Psychology},
+#' \bold{9}(1387). https://doi.org/10.3389/fpsyg.2018.01387
+#' 
+#' Gleser, L. J., & Olkin, I. (2009). Stochastically dependent effect sizes. In
+#' H. Cooper, L. V. Hedges, & J. C. Valentine (Eds.), \emph{The handbook of
+#' research synthesis and meta-analysis}. (2nd ed., pp. 357-376). New York:
+#' Russell Sage Foundation.
+#' @keywords meta-analysis
+#' @examples
+#' 
+#' \donttest{  
+#' ## Sample means for groups 1 to 3
+#' m <- c(5,7,9)
+#' 
+#' ## Sample variances
+#' v <- c(10,11,12)
+#' 
+#' ## Sample sizes
+#' n <- c(50,52,53)
+#' 
+#' ## Assuming homogeneity of variances
+#' smdMTS(m, v, n, homogeneity = "var", bias.adjust=TRUE, all.comparisons=FALSE,
+#'        lavaan.output=FALSE)
+#' 
+#' ## Not assuming homogeneity of variances and comparing all pairwise groups
+#' ## Please note that the SD of the first group is used as the standardizer    
+#' smdMTS(m, v, n, homogeneity = "none", bias.adjust=TRUE, all.comparisons=TRUE,
+#'        lavaan.output=FALSE)
+#' 
+#' ## Output the fitted lavaan model
+#' ## It provides a likelihood ratio test to test the null hypothesis of
+#' ## homogeneity of variances.    
+#' fit <- smdMTS(m, v, n, homogeneity = "var", bias.adjust=FALSE, all.comparisons=FALSE,
+#'               lavaan.output=TRUE)
+#' 
+#' lavaan::summary(fit)
+#'     
+#' lavaan::parameterestimates(fit)
+#' }
+#' 
 smdMTS <- function(m, v, n, homogeneity=c("variance", "none"), bias.adjust=TRUE, 
                    all.comparisons=FALSE, list.output=TRUE, lavaan.output=FALSE) {
 
@@ -147,6 +234,108 @@ smdMTS <- function(m, v, n, homogeneity=c("variance", "none"), bias.adjust=TRUE,
 }
 
 
+
+
+#' Compute Effect Sizes for Multiple End-point Studies
+#' 
+#' It computes the standardized mean differences and their asymptotic sampling
+#' covariance matrix for two multiple end-point studies with \emph{p} effect
+#' sizes.
+#' 
+#' Gleser and Olkin (2009) introduce formulas to calculate the standardized
+#' mean differences and their sampling covariance matrix for multiple end-point
+#' studies under the assumption of homogeneity of the covariance matrix. This
+#' function uses a structural equation modeling (SEM) approach introduced in
+#' Chapter 3 of Cheung (2015) to calculate the same estimates. The SEM approach
+#' is more flexible in two ways: (1) it allows homogeneity of covariance or
+#' correlation matrices or not; and (2) it allows users to test this assumption
+#' by checking the fitted \code{\link[lavaan]{lavaan-class}} object.
+#' 
+#' @param m1 A vector of \emph{p} sample means of the first group.
+#' @param m2 A vector of \emph{p} sample means of the second group.
+#' @param V1 A \emph{p} by \emph{p} sample covariance matrix of the first
+#' group.
+#' @param V2 A \emph{p} by \emph{p} sample covariance matrix of the second
+#' group.
+#' @param n1 The sample size of the first group.
+#' @param n2 The sample size of the second group.
+#' @param homogeneity If it is \code{covariance} (the default), homogeneity of
+#' covariance matrices is assumed. The common standard deviations are used as
+#' the standardizers in calculating the effect sizes. If it is
+#' \code{correlation}, homogeneity of correlation is not assumed. The standard
+#' deviations of the first group are used as the standardizer in calculating
+#' the effect sizes. If it is \code{none}, no homogeneity assumption is made.
+#' The standard deviations of the first group are used as the standardizer in
+#' calculating the effect sizes.
+#' @param bias.adjust If it is \code{TRUE} (the default), the effect sizes are
+#' adjusted for small bias by multiplying \eqn{1-3/(4*(n1+n2)-9)}.
+#' @param list.output If it is \code{TRUE} (the default), the effect sizes and
+#' their sampling covariance matrix are outputed as a list. If it is
+#' \code{FALSE}, they will be stacked into a vector.
+#' @param lavaan.output If it is \code{FALSE} (the default), the effect sizes
+#' and its sampling covariance matrix are reported. If it is \code{TRUE}, it
+#' outputs the fitted \code{\link[lavaan]{lavaan-class}} object.
+#' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
+#' @seealso \code{\link[metaSEM]{Gleser94}}, \code{\link[metaSEM]{smdMTS}},
+#' \code{\link[metaSEM]{calEffSizes}}
+#' @references Cheung, M. W.-L. (2015). \emph{Meta-analysis: A structural
+#' equation modeling approach}. Chichester, West Sussex: John Wiley & Sons,
+#' Inc.
+#' 
+#' Cheung, M. W.-L. (2018). Computing multivariate effect sizes and their
+#' sampling covariance matrices with structural equation modeling: Theory,
+#' examples, and computer simulations. \emph{Frontiers in Psychology},
+#' \bold{9}(1387). https://doi.org/10.3389/fpsyg.2018.01387
+#' 
+#' Gleser, L. J., & Olkin, I. (2009). Stochastically dependent effect sizes. In
+#' H. Cooper, L. V. Hedges, & J. C. Valentine (Eds.), \emph{The handbook of
+#' research synthesis and meta-analysis}. (2nd ed., pp. 357-376). New York:
+#' Russell Sage Foundation.
+#' @keywords meta-analysis
+#' @examples
+#' 
+#' \donttest{    
+#' ## Sample means for the two constructs in Group 1  
+#' m1 <- c(2.5, 4.5)
+#' 
+#' ## Sample means for the two constructs in Group 2     
+#' m2 <- c(3, 5)
+#' 
+#' ## Sample covariance matrix in Group 1    
+#' V1 <- matrix(c(3,2,2,3), ncol=2)
+#' 
+#' ## Sample covariance matrix in Group 2
+#' V2 <- matrix(c(3.5,2.1,2.1,3.5), ncol=2)
+#' 
+#' ## Sample size in Group 1
+#' n1 <- 20
+#' 
+#' ## Sample size in Group 2    
+#' n2 <- 25
+#' 
+#' ## SMD with the assumption of homogeneity of covariance matrix    
+#' smdMES(m1, m2, V1, V2, n1, n2, homogeneity="cov", bias.adjust=TRUE,
+#'        lavaan.output=FALSE)
+#' 
+#' ## SMD with the assumption of homogeneity of correlation matrix 
+#' smdMES(m1, m2, V1, V2, n1, n2, homogeneity="cor", bias.adjust=TRUE,
+#'        lavaan.output=FALSE)
+#' 
+#' ## SMD without any assumption of homogeneity
+#' smdMES(m1, m2, V1, V2, n1, n2, homogeneity="none", bias.adjust=TRUE,
+#'        lavaan.output=FALSE)
+#' 
+#' ## Output the fitted lavaan model
+#' ## It provides a likelihood ratio test to test the null hypothesis of
+#' ## homogeneity of variances.     
+#' fit <- smdMES(m1, m2, V1, V2, n1, n2, homogeneity="cov", bias.adjust=TRUE,
+#'               lavaan.output=TRUE)
+#' 
+#' lavaan::summary(fit)
+#' 
+#' lavaan::parameterestimates(fit)
+#' }
+#' 
 smdMES <- function(m1, m2, V1, V2, n1, n2, homogeneity=c("covariance", "correlation", "none"), 
                    bias.adjust=TRUE, list.output=TRUE, lavaan.output=FALSE) {
 

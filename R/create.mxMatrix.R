@@ -1,3 +1,62 @@
+#' Create a Vector into MxMatrix-class
+#'
+#' It converts a vector into \code{MxMatrix-class} via \code{mxMatrix}.
+#'
+#' If there are non-numeric values in \code{x}, they are treated as the labels
+#' of the free parameters. If an "*" is present, the numeric value on the
+#' left-hand side will be treated as the starting value for a free parameter or
+#' a fixed value for a fixed parameter. If it is a matrix of numeric values,
+#' there are no free parameters in the output matrix. \code{nrow} and
+#' \code{ncol} will be calculated from the length of \code{x} unless
+#' \code{type="Full"} is specified.
+#'
+#' @param x A character or numeric vector
+#' @param type Matrix type similar to those listed in
+#' \code{\link[OpenMx]{mxMatrix}}
+#' @param ncol The number of columns. It is necessary when \code{type="Full"}.
+#' It is ignored and determined by the length of \code{x} for the other types
+#' of matrices.
+#' @param nrow The number of rows. It is necessary when \code{type="Full"}. It
+#' is ignored and determined by the length of \code{x} for the other types of
+#' matrices.
+#' @param as.mxMatrix Logical. If it is \code{TRUE}, the output is a matrix of
+#' \code{MxMatrix-class}. If it is \code{FALSE}, it is a numeric matrix.
+#' @param byrow Logical. If \code{FALSE} (the default) the matrix is filled by
+#' columns, otherwise the matrix is filled by rows.
+#' @param \dots Further arguments to be passed to
+#' \code{\link[OpenMx]{mxMatrix}}. Please note that \code{type}, \code{nrow},
+#' \code{ncol}, \code{values}, \code{free} and \code{labels} will be created
+#' automatically. Thus, these arguments except labels should be avoided in
+#' \dots
+#' @return A \code{\link[OpenMx]{MxMatrix-class}} object with the same
+#' dimensions as \code{x}
+#' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
+#' @seealso \code{\link[OpenMx]{mxMatrix}},
+#' \code{\link[metaSEM]{create.mxMatrix}},
+#' \code{\link[metaSEM]{create.Fmatrix}}
+#' @keywords utilities
+#' @examples
+#'
+#' ## a and b are free parameters with starting values and labels
+#' (a1 <- c(1:4, "5*a", 6, "7*b", 8, 9))
+#'
+#' (mat1 <- create.mxMatrix(a1, ncol=3, nrow=3, name="mat1"))
+#'
+#' ## Arrange the elements by row
+#' (mat2 <- create.mxMatrix(a1, ncol=3, nrow=3, as.mxMatrix=FALSE, byrow=TRUE))
+#'
+#' (a3 <- c(1:3, "4*f4", "5*f5", "6*f6"))
+#'
+#' (mat3 <- create.mxMatrix(a3, type="Symm", name="mat3"))
+#'
+#' ## Create character matrix
+#' (mat4 <- create.mxMatrix(a3, type="Symm", as.mxMatrix=FALSE))
+#'
+#' ## Arrange the elements by row
+#' (mat5 <- create.mxMatrix(a3, type="Symm", as.mxMatrix=FALSE, byrow=TRUE))
+#'
+#' (mat6 <- create.mxMatrix(a3, type="Diag", lbound=6:1, name="mat6"))
+#'
 create.mxMatrix <- function(x, type=c("Full","Symm","Diag","Stand"), ncol=NA, nrow=NA, as.mxMatrix=TRUE, byrow=FALSE, ...) {
   my.mx <- function(y) {
     # suppress warnings

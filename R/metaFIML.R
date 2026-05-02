@@ -1,3 +1,4 @@
+#' @rdname meta
 metaFIML <- function(y, v, x, av, data, intercept.constraints=NULL,
                      coef.constraints=NULL, RE.constraints=NULL,
                      RE.startvalues=0.1, RE.lbound=1e-10,

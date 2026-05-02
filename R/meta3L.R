@@ -1,3 +1,116 @@
+#' Three-Level Univariate Meta-Analysis with Maximum Likelihood Estimation
+#'
+#' It conducts three-level univariate meta-analysis with maximum likelihood
+#' estimation method. Mixed-effects meta-analysis can be conducted by including
+#' study characteristics as predictors. Equality constraints on the intercepts,
+#' regression coefficients and variance components on the level-2 and on the
+#' level-3 can be easily imposed by setting the same labels on the parameter
+#' estimates.
+#'
+#' \deqn{y_{ij} = \beta_0 + \mathbf{\beta'}*\mathbf{x}_{ij} + u_{(2)ij} +
+#' u_{(3)j} + e_{ij} } where \eqn{y_{ij}} is the effect size for the ith study
+#' in the jth cluster, \eqn{\beta_0} is the intercept, \eqn{\mathbf{\beta}} is
+#' the regression coefficients, \eqn{\mathbf{x}_{ij}} is a vector of
+#' predictors, \eqn{u_{(2)ij} \sim N(0, \tau^2_2)}{u_{(2)ij}~ N(0, tau^2_2)}
+#' and \eqn{u_{(3)j} \sim N(0, \tau^2_3)}{u_{(3)j}~ N(0, tau^2_3)} are the
+#' level-2 and level-3 heterogeneity variances, respectively, and \eqn{e_{ij}
+#' \sim N(0, v_{ij})}{e_{ij}~ N(0, v_{ij})} is the conditional known sampling
+#' variance.
+#'
+#' \code{meta3L()} does not differentiate between level-2 or level-3 variables
+#' in \code{x} since both variables are treated as a design matrix. When there
+#' are missing values in \code{x}, the data will be deleted.
+#' \code{meta3LFIML()} treats the predictors \code{x2} and \code{x3} as level-2
+#' and level-3 variables. Thus, their means and covariance matrix will be
+#' estimated. Missing values in \code{x2} and \code{x3} will be handled by
+#' (full information) maximum likelihood (FIML) in \code{meta3LFIML()}.
+#' Moreover, auxiliary variables \code{av2} at level-2 and \code{av3} at
+#' level-3 may be included to improve the estimation. Although
+#' \code{meta3LFIML()} is more flexible in handling missing covariates, it is
+#' more likely to encounter estimation problems.
+#'
+#' @aliases meta3 meta3X meta3L meta3LFIML
+#' @param y A vector of \eqn{k}{k} studies of effect size.
+#' @param v A vector of \eqn{k}{k} studies of sampling variance.
+#' @param cluster A vector of \eqn{k}{k} string or number indicating the
+#' clusters.
+#' @param x A predictor or a \eqn{k}{k} x \eqn{m}{m} matrix of level-2 and
+#' level-3 predictors where \eqn{m}{m} is the number of predictors.
+#' @param x2 A predictor or a \eqn{k}{k} x \eqn{m}{m} matrix of level-2
+#' predictors where \eqn{m}{m} is the number of predictors.
+#' @param x3 A predictor or a \eqn{k}{k} x \eqn{m}{m} matrix of level-3
+#' predictors where \eqn{m}{m} is the number of predictors.
+#' @param av2 A predictor or a \eqn{k}{k} x \eqn{m}{m} matrix of level-2
+#' auxiliary variables where \eqn{m}{m} is the number of variables.
+#' @param av3 A predictor or a \eqn{k}{k} x \eqn{m}{m} matrix of level-3
+#' auxiliary variables where \eqn{m}{m} is the number of variables.
+#' @param data An optional data frame containing the variables in the model.
+#' @param intercept.constraints A \eqn{1}{1} x \eqn{1}{1} matrix specifying
+#' whether the intercept of the effect size is fixed or constrained. The format
+#' of this matrix follows \code{\link[metaSEM]{as.mxMatrix}}. The intercept can
+#' be constrained with other parameters by using the same label.
+#' @param coef.constraints A \eqn{1}{1} x \eqn{m}{m} matrix specifying how the
+#' level-2 and level-3 predictors predict the effect sizes. If the input is not
+#' a matrix, it is converted into a matrix by \code{as.matrix()}. The default
+#' is that all \eqn{m}{m} predictors predict the effect size. The format of
+#' this matrix follows \code{\link[metaSEM]{as.mxMatrix}}. The regression
+#' coefficients can be constrained equally by using the same labels.
+#' @param RE2.constraints A scalar or a \eqn{1}{1} x \eqn{1}{1} matrix
+#' specifying the variance components of the random effects. The default is
+#' that the variance components are free. The format of this matrix follows
+#' \code{\link[metaSEM]{as.mxMatrix}}. Elements of the variance components can
+#' be constrained equally by using the same label.
+#' @param RE2.lbound A scalar or a \eqn{1}{1} x \eqn{1}{1} matrix of lower
+#' bound on the level-2 variance component of the random effects.
+#' @param RE3.constraints A scalar of a \eqn{1}{1} x \eqn{1}{1} matrix
+#' specifying the variance components of the random effects at level-3. The
+#' default is that the variance components are free. The format of this matrix
+#' follows \code{\link[metaSEM]{as.mxMatrix}}. Elements of the variance
+#' components can be constrained equally by using the same label.
+#' @param RE3.lbound A scalar or a \eqn{1}{1} x \eqn{1}{1} matrix of lower
+#' bound on the level-3 variance component of the random effects.
+#' @param intervals.type Either \code{z} (default if missing) or \code{LB}. If
+#' it is \code{z}, it calculates the 95\% Wald confidence intervals (CIs) based
+#' on the z statistic. If it is \code{LB}, it calculates the 95\%
+#' likelihood-based CIs on the parameter estimates. Note that the z values and
+#' their associated p values are based on the z statistic. They are not related
+#' to the likelihood-based CIs.
+#' @param I2 Possible options are \code{"I2q"}, \code{"I2hm"}, \code{"I2am"}
+#' and \code{"ICC"}. They represent the \code{I2} calculated by using a typical
+#' within-study sampling variance from the Q statistic, the harmonic mean, the
+#' arithmetic mean of the within-study sampling variances, and the intra-class
+#' correlation. More than one options are possible. If
+#' \code{intervals.type="LB"}, 95\% confidence intervals on the heterogeneity
+#' indices will be constructed.
+#' @param R2 Logical. If \code{TRUE} and there are predictors, R2 is
+#' calculated.
+#' @param model.name A string for the model name in
+#' \code{\link[OpenMx]{mxModel}}.
+#' @param suppressWarnings Logical. If \code{TRUE}, warnings are suppressed. It
+#' is passed to \code{\link[OpenMx]{mxRun}}.
+#' @param silent Logical. An argument to be passed to
+#' \code{\link[OpenMx]{mxRun}}
+#' @param run Logical. If \code{FALSE}, only return the mx model without
+#' running the analysis.
+#' @param \dots Further arguments to be passed to \code{\link[OpenMx]{mxRun}}
+#' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
+#' @seealso \code{\link[metaSEM]{reml3L}}, \code{\link[metaSEM]{Cooper03}},
+#' \code{\link[metaSEM]{Bornmann07}}
+#' @references Cheung, M. W.-L. (2014). Modeling dependent effect sizes with
+#' three-level meta-analyses: A structural equation modeling approach.
+#' \emph{Psychological Methods}, \bold{19}, 211-229.
+#'
+#' Enders, C. K. (2010). \emph{Applied missing data analysis}. New York:
+#' Guilford Press.
+#'
+#' Graham, J. (2003). Adding missing-data-relevant variables to FIML-based
+#' structural equation models. \emph{Structural Equation Modeling: A
+#' Multidisciplinary Journal}, \bold{10(1)}, 80-100.
+#'
+#' Konstantopoulos, S. (2011). Fixed effects and variance components estimation
+#' in three-level meta-analysis. \emph{Research Synthesis Methods}, \bold{2},
+#' 61-76.
+#' @keywords meta-analysis
 meta3L <- function(y, v, cluster, x, data, intercept.constraints=NULL, coef.constraints=NULL, 
                    RE2.constraints=NULL, RE2.lbound=1e-10,
                    RE3.constraints=NULL, RE3.lbound=1e-10,
@@ -233,7 +346,8 @@ meta3L <- function(y, v, cluster, x, data, intercept.constraints=NULL, coef.cons
   return(out)
 }
 
-meta3 <- function(y, v, cluster, x, data, intercept.constraints=NULL, coef.constraints=NULL, 
+#' @rdname meta3L
+meta3 <- function(y, v, cluster, x, data, intercept.constraints=NULL, coef.constraints=NULL,
                   RE2.constraints=NULL, RE2.lbound=1e-10,
                   RE3.constraints=NULL, RE3.lbound=1e-10,
                   intervals.type=c("z", "LB"), I2="I2q", R2=TRUE,

@@ -1,4 +1,30 @@
 # FIXME: ensure dimnames in Cov iputs?
+
+
+#' Convert \code{metaSEM} objects into \code{semPlotModel} objects for plotting
+#' 
+#' It converts objects in class \code{wls} into objects of class
+#' \code{semPlotModel}.
+#' 
+#' It uses the \code{ramModel()} to do the conversion.
+#' 
+#' @param object An object of class \code{wls} returned from \code{wls()} or
+#' \code{tssem2()}.
+#' @param manNames A character vector of the manifest names. The program will
+#' try to get it from the \code{object} if it is not given.
+#' @param latNames A character vector of the latent names. The program will
+#' create it by using "L1", "L2", etc if it is not given.
+#' @param labels Either \code{labels} (default if missing) or \code{RAM}. If
+#' \code{labels}, the labels of the parameters are used in plotting. If
+#' \code{RAM}, the RAM notations are used in plotting.
+#' @param \dots Further arguments to be passed to
+#' \code{\link[semPlot]{ramModel}}
+#' @return A "semPlotModel" object.
+#' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
+#' @seealso \code{\link[semPlot]{ramModel}}, \code{\link[metaSEM]{Becker92}},
+#' \code{\link[metaSEM]{Becker09}}, \code{\link[metaSEM]{Digman97}},
+#' \code{\link[metaSEM]{Hunter83}}
+#' @keywords methods tssem
 meta2semPlot <- function(object, manNames=NULL, latNames=NULL, labels=c("labels", "RAM"), ...) {
 
     if (!requireNamespace("semPlot", quietly=TRUE))    

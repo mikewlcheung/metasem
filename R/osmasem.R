@@ -41,6 +41,75 @@
 ## A1: 1st moderator
 ## Amatrix = A0 + A1*Ax[[1]] + A1*Ax[[2]]
 ## Smatrix = S0 + S1*Sx[[1]] + S2*Sx[[2]]
+
+
+#' Create a model implied correlation matrix with implicit diagonal constraints
+#' 
+#' It creates implicit diagonal constraints on the model implied correlation
+#' matrix by treating the error variances as functions of other parameters.
+#' 
+#' 
+#' @param A0 A Amatrix, which will be converted into \code{MxMatrix-class} via
+#' \code{as.mxMatrix}.
+#' @param S0 A Smatrix, which will be converted into \code{MxMatrix-class} via
+#' \code{as.mxMatrix}.
+#' @param F0 A Fmatrix, which will be converted into \code{MxMatrix-class} via
+#' \code{as.mxMatrix}.
+#' @param Ax A Amatrix of a list of Amatrix with definition variables as the
+#' moderators of the Amatrix.
+#' @param Sx A Smatrix of a list of Smatrix with definition variables as the
+#' moderators of the Smatrix.
+#' @param A.lbound A matrix of lower bound of the Amatrix. If a scalar is
+#' given, the lbound matrix will be filled with this scalar.
+#' @param A.ubound A matrix of upper bound of the Amatrix. If a scalar is
+#' given, the ubound matrix will be filled with this scalar.
+#' @return A list of \code{MxMatrix-class}. The model implied correlation
+#' matrix is computed in \code{impliedR} and \code{vechsR}.
+#' @note Since \code{A0} are the intercepts and \code{Ax} are the regression
+#' coefficients. The parameters in \code{Ax} must be a subset of those in
+#' \code{A0}.
+#' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
+#' @seealso \code{\link[metaSEM]{osmasem}}, \code{\link[metaSEM]{create.Tau2}},
+#' \code{\link[metaSEM]{create.V}}
+#' @keywords osmasem
+#' @examples
+#' 
+#' \donttest{
+#' ## Proposed model
+#' model1 <- 'W2 ~ w2w*W1 + s2w*S1
+#'            S2 ~ w2s*W1 + s2s*S1
+#'            W1 ~~ w1WITHs1*S1
+#'            W2 ~~ w2WITHs2*S2
+#'            W1 ~~ 1*W1
+#'            S1 ~~ 1*S1
+#'            W2 ~~ Errw2*W2
+#'            S2 ~~ Errs2*S2'
+#' 
+#' ## Convert into RAM    
+#' RAM1 <- lavaan2RAM(model1, obs.variables=c("W1", "S1", "W2", "S2"))
+#' 
+#' ## No moderator    
+#' M0 <- create.vechsR(A0=RAM1$A, S0=RAM1$S, F0=NULL, Ax=NULL, Sx=NULL)
+#' 
+#' ## Lag (definition variable) as a moderator on the paths in the Amatrix    
+#' Ax <- matrix(c(0,0,0,0,
+#'                0,0,0,0,
+#'                "0*data.Lag","0*data.Lag",0,0,
+#'                "0*data.Lag","0*data.Lag",0,0),
+#'              nrow=4, ncol=4, byrow=TRUE)
+#'                 
+#' M1 <- create.vechsR(A0=RAM1$A, S0=RAM1$S, F0=NULL, Ax=Ax, Sx=NULL)    
+#' 
+#' ## Lag (definition variable) as a moderator on the correlation in the Smatrix
+#' Sx <- matrix(c(0,"0*data.Lag",0,0,
+#'                "0*data.Lag",0,0,0,
+#'                0,0,0,"0*data.Lag",
+#'                0,0,"0*data.Lag",0),
+#'              nrow=4, ncol=4, byrow=TRUE)
+#' 
+#' M2 <- create.vechsR(A0=RAM1$A, S0=RAM1$S, F0=NULL, Ax=NULL, Sx=Sx)
+#' }
+#' 
 create.vechsR <- function(A0, S0, F0=NULL, Ax=NULL, Sx=NULL,
                           A.lbound=NULL, A.ubound=NULL) {
 
@@ -282,6 +351,58 @@ create.vechsR <- function(A0, S0, F0=NULL, Ax=NULL, Sx=NULL,
   out
 }
 
+
+
+#' Create a variance component of the heterogeneity of the random effects
+#' 
+#' It creates variance component of the heterogeneity of the random effects by
+#' decomposing the variance component into matrices of correlation and standard
+#' deviations.
+#' 
+#' 
+#' @param RAM The RAM model for testing. \code{no.var} is calculated from it.
+#' @param no.var If \code{RAM} is missing, the user has to specify the
+#' \code{no.var} argument. It represents the \code{no.var} by \code{no.var} of
+#' the random effects).
+#' @param Tau1.labels Parameter labels in \code{Tau1}. The default is
+#' \code{Tau1_1}, \code{Tau1_2}, etc.
+#' @param RE.type Either \code{"Diag"}, \code{"CSymm"}, \code{"HCSymm"},
+#' \code{"Symm"}, \code{"Zero"} or \code{"User"}. If it is\code{"Diag"} (the
+#' default if missing), a diagonal matrix is used for the random effects
+#' meaning that the random effects are independent. \code{"CSymm"} and
+#' \code{"HCSymm"} represent compound symmetry and heteroscedastic compound
+#' symmetry, respectively. If it is \code{"Symm"}, a symmetric matrix is used
+#' for the random effects on the covariances among the correlation (or
+#' covariance) vectors. If it is \code{"Zero"}, a zero matrix is assumed on the
+#' variance component of the random effects. If it is \code{"User"}, users have
+#' to specify the \code{RE.User} argument.
+#' @param level whether it is for single-level, between-, or within-level
+#' analyses. The only difference are the names of the matrices.
+#' @param RE.User It represents the \code{no.var} by \code{no.var} symmetric
+#' matrix of \code{TRUE} or \code{FALSE} for the variance component. If the
+#' elements are \code{FALSE}, they are fixed at 0.
+#' @param Transform Either \code{"expLog"} or \code{"sqSD"}. If it is
+#' \code{"expLog"}, the variances are estimated by applying a log and exp
+#' transformation. If it is \code{"sqSD"}, the variances are estimated by
+#' applying a square on the SD. The transformation may improve the estimation
+#' when the heterogeneity is small or close to zero.
+#' @param RE.startvalues Starting values for the variances.
+#' @return A list of \code{MxMatrix-class}. The variance component is computed
+#' in \code{Tau2}.
+#' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
+#' @seealso \code{\link[metaSEM]{osmasem}}, \code{\link[metaSEM]{create.V}},
+#' \code{\link[metaSEM]{create.vechsR}}
+#' @keywords osmasem osmasem3L
+#' @examples
+#' 
+#' \donttest{
+#' T0 <- create.Tau2(no.var=4, RE.type="Diag", Transform="expLog", RE.startvalues=0.05)
+#' T0
+#' 
+#' T1 <- create.Tau2(no.var=4, Tau1.labels=c("a", "b", "c", "d"))
+#' T1
+#' }
+#' 
 create.Tau2 <- function(RAM, no.var, Tau1.labels=seq(no.var),
                         RE.type=c("Diag", "CSymm", "HCSymm", "Symm", "Zero", "User"),
                         level=c("single", "between", "within"),
@@ -417,6 +538,39 @@ create.Tau2 <- function(RAM, no.var, Tau1.labels=seq(no.var),
 }    
 
 ## x: labels of variables by column major
+
+
+#' Create a V-known matrix
+#' 
+#' It creates a V-known matrix of the sampling covariance matrix using
+#' definition variables.
+#' 
+#' 
+#' @param x A character vector of variable names of the sampling covariance
+#' matrix.
+#' @param type Either \code{"Symm"}, \code{"Diag"} or \code{"Full"}. Suppose
+#' the number of variables is \eqn{p}, the numbers of variable names for
+#' \code{"Symm"}, \code{"Diag"}, and \code{"Full"} are \eqn{p(p-1)/2
+#' }{p(p-1)/2}, \eqn{p}{p}, and \eqn{p*p}{p*p}, respectively. The elements are
+#' arranged in a column major.
+#' @param as.mxMatrix Logical. Whether to convert the output into
+#' \code{MxMatrix-class}.
+#' @return A list of \code{MxMatrix-class}. The V-known sampling covariance
+#' matrix is computed in \code{V}.
+#' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
+#' @seealso \code{\link[metaSEM]{osmasem}}, \code{\link[metaSEM]{create.Tau2}},
+#' \code{\link[metaSEM]{create.vechsR}}
+#' @keywords osmasem
+#' @examples
+#' 
+#' \donttest{
+#' my.df <- Cor2DataFrame(Nohe15A1)
+#' 
+#' ## Create known sampling variance covariance matrix
+#' V0 <- create.V(my.df$vlabels)
+#' V0
+#' }
+#' 
 create.V <- function(x, type=c("Symm", "Diag", "Full"), as.mxMatrix=TRUE) {
   type <- match.arg(type)
 
@@ -439,6 +593,108 @@ create.V <- function(x, type=c("Symm", "Diag", "Full"), as.mxMatrix=TRUE) {
   out
 }
     
+
+
+#' One-stage meta-analytic structural equation modeling
+#' 
+#' It fits MASEM with the one-stage MASEM (OSMASEM) approach.
+#' 
+#' \code{osmasem()} was implemented based on Jak and Cheung (2020) for
+#' meta-analyzing correlation matrices. \code{osmasem2()} was a rewritten
+#' version to handle correlation or covariance matrices with the means. There
+#' are several major differences between them: 1. \code{osmasem()} allows the
+#' use of \code{RAM} or (\code{Mmatrix} and \code{Tmatrix}), while
+#' \code{osmasem2()} only accepts the \code{RAM} input. 2. \code{RE.type} is
+#' used to specify the type of random effects on the correlations in
+#' \code{osmasem()}. On the contrary, \code{osmasem2()} has three types of
+#' random effects: correlations/covariances, means, and covariance between
+#' correlations/covariance and means. 3. \code{osmasem()} reports the
+#' transformed random effects in the parameter table. Users have to use
+#' \code{VarCorr()} to obtain the heterogeneity matrix of the random effects.
+#' In contrast, \code{osmasem2()} reports the heterogeneity matrix in the
+#' parameter table. 4. \code{osmasem()} accepts either
+#' \code{intervals.type="z"} or \code{intervals.type="LB"}, whereas
+#' \code{osmasem2()} only uses \code{intervals.type="z"}. Thus, this argument
+#' is removed in \code{osmasem2()}. 5. \code{osmasem2()} allows the imposing
+#' linear and nonlinear constraints and the creation of parameter functions in
+#' \code{RAM}, which \code{osmasem} cannot.
+#' 
+#' @aliases osmasem osmasem2
+#' @param model.name A string for the model name in
+#' \code{\link[OpenMx]{mxModel}}.
+#' @param RAM A RAM object including a list of matrices of the model returned
+#' from \code{\link[metaSEM]{lavaan2RAM}}. If it is given, \code{Mmatrix} and
+#' \code{Tmatrix} arguments will be ignored.
+#' @param Mmatrix A list of matrices of the model implied correlation matrix
+#' created by the \code{create.vechsR}. It is only required when \code{RAM} is
+#' null.
+#' @param Tmatrix A list of matrices of the heterogeneity variance-covariance
+#' matrix created by the \code{create.Tau2}. It is only required when
+#' \code{RAM} is null.
+#' @param Jmatrix The Jacobian matrix of the mean structure in mxMatrix. The
+#' covariance structure is Jmatrix \%&\% Tau2 + Vi. If it is not givin, an
+#' identity matrix will be used.
+#' @param Ax A Amatrix of a list of Amatrix with definition variables as the
+#' moderators of the Amatrix. It is used to create the \code{Mmatrix}.
+#' @param Sx A Smatrix of a list of Smatrix with definition variables as the
+#' moderators of the Smatrix. It is used to create the \code{Mmatrix}.
+#' @param A.lbound A matrix of lower bound of the Amatrix. If a scalar is
+#' given, the lbound matrix will be filled with this scalar.
+#' @param A.ubound A matrix of upper bound of the Amatrix. If a scalar is
+#' given, the ubound matrix will be filled with this scalar.
+#' @param RE.type Type of the random effects. See
+#' \code{\link[metaSEM]{create.Tau2}} for details.
+#' @param RE.User A symmetric matrix of \code{TRUE} or \code{FALSE} for the
+#' variance component when \code{RE.type="User"}. See
+#' \code{\link[metaSEM]{create.Tau2}} for details.
+#' @param data A list of data created by the \code{Cor2DataFrame}.
+#' @param subset.variables A character vector of the observed variables
+#' selected for the analysis.
+#' @param subset.rows A logical vector of the same length as the number of rows
+#' in the data to select which rows are used in the analysis.
+#' @param intervals.type Either \code{z} (default if missing) or \code{LB}. If
+#' it is \code{z}, it calculates the 95\% confidence intervals (CIs) based on
+#' the estimated standard error. If it is \code{LB}, it calculates the 95\%
+#' likelihood-based CIs on the parameter estimates.
+#' @param mxModel.Args A list of arguments passed to
+#' \code{\link[OpenMx]{mxModel}}.
+#' @param mxRun.Args A list of arguments passed to \code{\link[OpenMx]{mxRun}}.
+#' @param suppressWarnings Logical. If it is \code{TRUE}, warnings are
+#' suppressed. This argument is passed to \code{\link[OpenMx]{mxRun}}.
+#' @param silent Logical. An argument is passed to \code{\link[OpenMx]{mxRun}}
+#' @param run Logical. If \code{FALSE}, only return the mx model without
+#' running the analysis.
+#' @param \dots Not used yet.
+#' @param cor.analysis Whether to analyze correlation or covariance structure
+#' analysis.
+#' @param RE.type.Sigma Type of the random effects of the correlation or
+#' covariance vectors.
+#' @param RE.type.Mu Type of the random effects of the mean vectors.
+#' @param RE.type.SigmaMu Type of the random effects between the
+#' correlation/covariance vectors and the mean vectors.
+#' @param mean.analysis Whether to include the analysis of the mean structure.
+#' @param startvalues An optional list of starting values. It is useful when
+#' there are new parameters in RAM.
+#' @param replace.constraints It is relevant only when there are constraints in
+#' RAM. If it is \code{FALSE}, these constraints will be impose. If it is
+#' \code{FALSE}, the parameters on the left-hand side will be replaced by the
+#' algebras on the right-hand side.
+#' @return An object of class \code{osmasem}
+#' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
+#' @seealso \code{\link[metaSEM]{Cor2DataFrame}},
+#' \code{\link[metaSEM]{create.vechsR}}, \code{\link[metaSEM]{create.Tau2}},
+#' \code{\link[metaSEM]{create.V}}, \code{\link[metaSEM]{osmasem}},
+#' \code{\link[metaSEM]{Nohe15}}, \code{\link[metaSEM]{issp05}}
+#' @references Jak, S., & Cheung, M. W.-L. (2020). Meta-analytic structural
+#' equation modeling with moderating effects on SEM parameters.
+#' \emph{Psychological Methods}, \bold{25} (4), 430-455.
+#' https://doi.org/10.1037/met0000245
+#' 
+#' Jak, S., Cheung, M. W.-L., Acar, S., & Kindred, R. (December 18, 2024).
+#' Evaluating differences in latent means across studies: Extending
+#' meta-analytic confirmatory factor analysis with the analysis of means. OSF.
+#' https://doi.org/10.31234/osf.io/35gtz.
+#' @keywords meta-analysis
 osmasem <- function(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
                     Tmatrix=NULL, Jmatrix=NULL, Ax=NULL, Sx=NULL,
                     A.lbound=NULL, A.ubound=NULL,
@@ -626,6 +882,31 @@ vcov.osmasem <- function(object, select=c("fixed", "all", "random"),
   out[my.name, my.name]
 }
 
+
+
+#' Extract Variance-Covariance Matrix of the Random Effects
+#' 
+#' It extracts the variance-covariance matrix of the random effects (variance
+#' component) from either the \code{meta} or \code{osmasem} objects.
+#' 
+#' 
+#' @param x An object returned from either class \code{meta} or \code{osmasem}
+#' @param \dots Further arguments; currently none is used
+#' @return A variance-covariance matrix of the random effects.
+#' @note It is similar to \code{coef(object, select="random")} in tssem. The
+#' main difference is that \code{coef()} returns a vector while
+#' \code{VarCorr()} returns its correspondent matrix.
+#' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
+#' @seealso \code{\link[metaSEM]{coef}}, \code{\link[metaSEM]{vcov}}
+#' @keywords methods
+#' @examples
+#' 
+#' ## Multivariate meta-analysis on the log of the odds
+#' ## The conditional sampling covariance is 0
+#' bcg <- meta(y=cbind(ln_Odd_V, ln_Odd_NV), data=BCG,
+#'             v=cbind(v_ln_Odd_V, cov_V_NV, v_ln_Odd_NV))
+#' VarCorr(bcg)
+#' 
 VarCorr <- function(x, ...) {
   if (all(!is.element(c("meta", "osmasem", "osmasem3L"), class(x))))
     stop("\"x\" must be an object of either class \"meta\", \"osmasem\" or \"osmasem3L\".")
@@ -860,6 +1141,26 @@ summary.osmasem <- function(object, fitIndices=FALSE, numObs,
   out
 }
 
+
+
+#' Calculate the R2 in OSMASEM and OSMASEM3L
+#' 
+#' It calculates the R2 of the moderators in explaining the variances in the
+#' heterogeneity variances.
+#' 
+#' 
+#' @param model1 An object in class \code{osmasem}.
+#' @param model0 An object in class \code{osmasem}.
+#' @param R2.truncate Whether to truncate the negative R2 to zero.
+#' @return \code{model1} and \code{model0} are the models with and without the
+#' moderators, respectively. The function does not check whether the models are
+#' nested. It is the users' responsibility to make sure that the models with
+#' and without the moderators are nested. It returns a list of the diagonals of
+#' the heterogeneity variances of the models without and with the moderators,
+#' and the R2.
+#' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
+#' @seealso \code{\link[metaSEM]{osmasem}}
+#' @keywords osmasem osmasem3L
 osmasemR2 <- function(model1, model0, R2.truncate=TRUE) {
   if (!all(c(class(model0), class(model1)) %in% "osmasem"))
     stop("Both \"model0\" and \"model1\" must be objects of class \"osmasem\".")
@@ -881,6 +1182,21 @@ osmasemR2 <- function(model1, model0, R2.truncate=TRUE) {
   list(Tau2.0=Tau2.0, Tau2.1=Tau2.1, R2=R2)
 }
 
+
+
+#' Calculate the SRMR in OSMASEM and OSMASEM3L
+#' 
+#' It calculates the standardized root mean squared residuals (SRMR) in OSMASEM
+#' and OSMASEM3L.
+#' 
+#' 
+#' @param x An OSMASEM object without any moderators.
+#' @return It calculates the model implied correlation matrix and its saturated
+#' counterpart to calculate the SRMR. It should be noted that the heterogeneity
+#' variances are ignored in the calculations.
+#' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
+#' @seealso \code{\link[metaSEM]{osmasem}}, \code{\link[metaSEM]{Nohe15}}
+#' @keywords osmasem osmasem3L
 osmasemSRMR <- function(x) {
   ## Check if there are moderators in either A1 or S1
   if (!is.null(x$Mmatrix$A1) | !is.null(x$Mmatrix$S1))

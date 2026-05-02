@@ -1,3 +1,62 @@
+#' Check the correctness of the RAM formulation
+#' 
+#' It provides simple checks on the correctness of the RAM formulation.
+#' 
+#' 
+#' @param Amatrix An asymmetric matrix in the RAM specification with
+#' \code{\link[OpenMx]{MxMatrix-class}}. If it is a matrix, it will be
+#' converted into \code{\link[OpenMx]{MxMatrix-class}} by the
+#' \code{as.mxMatrix} function.
+#' @param Smatrix A symmetric matrix in the RAM specification with
+#' \code{\link[OpenMx]{MxMatrix-class}}. If it is a matrix, it will be
+#' converted into \code{\link[OpenMx]{MxMatrix-class}} by the
+#' \code{as.mxMatrix} function.
+#' @param cor.analysis Logical. Analysis of correlation or covariance
+#' structure. There are additional checks for cor.analysis=\code{TRUE}.
+#' @return It returns silently if no error has been detected; otherwise, it
+#' returns a warning message.
+#' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
+#' @seealso \code{\link[metaSEM]{as.mxMatrix}},
+#' \code{\link[metaSEM]{lavaan2RAM}}
+#' @keywords utilities
+#' @examples
+#' 
+#' \donttest{ 
+#' ## Digman97 example
+#' model1 <- "## Factor loadings
+#'            Alpha=~A+C+ES
+#'            Beta=~E+I
+#'            ## Factor correlation
+#'            Alpha~~Beta"
+#' 
+#' RAM1 <- lavaan2RAM(model1, obs.variables=c("A","C","ES","E","I"),
+#'                    A.notation="on", S.notation="with")
+#' RAM1
+#' 
+#' ## The model is okay.    
+#' checkRAM(Amatrix=RAM1$A, Smatrix=RAM1$S)
+#' 
+#' ## Hunter83 example    
+#' model2 <- "## Regression paths
+#'            Job_knowledge ~ A2J*Ability
+#'            Work_sample ~ A2W*Ability + J2W*Job_knowledge
+#'            Supervisor ~ J2S*Job_knowledge + W2S*Work_sample
+#' 
+#'            ## Fix the variance of Ability at 1
+#'            Ability ~~ 1*Ability
+#' 
+#'            ## Label the error variances of the dependent variables
+#'            Job_knowledge ~~ VarE_J*Job_knowledge
+#'            Work_sample ~~ VarE_W*Work_sample
+#'            Supervisor ~~ VarE_S*Supervisor"
+#' 
+#' RAM2 <- lavaan2RAM(model2, obs.variables=c("Ability","Job_knowledge",
+#'                    "Work_sample","Supervisor"))
+#' 
+#' ## The model is okay.     
+#' checkRAM(Amatrix=RAM2$A, Smatrix=RAM2$S)   
+#' }
+#' 
 checkRAM <- function(Amatrix, Smatrix, cor.analysis=TRUE) {
     if (missing(Amatrix)&missing(Smatrix)) {
         warning("Either 'Amatrix' or 'Smatrix' must be present.")

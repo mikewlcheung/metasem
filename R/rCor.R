@@ -1,4 +1,57 @@
 ## Generate sample correlation matrices
+
+
+#' Generate (Nested) Sample/Population Correlation/Covariance Matrices
+#' 
+#' It generates (nested) random sample or population correlation or covariance
+#' matrices. \code{rCor()} is a wrapper to call \code{rCorPop()} and then
+#' \code{rCorSam()}.
+#' 
+#' 
+#' @aliases rCor rCorPop rCorSam rCor3L
+#' @param Sigma A list of population correlation/covariance matrices or a
+#' single matrix
+#' @param V A variance-covariance matrix of Sigma.
+#' @param V.B A variance-covariance matrix of between-study Sigma.
+#' @param V.W A variance-covariance matrix of within-study Sigma
+#' @param n A vector or a single sample sizes.
+#' @param cluster A vector of number of studies in clusters.
+#' @param corr Logical. Whether to generate correlation or covariance matrices.
+#' @param raw.data Logical. Whether correlation/covariance matrices are
+#' generated via raw.data or directly from a Wishart distribution.
+#' @param nonPD.pop If it is \code{replace}, generated non-positive definite
+#' matrices are replaced by generated new ones which are positive definite. If
+#' it is \code{nearPD}, they are replaced by nearly positive definite matrices
+#' by calling \code{Matrix::nearPD()}. If it is \code{accept}, they are
+#' accepted.
+#' @param nonPD.sam If it is \code{stop}, the program stops when the inputs in
+#' the \code{rCorSam} are non-positive definite. If it is \code{nearPD}, they
+#' are replaced by nearly positive definite matrices by calling
+#' \code{Matrix::nearPD()}.
+#' @param k A vector or a single number of studies.
+#' @return An object of the generated population/sample correlation/covariance
+#' matrices.
+#' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
+#' @keywords utilities
+#' @examples
+#' 
+#' Sigma <- matrix(c(1, .2, .3,
+#'                   .2, 1, .4,
+#'                   .3, .4, 1), ncol=3, nrow=3)
+#' V <- diag(c(.1, .1, .1))
+#' 
+#' ## Generate two population correlation matrices
+#' Pop.corr <- rCorPop(Sigma, V, k=2)
+#' Pop.corr
+#'                   
+#' summary(Pop.corr)
+#'                   
+#' ## Generate two sample correlation matrices
+#' rCorSam(Sigma=Pop.corr, n=c(10, 10))
+#'                  
+#' ## The above code is the same as the following one
+#' rCor(Sigma, V, n=c(10, 10))                  
+#' 
 rCor <- function(Sigma, V, n, corr=TRUE, raw.data=FALSE,
                  nonPD.pop=c("replace", "nearPD", "accept"),
                  nonPD.sam=c("stop", "nearPD")) {
@@ -17,7 +70,8 @@ rCor <- function(Sigma, V, n, corr=TRUE, raw.data=FALSE,
 }
 
 ## Generate population correlation matrices
-rCorPop <- function(Sigma, V, k, corr=TRUE, 
+#' @rdname rCor
+rCorPop <- function(Sigma, V, k, corr=TRUE,
                     nonPD.pop=c("replace", "nearPD", "accept")) {
 
   ## Convert them to matrices
@@ -150,7 +204,8 @@ print.summary.CorPop <- function(x, ...) {
 }  
                   
 ## Generate sample correlation matrices
-rCorSam <- function(Sigma, n, corr=TRUE, raw.data=FALSE, 
+#' @rdname rCor
+rCorSam <- function(Sigma, n, corr=TRUE, raw.data=FALSE,
                     nonPD.sam=c("stop", "nearPD")) {
   ## Convert Sigma into a list
   if (!is.list(Sigma)) Sigma <- list(Sigma)

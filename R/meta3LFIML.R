@@ -1,3 +1,4 @@
+#' @rdname meta3L
 meta3LFIML <- function(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=NULL,
                    coef.constraints=NULL, RE2.constraints=NULL, RE2.lbound=1e-10,
                    RE3.constraints=NULL, RE3.lbound=1e-10, intervals.type=c("z", "LB"), R2=TRUE,
@@ -498,6 +499,7 @@ meta3LFIML <- function(y, v, cluster, x2, x3, av2, av3, data, intercept.constrai
   out
 }
 
+#' @rdname meta3L
 meta3X <- function(y, v, cluster, x2, x3, av2, av3, data, intercept.constraints=NULL,
                    coef.constraints=NULL, RE2.constraints=NULL, RE2.lbound=1e-10,
                    RE3.constraints=NULL, RE3.lbound=1e-10, intervals.type=c("z", "LB"), R2=TRUE,

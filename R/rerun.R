@@ -1,3 +1,28 @@
+#' Rerun models via mxTryHard()
+#' 
+#' It reruns models via mxTryHard().
+#' 
+#' 
+#' @param object An object of either class \code{tssem1FEM}, class
+#' \code{tssem1REM}, class \code{wls}, class \code{meta}, class \code{reml},
+#' class \code{osmasem}, class \code{osmasem3L}, and class \code{MxModel}.
+#' @param autofixtau2 Logical. Whether automatically fixes elements of tau2
+#' with NA of standard errors. It only works for objects of class
+#' \code{tssem1REM}, class \code{meta}, and class \code{osmasem}.
+#' @param extraTries The number of attempts to run the model in addition to the
+#' first.
+#' @param \dots Further arguments to be passed to
+#' \code{\link[OpenMx]{mxTryHard}}
+#' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
+#' @keywords tssem meta osmasem osmasem3L wls
+#' @examples
+#' 
+#' \donttest{
+#' random1 <- tssem1(Digman97$data, Digman97$n, method="REM", RE.type="Diag")
+#' random1_rerun <- rerun(random1)
+#' summary(random1_rerun)
+#' }
+#' 
 rerun <- function(object, autofixtau2=FALSE, extraTries=10, ...) {
   if (!is.element(class(object)[1], c("wls", "tssem1FEM", "tssem1REM", "meta",
                                       "meta3LFIML", "reml",

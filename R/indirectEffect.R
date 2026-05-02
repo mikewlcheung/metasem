@@ -1,3 +1,46 @@
+#' Estimate the asymptotic covariance matrix of standardized or unstandardized
+#' indirect and direct effects
+#' 
+#' It estimates the standardized or unstandardized indirect and direct effects
+#' and their asymptotic sampling covariance matrix.
+#' 
+#' Cheung (2009) estimated the standardized indirect effect and its standard
+#' error with non-linear constraints. Since \code{OpenMx} does not generate
+#' standard errors when there are non-linear constraints, Kwan and Chan's
+#' (2011) approach is used in this function. Delta method is used to calculate
+#' the asymptotic covariance matrix.
+#' 
+#' @param x A 3x3 correlation/covariance matrix or a list of
+#' correlation/covariance matrices. Variables are arranged as the dependent
+#' variable (y), mediator (m) and independent variable (x)
+#' @param n Sample size or a vector of sample sizes
+#' @param standardized Logical. Whether the indirect effect is standardized.
+#' @param direct.effect Logical. Whether the direct effect is estimated. If it
+#' is \code{FALSE}, the direct effect is fixed at zero.
+#' @param run Logical. If \code{FALSE}, only return the mx model without
+#' running the analysis.
+#' @return A vector (or a matrix if the input is a list of matrices) of
+#' (standardized) indirect effect, standardized direct effect, and their
+#' asymptotic sampling covariance matrices
+#' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
+#' @references Cheung, M. W.-L. (2009). Comparison of methods for constructing
+#' confidence intervals of standardized indirect effects. \emph{Behavior
+#' Research Methods}, \emph{41}, 425-438.
+#' 
+#' Kwan, J., & Chan, W. (2011). Comparing standardized coefficients in
+#' structural equation modeling: a model reparameterization approach.
+#' \emph{Behavior Research Methods}, \emph{43}, 730-745.
+#' @keywords compute effect sizes
+#' @examples
+#' 
+#' ## A correlation matrix as input
+#' x <- matrix(c(1, 0.4, 0.2, 0.4, 1, 0.3, 0.2, 0.3, 1), ncol=3)
+#' dimnames(x) <- list( c("y", "m", "x"), c("y", "m", "x") )
+#' indirectEffect(x, n=300)
+#' 
+#' ## A list of correlation matrices
+#' indirectEffect( list(x, x), n=c(300,500), standardized=FALSE )
+#' 
 indirectEffect <- function(x, n, standardized=TRUE, direct.effect=TRUE, run=TRUE) {
   
   if (is.list(x)) {

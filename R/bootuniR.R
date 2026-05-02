@@ -1,4 +1,36 @@
 ## Generate population correlation matrices from uniR1 object
+
+
+#' Parametric bootstrap on the univariate R (uniR) object
+#' 
+#' It generates correlation matrices with the parametric bootstrap on the
+#' univariate R (uniR) object.
+#' 
+#' This function implements the parametric bootstrap approach suggested by Yu
+#' et al. (2016). It is included in this package for research interests. Please
+#' refer to Cheung (2018) for the issues associated with this parametric
+#' bootstrap approach.
+#' 
+#' @param x An object of class 'uniR1'
+#' @param Rep Number of replications of the parametric bootstrap
+#' @param nonPD.pop If it is \code{replace}, generated non-positive definite
+#' matrices are replaced by generated new ones which are positive definite. If
+#' it is \code{nearPD}, they are replaced by nearly positive definite matrices
+#' by calling \code{Matrix::nearPD()}. If it is \code{accept}, they are
+#' accepted.
+#' @return An object of the generated correlation matrices.
+#' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
+#' @seealso \code{\link[metaSEM]{rCor}}, \code{\link[metaSEM]{bootuniR2}},
+#' \code{\link[metaSEM]{Nohe15}}
+#' @references Cheung, M. W.-L. (2018). Issues in solving the problem of effect
+#' size heterogeneity in meta-analytic structural equation modeling: A
+#' commentary and simulation study on Yu, Downes, Carter, and O'Boyle (2016).
+#' \emph{Journal of Applied Psychology}, \bold{103}, 787-803.
+#' 
+#' Yu, J. (Joya), Downes, P. E., Carter, K. M., & O'Boyle, E. H. (2016). The
+#' problem of effect size heterogeneity in meta-analytic structural equation
+#' modeling.  \emph{Journal of Applied Psychology}, \bold{101}, 1457-1473.
+#' @keywords bootuniR
 bootuniR1 <- function(x, Rep, nonPD.pop=c("replace", "nearPD", "accept")) {
   if (!is.element("uniR1", class(x)))
       stop("'x' must be an object of class 'uniR1'.")
@@ -7,6 +39,35 @@ bootuniR1 <- function(x, Rep, nonPD.pop=c("replace", "nearPD", "accept")) {
           corr=TRUE, k=Rep, nonPD.pop=nonPD.pop)
 }
 
+
+
+#' Fit Models on the bootstrapped correlation matrices
+#' 
+#' It fits structural equation models on the bootstrapped correlation matrices.
+#' 
+#' This function fits the lavaan model with the bootstrapped correlation
+#' matrices. It implements the parametric bootstrap approach suggested by Yu et
+#' al. (2016). It is included in this package for research interests. Please
+#' refer to Cheung (2018) for the issues associated with this parametric
+#' bootstrap approach.
+#' 
+#' @param model A model in \code{\link[lavaan]{sem}} syntax.
+#' @param data A list of correlation matrices.
+#' @param n Sample size in fitting the structural equation models
+#' @param \dots Further arguments to be passed to \code{\link[lavaan]{sem}}.
+#' @return A list of the fitted object from \code{\link[lavaan]{sem}}.
+#' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
+#' @seealso \code{\link[metaSEM]{bootuniR2}},
+#' \code{\link[metaSEM]{tssemParaVar}}, \code{\link[metaSEM]{Nohe15}}
+#' @references Cheung, M. W.-L. (2018). Issues in solving the problem of effect
+#' size heterogeneity in meta-analytic structural equation modeling: A
+#' commentary and simulation study on Yu, Downes, Carter, and O'Boyle (2016).
+#' \emph{Journal of Applied Psychology}, \bold{103}, 787-803.
+#' 
+#' Yu, J. (Joya), Downes, P. E., Carter, K. M., & O'Boyle, E. H. (2016). The
+#' problem of effect size heterogeneity in meta-analytic structural equation
+#' modeling.  \emph{Journal of Applied Psychology}, \bold{101}, 1457-1473.
+#' @keywords bootuniR
 bootuniR2 <- function(model, data, n, ...) {
   ## if (!requireNamespace("lavaan", quietly=TRUE))
   ##   stop("\"lavaan\" package is required for this function.")

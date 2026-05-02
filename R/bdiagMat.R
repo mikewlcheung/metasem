@@ -1,3 +1,35 @@
+#' Create a Block Diagonal Matrix
+#'
+#' It creates a block diagonal matrix from a list of numeric or character
+#' matrices.
+#'
+#'
+#' @param x A list of numeric or character matrices (or values)
+#' @return A numeric or character block diagonal matrix.
+#' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
+#' @seealso \code{\link[metaSEM]{bdiagRep}},
+#' \code{\link[metaSEM]{matrix2bdiag}}
+#' @references It was based on a function posted by Scott Chasalow at
+#' http://www.math.yorku.ca/Who/Faculty/Monette/pub/stmp/0827.html.
+#' @keywords utilities
+#' @examples
+#'
+#' ## Block diagonal matrix of numbers
+#' bdiagMat( list(matrix(1:4,nrow=2,ncol=2),
+#'                matrix(5:6,nrow=1,ncol=2)) )
+#' #      [,1] [,2] [,3] [,4]
+#' # [1,]    1    3    0    0
+#' # [2,]    2    4    0    0
+#' # [3,]    0    0    5    6
+#'
+#' ## Block diagonal matrix of characters
+#' bdiagMat( list(matrix(letters[1:4],nrow=2,ncol=2),
+#'                matrix(letters[5:6],nrow=1,ncol=2)) )
+#' #      [,1] [,2] [,3] [,4]
+#' # [1,] "a"  "c"  "0"  "0" 
+#' # [2,] "b"  "d"  "0"  "0" 
+#' # [3,] "0"  "0"  "e"  "f" 
+#'
 bdiagMat <- function(x){
   if(!is.list(x)) stop("\"x\" must be a list.")
   n <- length(x)

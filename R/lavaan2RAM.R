@@ -1,3 +1,99 @@
+#' Convert \code{lavaan} models to RAM models
+#' 
+#' It converts models specified in \code{lavaan} model syntax to RAM models.
+#' 
+#' It uses the \code{\link[lavaan]{model.syntax}} to do the conversion.
+#' Experimental: functions of parameters (`:=` in lavaan) and constraints
+#' (`==`, `>`, and `<` in lavaan) will be converted to mxAlgebra and
+#' mxConstraint in OpenMx. As there are differences between lavaan and OpenMx,
+#' they may not work properly.
+#' 
+#' @param model A character string of model using the lavaan model syntax.
+#' @param obs.variables A character vector of the observed variables. The
+#' observed variables in the RAM specification will follow the order specified
+#' in \code{obs.variables}. It is important to check whether the order of the
+#' observed variables matches the order in the dataset.
+#' @param A.notation A character string to be used in the A matrix if the
+#' labels are not included in the lavaan model. For example, the label will be
+#' "yONx" for regressing "y" on "x".
+#' @param S.notation A character string to be used in the S matrix if the
+#' labels are not included in the lavaan model. For example, the label will be
+#' "yWITHx" for the covariance between "y" with "x" and "yWITHy" for the
+#' (error) variance of "y".
+#' @param M.notation A character string to be used in the M matrix if the
+#' labels are not included in the lavaan model. For example, the label will be
+#' "ymean" for the mean of "y" if \code{M.notation="mean"}.
+#' @param A.start A numeric value of starting value for the \code{Amatrix} when
+#' the starting values are not provided.
+#' @param S.start A numeric value of starting value for the \code{Smatrix} when
+#' the starting values are not provided.
+#' @param M.start A numeric value of starting value for the \code{Mmatrix} when
+#' the starting values are not provided.
+#' @param auto.var Logical. If \code{TRUE}, the residual variances and the
+#' variances of exogenous latent variables are included in the model and set
+#' free. See \code{\link[lavaan]{model.syntax}}.
+#' @param std.lv Logical. If \code{TRUE}, the metric of each latent variable is
+#' determined by fixing their variances to 1.0. If FALSE, the metric of each
+#' latent variable is determined by fixing the factor loading of the first
+#' indicator to 1.0. See \code{\link[lavaan]{model.syntax}}.
+#' @param ngroups Number. The number of groups in the \code{model}. See
+#' \code{\link[lavaan]{model.syntax}}.
+#' @param \dots Further arguments to be passed to
+#' \code{\link[lavaan]{model.syntax}}
+#' @return A list of RAM specification with \code{A}, \code{S}, \code{F}, and
+#' \code{M} matrices.
+#' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
+#' @seealso \code{\link[semPlot]{ramModel}}, \code{\link[metaSEM]{Becker92}},
+#' \code{\link[metaSEM]{Becker09}}, \code{\link[metaSEM]{Digman97}},
+#' \code{\link[metaSEM]{Hunter83}}, \code{\link[metaSEM]{as.mxMatrix}},
+#' \code{\link[metaSEM]{checkRAM}}
+#' @keywords methods tssem
+#' @examples
+#' 
+#' ## Regression model on correlation matrix
+#' model1 <- "## y is modelled by x1, x2, and x3
+#'            y ~ b1*x1 + b2*x2 + b3*x3
+#'            ## Fix the independent variables at 1
+#'            x1 ~~ 1*x1
+#'            x2 ~~ 1*x2
+#'            x3 ~~ 1*x3
+#'            ## Declare the correlations among the independent variables
+#'            x1 ~~ x2
+#'            x1 ~~ x3
+#'            x2 ~~ x3
+#'            ## Constraint
+#'            b3 == b1 + b2
+#'            ## Function of parameters
+#'            fn1 := b1*b2^b3"
+#' 
+#' ## Compare the arrangements of variables with and without
+#' ## specifying the obs.variables arguments. 
+#' lavaan2RAM(model1, obs.variables=c("y", "x1", "x2", "x3"))
+#' 
+#' ## Two-factor CFA model
+#' model2 <- "f1 =~ x1 + x2 + x3
+#'            f2 =~ x4 + x5 + x6
+#'            ## Declare the correlation between f1 and f2
+#'            ## and label it with cor_f1f2
+#'            f1 ~~ cor_f1f2*f2"
+#' 
+#' lavaan2RAM(model2)
+#' 
+#' ## Regression model with the mean structure
+#' model3 <- "y ~ x
+#'            ## Intercept of y
+#'            y ~ 1
+#'            ## Mean of x
+#'            x ~ 1"
+#' 
+#' lavaan2RAM(model3)
+#' 
+#' ## Multiple group regression model
+#' ## Different intercepts with a common slope
+#' model4 <- "y ~ c(a1, a2)*1 + c(b, b)*x"
+#' 
+#' lavaan2RAM(model4, ngroups=2)
+#' 
 lavaan2RAM <- function(model, obs.variables = NULL, A.notation="ON", S.notation="WITH",
                        M.notation="mean", A.start=0.1, S.start=0.5, M.start=0,
                        auto.var = TRUE, std.lv = TRUE,

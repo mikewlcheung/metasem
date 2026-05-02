@@ -1,3 +1,4 @@
+#' @rdname osmasem
 osmasem2 <- function(model.name="osmasem2", RAM, data, cor.analysis=TRUE,
                      RE.type.Sigma=c("Diag", "Symm", "Zero"),
                      RE.type.Mu=c("Symm", "Diag", "Zero"),

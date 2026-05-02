@@ -1,3 +1,4 @@
+#' @rdname rCor
 rCor3L <- function(Sigma, V.B, V.W, n, cluster, corr=TRUE, raw.data=FALSE,
                    nonPD.pop=c("replace", "nearPD", "accept"),
                    nonPD.sam=c("stop", "nearPD")) {

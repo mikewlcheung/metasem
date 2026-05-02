@@ -1,8 +1,8 @@
 Package: metaSEM
 Type: Package
 Title: Meta-Analysis using Structural Equation Modeling
-Version: 1.5.4
-Date: 2026-02-10
+Version: 1.5.5
+Date: 2026-05-02
 Depends: R (>= 4.2.0), OpenMx
 Imports: Matrix, MASS, ellipse, graphics, stats, utils, mvtnorm, numDeriv, lavaan
 Suggests: metafor, semPlot, R.rsp, testthat, matrixcalc
@@ -16,8 +16,11 @@ Description: A collection of functions for conducting meta-analysis using a
              correlation and covariance matrices, see Cheung (2015)
              <doi:10.3389/fpsyg.2014.01521>.
 License: GPL (>=2)
+Encoding: UTF-8
 LazyLoad: yes
 LazyData: yes
 ByteCompile: yes
-URL: https://github.com/mikewlcheung/metasem 
+URL: https://github.com/mikewlcheung/metasem
 BugReports: https://github.com/mikewlcheung/metasem/issues
+RoxygenNote: 8.0.0
+Config/roxygen2/version: 8.0.0
