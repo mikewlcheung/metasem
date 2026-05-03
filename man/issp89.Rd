@@ -34,42 +34,43 @@ data(issp89)
 cor1 <- tssem1(issp89$data, issp89$n, method="FEM", cor.analysis=TRUE)
 summary(cor1)
 
-## Prepare a model implied matrix
-## Factor correlation matrix
-Phi <- create.mxMatrix( c("0.3*corf2f1","0.3*corf3f1","0.3*corf3f2"),
-                        type="Stand", as.mxMatrix=FALSE )
-## Error variances
-Psi <- create.mxMatrix( paste("0.2*e", 1:9, sep=""), type="Diag",
-                        as.mxMatrix=FALSE )
+## Three-factor CFA model in lavaan syntax
+## f1: Job Prospects (JP1-JP3); f2: Job Nature (JN1-JN4); f3: Time Demand (TD1-TD2)
+model <- "## Factor loadings
+          f1 =~ f1JP1*JP1 + f1JP2*JP2 + f1JP3*JP3
+          f2 =~ f2JN1*JN1 + f2JN2*JN2 + f2JN3*JN3 + f2JN4*JN4
+          f3 =~ f3TD1*TD1 + f3TD2*TD2
+          ## Factor correlations
+          f1 ~~ corf2f1*f2
+          f1 ~~ corf3f1*f3
+          f2 ~~ corf3f2*f3"
 
-## Create Smatrix
-S1 <- bdiagMat(list(Psi, Phi))
-## dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c(paste("x",1:9,sep=""),
-##                                             paste("f",1:3,sep=""))
-## S1
-S1 <- as.mxMatrix(S1)
+RAM1 <- lavaan2RAM(model, obs.variables=c("JP1","JP2","JP3",
+                                          "JN1","JN2","JN3","JN4",
+                                          "TD1","TD2"))
+RAM1
 
-## Factor loadings
-Lambda <- create.mxMatrix( c(".3*f1x1",".3*f1x2",".3*f1x3",rep(0,9),
-                             ".3*f2x4",".3*f2x5",".3*f2x6",".3*f2x7",
-                             rep(0,9),".3*f3x8",".3*f3x9"), type="Full",
-                             ncol=3, nrow=9, as.mxMatrix=FALSE )
-Zero1 <- matrix(0, nrow=9, ncol=9)
-Zero2 <- matrix(0, nrow=3, ncol=12)
-
-## Create Amatrix
-A1 <- rbind( cbind(Zero1, Lambda),
-             Zero2 )
-## dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- c(paste("x",1:9,sep=""),
-##                                             paste("f",1:3,sep=""))
-## A1
-A1 <- as.mxMatrix(A1)
-
-## Create Fmatrix
-F1 <- create.Fmatrix(c(rep(1,9), rep(0,3)))
+## ## Equivalent RAM specification using create.mxMatrix()
+## Phi <- create.mxMatrix( c("0.3*corf2f1","0.3*corf3f1","0.3*corf3f2"),
+##                         type="Stand", as.mxMatrix=FALSE )
+## Psi <- create.mxMatrix( paste("0.2*e", 1:9, sep=""), type="Diag",
+##                         as.mxMatrix=FALSE )
+## S1 <- bdiagMat(list(Psi, Phi))
+## S1 <- as.mxMatrix(S1)
+##
+## Lambda <- create.mxMatrix( c(".3*f1x1",".3*f1x2",".3*f1x3",rep(0,9),
+##                              ".3*f2x4",".3*f2x5",".3*f2x6",".3*f2x7",
+##                              rep(0,9),".3*f3x8",".3*f3x9"), type="Full",
+##                              ncol=3, nrow=9, as.mxMatrix=FALSE )
+## Zero1 <- matrix(0, nrow=9, ncol=9)
+## Zero2 <- matrix(0, nrow=3, ncol=12)
+## A1 <- rbind( cbind(Zero1, Lambda), Zero2 )
+## A1 <- as.mxMatrix(A1)
+##
+## F1 <- create.Fmatrix(c(rep(1,9), rep(0,3)))
 
 #### Fixed-effects model: Stage 2 analysis
-cor2 <- tssem2(cor1, Amatrix=A1, Smatrix=S1, Fmatrix=F1, intervals.type="LB")
+cor2 <- tssem2(cor1, RAM=RAM1, intervals.type="LB")
 summary(cor2)
 
 ## Display the model with the parameter estimates
@@ -81,7 +82,7 @@ cov1 <- tssem1(issp89$data, issp89$n, method="FEM", cor.analysis=FALSE)
 summary(cov1)
 
 #### Fixed-effects model: Stage 2 analysis
-cov2 <- tssem2(cov1, Amatrix=A1, Smatrix=S1, Fmatrix=F1)              
+cov2 <- tssem2(cov1, RAM=RAM1)
 summary(cov2)
 
 ## Display the model with the parameter estimates

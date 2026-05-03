@@ -33,33 +33,44 @@ random1 <- tssem1(Cov = Roorda11$data, n = Roorda11$n, method = "REM",
                   RE.type = "Diag")
 summary(random1)
 
-varnames <- c("pos", "neg", "enga", "achiev")
+## Model specification in lavaan syntax
+model <- "## Regression paths
+          enga ~ b31*pos + b32*neg
+          achiev ~ b43*enga
+          ## Variances of pos and neg are fixed at 1
+          pos ~~ 1*pos
+          neg ~~ 1*neg
+          ## Correlation between pos and neg
+          pos ~~ p21*neg
+          ## Error variances
+          enga ~~ p33*enga
+          achiev ~~ p44*achiev"
 
-## Prepare a regression model using create.mxMatrix()
-A <- create.mxMatrix(c(0,0,0,0,
-                       0,0,0,0,
-                       "0.1*b31","0.1*b32",0,0,
-                       0,0,"0.1*b43",0),
-                     type = "Full", nrow = 4, ncol = 4, byrow = TRUE,
-                     name = "A", as.mxMatrix = FALSE)
+RAM <- lavaan2RAM(model, obs.variables=c("pos", "neg", "enga", "achiev"))
+RAM
 
-## This step is not necessary but it is useful for inspecting the model.
-dimnames(A) <- list(varnames, varnames)
-A
-
-S <- create.mxMatrix(c(1,
-                       ".5*p21",1,
-                       0,0,"0.6*p33",
-                       0,0,0,"0.6*p44"), 
-                     type="Symm", byrow = TRUE,
-                     name="S", as.mxMatrix = FALSE)
-
-## This step is not necessary but it is useful for inspecting the model.
-dimnames(S) <- list(varnames, varnames)
-S
+## ## Equivalent RAM specification using create.mxMatrix()
+## varnames <- c("pos", "neg", "enga", "achiev")
+## A <- create.mxMatrix(c(0,0,0,0,
+##                        0,0,0,0,
+##                        "0.1*b31","0.1*b32",0,0,
+##                        0,0,"0.1*b43",0),
+##                      type = "Full", nrow = 4, ncol = 4, byrow = TRUE,
+##                      name = "A", as.mxMatrix = FALSE)
+## dimnames(A) <- list(varnames, varnames)
+## A
+##
+## S <- create.mxMatrix(c(1,
+##                        ".5*p21",1,
+##                        0,0,"0.6*p33",
+##                        0,0,0,"0.6*p44"),
+##                      type="Symm", byrow = TRUE,
+##                      name="S", as.mxMatrix = FALSE)
+## dimnames(S) <- list(varnames, varnames)
+## S
 
 ## Random-effects model: Second stage analysis
-random2 <- tssem2(random1, Amatrix=A, Smatrix=S, diag.constraints=TRUE, 
+random2 <- tssem2(random1, RAM=RAM, diag.constraints=TRUE,
                   intervals="LB")
 summary(random2)
 

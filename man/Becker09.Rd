@@ -32,36 +32,7 @@ data(Becker09)
 fixed1 <- tssem1(Becker09$data, Becker09$n, method="FEM")
 summary(fixed1)
 
-## Prepare a regression model using create.mxMatrix()
-A1 <- create.mxMatrix(c(0, "0.1*Cog2Per", "0.1*SO2Per", "0.1*SC2Per",
-                        0, 0, 0, 0,
-                        0, 0, 0, 0,
-                        0, "0.1*Cog2SC", "0.1*SO2SC",0),
-                      type="Full", byrow=TRUE, ncol=4, nrow=4,
-                      as.mxMatrix=FALSE)
-
-## This step is not necessary but it is useful for inspecting the model.
-dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- c("Performance", "Cognitive",
-                                            "Somatic", "Self_confidence")
-
-## Display A1
-A1
-
-S1 <- create.mxMatrix(c("0.1*var_Per",
-                        0, 1,
-                        0, "0.1*cor", 1,
-                        0, 0, 0, "0.1*var_SC"), byrow=TRUE, type="Symm",
-                      as.mxMatrix=FALSE)
-
-## This step is not necessary but it is useful for inspecting the model.
-dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c("Performance", "Cognitive",
-                                            "Somatic", "Self_confidence")
-
-## Display S1
-S1
-
-################################################################################
-## Alternative model specification in lavaan model syntax
+## Model specification in lavaan syntax
 model <- "## Regression paths
           Performance ~ Cog2Per*Cognitive + SO2Per*Somatic + SC2Per*Self_confidence
           Self_confidence ~ Cog2SC*Cognitive + SO2SC*Somatic
@@ -81,12 +52,28 @@ RAM <- lavaan2RAM(model, obs.variables=c("Performance", "Cognitive",
                                          "Somatic", "Self_confidence"))
 RAM
 
-A1 <- RAM$A
-S1 <- RAM$S
-################################################################################
+## ## Equivalent RAM specification using create.mxMatrix()
+## A1 <- create.mxMatrix(c(0, "0.1*Cog2Per", "0.1*SO2Per", "0.1*SC2Per",
+##                         0, 0, 0, 0,
+##                         0, 0, 0, 0,
+##                         0, "0.1*Cog2SC", "0.1*SO2SC",0),
+##                       type="Full", byrow=TRUE, ncol=4, nrow=4,
+##                       as.mxMatrix=FALSE)
+## dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- c("Performance", "Cognitive",
+##                                             "Somatic", "Self_confidence")
+## A1
+##
+## S1 <- create.mxMatrix(c("0.1*var_Per",
+##                         0, 1,
+##                         0, "0.1*cor", 1,
+##                         0, 0, 0, "0.1*var_SC"), byrow=TRUE, type="Symm",
+##                       as.mxMatrix=FALSE)
+## dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c("Performance", "Cognitive",
+##                                             "Somatic", "Self_confidence")
+## S1
 
 ## Second stage analysis
-fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, diag.constraints=TRUE,
+fixed2 <- tssem2(fixed1, RAM=RAM, diag.constraints=TRUE,
                  intervals.type="LB", model.name="TSSEM2 Becker09",
                  mx.algebras=list( Cog=mxAlgebra(Cog2SC*SC2Per, name="Cog"),
                                    SO=mxAlgebra(SO2SC*SC2Per, name="SO"),
@@ -104,7 +91,7 @@ cluster1 <- tssem1(Becker09$data, Becker09$n, method="FEM",
 summary(cluster1)
 
 ## Second stage analysis
-cluster2 <- tssem2(cluster1, Amatrix=A1, Smatrix=S1, diag.constraints=TRUE,
+cluster2 <- tssem2(cluster1, RAM=RAM, diag.constraints=TRUE,
                  intervals.type="LB", model.name="TSSEM2 Becker09",
                  mx.algebras=list( Cog=mxAlgebra(Cog2SC*SC2Per, name="Cog"),
                                    SO=mxAlgebra(SO2SC*SC2Per, name="SO"),
@@ -136,7 +123,7 @@ random1 <- tssem1(Becker09$data, Becker09$n, method="REM", RE.type="Diag")
 summary(random1)
 
 ## Second stage analysis
-random2 <- tssem2(random1, Amatrix=A1, Smatrix=S1, diag.constraints=TRUE,
+random2 <- tssem2(random1, RAM=RAM, diag.constraints=TRUE,
                   intervals.type="LB", model.name="TSSEM2 Becker09",
                   mx.algebras=list( Cog=mxAlgebra(Cog2SC*SC2Per, name="Cog"),
                                     SO=mxAlgebra(SO2SC*SC2Per, name="SO"),

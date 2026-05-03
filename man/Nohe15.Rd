@@ -56,7 +56,7 @@ plot(model1, layout="spring")
 RAM1 <- lavaan2RAM(model1, obs.variables=c("W1", "S1", "W2", "S2"))
 RAM1
 
-randA1b <- tssem2(randA1a, Amatrix=RAM1$A, Smatrix=RAM1$S)
+randA1b <- tssem2(randA1a, RAM=RAM1)
 summary(randA1b)
 
 ## Display the model with the parameter estimates
@@ -83,7 +83,7 @@ plot(model2, layout="spring")
 RAM2 <- lavaan2RAM(model2, obs.variables=c("F1", "S1", "F2", "S2"))
 RAM2
 
-randA2b <- tssem2(randA2a, Amatrix=RAM2$A, Smatrix=RAM2$S)
+randA2b <- tssem2(randA2a, RAM=RAM2)
 summary(randA2b)
 
 ## Display the model with the parameter estimates

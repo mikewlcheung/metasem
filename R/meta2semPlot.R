@@ -35,15 +35,14 @@ meta2semPlot <- function(object, manNames=NULL, latNames=NULL, labels=c("labels"
     ## A <- mxEval(Amatrix, object$mx.fit)
     ## S <- mxEval(Smatrix, object$mx.fit)
     ## F <- mxEval(Fmatrix, object$mx.fit)
-       A <- object$mx.fit@matrices$Amatrix$values
+       A <- unname(object$mx.fit@matrices$Amatrix$values)
        S <- object$mx.fit@matrices$Smatrix$values
        ## S can be calculated when diag.constraints=FALSE
        if (is.null(S)) {
            S <- object$mx.fit$algebras$Smatrix$result
-           ## Add the dimensions names. Not necessary, but nicer
-           ## dimnames(S) <- dimnames(A)
        }
-       F <- object$mx.fit@matrices$Fmatrix$values
+       S <- unname(S)
+       F <- unname(object$mx.fit@matrices$Fmatrix$values)
        Id <- diag(nrow(S))
        ObsCovs <- object$Cov
     ## ImpCovs <- mxEval(Fmatrix%*%solve(Id-Amatrix)%*%S%*%solve(t(Id-Amatrix))%*%t(Fmatrix), 

@@ -29,42 +29,7 @@ Digman97
 fixed1 <- tssem1(Digman97$data, Digman97$n, method="FEM")
 summary(fixed1)
 
-## Factor covariance among latent factors
-Phi <- matrix(c(1,"0.3*cor","0.3*cor",1), ncol=2, nrow=2)
-
-## Error covariance matrix
-Psi <- Diag(c("0.2*e1","0.2*e2","0.2*e3","0.2*e4","0.2*e5"))
-
-## S matrix
-S1 <- bdiagMat(list(Psi, Phi))
-
-## This step is not necessary but it is useful for inspecting the model.
-dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c("A","C","ES","E","I","Alpha","Beta")
-
-## Display S1
-S1
-
-## A matrix
-Lambda <-
-matrix(c(".3*Alpha_A",".3*Alpha_C",".3*Alpha_ES",rep(0,5),".3*Beta_E",".3*Beta_I"),
-       ncol=2, nrow=5)
-A1 <- rbind( cbind(matrix(0,ncol=5,nrow=5), Lambda),
-             matrix(0, ncol=7, nrow=2) )
-
-## This step is not necessary but it is useful for inspecting the model.
-dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- c("A","C","ES","E","I","Alpha","Beta")
-
-## Display A1
-A1
-
-## F matrix to select the observed variables
-F1 <- create.Fmatrix(c(1,1,1,1,1,0,0), as.mxMatrix=FALSE)
-
-## Display F1
-F1
-
-################################################################################
-## Alternative model specification in lavaan model syntax
+## Two-factor CFA model in lavaan syntax
 model <- "## Factor loadings
           Alpha=~A+C+ES
           Beta=~E+I
@@ -78,12 +43,23 @@ RAM <- lavaan2RAM(model, obs.variables=c("A","C","ES","E","I"),
                   A.notation="on", S.notation="with")
 RAM
 
-A1 <- RAM$A
-S1 <- RAM$S
-F1 <- RAM$F
+## ## Equivalent RAM specification
+## Phi <- matrix(c(1,"0.3*cor","0.3*cor",1), ncol=2, nrow=2)
+## Psi <- Diag(c("0.2*e1","0.2*e2","0.2*e3","0.2*e4","0.2*e5"))
+## S1 <- bdiagMat(list(Psi, Phi))
+## dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c("A","C","ES","E","I","Alpha","Beta")
+## S1
+##
+## Lambda <- matrix(c(".3*Alpha_A",".3*Alpha_C",".3*Alpha_ES",rep(0,5),
+##                    ".3*Beta_E",".3*Beta_I"), ncol=2, nrow=5)
+## A1 <- rbind( cbind(matrix(0,ncol=5,nrow=5), Lambda),
+##              matrix(0, ncol=7, nrow=2) )
+## dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- c("A","C","ES","E","I","Alpha","Beta")
+## A1
+##
+## F1 <- create.Fmatrix(c(1,1,1,1,1,0,0), as.mxMatrix=FALSE)
 
-################################################################################
-fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, Fmatrix=F1,
+fixed2 <- tssem2(fixed1, RAM=RAM,
                  model.name="TSSEM2 Digman97")
 summary(fixed2)
 
@@ -105,7 +81,7 @@ fixed1.cluster <- tssem1(Digman97$data, Digman97$n, method="FEM",
                          cluster=cluster)
 summary(fixed1.cluster)
 
-fixed2.cluster <- tssem2(fixed1.cluster, Amatrix=A1, Smatrix=S1, Fmatrix=F1)
+fixed2.cluster <- tssem2(fixed1.cluster, RAM=RAM)
 #### Please note that the estimates for the younger participants are problematic.
 summary(fixed2.cluster)
 
@@ -125,7 +101,7 @@ random1 <- tssem1(Digman97$data, Digman97$n, method="REM",
                   RE.type="Diag")
 summary(random1)
 
-random2 <- tssem2(random1, Amatrix=A1, Smatrix=S1, Fmatrix=F1)
+random2 <- tssem2(random1, RAM=RAM)
 summary(random2)
 
 ## Display the model with the parameter estimates

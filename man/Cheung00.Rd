@@ -32,25 +32,39 @@ were also excluded.
 \donttest{
 data(Cheung00)
 
-## Variable labels
-labels <- colnames(Cheung00$data[[1]])
+## Full mediation model in lavaan syntax
+model <- "## Regression paths
+          bi ~ att2bi*att + sn2bi*sn
+          beh ~ bi2beh*bi
+          ## Variances of att and sn are fixed at 1
+          att ~~ 1*att
+          sn ~~ 1*sn
+          ## Covariance between att and sn
+          att ~~ cov_att_sn*sn
+          ## Error variances
+          bi ~~ e_bi*bi
+          beh ~~ e_beh*beh"
 
-## Full mediation model
-S <- create.mxMatrix(c("1", 
-                       ".2*cov_att_sn", "1", 
-                       0, 0, ".2*e_bi", 
-                       0, 0, 0, ".2*e_beh"), 
-                     type="Symm", as.mxMatrix=FALSE, byrow=TRUE)
-dimnames(S) <- list(labels, labels)
-S
+RAM <- lavaan2RAM(model, obs.variables=colnames(Cheung00$data[[1]]))
+RAM
 
-A <- matrix(c("0","0","0","0",
-              "0","0","0","0",
-              ".2*att2bi", ".2*sn2bi", "0", "0",
-              "0", "0", ".2*bi2beh", "0"),
-            byrow=TRUE, 4, 4)
-dimnames(A) <- list(labels, labels)
-A
+## ## Equivalent RAM specification
+## labels <- colnames(Cheung00$data[[1]])
+## A <- matrix(c("0","0","0","0",
+##               "0","0","0","0",
+##               ".2*att2bi", ".2*sn2bi", "0", "0",
+##               "0", "0", ".2*bi2beh", "0"),
+##             byrow=TRUE, 4, 4)
+## dimnames(A) <- list(labels, labels)
+## A
+##
+## S <- create.mxMatrix(c("1",
+##                        ".2*cov_att_sn", "1",
+##                        0, 0, ".2*e_bi",
+##                        0, 0, 0, ".2*e_beh"),
+##                      type="Symm", as.mxMatrix=FALSE, byrow=TRUE)
+## dimnames(S) <- list(labels, labels)
+## S
 
 #### Random-effects model
 
@@ -60,7 +74,7 @@ random_1 <- tssem1(Cheung00$data, Cheung00$n, method="REM", RE.type="Diag",
 summary(random_1)
 
 ## Stage 2 analysis
-random_2 <- tssem2(random_1, Amatrix=A, Smatrix=S, intervals.type="LB",
+random_2 <- tssem2(random_1, RAM=RAM, intervals.type="LB",
                    diag.constraints=TRUE)
 summary(random_2)
 

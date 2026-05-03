@@ -205,36 +205,7 @@ NULL
 #' fixed1 <- tssem1(Becker09$data, Becker09$n, method="FEM")
 #' summary(fixed1)
 #'
-#' ## Prepare a regression model using create.mxMatrix()
-#' A1 <- create.mxMatrix(c(0, "0.1*Cog2Per", "0.1*SO2Per", "0.1*SC2Per",
-#'                         0, 0, 0, 0,
-#'                         0, 0, 0, 0,
-#'                         0, "0.1*Cog2SC", "0.1*SO2SC",0),
-#'                       type="Full", byrow=TRUE, ncol=4, nrow=4,
-#'                       as.mxMatrix=FALSE)
-#'
-#' ## This step is not necessary but it is useful for inspecting the model.
-#' dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- c("Performance", "Cognitive",
-#'                                             "Somatic", "Self_confidence")
-#'
-#' ## Display A1
-#' A1
-#'
-#' S1 <- create.mxMatrix(c("0.1*var_Per",
-#'                         0, 1,
-#'                         0, "0.1*cor", 1,
-#'                         0, 0, 0, "0.1*var_SC"), byrow=TRUE, type="Symm",
-#'                       as.mxMatrix=FALSE)
-#'
-#' ## This step is not necessary but it is useful for inspecting the model.
-#' dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c("Performance", "Cognitive",
-#'                                             "Somatic", "Self_confidence")
-#'
-#' ## Display S1
-#' S1
-#'
-#' ################################################################################
-#' ## Alternative model specification in lavaan model syntax
+#' ## Model specification in lavaan syntax
 #' model <- "## Regression paths
 #'           Performance ~ Cog2Per*Cognitive + SO2Per*Somatic + SC2Per*Self_confidence
 #'           Self_confidence ~ Cog2SC*Cognitive + SO2SC*Somatic
@@ -254,12 +225,28 @@ NULL
 #'                                          "Somatic", "Self_confidence"))
 #' RAM
 #'
-#' A1 <- RAM$A
-#' S1 <- RAM$S
-#' ################################################################################
+#' ## ## Equivalent RAM specification using create.mxMatrix()
+#' ## A1 <- create.mxMatrix(c(0, "0.1*Cog2Per", "0.1*SO2Per", "0.1*SC2Per",
+#' ##                         0, 0, 0, 0,
+#' ##                         0, 0, 0, 0,
+#' ##                         0, "0.1*Cog2SC", "0.1*SO2SC",0),
+#' ##                       type="Full", byrow=TRUE, ncol=4, nrow=4,
+#' ##                       as.mxMatrix=FALSE)
+#' ## dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- c("Performance", "Cognitive",
+#' ##                                             "Somatic", "Self_confidence")
+#' ## A1
+#' ##
+#' ## S1 <- create.mxMatrix(c("0.1*var_Per",
+#' ##                         0, 1,
+#' ##                         0, "0.1*cor", 1,
+#' ##                         0, 0, 0, "0.1*var_SC"), byrow=TRUE, type="Symm",
+#' ##                       as.mxMatrix=FALSE)
+#' ## dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c("Performance", "Cognitive",
+#' ##                                             "Somatic", "Self_confidence")
+#' ## S1
 #'
 #' ## Second stage analysis
-#' fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, diag.constraints=TRUE,
+#' fixed2 <- tssem2(fixed1, RAM=RAM, diag.constraints=TRUE,
 #'                  intervals.type="LB", model.name="TSSEM2 Becker09",
 #'                  mx.algebras=list( Cog=mxAlgebra(Cog2SC*SC2Per, name="Cog"),
 #'                                    SO=mxAlgebra(SO2SC*SC2Per, name="SO"),
@@ -277,7 +264,7 @@ NULL
 #' summary(cluster1)
 #'
 #' ## Second stage analysis
-#' cluster2 <- tssem2(cluster1, Amatrix=A1, Smatrix=S1, diag.constraints=TRUE,
+#' cluster2 <- tssem2(cluster1, RAM=RAM, diag.constraints=TRUE,
 #'                  intervals.type="LB", model.name="TSSEM2 Becker09",
 #'                  mx.algebras=list( Cog=mxAlgebra(Cog2SC*SC2Per, name="Cog"),
 #'                                    SO=mxAlgebra(SO2SC*SC2Per, name="SO"),
@@ -309,7 +296,7 @@ NULL
 #' summary(random1)
 #'
 #' ## Second stage analysis
-#' random2 <- tssem2(random1, Amatrix=A1, Smatrix=S1, diag.constraints=TRUE,
+#' random2 <- tssem2(random1, RAM=RAM, diag.constraints=TRUE,
 #'                   intervals.type="LB", model.name="TSSEM2 Becker09",
 #'                   mx.algebras=list( Cog=mxAlgebra(Cog2SC*SC2Per, name="Cog"),
 #'                                     SO=mxAlgebra(SO2SC*SC2Per, name="SO"),
@@ -728,7 +715,7 @@ NULL
 #' RAM2a <- lavaan2RAM(model2a, obs.variables = c("LMX", "TFL", "JS", "OC", "LE"),
 #'                     A.notation="on", S.notation="with")
 #'
-#' rand2a <- tssem2(rand1, Amatrix=RAM2a$A, Smatrix=RAM2a$S)
+#' rand2a <- tssem2(rand1, RAM=RAM2a)
 #' summary(rand2a)
 #'
 #' ## Display the model with the parameter estimates
@@ -905,25 +892,39 @@ NULL
 #' \donttest{
 #' data(Cheung00)
 #'
-#' ## Variable labels
-#' labels <- colnames(Cheung00$data[[1]])
+#' ## Full mediation model in lavaan syntax
+#' model <- "## Regression paths
+#'           bi ~ att2bi*att + sn2bi*sn
+#'           beh ~ bi2beh*bi
+#'           ## Variances of att and sn are fixed at 1
+#'           att ~~ 1*att
+#'           sn ~~ 1*sn
+#'           ## Covariance between att and sn
+#'           att ~~ cov_att_sn*sn
+#'           ## Error variances
+#'           bi ~~ e_bi*bi
+#'           beh ~~ e_beh*beh"
 #'
-#' ## Full mediation model
-#' S <- create.mxMatrix(c("1", 
-#'                        ".2*cov_att_sn", "1", 
-#'                        0, 0, ".2*e_bi", 
-#'                        0, 0, 0, ".2*e_beh"), 
-#'                      type="Symm", as.mxMatrix=FALSE, byrow=TRUE)
-#' dimnames(S) <- list(labels, labels)
-#' S
+#' RAM <- lavaan2RAM(model, obs.variables=colnames(Cheung00$data[[1]]))
+#' RAM
 #'
-#' A <- matrix(c("0","0","0","0",
-#'               "0","0","0","0",
-#'               ".2*att2bi", ".2*sn2bi", "0", "0",
-#'               "0", "0", ".2*bi2beh", "0"),
-#'             byrow=TRUE, 4, 4)
-#' dimnames(A) <- list(labels, labels)
-#' A
+#' ## ## Equivalent RAM specification
+#' ## labels <- colnames(Cheung00$data[[1]])
+#' ## A <- matrix(c("0","0","0","0",
+#' ##               "0","0","0","0",
+#' ##               ".2*att2bi", ".2*sn2bi", "0", "0",
+#' ##               "0", "0", ".2*bi2beh", "0"),
+#' ##             byrow=TRUE, 4, 4)
+#' ## dimnames(A) <- list(labels, labels)
+#' ## A
+#' ##
+#' ## S <- create.mxMatrix(c("1",
+#' ##                        ".2*cov_att_sn", "1",
+#' ##                        0, 0, ".2*e_bi",
+#' ##                        0, 0, 0, ".2*e_beh"),
+#' ##                      type="Symm", as.mxMatrix=FALSE, byrow=TRUE)
+#' ## dimnames(S) <- list(labels, labels)
+#' ## S
 #'
 #' #### Random-effects model
 #'
@@ -933,7 +934,7 @@ NULL
 #' summary(random_1)
 #'
 #' ## Stage 2 analysis
-#' random_2 <- tssem2(random_1, Amatrix=A, Smatrix=S, intervals.type="LB",
+#' random_2 <- tssem2(random_1, RAM=RAM, intervals.type="LB",
 #'                    diag.constraints=TRUE)
 #' summary(random_2)
 #'
@@ -981,43 +982,40 @@ NULL
 #' fixed1 <- tssem1(Cheung09$data, Cheung09$n, method="FEM")
 #' summary(fixed1)
 #'
-#' ## Prepare a model implied matrix
-#' ## Factor correlation matrix
-#' Phi <- create.mxMatrix( c("0.3*corf2f1","0.3*corf3f1","0.3*corf3f2"),
-#'                         type="Stand", as.mxMatrix=FALSE )
-#' ## Error variances
-#' Psi <- create.mxMatrix( paste("0.2*e", 1:9, sep=""), type="Diag",
-#'                         as.mxMatrix=FALSE )
+#' ## Three-factor CFA model in lavaan syntax
+#' model <- "## Factor loadings
+#'           f1 =~ f1x1*x1 + f1x2*x2 + f1x3*x3
+#'           f2 =~ f2x4*x4 + f2x5*x5 + f2x6*x6 + f2x7*x7
+#'           f3 =~ f3x8*x8 + f3x9*x9
+#'           ## Factor correlations
+#'           f1 ~~ corf2f1*f2
+#'           f1 ~~ corf3f1*f3
+#'           f2 ~~ corf3f2*f3"
 #'
-#' ## Create Smatrix
-#' S1 <- bdiagMat(list(Psi, Phi))
-#' ## dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c(paste("x",1:9,sep=""),
-#' ##                                             paste("f",1:3,sep=""))
-#' ## S1
-#' S1 <- as.mxMatrix(S1)
+#' RAM1 <- lavaan2RAM(model, obs.variables=paste0("x", 1:9))
+#' RAM1
 #'
-#' ## Factor loadings
-#' Lambda <- create.mxMatrix( c(".3*f1x1",".3*f1x2",".3*f1x3",rep(0,9),
-#'                              ".3*f2x4",".3*f2x5",".3*f2x6",".3*f2x7",
-#'                              rep(0,9),".3*f3x8",".3*f3x9"), type="Full",
-#'                              ncol=3, nrow=9, as.mxMatrix=FALSE )
-#' Zero1 <- matrix(0, nrow=9, ncol=9)
-#' Zero2 <- matrix(0, nrow=3, ncol=12)
-#'
-#' ## Create Amatrix
-#' A1 <- rbind( cbind(Zero1, Lambda),
-#'              Zero2 )
-#' ## dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- c(paste("x",1:9,sep=""),
-#' ##                                             paste("f",1:3,sep=""))
-#' ## A1
-#' A1 <- as.mxMatrix(A1)
-#'
-#' ## Create Fmatrix
-#' F1 <- create.Fmatrix(c(rep(1,9), rep(0,3)))
+#' ## ## Equivalent RAM specification using create.mxMatrix()
+#' ## Phi <- create.mxMatrix( c("0.3*corf2f1","0.3*corf3f1","0.3*corf3f2"),
+#' ##                         type="Stand", as.mxMatrix=FALSE )
+#' ## Psi <- create.mxMatrix( paste("0.2*e", 1:9, sep=""), type="Diag",
+#' ##                         as.mxMatrix=FALSE )
+#' ## S1 <- bdiagMat(list(Psi, Phi))
+#' ## S1 <- as.mxMatrix(S1)
+#' ##
+#' ## Lambda <- create.mxMatrix( c(".3*f1x1",".3*f1x2",".3*f1x3",rep(0,9),
+#' ##                              ".3*f2x4",".3*f2x5",".3*f2x6",".3*f2x7",
+#' ##                              rep(0,9),".3*f3x8",".3*f3x9"), type="Full",
+#' ##                              ncol=3, nrow=9, as.mxMatrix=FALSE )
+#' ## Zero1 <- matrix(0, nrow=9, ncol=9)
+#' ## Zero2 <- matrix(0, nrow=3, ncol=12)
+#' ## A1 <- rbind( cbind(Zero1, Lambda), Zero2 )
+#' ## A1 <- as.mxMatrix(A1)
+#' ##
+#' ## F1 <- create.Fmatrix(c(rep(1,9), rep(0,3)))
 #'
 #' #### Fixed-effects model: Stage 2 analysis
-#' fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, Fmatrix=F1,
-#'                  intervals.type="LB")
+#' fixed2 <- tssem2(fixed1, RAM=RAM1, intervals.type="LB")
 #' summary(fixed2)
 #'
 #' ## Display the model
@@ -1122,33 +1120,48 @@ NULL
 #' random1 <- tssem1(my.data, my.n, method="REM", RE.type="Diag", acov="weighted")
 #' summary(random1)
 #'
-#' A1 <- create.mxMatrix(c(0,0,0,0,0,
-#'                         0,0,0,0,0,
-#'                         0,0,0,0,0,
-#'                         "0.2*SN2BI","0.2*ATT2BI","0.2*PBC2BI",0,0,
-#'                         0,0,"0.2*PBC2BEH","0.2*BI2BEH",0),
-#'                         type="Full", ncol=5, nrow=5,
-#'                         byrow=TRUE, as.mxMatrix=FALSE)
+#' ## Model specification in lavaan syntax
+#' model <- "## Regression paths
+#'           BI ~ SN2BI*SN + ATT2BI*ATT + PBC2BI*PBC
+#'           BEH ~ PBC2BEH*PBC + BI2BEH*BI
+#'           ## Variances of SN, ATT, and PBC are fixed at 1
+#'           SN ~~ 1*SN
+#'           ATT ~~ 1*ATT
+#'           PBC ~~ 1*PBC
+#'           ## Covariances among SN, ATT, and PBC
+#'           ATT ~~ ATT_SN*SN
+#'           PBC ~~ PBC_SN*SN
+#'           PBC ~~ PBC_ATT*ATT
+#'           ## Error variances of BI and BEH
+#'           BI ~~ VarBI*BI
+#'           BEH ~~ VarBEH*BEH"
 #'
-#' ## This step is not necessary but it is useful for inspecting the model.
-#' dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- colnames(Cooke16$data[[1]])
+#' RAM1 <- lavaan2RAM(model, obs.variables=colnames(Cooke16$data[[1]]))
+#' RAM1
 #'
-#' ## Display A1
-#' A1
-#'
-#' S1 <- create.mxMatrix(c(1,
-#'                         "0.1*ATT_SN", 1,
-#'                         "0.1*PBC_SN", "0.1*PBC_ATT", 1,
-#'                         0, 0, 0, "0.5*VarBI",
-#'                         0, 0, 0, 0, "0.5*VarBEH"),
-#'                       type = "Symm", ncol=5, nrow=5,
-#'                       byrow=TRUE, as.mxMatrix=FALSE)
-#'
-#' dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- colnames(Cooke16$data[[1]])
-#' S1
+#' ## ## Equivalent RAM specification using create.mxMatrix()
+#' ## A1 <- create.mxMatrix(c(0,0,0,0,0,
+#' ##                         0,0,0,0,0,
+#' ##                         0,0,0,0,0,
+#' ##                         "0.2*SN2BI","0.2*ATT2BI","0.2*PBC2BI",0,0,
+#' ##                         0,0,"0.2*PBC2BEH","0.2*BI2BEH",0),
+#' ##                         type="Full", ncol=5, nrow=5,
+#' ##                         byrow=TRUE, as.mxMatrix=FALSE)
+#' ## dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- colnames(Cooke16$data[[1]])
+#' ## A1
+#' ##
+#' ## S1 <- create.mxMatrix(c(1,
+#' ##                         "0.1*ATT_SN", 1,
+#' ##                         "0.1*PBC_SN", "0.1*PBC_ATT", 1,
+#' ##                         0, 0, 0, "0.5*VarBI",
+#' ##                         0, 0, 0, 0, "0.5*VarBEH"),
+#' ##                       type = "Symm", ncol=5, nrow=5,
+#' ##                       byrow=TRUE, as.mxMatrix=FALSE)
+#' ## dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- colnames(Cooke16$data[[1]])
+#' ## S1
 #'
 #' ## Stage 2 analysis
-#' random2 <- tssem2(random1, Amatrix=A1, Smatrix=S1, diag.constraints=FALSE,
+#' random2 <- tssem2(random1, RAM=RAM1, diag.constraints=FALSE,
 #'                   intervals.type="LB")
 #' summary(random2)
 #'
@@ -1266,42 +1279,7 @@ NULL
 #' fixed1 <- tssem1(Digman97$data, Digman97$n, method="FEM")
 #' summary(fixed1)
 #'
-#' ## Factor covariance among latent factors
-#' Phi <- matrix(c(1,"0.3*cor","0.3*cor",1), ncol=2, nrow=2)
-#'
-#' ## Error covariance matrix
-#' Psi <- Diag(c("0.2*e1","0.2*e2","0.2*e3","0.2*e4","0.2*e5"))
-#'
-#' ## S matrix
-#' S1 <- bdiagMat(list(Psi, Phi))
-#'
-#' ## This step is not necessary but it is useful for inspecting the model.
-#' dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c("A","C","ES","E","I","Alpha","Beta")
-#'
-#' ## Display S1
-#' S1
-#'
-#' ## A matrix
-#' Lambda <-
-#' matrix(c(".3*Alpha_A",".3*Alpha_C",".3*Alpha_ES",rep(0,5),".3*Beta_E",".3*Beta_I"),
-#'        ncol=2, nrow=5)
-#' A1 <- rbind( cbind(matrix(0,ncol=5,nrow=5), Lambda),
-#'              matrix(0, ncol=7, nrow=2) )
-#'
-#' ## This step is not necessary but it is useful for inspecting the model.
-#' dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- c("A","C","ES","E","I","Alpha","Beta")
-#'
-#' ## Display A1
-#' A1
-#'
-#' ## F matrix to select the observed variables
-#' F1 <- create.Fmatrix(c(1,1,1,1,1,0,0), as.mxMatrix=FALSE)
-#'
-#' ## Display F1
-#' F1
-#'
-#' ################################################################################
-#' ## Alternative model specification in lavaan model syntax
+#' ## Two-factor CFA model in lavaan syntax
 #' model <- "## Factor loadings
 #'           Alpha=~A+C+ES
 #'           Beta=~E+I
@@ -1315,12 +1293,23 @@ NULL
 #'                   A.notation="on", S.notation="with")
 #' RAM
 #'
-#' A1 <- RAM$A
-#' S1 <- RAM$S
-#' F1 <- RAM$F
+#' ## ## Equivalent RAM specification
+#' ## Phi <- matrix(c(1,"0.3*cor","0.3*cor",1), ncol=2, nrow=2)
+#' ## Psi <- Diag(c("0.2*e1","0.2*e2","0.2*e3","0.2*e4","0.2*e5"))
+#' ## S1 <- bdiagMat(list(Psi, Phi))
+#' ## dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c("A","C","ES","E","I","Alpha","Beta")
+#' ## S1
+#' ##
+#' ## Lambda <- matrix(c(".3*Alpha_A",".3*Alpha_C",".3*Alpha_ES",rep(0,5),
+#' ##                    ".3*Beta_E",".3*Beta_I"), ncol=2, nrow=5)
+#' ## A1 <- rbind( cbind(matrix(0,ncol=5,nrow=5), Lambda),
+#' ##              matrix(0, ncol=7, nrow=2) )
+#' ## dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- c("A","C","ES","E","I","Alpha","Beta")
+#' ## A1
+#' ##
+#' ## F1 <- create.Fmatrix(c(1,1,1,1,1,0,0), as.mxMatrix=FALSE)
 #'
-#' ################################################################################
-#' fixed2 <- tssem2(fixed1, Amatrix=A1, Smatrix=S1, Fmatrix=F1,
+#' fixed2 <- tssem2(fixed1, RAM=RAM,
 #'                  model.name="TSSEM2 Digman97")
 #' summary(fixed2)
 #'
@@ -1342,7 +1331,7 @@ NULL
 #'                          cluster=cluster)
 #' summary(fixed1.cluster)
 #'
-#' fixed2.cluster <- tssem2(fixed1.cluster, Amatrix=A1, Smatrix=S1, Fmatrix=F1)
+#' fixed2.cluster <- tssem2(fixed1.cluster, RAM=RAM)
 #' #### Please note that the estimates for the younger participants are problematic.
 #' summary(fixed2.cluster)
 #'
@@ -1362,7 +1351,7 @@ NULL
 #'                   RE.type="Diag")
 #' summary(random1)
 #'
-#' random2 <- tssem2(random1, Amatrix=A1, Smatrix=S1, Fmatrix=F1)
+#' random2 <- tssem2(random1, RAM=RAM)
 #' summary(random2)
 #'
 #' ## Display the model with the parameter estimates
@@ -1855,42 +1844,43 @@ NULL
 #' cor1 <- tssem1(issp89$data, issp89$n, method="FEM", cor.analysis=TRUE)
 #' summary(cor1)
 #'
-#' ## Prepare a model implied matrix
-#' ## Factor correlation matrix
-#' Phi <- create.mxMatrix( c("0.3*corf2f1","0.3*corf3f1","0.3*corf3f2"),
-#'                         type="Stand", as.mxMatrix=FALSE )
-#' ## Error variances
-#' Psi <- create.mxMatrix( paste("0.2*e", 1:9, sep=""), type="Diag",
-#'                         as.mxMatrix=FALSE )
+#' ## Three-factor CFA model in lavaan syntax
+#' ## f1: Job Prospects (JP1-JP3); f2: Job Nature (JN1-JN4); f3: Time Demand (TD1-TD2)
+#' model <- "## Factor loadings
+#'           f1 =~ f1JP1*JP1 + f1JP2*JP2 + f1JP3*JP3
+#'           f2 =~ f2JN1*JN1 + f2JN2*JN2 + f2JN3*JN3 + f2JN4*JN4
+#'           f3 =~ f3TD1*TD1 + f3TD2*TD2
+#'           ## Factor correlations
+#'           f1 ~~ corf2f1*f2
+#'           f1 ~~ corf3f1*f3
+#'           f2 ~~ corf3f2*f3"
 #'
-#' ## Create Smatrix
-#' S1 <- bdiagMat(list(Psi, Phi))
-#' ## dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- c(paste("x",1:9,sep=""),
-#' ##                                             paste("f",1:3,sep=""))
-#' ## S1
-#' S1 <- as.mxMatrix(S1)
+#' RAM1 <- lavaan2RAM(model, obs.variables=c("JP1","JP2","JP3",
+#'                                           "JN1","JN2","JN3","JN4",
+#'                                           "TD1","TD2"))
+#' RAM1
 #'
-#' ## Factor loadings
-#' Lambda <- create.mxMatrix( c(".3*f1x1",".3*f1x2",".3*f1x3",rep(0,9),
-#'                              ".3*f2x4",".3*f2x5",".3*f2x6",".3*f2x7",
-#'                              rep(0,9),".3*f3x8",".3*f3x9"), type="Full",
-#'                              ncol=3, nrow=9, as.mxMatrix=FALSE )
-#' Zero1 <- matrix(0, nrow=9, ncol=9)
-#' Zero2 <- matrix(0, nrow=3, ncol=12)
-#'
-#' ## Create Amatrix
-#' A1 <- rbind( cbind(Zero1, Lambda),
-#'              Zero2 )
-#' ## dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- c(paste("x",1:9,sep=""),
-#' ##                                             paste("f",1:3,sep=""))
-#' ## A1
-#' A1 <- as.mxMatrix(A1)
-#'
-#' ## Create Fmatrix
-#' F1 <- create.Fmatrix(c(rep(1,9), rep(0,3)))
+#' ## ## Equivalent RAM specification using create.mxMatrix()
+#' ## Phi <- create.mxMatrix( c("0.3*corf2f1","0.3*corf3f1","0.3*corf3f2"),
+#' ##                         type="Stand", as.mxMatrix=FALSE )
+#' ## Psi <- create.mxMatrix( paste("0.2*e", 1:9, sep=""), type="Diag",
+#' ##                         as.mxMatrix=FALSE )
+#' ## S1 <- bdiagMat(list(Psi, Phi))
+#' ## S1 <- as.mxMatrix(S1)
+#' ##
+#' ## Lambda <- create.mxMatrix( c(".3*f1x1",".3*f1x2",".3*f1x3",rep(0,9),
+#' ##                              ".3*f2x4",".3*f2x5",".3*f2x6",".3*f2x7",
+#' ##                              rep(0,9),".3*f3x8",".3*f3x9"), type="Full",
+#' ##                              ncol=3, nrow=9, as.mxMatrix=FALSE )
+#' ## Zero1 <- matrix(0, nrow=9, ncol=9)
+#' ## Zero2 <- matrix(0, nrow=3, ncol=12)
+#' ## A1 <- rbind( cbind(Zero1, Lambda), Zero2 )
+#' ## A1 <- as.mxMatrix(A1)
+#' ##
+#' ## F1 <- create.Fmatrix(c(rep(1,9), rep(0,3)))
 #'
 #' #### Fixed-effects model: Stage 2 analysis
-#' cor2 <- tssem2(cor1, Amatrix=A1, Smatrix=S1, Fmatrix=F1, intervals.type="LB")
+#' cor2 <- tssem2(cor1, RAM=RAM1, intervals.type="LB")
 #' summary(cor2)
 #'
 #' ## Display the model with the parameter estimates
@@ -1902,7 +1892,7 @@ NULL
 #' summary(cov1)
 #'
 #' #### Fixed-effects model: Stage 2 analysis
-#' cov2 <- tssem2(cov1, Amatrix=A1, Smatrix=S1, Fmatrix=F1)              
+#' cov2 <- tssem2(cov1, RAM=RAM1)
 #' summary(cov2)
 #'
 #' ## Display the model with the parameter estimates
@@ -2347,7 +2337,7 @@ NULL
 #' RAM1 <- lavaan2RAM(model1, obs.variables=c("W1", "S1", "W2", "S2"))
 #' RAM1
 #'
-#' randA1b <- tssem2(randA1a, Amatrix=RAM1$A, Smatrix=RAM1$S)
+#' randA1b <- tssem2(randA1a, RAM=RAM1)
 #' summary(randA1b)
 #'
 #' ## Display the model with the parameter estimates
@@ -2374,7 +2364,7 @@ NULL
 #' RAM2 <- lavaan2RAM(model2, obs.variables=c("F1", "S1", "F2", "S2"))
 #' RAM2
 #'
-#' randA2b <- tssem2(randA2a, Amatrix=RAM2$A, Smatrix=RAM2$S)
+#' randA2b <- tssem2(randA2a, RAM=RAM2)
 #' summary(randA2b)
 #'
 #' ## Display the model with the parameter estimates
@@ -2842,33 +2832,44 @@ NULL
 #'                   RE.type = "Diag")
 #' summary(random1)
 #'
-#' varnames <- c("pos", "neg", "enga", "achiev")
+#' ## Model specification in lavaan syntax
+#' model <- "## Regression paths
+#'           enga ~ b31*pos + b32*neg
+#'           achiev ~ b43*enga
+#'           ## Variances of pos and neg are fixed at 1
+#'           pos ~~ 1*pos
+#'           neg ~~ 1*neg
+#'           ## Correlation between pos and neg
+#'           pos ~~ p21*neg
+#'           ## Error variances
+#'           enga ~~ p33*enga
+#'           achiev ~~ p44*achiev"
 #'
-#' ## Prepare a regression model using create.mxMatrix()
-#' A <- create.mxMatrix(c(0,0,0,0,
-#'                        0,0,0,0,
-#'                        "0.1*b31","0.1*b32",0,0,
-#'                        0,0,"0.1*b43",0),
-#'                      type = "Full", nrow = 4, ncol = 4, byrow = TRUE,
-#'                      name = "A", as.mxMatrix = FALSE)
+#' RAM <- lavaan2RAM(model, obs.variables=c("pos", "neg", "enga", "achiev"))
+#' RAM
 #'
-#' ## This step is not necessary but it is useful for inspecting the model.
-#' dimnames(A) <- list(varnames, varnames)
-#' A
-#'
-#' S <- create.mxMatrix(c(1,
-#'                        ".5*p21",1,
-#'                        0,0,"0.6*p33",
-#'                        0,0,0,"0.6*p44"), 
-#'                      type="Symm", byrow = TRUE,
-#'                      name="S", as.mxMatrix = FALSE)
-#'
-#' ## This step is not necessary but it is useful for inspecting the model.
-#' dimnames(S) <- list(varnames, varnames)
-#' S
+#' ## ## Equivalent RAM specification using create.mxMatrix()
+#' ## varnames <- c("pos", "neg", "enga", "achiev")
+#' ## A <- create.mxMatrix(c(0,0,0,0,
+#' ##                        0,0,0,0,
+#' ##                        "0.1*b31","0.1*b32",0,0,
+#' ##                        0,0,"0.1*b43",0),
+#' ##                      type = "Full", nrow = 4, ncol = 4, byrow = TRUE,
+#' ##                      name = "A", as.mxMatrix = FALSE)
+#' ## dimnames(A) <- list(varnames, varnames)
+#' ## A
+#' ##
+#' ## S <- create.mxMatrix(c(1,
+#' ##                        ".5*p21",1,
+#' ##                        0,0,"0.6*p33",
+#' ##                        0,0,0,"0.6*p44"),
+#' ##                      type="Symm", byrow = TRUE,
+#' ##                      name="S", as.mxMatrix = FALSE)
+#' ## dimnames(S) <- list(varnames, varnames)
+#' ## S
 #'
 #' ## Random-effects model: Second stage analysis
-#' random2 <- tssem2(random1, Amatrix=A, Smatrix=S, diag.constraints=TRUE, 
+#' random2 <- tssem2(random1, RAM=RAM, diag.constraints=TRUE,
 #'                   intervals="LB")
 #' summary(random2)
 #'

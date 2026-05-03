@@ -46,7 +46,7 @@ plot(model2a)
 RAM2a <- lavaan2RAM(model2a, obs.variables = c("LMX", "TFL", "JS", "OC", "LE"),
                     A.notation="on", S.notation="with")
 
-rand2a <- tssem2(rand1, Amatrix=RAM2a$A, Smatrix=RAM2a$S)
+rand2a <- tssem2(rand1, RAM=RAM2a)
 summary(rand2a)
 
 ## Display the model with the parameter estimates

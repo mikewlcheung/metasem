@@ -46,33 +46,48 @@ pattern.n(my.data, my.n)
 random1 <- tssem1(my.data, my.n, method="REM", RE.type="Diag", acov="weighted")
 summary(random1)
 
-A1 <- create.mxMatrix(c(0,0,0,0,0,
-                        0,0,0,0,0,
-                        0,0,0,0,0,
-                        "0.2*SN2BI","0.2*ATT2BI","0.2*PBC2BI",0,0,
-                        0,0,"0.2*PBC2BEH","0.2*BI2BEH",0),
-                        type="Full", ncol=5, nrow=5,
-                        byrow=TRUE, as.mxMatrix=FALSE)
+## Model specification in lavaan syntax
+model <- "## Regression paths
+          BI ~ SN2BI*SN + ATT2BI*ATT + PBC2BI*PBC
+          BEH ~ PBC2BEH*PBC + BI2BEH*BI
+          ## Variances of SN, ATT, and PBC are fixed at 1
+          SN ~~ 1*SN
+          ATT ~~ 1*ATT
+          PBC ~~ 1*PBC
+          ## Covariances among SN, ATT, and PBC
+          ATT ~~ ATT_SN*SN
+          PBC ~~ PBC_SN*SN
+          PBC ~~ PBC_ATT*ATT
+          ## Error variances of BI and BEH
+          BI ~~ VarBI*BI
+          BEH ~~ VarBEH*BEH"
 
-## This step is not necessary but it is useful for inspecting the model.
-dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- colnames(Cooke16$data[[1]])
+RAM1 <- lavaan2RAM(model, obs.variables=colnames(Cooke16$data[[1]]))
+RAM1
 
-## Display A1
-A1
-
-S1 <- create.mxMatrix(c(1,
-                        "0.1*ATT_SN", 1,
-                        "0.1*PBC_SN", "0.1*PBC_ATT", 1,
-                        0, 0, 0, "0.5*VarBI",
-                        0, 0, 0, 0, "0.5*VarBEH"),
-                      type = "Symm", ncol=5, nrow=5,
-                      byrow=TRUE, as.mxMatrix=FALSE)
-
-dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- colnames(Cooke16$data[[1]])
-S1
+## ## Equivalent RAM specification using create.mxMatrix()
+## A1 <- create.mxMatrix(c(0,0,0,0,0,
+##                         0,0,0,0,0,
+##                         0,0,0,0,0,
+##                         "0.2*SN2BI","0.2*ATT2BI","0.2*PBC2BI",0,0,
+##                         0,0,"0.2*PBC2BEH","0.2*BI2BEH",0),
+##                         type="Full", ncol=5, nrow=5,
+##                         byrow=TRUE, as.mxMatrix=FALSE)
+## dimnames(A1)[[1]] <- dimnames(A1)[[2]] <- colnames(Cooke16$data[[1]])
+## A1
+##
+## S1 <- create.mxMatrix(c(1,
+##                         "0.1*ATT_SN", 1,
+##                         "0.1*PBC_SN", "0.1*PBC_ATT", 1,
+##                         0, 0, 0, "0.5*VarBI",
+##                         0, 0, 0, 0, "0.5*VarBEH"),
+##                       type = "Symm", ncol=5, nrow=5,
+##                       byrow=TRUE, as.mxMatrix=FALSE)
+## dimnames(S1)[[1]] <- dimnames(S1)[[2]] <- colnames(Cooke16$data[[1]])
+## S1
 
 ## Stage 2 analysis
-random2 <- tssem2(random1, Amatrix=A1, Smatrix=S1, diag.constraints=FALSE,
+random2 <- tssem2(random1, RAM=RAM1, diag.constraints=FALSE,
                   intervals.type="LB")
 summary(random2)
 
