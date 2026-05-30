@@ -12,7 +12,7 @@
 #' \code{\link[OpenMx]{vechs}} is used to vectorize the (correlation) matrices.
 #' @return A \eqn{k}{k} x \eqn{p*}{p*} stacked matrix where \eqn{p* = p(p-1)/2
 #' }{p* = p(p-1)/2} for \code{diag}=\code{FALSE} or \eqn{p* = p(p+1)/2 }{p* =
-#' p(p+1)/2}\eqn{ }{p* = p(p+1)/2} for \code{diag}=\code{TRUE}.
+#' p(p+1)/2} for \code{diag}=\code{TRUE}.
 #' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
 #' @keywords utilities
 #' @examples

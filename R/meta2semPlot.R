@@ -42,7 +42,13 @@ meta2semPlot <- function(object, manNames=NULL, latNames=NULL, labels=c("labels"
            S <- object$mx.fit$algebras$Smatrix$result
        }
        S <- unname(S)
-       F <- unname(object$mx.fit@matrices$Fmatrix$values)
+
+       F <- object$mx.fit@matrices$Fmatrix$values
+       ## Try to get the names of the latent variables
+       lat_index <- dimnames(F)[[2]] %in% dimnames(F)[[1]]
+       lat_names <- dimnames(F)[[2]][!lat_index]
+       F <- unname(F)
+
        Id <- diag(nrow(S))
        ObsCovs <- object$Cov
     ## ImpCovs <- mxEval(Fmatrix%*%solve(Id-Amatrix)%*%S%*%solve(t(Id-Amatrix))%*%t(Fmatrix), 
@@ -60,10 +66,6 @@ meta2semPlot <- function(object, manNames=NULL, latNames=NULL, labels=c("labels"
        }
 
        dimnames(ImpCovs) <- dimnames(ObsCovs) <- list(manNames, manNames)
-
-       ## Try to get the names of the latent variables
-       lat_index <- dimnames(F)[[2]] %in% dimnames(F)[[1]]
-       lat_names <- dimnames(F)[[2]][!lat_index]
         
        if (is.null(latNames)) {
            if (!is.null(lat_names)) {

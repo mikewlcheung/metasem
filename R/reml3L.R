@@ -23,7 +23,6 @@
 #' where \eqn{V}{V} is the known conditional sampling covariance matrix of
 #' \eqn{y}{y}, \eqn{T^2}{T^2} is the variance component combining level-2 and
 #' level-3 random effects, and \eqn{\hat{\alpha}=(X'(V+T^2)^{-1}X)^{-1}
-#' }{\hat{\alpha}=(t(X)(V+T^2)^{-1}X)^{-1}t(X)(V+T^2)^{-1}y}\eqn{
 #' X'(V+T^2)^{-1}y}{\hat{\alpha}=(t(X)(V+T^2)^{-1}X)^{-1}t(X)(V+T^2)^{-1}y}.
 #' \code{reml()} minimizes the above likelihood function to obtain the
 #' parameter estimates.
