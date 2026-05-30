@@ -210,6 +210,11 @@ sem <- function(model.name="sem", RAM=NULL, data=NULL, Cov=NULL,
   ## Remove the starting values before comparisons
   if (all(A==as.symMatrix(RAM$A))) {
     mx.model <- mxModel(mx.model, Amatrix)
+  } else if (length(all.vars(parse(text=A))) == 0) {
+    ## All free parameters in A were replaced with numeric constants:
+    ## use a fixed MxMatrix instead of an mxAlgebra (as.mxAlgebra fails on
+    ## zero free variables due to paste0("0*", character(0)) yielding "0*")
+    mx.model <- mxModel(mx.model, as.mxMatrix(A, name="Amatrix"))
   } else {
     A <- as.mxAlgebra(A, startvalues=startvalues, lbound=lbound, ubound=ubound,
                       name="Amatrix")
@@ -218,6 +223,9 @@ sem <- function(model.name="sem", RAM=NULL, data=NULL, Cov=NULL,
 
   if (all(S==as.symMatrix(RAM$S))) {
     mx.model <- mxModel(mx.model, Smatrix)
+  } else if (length(all.vars(parse(text=S))) == 0) {
+    ## Same guard as for A above
+    mx.model <- mxModel(mx.model, as.mxMatrix(S, name="Smatrix"))
   } else {
     S <- as.mxAlgebra(S, startvalues=startvalues, lbound=lbound, ubound=ubound,
                       name="Smatrix")
@@ -240,6 +248,9 @@ sem <- function(model.name="sem", RAM=NULL, data=NULL, Cov=NULL,
 
     if (all(M==as.symMatrix(RAM$M))) {
       mx.model <- mxModel(mx.model, Mmatrix)
+    } else if (length(all.vars(parse(text=M))) == 0) {
+      ## Same guard as for A and S above
+      mx.model <- mxModel(mx.model, as.mxMatrix(M, name="Mmatrix"))
     } else {
       M <- as.mxAlgebra(M, startvalues=startvalues, lbound=lbound,
                         ubound=ubound, name="Mmatrix")
@@ -285,6 +296,9 @@ sem <- function(model.name="sem", RAM=NULL, data=NULL, Cov=NULL,
     }
   }
     
+  ## Initialise here so they are available regardless of whether run=TRUE
+  warning.msg <- error.msg <- NULL
+
   if (run) {
     ## Default is z
     mx.fit <- tryCatch(mxRun(mx.model, intervals=(intervals.type=="LB"),
@@ -292,7 +306,6 @@ sem <- function(model.name="sem", RAM=NULL, data=NULL, Cov=NULL,
                        error=function(e) e)
 
     ## Check if any errors or warnings
-    warning.msg <- error.msg <- NULL
     if (inherits(mx.fit, "error")) {
       mx.fit <- tryCatch(mxTryHard(mx.model, extraTries=50, intervals=FALSE,
                                    silent=TRUE),
