@@ -56,20 +56,37 @@ homoStat <- function(y, v) {
     Q.df <- length(y)-1
     pval <- 1-pchisq(Q, df=Q.df)
   } else {
-    Y <- matrix( c(t(y)), ncol=1 )
-    miss.index <- is.na(Y)
-    Y <- matrix( Y[!miss.index], ncol=1 )
-    X <- matrix( rep(Diag(no.y), nrow(y)), ncol=no.y, byrow=TRUE )
+    ## V is block diagonal (one p x p block per study), so rather than
+    ## building the full k*p x k*p matrix and inverting it in one shot
+    ## (O((kp)^3) time and O((kp)^2) memory), we invert each study's
+    ## (much smaller) block separately and accumulate the sufficient
+    ## statistics for the GLS solution. This gives identical results
+    ## since the inverse of a block diagonal matrix is the block
+    ## diagonal matrix of the inverses of its blocks.
+    y <- as.matrix(y)
+    v <- as.matrix(v)
 
-    X <- X[!miss.index, , drop=FALSE]
-    V <- matrix2bdiag(v)
-    V <- V[!miss.index, !miss.index, drop=FALSE]
-    
-    V_inv <- chol2inv(chol(V))
-    Q <- t(Y) %*% ( V_inv - V_inv %*% X %*% solve(t(X)
-              %*% V_inv %*% X) %*% t(X) %*% V_inv ) %*% Y
-    Q.df <- nrow(X)-ncol(X)
-	pval <- 1-pchisq(Q, df=Q.df)
+    XtVinvX <- matrix(0, no.y, no.y)
+    XtVinvY <- numeric(no.y)
+    YtVinvY <- 0
+    n.obs <- 0
+
+    for (i in seq_len(nrow(y))) {
+      obs <- !is.na(y[i, ])
+      if (!any(obs)) next
+
+      Vi_inv <- chol2inv(chol(vec2symMat(v[i, ])[obs, obs, drop=FALSE]))
+      yi <- y[i, obs]
+
+      XtVinvX[obs, obs] <- XtVinvX[obs, obs] + Vi_inv
+      XtVinvY[obs] <- XtVinvY[obs] + as.numeric(Vi_inv %*% yi)
+      YtVinvY <- YtVinvY + as.numeric(yi %*% Vi_inv %*% yi)
+      n.obs <- n.obs + sum(obs)
+    }
+
+    Q <- YtVinvY - XtVinvY %*% solve(XtVinvX, XtVinvY)
+    Q.df <- n.obs - no.y
+    pval <- 1-pchisq(Q, df=Q.df)
   }
     list(Q=Q, Q.df=Q.df, pval=pval)
 }

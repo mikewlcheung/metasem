@@ -1,3 +1,7 @@
+Release 1.5.6 (Jul 18, 2026)
+====================================
+* Rewrite homoStat to improve speed and RAM use.
+
 Release 1.5.5 (May 02, 2026)
 ====================================
 * Use roxygen2 for documentation.
