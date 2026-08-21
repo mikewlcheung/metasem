@@ -16,8 +16,7 @@
 #' estimated.
 #'
 #' An alternative but equivalent approach is to minimize the
-#' -2*log-likelihood function: \deqn{ }{
-#' log(det|V+T^2|)+log(det|X'(V+T^2)^{-1}X|)+(y-X\alpha)'(V+T^2)^{-1}(y-X*\alpha)}\deqn{
+#' -2*log-likelihood function: \deqn{
 #' \log(\det|V+T^2|)+\log(\det|X'(V+T^2)^{-1}X|)+(y-X\hat{\alpha})'(V+T^2)^{-1}(y-X\hat{\alpha})}{
 #' log(det|V+T^2|)+log(det|X'(V+T^2)^{-1}X|)+(y-X\alpha)'(V+T^2)^{-1}(y-X*\alpha)}
 #' where \eqn{V}{V} is the known conditional sampling covariance matrix of
