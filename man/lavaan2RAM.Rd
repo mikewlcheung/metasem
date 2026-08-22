@@ -53,20 +53,52 @@ the starting values are not provided.}
 variances of exogenous latent variables are included in the model and set
 free. See \code{\link[lavaan]{model.syntax}}.}
 
-\item{std.lv}{Logical. If \code{TRUE}, the metric of each latent variable is
-determined by fixing their variances to 1.0. If FALSE, the metric of each
-latent variable is determined by fixing the factor loading of the first
-indicator to 1.0. See \code{\link[lavaan]{model.syntax}}.}
+\item{std.lv}{Logical. If \code{TRUE} (the default), the metric of each
+latent variable is determined by fixing their variances to 1.0. If
+\code{FALSE}, the metric of each latent variable is determined by fixing
+the factor loading of the first indicator to 1.0. See
+\code{\link[lavaan]{model.syntax}}. \code{std.lv=TRUE} always fixes every
+latent variable's variance at 1, even overriding an explicit \code{"~~"}
+specification for it in \code{model} (e.g. \code{"f ~~ c(vf1,vf2)*f"} to
+free a factor's variance per group) with no error -- the label is simply
+discarded, since the parameter is fixed rather than estimated. Pass
+\code{std.lv=FALSE} whenever \code{model} identifies a latent variable's
+scale by fixing one of its loadings instead (e.g. \code{"f =~ 1*y1"} or
+\code{"f =~ c(1,1)*y1"} for a multiple-group model), which is
+incompatible with also fixing its variance. \code{lavaan2RAM()} warns
+when this happens (any parameter given an explicit label in \code{model}
+that ends up fixed rather than free), but the warning is general --
+checking \code{std.lv} first is faster than working backward from it.}
 
 \item{ngroups}{Number. The number of groups in the \code{model}. See
-\code{\link[lavaan]{model.syntax}}.}
+\code{\link[lavaan]{model.syntax}}. Parameters without an explicit label
+in \code{model} are free and distinct in each group by default (as in
+\code{lavaan}); use \code{lavaan}'s \code{c(label, label)} syntax to
+constrain a parameter to be equal across groups. Has no effect (and is
+rejected with an error) on two-level (\code{level:}) models -- see below.}
 
 \item{\dots}{Further arguments to be passed to
 \code{\link[lavaan]{model.syntax}}}
 }
 \value{
 A list of RAM specification with \code{A}, \code{S}, \code{F}, and
-\code{M} matrices.
+\code{M} matrices. When \code{ngroups > 1}, a list of such lists (one per
+group) is returned instead, with class \code{"RAM_multigroup"}. When
+\code{model} uses \code{lavaan}'s two-level syntax (\code{level: 1} /
+\code{level: 2} blocks), a list with \code{within} and \code{between}
+elements (each themselves a list of \code{A}, \code{S}, \code{F}, and
+\code{M} matrices) is returned instead, with class \code{"RAM_twolevel"}.
+Level-1 (within) manifest variables default to a fixed-at-zero mean (the
+overall intercept lives at the between level by convention); level-2
+(between) "shadow" variables backing a level-1 manifest variable default
+to a free mean, while genuine level-2-only latent factors default to
+fixed-at-zero, mirroring the usual latent-variable convention. Genuine
+level-2-only observed covariates (e.g. a real cluster-level covariate
+with its own data column, as opposed to a level-1 manifest variable's
+between-cluster component) are not yet supported and raise an error,
+rather than being silently treated as an ordinary latent variable with
+no connection to any data; neither is combining two-level with multiple
+groups (also an error).
 }
 \description{
 It converts models specified in \code{lavaan} model syntax to RAM models.
@@ -123,6 +155,16 @@ lavaan2RAM(model3)
 model4 <- "y ~ c(a1, a2)*1 + c(b, b)*x"
 
 lavaan2RAM(model4, ngroups=2)
+
+## Two-level random-intercept regression model
+model5 <- "level: 1
+             y ~ b1*x
+             y ~~ residW*y
+           level: 2
+             y ~ 1
+             y ~~ residB*y"
+
+lavaan2RAM(model5)
 
 }
 \seealso{

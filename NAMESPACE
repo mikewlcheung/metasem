@@ -97,7 +97,7 @@ importFrom("graphics", "abline", "arrows", "layout", "par", "plot",
 importFrom("stats", "as.formula", "coef", "cov2cor", "deriv",
            "na.omit", "pchisq", "pnorm", "printCoefmat", "qchisq",
            "qnorm", "reshape", "var", "vcov", "weighted.mean", "uniroot",
-           "cov", "cor", "rWishart", "sd", "quantile")
+           "cov", "cor", "rWishart", "sd", "quantile", "setNames")
 importFrom("utils", "read.table")
 
 importFrom("lavaan", "sem", "lavaanify", "inspect", "coef", "vcov")

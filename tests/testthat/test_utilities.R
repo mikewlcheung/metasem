@@ -166,23 +166,79 @@ test_that("lavaan2RAM() works correctly", {
     model1 <- "y ~ 1 + c(b1, b2)*x1 + c(b3, b4)*x2
                fn1 := b1 + b2
                b3 == b4"
-    model2 <- list("1"="y ~ 1 + b1*x1 + b3*x2
+    ## Parameters not explicitly shared with c(l,l) must default to being
+    ## FREE and DISTINCT per group (lavaan's own default), so a model
+    ## written out separately per group must repeat that with explicit,
+    ## per-group-suffixed labels to be equivalent to the combined form.
+    ## x1/x2's own means are also free-by-default (lavaan2RAM()'s
+    ## documented convention: observed variables' means are free unless
+    ## explicitly fixed), so the hand-written per-group text needs its own
+    ## explicit, per-group-suffixed mean lines for x1/x2 too, matching the
+    ## auto-generated "0*x1mean_g1" label lavaan2RAM(model1, ngroups=2)
+    ## produces for them.
+    model2 <- list("1"="y ~ ymean_g1*1 + b1*x1 + b3*x2
+                        y ~~ yWITHy_g1*y
+                        x1 ~~ x1WITHx1_g1*x1 + x1WITHx2_g1*x2
+                        x2 ~~ x2WITHx2_g1*x2
+                        x1 ~ x1mean_g1*1
+                        x2 ~ x2mean_g1*1
                         fn1 := b1 + b2
                         b3 == b4",
-                   "2"="y ~ 1 + b2*x1 + b4*x2")       
+                   "2"="y ~ ymean_g2*1 + b2*x1 + b4*x2
+                        y ~~ yWITHy_g2*y
+                        x1 ~~ x1WITHx1_g2*x1 + x1WITHx2_g2*x2
+                        x2 ~~ x2WITHx2_g2*x2
+                        x1 ~ x1mean_g2*1
+                        x2 ~ x2mean_g2*1")
     RAM1 <- lavaan2RAM(model1, ngroups=2)
     RAM2 <- lapply(model2, lavaan2RAM)
+    ## RAM1 is tagged "RAM_multigroup" by lavaan2RAM(ngroups=2); a manually
+    ## assembled list of per-group RAM objects (as RAM2 is here) is not
+    ## tagged automatically and must be tagged by hand to be treated the
+    ## same way by sem()'s class-based dispatch.
+    class(RAM2) <- c("RAM_multigroup", class(RAM2))
     names(RAM1) <- c("1", "2")
     expect_identical(RAM1, RAM2)
+    expect_s3_class(RAM1, "RAM_multigroup")
 
     ## CFA with 2 groups
     model3 <- "f =~ c(a, a)*x1 + c(b1, b2)*x2 + c(c1, c2)*x3 + c(d1, d2)*x4"
-    model4 <- list("1"="f =~ a*x1 + b1*x2 + c1*x3 + d1*x4",
-                   "2"="f =~ a*x1 + b2*x2 + c2*x3 + d2*x4")
+    model4 <- list("1"="f =~ a*x1 + b1*x2 + c1*x3 + d1*x4
+                        x1 ~~ x1WITHx1_g1*x1
+                        x2 ~~ x2WITHx2_g1*x2
+                        x3 ~~ x3WITHx3_g1*x3
+                        x4 ~~ x4WITHx4_g1*x4
+                        x1 ~ x1mean_g1*1
+                        x2 ~ x2mean_g1*1
+                        x3 ~ x3mean_g1*1
+                        x4 ~ x4mean_g1*1",
+                   "2"="f =~ a*x1 + b2*x2 + c2*x3 + d2*x4
+                        x1 ~~ x1WITHx1_g2*x1
+                        x2 ~~ x2WITHx2_g2*x2
+                        x3 ~~ x3WITHx3_g2*x3
+                        x4 ~~ x4WITHx4_g2*x4
+                        x1 ~ x1mean_g2*1
+                        x2 ~ x2mean_g2*1
+                        x3 ~ x3mean_g2*1
+                        x4 ~ x4mean_g2*1")
     RAM3 <- lavaan2RAM(model3, ngroups=2)
     RAM4 <- lapply(model4, lavaan2RAM)
+    class(RAM4) <- c("RAM_multigroup", class(RAM4))
     names(RAM3) <- c("1", "2")
     expect_identical(RAM3, RAM4)
+    expect_s3_class(RAM3, "RAM_multigroup")
+
+    ## Auto-generated labels must be distinct per group by default (the bug
+    ## this fix addresses): only user-requested equalities (c(b,b)*x) are
+    ## shared across groups.
+    modelShared <- "y ~ c(a1, a2)*1 + c(b, b)*x"
+    RAMshared <- lavaan2RAM(modelShared, ngroups=2)
+    ## User-shared slope stays identical across groups ...
+    expect_identical(RAMshared[["1"]]$A["y","x"], RAMshared[["2"]]$A["y","x"])
+    ## ... but the auto-generated residual variance of y does not.
+    expect_false(identical(RAMshared[["1"]]$S["y","y"], RAMshared[["2"]]$S["y","y"]))
+    ## Single-group output is unaffected (no suffix, no new class).
+    expect_false(inherits(lavaan2RAM("y ~ x"), "RAM_multigroup"))
 
     ## Single group multiple regression
     model5 <- "y ~ 1 + b1*x1 + b2*x2"
@@ -200,11 +256,127 @@ test_that("lavaan2RAM() works correctly", {
                   F = structure(c(1, 0, 0, 0, 1, 0, 0, 0, 1), .Dim = c(3L, 3L),
                                 .Dimnames = list(c("y", "x1", "x2"),
                                                  c("y", "x1", "x2"))), 
-                  M = structure(c("0*ymean", "0", "0"), .Dim = c(1L, 3L),
+                  ## x1/x2's own means are free by default too (not just
+                  ## y's), like every other observed variable.
+                  M = structure(c("0*ymean", "0*x1mean", "0*x2mean"), .Dim = c(1L, 3L),
                                 .Dimnames = list("1", c("y", "x1", "x2"))))
     expect_identical(RAM5a, RAM5b)
 
  })
+
+test_that("lavaan2RAM() frees an observed predictor's own mean by default, without breaking the single-indicator-marker identification pattern", {
+    ## Regression test for a high-severity bug (external review): observed
+    ## variables' means are documented as free by default, but lavaanify's
+    ## own auto-generated, still-fixed-at-0 "~1" row for an unlabelled
+    ## predictor used to silently override that default with a hard 0.
+    ## Invisible whenever the predictor's population mean happens to be
+    ## ~0 (as in most of this file's other tests, which is why this went
+    ## unnoticed for so long), but for a genuinely off-centre predictor
+    ## the matching "~~" (variance) parameter then absorbs the UNCENTERED
+    ## second moment (mean^2 + variance) instead of the actual variance,
+    ## and -2LL diverges sharply from an equivalent direct lavaan fit.
+    set.seed(31)
+    nA <- 300; nB <- 300
+    xA <- rnorm(nA, 10, 1); yA <- 2 + 0.5*xA + rnorm(nA)
+    xB <- rnorm(nB, -8, 1); yB <- -1 + 0.3*xB + rnorm(nB)
+    df <- data.frame(y=c(yA,yB), x=c(xA,xB), g=rep(c("A","B"), c(nA,nB)))
+
+    model <- "y ~ c(b1,b2)*x
+              y ~ c(a1,a2)*1
+              y ~~ c(e1,e2)*y
+              x ~~ c(vx1,vx2)*x"
+    RAM <- lavaan2RAM(model, ngroups=2)
+    fit <- sem(RAM=RAM, data=df, group="g")
+    fit.lav <- lavaan::sem(model, data=df, group="g", fixed.x=FALSE)
+
+    cf <- coef(fit); lav.cf <- coef(fit.lav)
+    expect_equal(unname(cf["vx1"]), unname(lav.cf["vx1"]), tolerance=1e-3)
+    expect_equal(unname(cf["vx2"]), unname(lav.cf["vx2"]), tolerance=1e-3)
+    expect_equal(fit$mx.fit@output$Minus2LogLikelihood,
+                 -2*as.numeric(lavaan::fitMeasures(fit.lav, "logl")), tolerance=1e-2)
+    ## The bug specifically produced an inflated, mean^2-contaminated
+    ## "variance": guard against a future regression collapsing back to
+    ## roughly mean(x)^2 (~100 and ~64 here) rather than the true ~1.
+    expect_true(unname(cf["vx1"]) < 5)
+    expect_true(unname(cf["vx2"]) < 5)
+
+    ## The single-indicator-marker pattern used throughout this package's
+    ## own meta-analysis functions ("f =~ 1*yi", with the free mean
+    ## modelled entirely through "f ~ mu*1", never through yi's own "~1")
+    ## must stay well-identified: freeing yi's own mean too, on top of
+    ## f's, would make the two literally redundant (their SUM, not each
+    ## individually, is identified) -- confirmed this is a real risk, not
+    ## hypothetical: real lavaan::sem() has the exact same non-
+    ## identification for this exact pattern (it emits its own "model may
+    ## not be identified" warning), so lavaan2RAM() deliberately does NOT
+    ## follow lavaan's literal default here.
+    model.meta <- "f =~ 1*yi
+                   f ~ mu*1
+                   f ~~ tau2*f
+                   yi ~~ data.vi*yi"
+    RAM.meta <- lavaan2RAM(model.meta, obs.variables="yi", std.lv=FALSE)
+    expect_identical(unname(RAM.meta$M["1","yi"]), "0")   ## still fixed, not free
+    fit.meta <- sem(RAM=RAM.meta, data=Hox02, intervals="LB")
+    expect_true(fit.meta$mx.fit@output$status$code %in% c(0, 1))
+    expect_equal(unname(coef(fit.meta)["mu"]), 0.579, tolerance=1e-2)
+})
+
+test_that("an ordinary label merely resembling 'data.' (e.g. 'database') is not misclassified as a definition variable", {
+    ## Regression test for a high-severity bug (external review):
+    ## as.mxMatrix()/create.mxMatrix() used grep("data.", labels) to spot
+    ## definition-variable labels (e.g. "data.vi", resolved per-row from a
+    ## data column) and force them non-free -- but "." in a regex means
+    ## "any character", so an ordinary label like "database" (data + b +
+    ## ase) ALSO matched and was silently fixed instead of estimated. Only
+    ## a literal "data." PREFIX should trigger this. Checked against a
+    ## direct lavaan fit, in single-group, multiple-group, and two-level
+    ## sem() fits (all three route through the same buggy match).
+    set.seed(41)
+    n <- 200
+    x <- rnorm(n); y <- 2*x + rnorm(n)
+    df <- data.frame(y=y, x=x)
+    model <- "y ~ database*x
+              y ~~ e*y"
+    RAM <- lavaan2RAM(model)
+    expect_true(RAM$A["y", "x"] %in% grep("^0(\\.[0-9]+)?\\*database$", RAM$A["y","x"], value=TRUE))
+    fit <- sem(RAM=RAM, data=df)
+    fit.lav <- lavaan::sem(model, data=df, fixed.x=FALSE)
+    expect_true("database" %in% names(coef(fit)))
+    expect_equal(unname(coef(fit)["database"]), unname(coef(fit.lav)["database"]), tolerance=1e-3)
+
+    ## Multiple-group
+    df2 <- data.frame(y=c(y, -y), x=c(x, -x), g=rep(c("g1","g2"), each=n))
+    RAM2 <- lavaan2RAM("y ~ c(database1,database2)*x", ngroups=2)
+    fit2 <- sem(RAM=RAM2, data=df2, group="g")
+    expect_true(all(c("database1","database2") %in% names(coef(fit2))))
+    expect_false(unname(coef(fit2)["database1"]) == unname(coef(fit2)["database2"]))
+
+    ## Two-level
+    nClusters <- 30; nPerCluster <- 5; N <- nClusters*nPerCluster
+    clusterID <- rep(seq_len(nClusters), each=nPerCluster)
+    xl <- rnorm(N); yl <- 0.5*xl + rnorm(N)
+    df3 <- data.frame(clusterID=clusterID, x=xl, y=yl)
+    model3 <- "level: 1
+  y ~ database*x
+  y ~~ residW*y
+level: 2
+  y ~ 1
+  y ~~ residB*y"
+    RAM3 <- lavaan2RAM(model3)
+    fit3 <- sem(RAM=RAM3, data=df3, cluster="clusterID")
+    expect_true("database" %in% names(coef(fit3)))
+
+    ## A genuine definition variable ("data.vi") must still be correctly
+    ## recognised and left non-free -- the fix must not have gone too far
+    ## the other way.
+    model4 <- "f =~ 1*yi
+              f ~ mu*1
+              f ~~ tau2*f
+              yi ~~ data.vi*yi"
+    RAM4 <- lavaan2RAM(model4, obs.variables="yi", std.lv=FALSE)
+    fit4 <- sem(RAM=RAM4, data=Hox02)
+    expect_false("data.vi" %in% names(coef(fit4)))
+})
 
 test_that("as.symMatrix() works correctly", {
     A1 <- matrix(c(1:3, "a", "*b", "6*c", 7:9), ncol=3, nrow=3)
@@ -567,6 +739,914 @@ test_that("create.Tau2() works correctly", {
                             RE.startvalues=0.01) )  
 })
 
+context("Checking sem() with multiple-group RAM objects")
+
+test_that("sem() fits multiple-group regression matching lavaan", {
+    set.seed(1)
+    n1 <- 100; n2 <- 120
+    x1 <- rnorm(n1); y1 <- 2 + 0.5*x1 + rnorm(n1, sd=0.8)
+    x2 <- rnorm(n2); y2 <- -1 + 0.5*x2 + rnorm(n2, sd=1.2)
+    df <- rbind(data.frame(y=y1, x=x1, g="g1"),
+               data.frame(y=y2, x=x2, g="g2"))
+
+    model <- "y ~ c(b,b)*x + c(a1,a2)*1"
+    RAM <- lavaan2RAM(model, ngroups=2)
+    expect_s3_class(RAM, "RAM_multigroup")
+
+    fit <- sem(RAM=RAM, data=df, group="g")
+
+    ## lavaan::sem() (not the lower-level lavaan::lavaan()) is the correct
+    ## reference here: lavaan2RAM() documents observed variables' means as
+    ## free by default, matching lavaan::sem()'s own int.ov.free=TRUE
+    ## default -- raw lavaan::lavaan(..., fixed.x=FALSE) does NOT set
+    ## int.ov.free=TRUE, so it instead fixes x's mean at 0 (with an
+    ## explicit "automatically added intercepts are set to zero" warning),
+    ## a DIFFERENT convention that happened to match an old lavaan2RAM()
+    ## bug (fixed: lavaanify()'s own auto-generated, still-fixed-at-0 "~1"
+    ## row for x was incorrectly allowed to overwrite lavaan2RAM()'s
+    ## documented free-mean default). Confirmed by inspecting
+    ## parTable()'s "free"/"user" columns directly for both lavaan() and
+    ## lavaan::sem() on this exact model, not assumed.
+    fit.lav <- lavaan::sem(model, data=df, group="g", fixed.x=FALSE)
+    lav.m2ll <- -2*as.numeric(lavaan::fitMeasures(fit.lav, "logl"))
+
+    expect_equal(fit$mx.fit$output$fit, lav.m2ll, tolerance=1e-3)
+
+    cf <- coef(fit)
+    ## The shared slope "b" is estimated once and equal across groups.
+    expect_equal(unname(cf["b"]), unname(coef(fit.lav)["b"]), tolerance=1e-3)
+    expect_equal(unname(cf["a1"]), unname(coef(fit.lav)["a1"]), tolerance=1e-3)
+    expect_equal(unname(cf["a2"]), unname(coef(fit.lav)["a2"]), tolerance=1e-3)
+})
+
+test_that("sem() respects := and == constraints across groups", {
+    ## b3 == b4 must equate group 1's and group 2's second slope; fn1 is a
+    ## derived mxAlgebra of the (group-specific) first slopes.
+    model1 <- "y ~ 1 + c(b1, b2)*x1 + c(b3, b4)*x2
+               fn1 := b1 + b2
+               b3 == b4"
+    set.seed(2)
+    n <- 150
+    x1 <- rnorm(n); x2 <- rnorm(n); y <- 1 + 0.3*x1 + 0.3*x2 + rnorm(n)
+    df <- data.frame(y=y, x1=x1, x2=x2, g=sample(c("g1","g2"), n, replace=TRUE))
+
+    RAM1 <- lavaan2RAM(model1, ngroups=2)
+    fit1 <- sem(RAM=RAM1, data=df, group="g")
+
+    cf <- coef(fit1)
+    expect_equal(unname(cf["b3"]), unname(cf["b4"]))
+
+    ## The mxalgebra fn1 = b1 + b2 is reported and numerically correct.
+    s1 <- summary(fit1)
+    est <- s1$mxalgebras["fn1", "estimate"]
+    expect_equal(unname(est), unname(cf["b1"] + cf["b2"]), tolerance=1e-6)
+
+    ## fn1's SE/CI: mxSE()'s delta method (var(b1)+var(b2)+2*cov(b1,b2),
+    ## via vcov(), since b1/b2 have independent per-group likelihoods here
+    ## but this formula does not assume that) must agree with the reported
+    ## Wald CI, since the CI is built as estimate +/- 1.96*SE internally --
+    ## cross-checked against an INDEPENDENT computation (plain vcov()
+    ## algebra, not mxSE()) rather than trusting mxSE()'s own output.
+    V <- vcov(fit1)
+    se.manual <- sqrt(V["b1","b1"] + V["b2","b2"] + 2*V["b1","b2"])
+    se.implied <- (s1$mxalgebras["fn1","ubound"] - est)/1.96
+    expect_equal(unname(se.implied), unname(se.manual), tolerance=1e-6)
+
+    ## Likelihood-based (LB) CI for the same defined parameter: must exist,
+    ## straddle the point estimate, and be centred close to it. Indexed as
+    ## [row, col] throughout (not a single-row [row, ] slice), since the
+    ## LB-intervals mxalgebras result is a data.frame (unlike the z-
+    ## intervals path's matrix) -- a single-row [row, ] slice would stay a
+    ## 1-row data.frame instead of dropping to a plain named vector.
+    fit1.lb <- sem(RAM=RAM1, data=df, group="g", intervals.type="LB")
+    mxalg.lb <- summary(fit1.lb)$mxalgebras
+    expect_true(mxalg.lb["fn1","lbound"] < mxalg.lb["fn1","estimate"])
+    expect_true(mxalg.lb["fn1","estimate"] < mxalg.lb["fn1","ubound"])
+    expect_equal(unname(mxalg.lb["fn1","estimate"]), unname(est), tolerance=1e-3)
+})
+
+test_that("sem()'s := SE/CI is consistent for a nonlinear (indirect-effect) formula, in both single- and multiple-group fits, and respects robust=TRUE", {
+    ## a*b (a mediation indirect effect) exercises mxSE()'s delta-method
+    ## Jacobian on a genuinely nonlinear formula, not just a sum -- and,
+    ## since a and b live in the SAME (sub)model with real (nonzero,
+    ## correlated) sampling covariance, this is a much stronger check than
+    ## the additive fn1 case above.
+    set.seed(21)
+    n <- 300
+    m <- rnorm(n); x <- 0.5*m + rnorm(n); y <- 0.6*m + rnorm(n)
+
+    ## -- Single-group --
+    df1 <- data.frame(x=x, m=m, y=y)
+    model.sg <- "m ~ a*x
+                 y ~ b*m + cp*x
+                 ind := a*b"
+    fit.sg <- sem(RAM=lavaan2RAM(model.sg), data=df1)
+    s.sg <- summary(fit.sg)
+    a <- coef(fit.sg)["a"]; b <- coef(fit.sg)["b"]
+    g <- c(b, a)   # d(a*b)/d(a,b) = (b, a)
+    V <- vcov(fit.sg)[c("a","b"), c("a","b")]
+    se.manual <- sqrt(as.numeric(t(g) %*% V %*% g))
+    se.implied <- (s.sg$mxalgebras["ind","ubound"] - s.sg$mxalgebras["ind","estimate"])/1.96
+    expect_equal(unname(se.implied), unname(se.manual), tolerance=1e-6)
+
+    ## -- Multiple-group (2 groups, group-specific a/b/indirect effect) --
+    df2 <- data.frame(x=x, m=m, y=y, g=sample(c("g1","g2"), n, replace=TRUE))
+    model.mg <- "m ~ c(a1,a2)*x
+                y ~ c(b1,b2)*m + c(cp1,cp2)*x
+                ind1 := a1*b1
+                ind2 := a2*b2"
+    fit.mg <- sem(RAM=lavaan2RAM(model.mg, ngroups=2), data=df2, group="g")
+    s.mg <- summary(fit.mg)
+    a1 <- coef(fit.mg)["a1"]; b1 <- coef(fit.mg)["b1"]
+    g <- c(b1, a1)
+    V <- vcov(fit.mg)[c("a1","b1"), c("a1","b1")]
+    se.manual <- sqrt(as.numeric(t(g) %*% V %*% g))
+    se.implied <- (s.mg$mxalgebras["ind1","ubound"] - s.mg$mxalgebras["ind1","estimate"])/1.96
+    expect_equal(unname(se.implied), unname(se.manual), tolerance=1e-6)
+
+    ## robust=TRUE regression test: mxSE()'s own default silently ignores
+    ## "robust" (it always falls back to the non-robust vcov(model) unless
+    ## an explicit "cov=" is supplied), so a defined parameter's CI used to
+    ## come out IDENTICAL whether robust=TRUE or FALSE, even though the
+    ## ordinary coefficients' SEs correctly switched to robust ones --
+    ## fixed by passing imxRobustSE(..., details=TRUE)$cov as mxSE()'s
+    ## "cov" when robust=TRUE. Checked two ways: (a) the := CI must now
+    ## actually differ between robust=TRUE/FALSE, and (b) it must match an
+    ## independent (non-mxSE) delta-method computation using that same
+    ## robust covariance matrix.
+    s.mg.robust <- summary(fit.mg, robust=TRUE)
+    expect_false(isTRUE(all.equal(s.mg.robust$mxalgebras["ind1", ],
+                                  s.mg$mxalgebras["ind1", ])))
+    robust.cov <- suppressMessages(imxRobustSE(fit.mg$mx.fit, details=TRUE))$cov
+    Vr <- robust.cov[c("a1","b1"), c("a1","b1")]
+    se.manual.robust <- sqrt(as.numeric(t(g) %*% Vr %*% g))
+    se.implied.robust <- (s.mg.robust$mxalgebras["ind1","ubound"] -
+                          s.mg.robust$mxalgebras["ind1","estimate"])/1.96
+    expect_equal(unname(se.implied.robust), unname(se.manual.robust), tolerance=1e-6)
+})
+
+test_that("sem() errors clearly on unsupported multiple-group input", {
+    model <- "y ~ c(b,b)*x"
+    RAM <- lavaan2RAM(model, ngroups=2)
+
+    set.seed(3)
+    df <- data.frame(y=rnorm(20), x=rnorm(20), g=rep(c("g1","g2"), 10),
+                     g3=rep(c("g1","g2","g3"), length.out=20))
+
+    ## Missing 'group'
+    expect_error(sem(RAM=RAM, data=df))
+    ## 'group' not a column in data
+    expect_error(sem(RAM=RAM, data=df, group="nosuchcolumn"))
+    ## Number of groups implied by data does not match RAM
+    expect_error(sem(RAM=RAM, data=df, group="g3"))
+    ## replace.constraints=TRUE not yet supported for multi-group RAM
+    expect_error(sem(RAM=RAM, data=df, group="g", replace.constraints=TRUE))
+    ## Cov/numObs-based input not yet supported for multi-group RAM
+    expect_error(sem(RAM=RAM, Cov=diag(2), numObs=100))
+
+    ## Regression test: 'cluster' (a two-level-only argument) used to be
+    ## silently ignored for a multi-group RAM instead of rejected -- a
+    ## caller passing both 'group' and 'cluster' could be misled into
+    ## thinking both dimensions were being modeled, when only 'group' was.
+    expect_error(sem(RAM=RAM, data=df, group="g", cluster="g3"), "cluster")
+
+    ## Regression test: an unused factor level in the group column used to
+    ## silently pass split()'s group-count check (it creates an entry, with
+    ## 0 rows, for every level) and produce a submodel with no data at all
+    ## -- mxRun() did not even error on this, it returned a catastrophic-
+    ## failure status with every parameter frozen at its starting value,
+    ## easy to mistake for a converged (if odd) fit. Fixed by switching to
+    ## unique(data[[group]]) (first-appearance order), which by
+    ## construction never includes a level that doesn't actually occur --
+    ## this now surfaces as an (equally clear) group-count mismatch error
+    ## instead, one level up from where it used to be caught.
+    df.empty.level <- data.frame(y=rnorm(20), x=rnorm(20),
+                                 g=factor(rep("g1", 20), levels=c("g1","g2")))
+    expect_error(sem(RAM=RAM, data=df.empty.level, group="g"))
+
+    ## Regression test: rows with a missing group value are silently
+    ## dropped by split() (a defensible default -- unlike the cluster case
+    ## below, this does not create a wrong "phantom" group) but should
+    ## still warn, not disappear without a trace.
+    df.na.group <- data.frame(y=rnorm(20), x=rnorm(20),
+                              g=rep(c("g1","g2"), 10))
+    df.na.group$g[1:2] <- NA
+    expect_warning(sem(RAM=RAM, data=df.na.group, group="g"), "missing")
+})
+
+test_that("sem() sanitizes group values that collide with OpenMx-reserved or internal names", {
+    ## Regression test (external review): the sanitizer only replaced
+    ## illegal CHARACTERS, so a group value that was already a legal name
+    ## string could still collide with (a) mxModel()'s own globally
+    ## reserved names ("data", "fitfunction", "expectation", "compute" --
+    ## confirmed directly: mxModel("data") itself errors with "is illegal
+    ## because it is a reserved name", regardless of context), (b) this
+    ## call's own container model.name ("sem" by default -- a model
+    ## cannot contain a child entity sharing its own name), or (c) the
+    ## fixed internal matrix/algebra names .build.group.mxmodel() gives
+    ## each group submodel ("Amatrix" etc. -- same self-containment
+    ## problem once a submodel named "Amatrix" tries to hold a matrix
+    ## also named "Amatrix"). All four surfaced as a cryptic OpenMx error
+    ## rather than a submodel name collision the existing make.unique()
+    ## machinery already knows how to resolve.
+    set.seed(42)
+    n <- 100
+    x1 <- rnorm(n); y1 <- 2*x1 + rnorm(n)
+    x2 <- rnorm(n); y2 <- -1*x2 + rnorm(n)
+    RAM <- lavaan2RAM("y ~ c(b1,b2)*x", ngroups=2)
+
+    for (reserved.value in c("sem", "data", "fitfunction", "Amatrix")) {
+        df <- data.frame(y=c(y1,y2), x=c(x1,x2),
+                         g=rep(c(reserved.value, "other"), each=n))
+        fit <- expect_no_error(sem(RAM=RAM, data=df, group="g"))
+        ## Not just "doesn't error" -- the reserved value's own submodel
+        ## must still be locatable via group.map and give the right
+        ## (first-appearing group's, here "b1" ~ slope 2) estimate.
+        sub.name <- fit$group.map[[reserved.value]]
+        expect_true(sub.name %in% names(fit$mx.fit@submodels))
+        expect_equal(unname(coef(fit)["b1"]), 2, tolerance=0.5)
+    }
+})
+
+test_that("sem() handles numeric group columns and 3+ groups", {
+    ## Regression test: a purely-numeric group column (e.g. an integer site
+    ## ID) produced submodel names like "1"/"2" via split(); OpenMx's
+    ## mxModel() rejects a name that can be interpreted as a number
+    ## ("The name '1' is illegal..."). Fixed by prefixing such names.
+    set.seed(10)
+    n <- 100
+    x <- rnorm(n); y <- 0.5*x + rnorm(n)
+    df.num <- data.frame(y=y, x=x, g=rep(c(1,2), n/2))
+    RAM <- lavaan2RAM("y ~ c(b,b)*x", ngroups=2)
+    fit.num <- sem(RAM=RAM, data=df.num, group="g")
+    expect_identical(fit.num$mx.fit@output$status[[1]], 0L)
+    expect_identical(sort(names(fit.num$mx.fit@submodels)), c("group_1","group_2"))
+
+    ## 3 groups (not just the usual 2), all with a shared slope.
+    set.seed(11)
+    n3 <- 90
+    x3 <- rnorm(n3); y3 <- 0.5*x3 + rnorm(n3)
+    df3 <- data.frame(y=y3, x=x3, g=rep(c("g1","g2","g3"), n3/3))
+    RAM3 <- lavaan2RAM("y ~ c(b,b,b)*x", ngroups=3)
+    fit3 <- sem(RAM=RAM3, data=df3, group="g")
+    expect_identical(fit3$mx.fit@output$status[[1]], 0L)
+    expect_identical(names(fit3$mx.fit@submodels), c("g1","g2","g3"))
+})
+
+test_that("sem() orders groups by first appearance in the data, matching lavaan", {
+    ## Regression test for a HIGH-severity bug found on external review: an
+    ## earlier version of .sem.multigroup() split data via
+    ## split(data, data[[group]]), which sorts group values alphabetically
+    ## (or by a factor's levels(), if the column is a factor). lavaan does
+    ## neither -- confirmed directly against lavaan() with deliberately
+    ## reversed data order (group "b" appears before "a" in the rows) --
+    ## it orders groups by first appearance in the data, full stop, even
+    ## for a factor column with levels() in a different order. The old
+    ## behaviour silently swapped which label's estimate landed on which
+    ## group whenever the data's first-appearing group wasn't also the
+    ## alphabetically-first one.
+    set.seed(15)
+    x1 <- rnorm(50); y1 <- 2 + 0.5*x1 + rnorm(50, sd=0.5)    # group "grpB": true int=2
+    x2 <- rnorm(50); y2 <- -3 + 0.5*x2 + rnorm(50, sd=0.5)   # group "grpA": true int=-3
+    df <- rbind(data.frame(y=y1, x=x1, g="grpB"),            # "grpB" appears FIRST
+               data.frame(y=y2, x=x2, g="grpA"))
+
+    RAM <- lavaan2RAM("y ~ c(slope,slope)*x + c(int_b,int_a)*1", ngroups=2)
+    fit <- sem(RAM=RAM, data=df, group="g")
+
+    ## Submodels, and thus which label got which group's data, follow
+    ## first-appearance order: "grpB" (int_b) then "grpA" (int_a).
+    expect_identical(names(fit$mx.fit@submodels), c("grpB","grpA"))
+    cf <- coef(fit)
+    expect_equal(unname(cf["int_b"]), 2, tolerance=0.5)
+    expect_equal(unname(cf["int_a"]), -3, tolerance=0.5)
+
+    ## Also true for a factor column whose levels() order disagrees with
+    ## first appearance in the data.
+    df.f <- df
+    df.f$g <- factor(df.f$g, levels=c("grpA","grpB"))   # levels: A before B ...
+    fit.f <- sem(RAM=RAM, data=df.f, group="g")
+    expect_identical(names(fit.f$mx.fit@submodels), c("grpB","grpA"))  # ... but data: B first
+})
+
+test_that("sem() sanitizes illegal group names and keeps a mapping back to the original value", {
+    ## Regression test for a medium-severity bug found on external review:
+    ## the original numeric-only-name fix ("1" -> "group1") didn't cover
+    ## other characters mxModel() rejects, e.g. "." and "-" (confirmed
+    ## directly: "site.1"/"site-2" both fail with "The name '...' is
+    ## illegal because it contains the '.'/'-' character").
+    set.seed(16)
+    n <- 80
+    x <- rnorm(n); y <- 0.5*x + rnorm(n)
+    df <- data.frame(y=y, x=x, g=rep(c("site.1","site-2"), n/2))
+    RAM <- lavaan2RAM("y ~ c(b,b)*x", ngroups=2)
+    fit <- sem(RAM=RAM, data=df, group="g")
+
+    expect_identical(fit$mx.fit@output$status[[1]], 0L)
+    sub.names <- names(fit$mx.fit@submodels)
+    expect_true(all(grepl("^[A-Za-z0-9_]+$", sub.names)))  # legal mxModel names
+    expect_identical(unname(fit$group.map[["site.1"]]), sub.names[1])
+    expect_identical(unname(fit$group.map[["site-2"]]), sub.names[2])
+
+    ## plot.mxsem(group=) accepts the ORIGINAL (unsanitized) value.
+    skip_if_not_installed("semPlot")
+    grDevices::pdf(nullfile())
+    on.exit(grDevices::dev.off(), add=TRUE)
+    expect_silent(plot(fit, group="site-2"))
+})
+
+test_that("plot.mxsem(group=) resolves sanitized-name collisions correctly", {
+    ## Regression test for a medium-severity bug found on a follow-up
+    ## external review: original groups "a.b" and "a_b" sanitize/
+    ## de-duplicate to submodels "a_b" and "a_b_1". plot.mxsem() used to
+    ## match against submodel names *before* group.map, so
+    ## plot(fit, group="a_b") matched submodel "a_b" directly (since that
+    ## string happens to already be a legal submodel name in its own
+    ## right) -- silently selecting original group "a.b"'s data instead of
+    ## the group literally named "a_b". Fixed by checking group.map first
+    ## -- but naively doing that for *every* case also breaks the default
+    ## (group=NULL) selection in this exact scenario, since sub.names[1]
+    ## ("a_b") can itself coincidentally be a valid group.map key; the fix
+    ## only consults group.map when the caller actually supplied "group".
+    skip_if_not_installed("semPlot")
+    set.seed(18)
+    n <- 100
+    x <- rnorm(n); y <- 0.5*x + rnorm(n)
+    df <- data.frame(y=y, x=x, g=rep(c("a.b","a_b"), n/2))
+    RAM <- lavaan2RAM("y ~ c(b,b)*x", ngroups=2)
+    fit <- sem(RAM=RAM, data=df, group="g")
+
+    sub.names <- names(fit$mx.fit@submodels)
+    expect_identical(sub.names, c("a_b","a_b_1"))
+    expect_identical(unname(fit$group.map[["a.b"]]), "a_b")
+    expect_identical(unname(fit$group.map[["a_b"]]), "a_b_1")
+
+    ## Correctness, not just "doesn't error": .resolve.plot.group() must
+    ## pick the submodel matching the ORIGINAL group value, not whichever
+    ## submodel happens to share that literal string.
+    expect_identical(sub.names[.resolve.plot.group("a_b", sub.names, fit$group.map)],
+                     "a_b_1")  # original group "a_b"
+    expect_identical(sub.names[.resolve.plot.group("a.b", sub.names, fit$group.map)],
+                     "a_b")    # original group "a.b"
+    expect_identical(sub.names[.resolve.plot.group(NULL, sub.names, fit$group.map)],
+                     "a_b")    # default: first submodel, i.e. original "a.b"
+
+    grDevices::pdf(nullfile())
+    on.exit(grDevices::dev.off(), add=TRUE)
+    expect_silent(plot(fit, group="a_b"))
+    expect_silent(plot(fit, group="a.b"))
+    ## plot(fit) with neither "group" nor "level" set defaults to
+    ## combine=TRUE (all panels), not the single-panel default resolution
+    ## exercised directly above via .resolve.plot.group(); combine=FALSE
+    ## is needed here to exercise that same default resolution through
+    ## plot.mxsem() itself rather than only the unit test above.
+    expect_silent(plot(fit))
+    expect_silent(plot(fit, combine=FALSE))
+})
+
+test_that("sem() supports LB intervals, run=FALSE, and bounds for multi-group fits", {
+    set.seed(12)
+    n <- 100
+    x <- rnorm(n); y <- 2*x + rnorm(n, sd=0.3)   # strong signal, true slope=2
+    df <- data.frame(y=y, x=x, g=rep(c("g1","g2"), n/2))
+    RAM <- lavaan2RAM("y ~ c(b,b)*x", ngroups=2)
+
+    ## Likelihood-based CI
+    fit.lb <- sem(RAM=RAM, data=df, group="g", intervals.type="LB")
+    s.lb <- summary(fit.lb)
+    expect_true(all(c("lbound","ubound") %in% colnames(s.lb$coefficients)))
+    expect_true(s.lb$coefficients["b","lbound"] < s.lb$coefficients["b","ubound"])
+
+    ## run=FALSE returns an unrun MxModel that can be run manually.
+    fit.norun <- sem(RAM=RAM, data=df, group="g", run=FALSE)
+    expect_s4_class(fit.norun$mx.fit, "MxModel")
+    fit.manual <- mxRun(fit.norun$mx.fit, silent=TRUE)
+    expect_identical(fit.manual@output$status[[1]], 0L)
+
+    ## ubound actually constrains the optimizer, not just accepted silently.
+    fit.bound <- sem(RAM=RAM, data=df, group="g", ubound=list(b=1))
+    expect_equal(unname(coef(fit.bound)["b"]), 1, tolerance=1e-4)
+
+    ## anova()/vcov() against a properly nested pair of fits.
+    RAM.null <- lavaan2RAM("y ~ 0*x", ngroups=2)
+    fit.null <- sem(RAM=RAM.null, data=df, group="g")
+    cmp <- anova(fit.bound, fit.null)
+    expect_equal(cmp$diffdf[2], 1)
+    expect_equal(dim(vcov(fit.bound)), rep(length(coef(fit.bound)), 2))
+
+    ## summary(robust=TRUE) is supported for multi-group (unlike two-level,
+    ## see below): OpenMx's imxRobustSE() only needs mxFitFunctionMultigroup,
+    ## which this path already uses.
+    expect_silent(summary(sem(RAM=RAM, data=df, group="g"), robust=TRUE))
+})
+
+context("Checking sem() with two-level (within/between) RAM objects")
+
+test_that("lavaan2RAM() parses two-level syntax into a within/between RAM", {
+    model <- "level: 1
+  fw =~ y1 + y2 + y3
+level: 2
+  fb =~ y1 + y2 + y3"
+    RAM <- lavaan2RAM(model)
+    expect_s3_class(RAM, "RAM_twolevel")
+    expect_true(all(c("within","between") %in% names(RAM)))
+    ## Within-level manifest means default to fixed at zero: the overall
+    ## intercept lives at the between level (see dev/PLAN..., section 4).
+    expect_true(all(RAM$within$M == "0"))
+    ## Between-level "shadow" variables (y1/y2/y3, which are also level-1
+    ## manifest variables) default to a free mean; the genuine level-2
+    ## latent factor (fb) does not.
+    expect_true(all(grepl("mean_between", RAM$between$M[1, c("y1","y2","y3")])))
+    expect_identical(unname(RAM$between$M[1, "fb"]), "0")
+    ## No manifest variables at the between level in this scope.
+    expect_equal(nrow(RAM$between$F), 0)
+})
+
+test_that("sem() fits a two-level random-intercept regression matching lavaan", {
+    set.seed(7)
+    nClusters <- 60; nPerCluster <- 6; N <- nClusters*nPerCluster
+    clusterID <- rep(seq_len(nClusters), each=nPerCluster)
+    u <- rep(rnorm(nClusters, 0, 0.7), each=nPerCluster)
+    x <- rnorm(N)
+    y <- 1.5 + 0.6*x + u + rnorm(N)
+    df <- data.frame(clusterID=clusterID, x=x, y=y)
+
+    model <- "level: 1
+  y ~ b1*x
+  y ~~ residW*y
+  x ~ meanX*1
+  x ~~ varX*x
+level: 2
+  y ~ 1
+  y ~~ residB*y"
+
+    RAM <- lavaan2RAM(model)
+    fit <- sem(RAM=RAM, data=df, cluster="clusterID")
+
+    fit.lav <- suppressWarnings(
+      lavaan::lavaan(model, data=df, cluster="clusterID", fixed.x=FALSE))
+    lav.m2ll <- -2*as.numeric(lavaan::fitMeasures(fit.lav, "logl"))
+
+    expect_equal(fit$mx.fit$output$fit, lav.m2ll, tolerance=1e-2)
+
+    cf <- coef(fit)
+    lav.cf <- coef(fit.lav)
+    expect_equal(unname(cf["b1"]), unname(lav.cf["b1"]), tolerance=1e-2)
+    expect_equal(unname(cf["residB"]), unname(lav.cf["residB"]), tolerance=1e-2)
+})
+
+test_that(".RAM2paths() keeps zero-prefixed definition-variable/@-tied cells", {
+    ## Regression test for a bug found and fixed while implementing the
+    ## two-level path: a fixed (free=FALSE) cell with a real label (a
+    ## definition variable like "0*data.mod", or an "@"-tied fixed
+    ## constant) but a numeric prefix of exactly 0 was being silently
+    ## dropped (treated as "no path") by an earlier skip condition that
+    ## only checked "!free && value==0", instead of "!free && value==0 &&
+    ## no label at all". Only reachable via a hand-built RAM or explicit
+    ## A.start=0/S.start=0 (lavaan2RAM()'s own defaults, A.start=0.1 and
+    ## S.start=0.5, are never exactly 0), but a real correctness gap.
+    A <- matrix(c("0", "0", "0*data.mod", "0"), nrow=2,
+               dimnames=list(c("y","x"), c("y","x")))
+    S <- matrix(c("0", "0", "0", "0"), nrow=2,
+               dimnames=list(c("y","x"), c("y","x")))
+    M <- matrix(c("0", "0"), nrow=1, dimnames=list(1, c("y","x")))
+
+    built <- .RAM2paths(A, S, M)
+    labels <- vapply(built$paths, function(p) {
+      lb <- p@labels
+      if (is.null(lb) || is.na(lb)) "" else lb
+    }, character(1))
+    expect_true("data.mod" %in% labels)
+})
+
+test_that("sem() fits two-level and multi-group models with definition variables", {
+    ## Two-level: within-level residual variance is a per-row KNOWN
+    ## definition variable (data.v), not estimated -- mirrors the package's
+    ## own single-group idiom (e.g. metaFIML's "yi ~~ data.vi*yi").
+    set.seed(11)
+    nClusters <- 50; nPerCluster <- 5; N <- nClusters*nPerCluster
+    clusterID <- rep(seq_len(nClusters), each=nPerCluster)
+    u <- rep(rnorm(nClusters, 0, 0.6), each=nPerCluster)
+    v <- runif(N, 0.3, 0.8)
+    x <- rnorm(N)
+    y <- 1 + 0.5*x + u + rnorm(N, sd=sqrt(v))
+    df <- data.frame(clusterID=clusterID, x=x, y=y, v=v)
+
+    model <- "level: 1
+  y ~ b1*x
+  y ~~ data.v*y
+level: 2
+  y ~ 1
+  y ~~ residB*y"
+    RAM <- lavaan2RAM(model)
+    expect_identical(unname(RAM$within$S["y","y"]), "0.5*data.v")
+
+    fit <- sem(RAM=RAM, data=df, cluster="clusterID")
+    expect_identical(fit$mx.fit@output$status[[1]], 0L)
+    ## The definition variable must not appear as an estimated parameter.
+    expect_false(any(grepl("^data\\.v$|WITHy_within", names(coef(fit)))))
+
+    ## Multi-group: same "data.v" convention, resolved against each
+    ## group's own data.
+    set.seed(12)
+    n <- 200
+    v2 <- runif(n, 0.3, 0.8)
+    x2 <- rnorm(n)
+    y2 <- 1 + 0.5*x2 + rnorm(n, sd=sqrt(v2))
+    g <- rep(c("g1","g2"), n/2)
+    df2 <- data.frame(y=y2, x=x2, v=v2, g=g)
+
+    model2 <- "y ~ c(b,b)*x
+              y ~~ data.v*y"
+    ## "data.v" resolves against each group's own data despite sharing one
+    ## textual label, so lavaanify's cross-group-equality warning here is a
+    ## false positive for this specific (definition-variable) case.
+    RAM2 <- suppressWarnings(lavaan2RAM(model2, ngroups=2))
+    fit2 <- sem(RAM=RAM2, data=df2, group="g")
+    expect_identical(fit2$mx.fit@output$status[[1]], 0L)
+    expect_false(any(grepl("^data\\.v$", names(coef(fit2)))))
+})
+
+test_that("sem() respects := constraints for two-level RAM, with correct SE/CI", {
+    set.seed(8)
+    nClusters <- 40; nPerCluster <- 5; N <- nClusters*nPerCluster
+    clusterID <- rep(seq_len(nClusters), each=nPerCluster)
+    u <- rep(rnorm(nClusters, 0, 0.5), each=nPerCluster)
+    x <- rnorm(N)
+    y <- 1 + 0.4*x + u + rnorm(N)
+    df <- data.frame(clusterID=clusterID, x=x, y=y)
+
+    ## fn1 (additive) and fn2 (product, nonlinear -- exercises mxSE()'s
+    ## delta-method Jacobian more rigorously) both combine a WITHIN-level
+    ## parameter (b1) with a parameter estimated at the SAME within-level
+    ## submodel (residW), i.e. genuinely correlated free parameters, not
+    ## independent ones.
+    model <- "level: 1
+  y ~ b1*x
+  y ~~ residW*y
+level: 2
+  y ~ 1
+  y ~~ residB*y
+fn1 := b1 + residW
+fn2 := b1 * residW"
+
+    RAM <- lavaan2RAM(model)
+    fit <- sem(RAM=RAM, data=df, cluster="clusterID")
+
+    cf <- coef(fit)
+    s <- summary(fit)
+    est1 <- s$mxalgebras["fn1", "estimate"]
+    expect_equal(unname(est1), unname(cf["b1"] + cf["residW"]), tolerance=1e-6)
+    est2 <- s$mxalgebras["fn2", "estimate"]
+    expect_equal(unname(est2), unname(cf["b1"] * cf["residW"]), tolerance=1e-6)
+
+    ## SE/CI for both, cross-checked against an INDEPENDENT (non-mxSE)
+    ## delta-method computation built from vcov() directly -- this is the
+    ## part most worth checking for a two-level fit specifically, since
+    ## the relational (primaryKey/joinKey) "between" submodel is a less
+    ## standard OpenMx configuration than a flat or multigroup model.
+    V <- vcov(fit)[c("b1","residW"), c("b1","residW")]
+    se1.manual <- sqrt(V["b1","b1"] + V["residW","residW"] + 2*V["b1","residW"])
+    se1.implied <- (s$mxalgebras["fn1","ubound"] - est1)/1.96
+    expect_equal(unname(se1.implied), unname(se1.manual), tolerance=1e-6)
+
+    b1 <- cf["b1"]; residW <- cf["residW"]
+    grad2 <- c(residW, b1)   # d(b1*residW)/d(b1,residW) = (residW, b1)
+    se2.manual <- sqrt(as.numeric(t(grad2) %*% V %*% grad2))
+    se2.implied <- (s$mxalgebras["fn2","ubound"] - est2)/1.96
+    expect_equal(unname(se2.implied), unname(se2.manual), tolerance=1e-6)
+
+    ## Likelihood-based (LB) CI for the same defined parameters.
+    fit.lb <- sem(RAM=RAM, data=df, cluster="clusterID", intervals.type="LB")
+    ci.lb <- summary(fit.lb)$mxalgebras
+    expect_true(all(ci.lb[, "lbound"] < ci.lb[, "estimate"]))
+    expect_true(all(ci.lb[, "estimate"] < ci.lb[, "ubound"]))
+    expect_equal(unname(ci.lb["fn1", "estimate"]), unname(est1), tolerance=1e-3)
+    expect_equal(unname(ci.lb["fn2", "estimate"]), unname(est2), tolerance=1e-3)
+
+    ## robust=TRUE is rejected outright for two-level fits (see
+    ## summary.mxsem()) -- := parameters are no exception, so there is no
+    ## separate "robust SE ignored" failure mode to worry about here, only
+    ## confirming the rejection still fires with a := present in the model.
+    expect_error(summary(fit, robust=TRUE), "two-level")
+})
+
+test_that("sem() errors clearly on unsupported two-level input", {
+    model <- "level: 1
+  y ~ x
+level: 2
+  y ~ 1"
+    RAM <- lavaan2RAM(model)
+
+    set.seed(9)
+    df <- data.frame(y=rnorm(20), x=rnorm(20), clusterID=rep(1:4, 5))
+
+    ## Missing 'cluster'
+    expect_error(sem(RAM=RAM, data=df))
+    ## 'cluster' not a column in data
+    expect_error(sem(RAM=RAM, data=df, cluster="nosuchcolumn"))
+    ## replace.constraints=TRUE not yet supported for two-level RAM
+    expect_error(sem(RAM=RAM, data=df, cluster="clusterID", replace.constraints=TRUE))
+    ## Cov/numObs-based input not yet supported for two-level RAM
+    expect_error(sem(RAM=RAM, Cov=diag(2), numObs=100))
+    ## Regression test: 'group' (a multi-group-only argument) used to be
+    ## silently ignored for a two-level RAM instead of rejected -- a caller
+    ## passing both 'cluster' and 'group' could be misled into thinking
+    ## both dimensions were being modeled, when only 'cluster' was.
+    expect_error(sem(RAM=RAM, data=df, cluster="clusterID", group="clusterID"),
+                "group")
+    ## ngroups > 1 has no effect on "level:" syntax and is rejected
+    expect_error(lavaan2RAM(model, ngroups=2))
+
+    ## Regression test: a missing cluster ID used to silently create a
+    ## spurious "phantom" between-level row (unique(data[[cluster]])
+    ## includes NA as if it were a real cluster), which rows with a missing
+    ## cluster ID then joined to -- confirmed empirically to change fitted
+    ## values, not just cosmetic. Now rejected explicitly.
+    df.na.cluster <- df
+    df.na.cluster$clusterID[1:2] <- NA
+    expect_error(sem(RAM=RAM, data=df.na.cluster, cluster="clusterID"))
+})
+
+test_that("lavaan2RAM() rejects genuine level-2-only observed covariates", {
+    ## Regression test for a HIGH-severity bug found on external review:
+    ## the documentation already said genuine level-2-only observed
+    ## covariates (e.g. "z" below, intended as a real cluster-level
+    ## covariate with its own data column, as opposed to a level-1
+    ## manifest variable's between-cluster component) are "not yet
+    ## supported" -- but nothing actually enforced that. "z" was silently
+    ## absorbed as an ordinary latent variable with no connection to any
+    ## real data column at all: no error, no warning, just a free
+    ## parameter estimated in a vacuum. Reproduced exactly as reported,
+    ## then fixed by rejecting it explicitly.
+    model <- "level: 1
+  y ~~ y
+level: 2
+  y ~ z
+  y ~~ y
+  z ~~ z"
+    expect_error(lavaan2RAM(model), "z")
+
+    ## A genuine level-2-only latent factor indicator (never appearing at
+    ## level 1 either) is the same underlying problem and is rejected too.
+    model.q <- "level: 1
+  y ~~ y
+level: 2
+  fb =~ y + q
+  y ~~ y"
+    expect_error(lavaan2RAM(model.q), "q")
+
+    ## Legitimate models (every level-2 variable is either a shadow of a
+    ## level-1 manifest, or a genuine latent factor) are unaffected.
+    expect_error(lavaan2RAM("level: 1
+  fw =~ y1+y2+y3
+level: 2
+  fb =~ y1+y2+y3"), NA)
+})
+
+test_that("vcov.mxsem(robust=TRUE) is guarded for two-level fits, matching summary()", {
+    ## Regression test: summary.mxsem()'s two-level robust=TRUE guard was
+    ## not mirrored in vcov.mxsem(), which called imxRobustSE() directly
+    ## and hit the same underlying OpenMx limitation with an unguarded,
+    ## cryptic error. An inconsistently-applied fix, found on external
+    ## review, not a design gap.
+    set.seed(17)
+    nClusters <- 30; nPerCluster <- 5; N <- nClusters*nPerCluster
+    clusterID <- rep(seq_len(nClusters), each=nPerCluster)
+    x <- rnorm(N)
+    y <- 0.5*x + rep(rnorm(nClusters,0,0.5), each=nPerCluster) + rnorm(N)
+    df <- data.frame(clusterID=clusterID, x=x, y=y)
+    RAM <- lavaan2RAM("level: 1\n y~b1*x\n y~~residW*y\nlevel: 2\n y~1\n y~~residB*y")
+    fit <- sem(RAM=RAM, data=df, cluster="clusterID")
+    expect_error(vcov(fit, robust=TRUE), "two-level")
+})
+
+test_that("sem() accepts character and numeric-double cluster ID columns", {
+    ## Regression test for a medium-severity bug found on a follow-up
+    ## external review: OpenMx's relational primaryKey/joinKey mechanism
+    ## requires the key column to be an integer or a factor.
+    ## .sem.twolevel() built between.data directly from data[[cluster]]
+    ## with no type check, so a character cluster ID (e.g. "school-1") or
+    ## a plain numeric/double one (as.numeric(1:10)) -- both very ordinary
+    ## ways to code a cluster ID -- hit OpenMx's "primary key must be an
+    ## integer or factor column" deep inside mxRun(). Confirmed on
+    ## reproduction that this is worse than just an error: because it's a
+    ## hard R error, sem()'s own mxRun-then-mxTryHard() fallback treats it
+    ## as "maybe just needs a better start" and burns through all 50
+    ## retries (several seconds) before finally re-raising it. Fixed by
+    ## coercing an unsupported cluster column to a factor up front.
+    set.seed(19)
+    nClusters <- 20; nPerCluster <- 5; N <- nClusters*nPerCluster
+    x <- rnorm(N)
+    u <- rep(rnorm(nClusters, 0, 0.5), each=nPerCluster)
+    y <- 0.5*x + u + rnorm(N)
+    RAM <- lavaan2RAM("level: 1\n y~b1*x\n y~~residW*y\nlevel: 2\n y~1\n y~~residB*y")
+
+    df.int <- data.frame(clusterID=rep(seq_len(nClusters), each=nPerCluster), x=x, y=y)
+    df.char <- data.frame(clusterID=paste0("school-", rep(seq_len(nClusters), each=nPerCluster)), x=x, y=y)
+    df.dbl <- data.frame(clusterID=as.numeric(rep(seq_len(nClusters), each=nPerCluster)), x=x, y=y)
+
+    fit.int <- sem(RAM=RAM, data=df.int, cluster="clusterID")
+    fit.char <- sem(RAM=RAM, data=df.char, cluster="clusterID")
+    fit.dbl <- sem(RAM=RAM, data=df.dbl, cluster="clusterID")
+
+    expect_identical(fit.int$mx.fit@output$status[[1]], 0L)
+    expect_identical(fit.char$mx.fit@output$status[[1]], 0L)
+    expect_identical(fit.dbl$mx.fit@output$status[[1]], 0L)
+    expect_equal(unname(coef(fit.char)["b1"]), unname(coef(fit.int)["b1"]), tolerance=1e-6)
+    expect_equal(unname(coef(fit.dbl)["b1"]), unname(coef(fit.int)["b1"]), tolerance=1e-6)
+})
+
+test_that("sem() supports LB intervals, run=FALSE, bounds, and missing data for two-level fits", {
+    set.seed(13)
+    nClusters <- 50; nPerCluster <- 6; N <- nClusters*nPerCluster
+    clusterID <- rep(seq_len(nClusters), each=nPerCluster)
+    u <- rep(rnorm(nClusters, 0, 0.6), each=nPerCluster)
+    x <- rnorm(N); y <- 2*x + u + rnorm(N, sd=0.3)   # strong signal, true b1=2
+
+    model <- "level: 1
+  y ~ b1*x
+  y ~~ residW*y
+  x ~ meanX*1
+  x ~~ varX*x
+level: 2
+  y ~ 1
+  y ~~ residB*y"
+    RAM <- lavaan2RAM(model)
+    df <- data.frame(clusterID=clusterID, x=x, y=y)
+
+    ## Likelihood-based CI
+    fit.lb <- sem(RAM=RAM, data=df, cluster="clusterID", intervals.type="LB")
+    s.lb <- summary(fit.lb)
+    expect_true(s.lb$coefficients["b1","lbound"] < s.lb$coefficients["b1","ubound"])
+
+    ## run=FALSE returns an unrun MxModel that can be run manually.
+    fit.norun <- sem(RAM=RAM, data=df, cluster="clusterID", run=FALSE)
+    expect_s4_class(fit.norun$mx.fit, "MxModel")
+    fit.manual <- mxRun(fit.norun$mx.fit, silent=TRUE)
+    expect_identical(fit.manual@output$status[[1]], 0L)
+
+    ## ubound actually constrains the optimizer, not just accepted silently.
+    fit.bound <- sem(RAM=RAM, data=df, cluster="clusterID", ubound=list(b1=1))
+    expect_equal(unname(coef(fit.bound)["b1"]), 1, tolerance=1e-4)
+
+    ## anova()/vcov() against a properly nested pair of fits (fixing the
+    ## same free path at 0, not removing the variable from the model).
+    model.null <- "level: 1
+  y ~ 0*x
+  y ~~ residW*y
+  x ~ meanX*1
+  x ~~ varX*x
+level: 2
+  y ~ 1
+  y ~~ residB*y"
+    fit.null <- sem(RAM=lavaan2RAM(model.null), data=df, cluster="clusterID")
+    cmp <- anova(fit.bound, fit.null)
+    expect_equal(cmp$diffdf[2], 1)
+    expect_equal(dim(vcov(fit.bound)), rep(length(coef(fit.bound)), 2))
+
+    ## robust=TRUE is rejected with a clear, two-level-specific message
+    ## (OpenMx's imxRobustSE() cannot compute row-wise gradients through the
+    ## relational "between" submodel -- see summary.mxsem()'s comment).
+    expect_error(summary(fit.lb, robust=TRUE), "two-level")
+
+    ## Missing individual-level data (FIML) does not error.
+    df.na <- df
+    df.na$y[sample(N, 20)] <- NA
+    expect_error(sem(RAM=RAM, data=df.na, cluster="clusterID"), NA)
+})
+
+test_that("sem() fits a two-level structural model and handles partial level-2 declarations", {
+    ## A regression between two GENUINE between-level latent factors (not
+    ## just a random-intercept/CFA shadow structure). 3 indicators per
+    ## factor (not 2): a 2-indicator between-level factor is only
+    ## just-identified and, empirically, needs a much better-than-default
+    ## starting point to converge on the first optimizer attempt (confirmed
+    ## via mxTryHard(), which reaches the identical optimum regardless) --
+    ## not a translation bug, just a harder optimization landscape than
+    ## this test needs to exercise.
+    set.seed(14)
+    nClusters <- 60; nPerCluster <- 8; N <- nClusters*nPerCluster
+    clusterID <- rep(seq_len(nClusters), each=nPerCluster)
+    fb1.cl <- rnorm(nClusters, 0, 1)
+    fb2.cl <- 0.6*fb1.cl + rnorm(nClusters, 0, 0.8)   # fb2 regressed on fb1
+    fb1 <- rep(fb1.cl, each=nPerCluster); fb2 <- rep(fb2.cl, each=nPerCluster)
+    fw1 <- rnorm(N, 0, 1); fw2 <- rnorm(N, 0, 1)
+    y1 <- fb1+fw1+rnorm(N,0,.4); y2 <- fb1+fw1+rnorm(N,0,.4); y3 <- fb1+fw1+rnorm(N,0,.4)
+    y4 <- fb2+fw2+rnorm(N,0,.4); y5 <- fb2+fw2+rnorm(N,0,.4); y6 <- fb2+fw2+rnorm(N,0,.4)
+    df <- data.frame(clusterID=clusterID, y1=y1, y2=y2, y3=y3, y4=y4, y5=y5, y6=y6)
+
+    model <- "level: 1
+  fw1 =~ y1 + y2 + y3
+  fw2 =~ y4 + y5 + y6
+level: 2
+  fb1 =~ y1 + y2 + y3
+  fb2 =~ y4 + y5 + y6
+  fb2 ~ fb1"
+    RAM <- lavaan2RAM(model)
+    fit <- sem(RAM=RAM, data=df, cluster="clusterID")
+    expect_identical(fit$mx.fit@output$status[[1]], 0L)
+    expect_equal(unname(coef(fit)["fb2ONfb1_between"]), 0.6, tolerance=0.3)
+
+    ## Partial level-2 declaration: a level-1 manifest variable never
+    ## mentioned in the "level: 2:" block gets no between-level shadow at
+    ## all (matching lavaan's own semantics -- confirmed directly against
+    ## lavaanify()'s output while investigating this), i.e. it is treated
+    ## as purely within-level with no cluster random effect.
+    model.partial <- "level: 1
+  fw =~ y1 + y2 + y3
+level: 2
+  fb =~ y1 + y2"
+    RAM.partial <- lavaan2RAM(model.partial)
+    expect_false("y3" %in% colnames(RAM.partial$between$A))
+    expect_true(all(c("y1","y2") %in% colnames(RAM.partial$between$A)))
+})
+
+test_that("plot.mxsem() supports multiple-group and two-level fits", {
+    skip_if_not_installed("semPlot")
+
+    ## Draw to a null device so this test has no filesystem side effect
+    ## (no active device otherwise makes R auto-create ./Rplots.pdf).
+    grDevices::pdf(nullfile())
+    on.exit(grDevices::dev.off(), add=TRUE)
+
+    ## Multiple-group: one diagram per group, picked via "group"
+    set.seed(1)
+    n1 <- 60; n2 <- 60
+    x1 <- rnorm(n1); y1 <- 2 + 0.5*x1 + rnorm(n1)
+    x2 <- rnorm(n2); y2 <- -1 + 0.5*x2 + rnorm(n2)
+    dfmg <- rbind(data.frame(y=y1, x=x1, g="g1"), data.frame(y=y2, x=x2, g="g2"))
+    RAMmg <- lavaan2RAM("y ~ c(b,b)*x + c(a1,a2)*1", ngroups=2)
+    fitmg <- sem(RAM=RAMmg, data=dfmg, group="g")
+
+    expect_silent(plot(fitmg, group="g1"))
+    expect_silent(plot(fitmg, group="g2"))
+    ## group set -> combine defaults to FALSE, single diagram
+    expect_silent(plot(fitmg, group="g1", combine=FALSE))
+    expect_error(plot(fitmg, group="nosuchgroup"))
+
+    ## Two-level: one diagram per level, picked via "level". The CFA case
+    ## exercises both a "shadow" variable (y1/y2/y3, also within-level
+    ## manifests) and a genuine level-2-only latent factor (fb) at the
+    ## between level -- semPlot::ramModel() errors on an all-latent model
+    ## (no manifest variables), which the between level always is in this
+    ## package's scope, so shadow variables are drawn as manifest for that
+    ## plot specifically (see plot.mxsem()'s comments).
+    set.seed(123)
+    nClusters <- 40; nPerCluster <- 5
+    clusterID <- rep(seq_len(nClusters), each=nPerCluster)
+    fb <- rep(rnorm(nClusters, 0, 1), each=nPerCluster)
+    fw <- rnorm(nClusters*nPerCluster, 0, 1)
+    y1 <- fb + fw + rnorm(nClusters*nPerCluster, 0, 0.5)
+    y2 <- 0.8*fb + 0.8*fw + rnorm(nClusters*nPerCluster, 0, 0.5)
+    y3 <- 1.2*fb + 1.2*fw + rnorm(nClusters*nPerCluster, 0, 0.5)
+    dftl <- data.frame(clusterID=clusterID, y1=y1, y2=y2, y3=y3)
+    RAMtl <- lavaan2RAM("level: 1
+  fw =~ y1 + y2 + y3
+level: 2
+  fb =~ y1 + y2 + y3")
+    fittl <- sem(RAM=RAMtl, data=dftl, cluster="clusterID")
+
+    expect_silent(plot(fittl, level="within"))
+    expect_silent(plot(fittl, level="between"))
+    ## level set -> combine defaults to FALSE, single diagram (level defaults
+    ## to "within" whenever it is itself left NULL)
+    expect_silent(plot(fittl, level="within", combine=FALSE))
+    expect_error(plot(fittl, level="nosuchlevel"))
+
+    ## Single-group/single-level plotting is unaffected by the new
+    ## "group"/"level" arguments.
+    RAMsg <- lavaan2RAM("y ~ x\ny ~ 1\nx ~ 1", obs.variables=c("y","x"))
+    n <- 80; xx <- rnorm(n); yy <- 0.5*xx + rnorm(n)
+    fitsg <- sem(RAM=RAMsg, data=data.frame(y=yy, x=xx))
+    expect_silent(plot(fitsg))
+
+    ## combine=TRUE: all groups (or both levels) as panels of one figure.
+    ## plot.mxsem() restores par(mfrow=) via on.exit() once it returns, so
+    ## only that its own two-panel layout doesn't error is checked here (not
+    ## the transient mfrow value, which isn't observable after the call).
+    op <- graphics::par(no.readonly=TRUE)
+    expect_silent(plot(fitmg, combine=TRUE))
+    expect_identical(graphics::par("mfrow"), op$mfrow)    # restored afterwards
+    expect_silent(plot(fittl, combine=TRUE))
+    expect_identical(graphics::par("mfrow"), op$mfrow)    # restored afterwards
+
+    ## combine's default is missing(group) && missing(level): plot(fit) with
+    ## neither set behaves exactly like the explicit combine=TRUE call above
+    ## (all panels), while supplying either argument switches the default to
+    ## FALSE (a single diagram) without needing combine=FALSE as well --
+    ## already exercised by "group set"/"level set" cases above, so only the
+    ## no-argument case needs checking here.
+    expect_silent(plot(fitmg))
+    expect_identical(graphics::par("mfrow"), op$mfrow)
+    expect_silent(plot(fittl))
+    expect_identical(graphics::par("mfrow"), op$mfrow)
+
+    ## Explicit combine=TRUE still overrides a supplied group/level.
+    expect_silent(plot(fitmg, group="g1", combine=TRUE))
+    expect_identical(graphics::par("mfrow"), op$mfrow)
+})
+
 context("Checking metaFIML functions")
 
 test_that("metaFIML() works correctly", {
@@ -574,9 +1654,23 @@ test_that("metaFIML() works correctly", {
     ## Univariate meta-analysis without AV
     fit1a <- metaFIML(y=r, v=r_v, x=JP_alpha, data=Jaramillo05)
 
+    ## r/JP_alpha are single-indicator markers for the latent fy/fx (loading
+    ## fixed at 1), with the actual free mean modelled entirely through
+    ## fy/fx's own "~1" below -- so r's and JP_alpha's OWN observed
+    ## intercepts must be explicitly fixed at 0 (matching metaFIML()'s own
+    ## internal Mmatrix, which hard-fixes them: R/metaFIML.R's "Mx" is a
+    ## literal matrix(0, ...), never a free parameter). Previously this
+    ## fixing happened implicitly (lavaan2RAM() silently let lavaanify's
+    ## own auto-generated, still-fixed "~1" row stand in for it), but that
+    ## was itself a bug (see lavaan2RAM()'s R/lavaan2RAM.R comments) fixed
+    ## to make observed variables free-by-default like lavaan::sem()
+    ## itself -- so what used to happen by accident must now be requested
+    ## explicitly here, exactly like metaFIML() itself requests it.
     m1 <- "fy =~ 1*r
+           r ~ 0*1
            r ~~ data.r_v*r
            fx =~ 1*JP_alpha
+           JP_alpha ~ 0*1
            JP_alpha ~~ 0*JP_alpha
            fy ~ Slope1_1*fx
            fy ~~ Tau2_1_1*fy
@@ -601,9 +1695,14 @@ test_that("metaFIML() works correctly", {
     ## Univariate meta-analysis with AV
     fit2a <- metaFIML(y=r, v=r_v, x=JP_alpha, av=IDV, data=Jaramillo05)
 
+    ## Same reasoning as m1 above: r/JP_alpha/IDV are single-indicator
+    ## markers, so their own observed intercepts must be explicitly fixed
+    ## at 0 to match metaFIML()'s own internal Mmatrix.
     m2 <- "fy =~ 1*r
+           r ~ 0*1
            r ~~ data.r_v*r
            fx =~ 1*JP_alpha
+           JP_alpha ~ 0*1
            JP_alpha ~~ 0*JP_alpha
            fy ~ Slope1_1*fx
            fy ~~ Tau2_1_1*fy
@@ -612,6 +1711,7 @@ test_that("metaFIML() works correctly", {
            fy ~ Intercept1*1
 
            fz =~ 1*IDV
+           IDV ~ 0*1
            IDV ~~ 0*IDV
            fz ~ MeanX2*1
            fz ~~ CovX2_X2*fz + start(818)*fz
@@ -640,13 +1740,19 @@ test_that("metaFIML() works correctly", {
                       v=cbind(lifesat_var, inter_cov, lifecon_var),
                       x=gnp, data=wvs94a)
 
+    ## Same reasoning as m1/m2 above: lifesat/lifecon/gnp are
+    ## single-indicator markers, so their own observed intercepts must be
+    ## explicitly fixed at 0 to match metaFIML()'s own internal Mmatrix.
     m3 <- "fy1 =~ 1*lifesat
+           lifesat ~ 0*1
            lifesat ~~ data.lifesat_var*lifesat
            fy2 =~ 1*lifecon
+           lifecon ~ 0*1
            lifecon ~~ data.lifecon_var*lifecon
            lifesat ~~ data.inter_cov*lifecon
 
            fx =~ 1*gnp
+           gnp ~ 0*1
            gnp ~~ 0*gnp
            fy1 ~ Slope1_1*fx
            fy2 ~ Slope2_1*fx
@@ -775,4 +1881,164 @@ test_that("meta() observed statistics is correct", {
 
     fit <- summary(meta(r, r_v, data=Jaramillo05))
     expect_equal(fit$obsStat, 61)
+})
+
+context("Checking sem() two-level results against meta3L()")
+
+## meta3L()'s three-level random-effects model
+##   y_ij = b0 + b1*x_ij + u_(2)ij + u_(3)j + e_ij,  u_(2)~N(0,Tau2_2), u_(3)~N(0,Tau2_3)
+## is the same model as a two-level sem() fit with x/y as level-1 (within)
+## manifests and the known sampling variance "v" fixed via a definition
+## variable, i.e. Tau2_2 = the level-1 latent's own variance ("tauW" below)
+## and Tau2_3 = the level-2 (between) residual variance of y ("tauB" below).
+## meta3L() itself works in wide format (one row per cluster, columns
+## y_1..y_k) via a single mxExpectationNormal(); sem()'s two-level path
+## works in long format (one row per effect size) via OpenMx's relational
+## SEM (primaryKey/joinKey) -- two different OpenMx mechanisms computing,
+## in principle, the same joint likelihood, so this is a genuine
+## cross-implementation check, not just a restatement of one in the other.
+test_that("sem() two-level matches meta3L() for intercept-only models", {
+    m1 <- meta3L(y=logOR, v=v, cluster=Cluster, data=Bornmann07)
+    model <- "level: 1
+                fw =~ 1*logOR
+                fw ~~ tauW*fw
+                logOR ~~ data.v*logOR
+              level: 2
+                logOR ~ b0*1
+                logOR ~~ tauB*logOR"
+    s1 <- sem(RAM=lavaan2RAM(model, std.lv=FALSE), data=Bornmann07, cluster="Cluster")
+
+    co3 <- summary(m1)$coefficients
+    cosem <- summary(s1)$coefficients
+    expect_equal(unname(co3["Intercept", "Estimate"]), unname(cosem["b0", "Estimate"]), tolerance=1e-6)
+    expect_equal(unname(co3["Intercept", "Std.Error"]), unname(cosem["b0", "Std.Error"]), tolerance=1e-6)
+    expect_equal(unname(co3["Tau2_2", "Estimate"]), unname(cosem["tauW", "Estimate"]), tolerance=1e-6)
+    expect_equal(unname(co3["Tau2_3", "Estimate"]), unname(cosem["tauB", "Estimate"]), tolerance=1e-6)
+    expect_equal(m1$mx.fit@output$Minus2LogLikelihood,
+                 s1$mx.fit@output$Minus2LogLikelihood, tolerance=1e-6)
+
+    m4 <- meta3L(y=y, v=v, cluster=District, data=Cooper03)
+    model <- "level: 1
+                fw =~ 1*y
+                fw ~~ tauW*fw
+                y ~~ data.v*y
+              level: 2
+                y ~ b0*1
+                y ~~ tauB*y"
+    s4 <- sem(RAM=lavaan2RAM(model, std.lv=FALSE), data=Cooper03, cluster="District")
+
+    co3 <- summary(m4)$coefficients
+    cosem <- summary(s4)$coefficients
+    expect_equal(unname(co3["Intercept", "Estimate"]), unname(cosem["b0", "Estimate"]), tolerance=1e-6)
+    expect_equal(unname(co3["Tau2_2", "Estimate"]), unname(cosem["tauW", "Estimate"]), tolerance=1e-6)
+    expect_equal(unname(co3["Tau2_3", "Estimate"]), unname(cosem["tauB", "Estimate"]), tolerance=1e-6)
+    expect_equal(m4$mx.fit@output$Minus2LogLikelihood,
+                 s4$mx.fit@output$Minus2LogLikelihood, tolerance=1e-6)
+})
+
+test_that("sem() two-level matches meta3L() for a predictor, up to an analytic -2LL offset", {
+    ## sem()'s within-level fixes an exogenous covariate's own mean at 0 by
+    ## default (see .lavaan2RAM.twolevel()), so it jointly models the
+    ## covariate's own distribution -- specifically its uncentered second
+    ## moment mean(x^2), since the mean is fixed at 0 rather than free --
+    ## as part of the likelihood. meta3L() never does this: it conditions
+    ## on x rather than modelling its distribution at all. The regression
+    ## and heterogeneity parameters themselves are unaffected (their
+    ## information block is independent of x's own free-variance
+    ## parameter), but -2LL differs by exactly N*(log(2*pi*mean(x^2))+1),
+    ## the -2LL of a scalar normal MLE with its mean fixed at 0. This is
+    ## NOT specific to an uncentered predictor -- mean-centering x first
+    ## (as here, via scale(..., scale=FALSE)) does not make the offset
+    ## vanish, it only means mean(x^2) and the ordinary sample variance
+    ## coincide (since mean(x)=0 either way); the offset itself is still
+    ## large and must still be subtracted, exactly as for the deliberately
+    ## uncentered predictor in the next test.
+    Cooper03$YearC <- scale(Cooper03$Year, scale=FALSE)[, 1]
+    m5 <- meta3L(y=y, v=v, cluster=District, x=YearC, data=Cooper03)
+    model <- "level: 1
+                fw =~ 1*y
+                fw ~~ tauW*fw
+                y ~~ data.v*y
+                y ~ b1*YearC
+              level: 2
+                y ~ b0*1
+                y ~~ tauB*y"
+    s5 <- sem(RAM=lavaan2RAM(model, std.lv=FALSE), data=Cooper03, cluster="District")
+
+    co3 <- summary(m5)$coefficients
+    cosem <- summary(s5)$coefficients
+    expect_equal(unname(co3["Intercept", "Estimate"]), unname(cosem["b0", "Estimate"]), tolerance=1e-6)
+    expect_equal(unname(co3["Slope_1", "Estimate"]), unname(cosem["b1", "Estimate"]), tolerance=1e-6)
+    expect_equal(unname(co3["Slope_1", "Std.Error"]), unname(cosem["b1", "Std.Error"]), tolerance=1e-6)
+    expect_equal(unname(co3["Tau2_2", "Estimate"]), unname(cosem["tauW", "Estimate"]), tolerance=1e-6)
+    expect_equal(unname(co3["Tau2_3", "Estimate"]), unname(cosem["tauB", "Estimate"]), tolerance=1e-6)
+
+    offset <- nrow(Cooper03) * (log(2*pi*mean(Cooper03$YearC^2)) + 1)
+    expect_equal(m5$mx.fit@output$Minus2LogLikelihood,
+                 s5$mx.fit@output$Minus2LogLikelihood - offset, tolerance=1e-6)
+})
+
+test_that("sem() two-level matches meta3L() for an uncentered predictor, up to an analytic -2LL offset", {
+    ## Same offset as above (N*(log(2*pi*mean(x^2))+1)), but now with a
+    ## genuinely uncentered 0/1 predictor, where mean(x^2) and the ordinary
+    ## sample variance p*(1-p) actually differ -- confirming the offset
+    ## formula must use the UNCENTERED second moment (matching the
+    ## within-level mean fixed at 0), not the sample variance about x's own
+    ## mean, regardless of whether x happens to be centered.
+    Bornmann07$TypeNum <- as.numeric(Bornmann07$Type) - 1
+    m2 <- meta3L(y=logOR, v=v, x=TypeNum, cluster=Cluster, data=Bornmann07)
+    model <- "level: 1
+                fw =~ 1*logOR
+                fw ~~ tauW*fw
+                logOR ~~ data.v*logOR
+                logOR ~ b1*TypeNum
+              level: 2
+                logOR ~ b0*1
+                logOR ~~ tauB*logOR"
+    s2 <- sem(RAM=lavaan2RAM(model, std.lv=FALSE), data=Bornmann07, cluster="Cluster")
+
+    co3 <- summary(m2)$coefficients
+    cosem <- summary(s2)$coefficients
+    expect_equal(unname(co3["Intercept", "Estimate"]), unname(cosem["b0", "Estimate"]), tolerance=1e-6)
+    expect_equal(unname(co3["Slope_1", "Estimate"]), unname(cosem["b1", "Estimate"]), tolerance=1e-6)
+    expect_equal(unname(co3["Slope_1", "Std.Error"]), unname(cosem["b1", "Std.Error"]), tolerance=1e-6)
+    expect_equal(unname(co3["Tau2_2", "Estimate"]), unname(cosem["tauW", "Estimate"]), tolerance=1e-6)
+    expect_equal(unname(co3["Tau2_3", "Estimate"]), unname(cosem["tauB", "Estimate"]), tolerance=1e-6)
+
+    offset <- nrow(Bornmann07) * (log(2*pi*mean(Bornmann07$TypeNum^2)) + 1)
+    expect_equal(m2$mx.fit@output$Minus2LogLikelihood,
+                 s2$mx.fit@output$Minus2LogLikelihood - offset, tolerance=1e-6)
+})
+
+test_that("sem() two-level matches meta3L() when a label is shared across levels", {
+    ## meta3L()'s RE2.constraints/RE3.constraints="0.2*EqTau2" uses
+    ## metaSEM's own as.mxMatrix() "start*label" convention -- the "0.2*"
+    ## start-value prefix is NOT valid lavaan syntax and must be dropped
+    ## when translating to lavaan2RAM() (an earlier attempt at
+    ## "0.2*EqTau2*fw" silently parsed as a FIXED value of 0.2 with no
+    ## label at all, rather than erroring, so this is worth a regression
+    ## test in its own right). The same label "EqTau2" used in both the
+    ## level-1 and level-2 blocks equates the two variance components
+    ## across the within/between submodels, exactly like meta3L()'s shared
+    ## label equates Tau2_2 and Tau2_3.
+    m6 <- meta3L(y=y, v=v, cluster=District, data=Cooper03,
+                RE2.constraints="0.2*EqTau2", RE3.constraints="0.2*EqTau2")
+    model <- "level: 1
+                fw =~ 1*y
+                fw ~~ EqTau2*fw
+                y ~~ data.v*y
+              level: 2
+                y ~ b0*1
+                y ~~ EqTau2*y"
+    s6 <- sem(RAM=lavaan2RAM(model, std.lv=FALSE), data=Cooper03, cluster="District")
+
+    expect_equal(length(coef(s6)), 2L)   # b0 and EqTau2, properly equated across levels
+
+    co3 <- summary(m6)$coefficients
+    cosem <- summary(s6)$coefficients
+    expect_equal(unname(co3["Intercept", "Estimate"]), unname(cosem["b0", "Estimate"]), tolerance=1e-6)
+    expect_equal(unname(co3["EqTau2", "Estimate"]), unname(cosem["EqTau2", "Estimate"]), tolerance=1e-6)
+    expect_equal(unname(co3["EqTau2", "Std.Error"]), unname(cosem["EqTau2", "Std.Error"]), tolerance=1e-6)
+    expect_equal(m6$mx.fit@output$Minus2LogLikelihood,
+                 s6$mx.fit@output$Minus2LogLikelihood, tolerance=1e-6)
 })

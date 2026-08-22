@@ -1,3 +1,7 @@
+Release 1.6.0 (Aug 22, 2026)
+====================================
+* Extend lavaan2RAM() and sem() to fit multiple-group and two-level models specified with lavaan syntax.
+
 Release 1.5.6 (Jul 18, 2026)
 ====================================
 * Rewrite homoStat to improve speed and RAM use.

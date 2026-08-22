@@ -110,8 +110,13 @@ as.mxMatrix <- function(x, name, ...) {
         labels <- matrix(NA, ncol=nCol, nrow=nRow)
         labels[free] <- sapply(freePara2, function(x){ x[2]})
     
-        ## Replace TRUE by FALSE in free when there are definition variables or [,]
-        free[grep("data.", labels)] <- FALSE
+        ## Replace TRUE by FALSE in free when there are definition variables
+        ## or [,]. "." in grep()'s regex means "any character" -- a
+        ## literal-looking label such as "database" (data + b + ase) also
+        ## matches "data.", misclassifying an ordinary free parameter as a
+        ## definition variable and silently fixing it. Match only the
+        ## literal "data." prefix instead.
+        free[!is.na(labels) & startsWith(labels, "data.")] <- FALSE
         free[grep("\\[|,|\\]", labels)] <- FALSE
 
         ## Check any "@"

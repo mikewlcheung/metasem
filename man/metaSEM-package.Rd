@@ -13,7 +13,7 @@ equation modeling on the correlation and covariance matrices.
 }
 \details{
 \tabular{ll}{ Package: \tab metaSEM\cr Type: \tab Package\cr Version: \tab
-1.5.6\cr Date: \tab 2026-07-18\cr License: \tab GPL (>=2)\cr LazyLoad: \tab
+1.6.0\cr Date: \tab 2026-08-22\cr License: \tab GPL (>=2)\cr LazyLoad: \tab
 yes\cr }
 }
 \references{

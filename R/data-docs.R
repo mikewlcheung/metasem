@@ -2610,6 +2610,54 @@ NULL
 #' @param sizeLat Argument passed to \code{\link[semPlot]{semPaths}}
 #' @param edge.label.cex Argument passed to \code{\link[semPlot]{semPaths}}
 #' @param weighted Argument passed to \code{\link[semPlot]{semPaths}}
+#' @param group For \code{plot.mxsem} on a multiple-group \code{sem} fit
+#' (see \code{\link[metaSEM]{sem}}): which group to plot. The original data
+#' value (e.g. \code{"site-2"}, before any sanitizing into a legal
+#' \code{\link[OpenMx]{mxModel}} name) always takes precedence over the
+#' possibly-sanitized submodel name, via \code{fit$group.map}; the
+#' sanitized submodel name itself (\code{names(fit$mx.fit@submodels)}) only
+#' resolves to the matching group when it does not also collide with a
+#' \emph{different} group's original value (e.g. original groups
+#' \code{"a.b"} and \code{"a_b"} both sanitize/map to a submodel named
+#' \code{"a_b"} or derived from it -- passing \code{"a_b"} always means the
+#' group whose real data value is \code{"a_b"}, never the submodel merely
+#' named that). When originals and submodel names coincide (the common
+#' case, e.g. \code{"g1"}), either happens to work, but the original value
+#' is the one to reach for. Defaults to the first group. Ignored otherwise.
+#' @param level For \code{plot.mxsem} on a two-level \code{sem} fit (see
+#' \code{\link[metaSEM]{sem}}): either \code{"within"} (default) or
+#' \code{"between"}, selecting which level to plot. Ignored otherwise
+#' (including when \code{combine=TRUE}). \code{semPlot} has no notion of
+#' the two levels' relational (\code{joinKey}) linkage, so only one level's
+#' diagram is shown at a time even when combined (below) into one figure.
+#' @param combine For \code{plot.mxsem} on a multiple-group or two-level
+#' \code{sem} fit: if \code{TRUE}, plot every group (or both the
+#' \code{within} and \code{between} levels) as side-by-side panels of one
+#' figure, overriding \code{group}/\code{level}. Defaults to \code{TRUE}
+#' when neither \code{group} nor \code{level} is supplied, and to
+#' \code{FALSE} (one diagram, as selected by \code{group}/\code{level}) as
+#' soon as either of them is -- so \code{plot(fit)} shows every panel by
+#' default, but \code{plot(fit, group="g2")} or \code{plot(fit,
+#' level="between")} still shows just the one diagram requested without
+#' needing \code{combine=FALSE} as well. Passing \code{combine=TRUE}
+#' explicitly still shows every panel regardless of \code{group}/\code{level}.
+#' Ignored otherwise.
+#' @param main.line For \code{plot.mxsem} on a multiple-group or two-level
+#' \code{sem} fit: the \code{line} argument passed to
+#' \code{\link[graphics]{title}} for each panel's \code{"within"}/
+#' \code{"between"} or group-name title. Defaults to \code{2.5} (pushed up
+#' and out of the way of a variance-edge label that \code{semPaths} often
+#' draws close to the top margin). Ignored otherwise.
+#' @param main.adj For \code{plot.mxsem} on a multiple-group or two-level
+#' \code{sem} fit: the \code{adj} argument passed to
+#' \code{\link[graphics]{title}} for each panel's title, controlling its
+#' horizontal position (\code{0} = left-aligned, \code{0.5} = centered,
+#' \code{1} = right-aligned). Defaults to \code{NULL}, i.e. \code{title}'s
+#' own default (centered). Since the title is drawn over the diagram rather
+#' than reserving its own space, it can still land on top of an edge label
+#' that happens to sit centered near the top of that particular model's
+#' diagram; nudge it clear with e.g. \code{main.adj=0.8} (or \code{1} for
+#' fully right-aligned) if so. Ignored otherwise.
 #' @param \dots Further arguments passed to the methods.
 #' @note The estimated effect sizes and random effects are based on the labels
 #' Intercept1, Intercept2, ... and Tau2_1_1, Tau2_2_1, Tau2_2_2, etc. At least

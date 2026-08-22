@@ -20,6 +20,8 @@ sem(
   mxModel.Args = NULL,
   run = TRUE,
   silent = TRUE,
+  group = NULL,
+  cluster = NULL,
   ...
 )
 }
@@ -65,6 +67,41 @@ running the analysis.}
 
 \item{silent}{Logical. An argument is passed to either
 \code{\link[OpenMx]{mxRun}} or \code{\link[OpenMx]{mxTryHard}}}
+
+\item{group}{A character string naming the column in \code{data}
+identifying group membership. Required (and only used) when \code{RAM} is
+a multiple-group RAM object, i.e., created by \code{\link[metaSEM]{lavaan2RAM}}
+with \code{ngroups > 1}. \code{data} must be a single data frame in this
+case; it is split internally by the unique values of \code{data[[group]]}
+in \emph{first-appearance order in the data} (not sorted, and not a
+factor's own \code{levels()} order, even for a factor column -- this
+matches how \code{lavaan} itself numbers groups), which must correspond,
+in order, to the groups used when the model was specified (e.g.,
+\code{lavaan}'s \code{c(...)} syntax numbers groups the same way). A
+group value that is not itself a legal \code{\link[OpenMx]{mxModel}} name
+(e.g. purely numeric, or containing a character such as \code{.} or
+\code{-}) is sanitized into one internally; the resulting submodel names
+are available via \code{names(fit$mx.fit@submodels)}, and a mapping back
+to the original data values via \code{fit$group.map}, so
+\code{\link{plot.mxsem}}'s own \code{group} argument can still be called
+with the original, unsanitized group value. An unused factor level in
+\code{data[[group]]} (one that never actually occurs in the data) is
+simply never treated as a group in the first place (this is what
+first-appearance order, above, naturally does); if that leaves fewer
+groups than \code{RAM} expects, it is reported as a group-count
+mismatch. \code{Cov}/\code{numObs}
+-based input and \code{replace.constraints=TRUE} are not yet supported
+for multiple-group models.}
+
+\item{cluster}{A character string naming the column in \code{data}
+identifying level-2 (cluster) membership. Required (and only used) when
+\code{RAM} is a two-level RAM object, i.e., created by
+\code{\link[metaSEM]{lavaan2RAM}} from \code{lavaan}'s two-level
+(\code{level: 1} / \code{level: 2}) syntax. \code{data} must be a single
+data frame of individual-level (level-1) rows in this case.
+\code{Cov}/\code{numObs}-based input and \code{replace.constraints=TRUE}
+are not yet supported for two-level models, and neither is combining
+two-level and multiple-group models in the same call.}
 
 \item{\dots}{Further arguments will be passed to either
 \code{\link[OpenMx]{mxRun}} or \code{\link[OpenMx]{mxTryHard}}}
@@ -113,8 +150,135 @@ plot(model)
 ## Do not standardize the latent variable (f): std.lv=FALSE 
 RAM <- lavaan2RAM(model, obs.variables="yi", std.lv=FALSE)
 
-## Use likelihood-based CI 
+## Use likelihood-based CI
 my.fit <- sem(RAM=RAM, data=Hox02, intervals="LB")
+summary(my.fit)
+
+## A 2-group regression with a shared slope but group-specific intercepts
+x1 <- rnorm(100); y1 <- 2 + 0.5*x1 + rnorm(100)
+x2 <- rnorm(100); y2 <- -1 + 0.5*x2 + rnorm(100)
+my.df2 <- data.frame(y=c(y1, y2), x=c(x1, x2),
+                     g=rep(c("g1", "g2"), each=100))
+
+model <- "y ~ c(b,b)*x + c(a1,a2)*1"
+RAM <- lavaan2RAM(model, ngroups=2)
+my.fit <- sem(RAM=RAM, data=my.df2, group="g")
+summary(my.fit)
+
+## A two-level (random-intercept) regression model
+set.seed(123)
+nClusters <- 60; nPerCluster <- 6
+clusterID <- rep(seq_len(nClusters), each=nPerCluster)
+u <- rep(rnorm(nClusters, 0, 0.7), each=nPerCluster)
+x <- rnorm(nClusters*nPerCluster)
+y <- 1.5 + 0.6*x + u + rnorm(nClusters*nPerCluster)
+my.df3 <- data.frame(clusterID=clusterID, x=x, y=y)
+
+model <- "level: 1
+            y ~ b1*x
+            y ~~ residW*y
+          level: 2
+            y ~ 1
+            y ~~ residB*y"
+RAM <- lavaan2RAM(model)
+my.fit <- sem(RAM=RAM, data=my.df3, cluster="clusterID")
+summary(my.fit)
+
+## A 2-group CFA: test whether factor loadings are invariant across groups
+set.seed(103)
+simGroup <- function(n, loadings) {
+  f <- rnorm(n)
+  Y <- sapply(loadings, function(l) l*f + rnorm(n, sd=0.5))
+  colnames(Y) <- paste0("y", seq_along(loadings))
+  data.frame(Y)
+}
+loadings <- c(1, 0.8, 1.3, 0.9)
+my.df4 <- rbind(cbind(simGroup(250, loadings), g="g1"),
+               cbind(simGroup(250, loadings), g="g2"))
+
+## Metric invariance: loadings constrained equal across groups.
+## std.lv=FALSE: the factor's scale is already identified by fixing
+## y1's loading at 1 (c(1,1)*y1), so its variance ("f ~~ c(vf1,vf2)*f")
+## is left free and group-specific instead of also being fixed at 1 --
+## lavaan2RAM()'s default std.lv=TRUE would otherwise silently discard
+## that "f ~~ ..." line, fixing the variance at 1 in both groups with
+## no error (see lavaan2RAM()'s "std.lv" argument for details).
+model.invariant <- "f =~ c(1,1)*y1 + c(l2,l2)*y2 + c(l3,l3)*y3 + c(l4,l4)*y4
+                    f ~~ c(vf1,vf2)*f
+                    y1 ~ c(m1a,m1b)*1
+                    y2 ~ c(m2a,m2b)*1
+                    y3 ~ c(m3a,m3b)*1
+                    y4 ~ c(m4a,m4b)*1"
+fit.invariant <- sem(RAM=lavaan2RAM(model.invariant, ngroups=2, std.lv=FALSE),
+                     data=my.df4, group="g")
+
+## Configural model: loadings free in each group
+model.free <- "f =~ c(1,1)*y1 + c(l2a,l2b)*y2 + c(l3a,l3b)*y3 + c(l4a,l4b)*y4
+               f ~~ c(vf1,vf2)*f
+               y1 ~ c(m1a,m1b)*1
+               y2 ~ c(m2a,m2b)*1
+               y3 ~ c(m3a,m3b)*1
+               y4 ~ c(m4a,m4b)*1"
+fit.free <- sem(RAM=lavaan2RAM(model.free, ngroups=2, std.lv=FALSE),
+                data=my.df4, group="g")
+
+summary(fit.invariant)
+anova(fit.free, fit.invariant)   # likelihood-ratio test of metric invariance
+
+## Group difference in the factor variance, as a derived quantity
+model.diff <- paste(model.free, "\ndiff_v := vf2 - vf1")
+fit.diff <- sem(RAM=lavaan2RAM(model.diff, ngroups=2, std.lv=FALSE),
+               data=my.df4, group="g")
+summary(fit.diff)   # see "Mxalgebras" in the printed output for diff_v
+
+## A two-level CFA: a factor at the within level and another at the
+## between level, with the same three indicators loading on both
+set.seed(104)
+nClusters <- 100; nPerCluster <- 8; N <- nClusters*nPerCluster
+clusterID <- rep(seq_len(nClusters), each=nPerCluster)
+fb <- rep(rnorm(nClusters, 0, 1), each=nPerCluster)
+fw <- rnorm(N, 0, 1)
+ly2 <- 0.8; ly3 <- 1.2
+y1 <- fb + fw + rnorm(N, 0, 0.5)
+y2 <- ly2*fb + ly2*fw + rnorm(N, 0, 0.5)
+y3 <- ly3*fb + ly3*fw + rnorm(N, 0, 0.5)
+my.df5 <- data.frame(clusterID=clusterID, y1=y1, y2=y2, y3=y3)
+
+model <- "level: 1
+            fw =~ y1 + y2 + y3
+          level: 2
+            fb =~ y1 + y2 + y3"
+RAM <- lavaan2RAM(model)
+my.fit <- sem(RAM=RAM, data=my.df5, cluster="clusterID")
+summary(my.fit)
+
+## A two-level (multilevel) meta-analysis: studies contributing several
+## dependent effect sizes each, separating within- from between-study
+## heterogeneity while accounting for each effect size's own known
+## sampling variance
+set.seed(106)
+nStudies <- 60
+esPerStudy <- sample(2:4, nStudies, replace=TRUE)
+studyID <- rep(seq_len(nStudies), esPerStudy)
+N <- length(studyID)
+mu <- 0.35; tau2.between <- 0.03; tau2.within <- 0.015
+studyEffect <- rep(rnorm(nStudies, mu, sqrt(tau2.between)), esPerStudy)
+vi <- runif(N, 0.02, 0.06)
+yi <- rnorm(N, studyEffect + rnorm(N, 0, sqrt(tau2.within)), sqrt(vi))
+my.df6 <- data.frame(studyID=studyID, yi=yi, vi=vi)
+
+## fw's own variance is the WITHIN-study heterogeneity; yi's own residual
+## (after removing fw) is fixed at the KNOWN sampling variance; the
+## BETWEEN-study heterogeneity is yi's own variance at level 2
+model <- "level: 1
+            fw =~ 1*yi
+            fw ~~ tauW*fw
+            yi ~~ data.vi*yi
+          level: 2
+            yi ~ mu*1
+            yi ~~ tauB*yi"
+RAM <- lavaan2RAM(model, std.lv=FALSE)
+my.fit <- sem(RAM=RAM, data=my.df6, cluster="studyID")
 summary(my.fit)
 }
 

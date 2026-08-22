@@ -306,8 +306,11 @@ osmasem2 <- function(model.name="osmasem2", RAM, data, cor.analysis=TRUE,
   new.para.labels <- unique(c(A, S, M))
   ## Get the variable names
   new.para.labels <- all.vars(parse(text=new.para.labels))
-  ## Drop the definition variables
-  new.para.labels <- new.para.labels[!grepl("data.", new.para.labels)]
+  ## Drop the definition variables. "." in grepl()'s regex means "any
+  ## character" -- a literal-looking label such as "database" (data + b +
+  ## ase) also matches "data.", wrongly dropping an ordinary free
+  ## parameter from mxCI() here. Match only the literal "data." prefix.
+  new.para.labels <- new.para.labels[!startsWith(new.para.labels, "data.")]
  
   ## Check whether there are replacements
   ## Remove the starting values before comparisons
