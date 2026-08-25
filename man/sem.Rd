@@ -89,9 +89,15 @@ with the original, unsanitized group value. An unused factor level in
 simply never treated as a group in the first place (this is what
 first-appearance order, above, naturally does); if that leaves fewer
 groups than \code{RAM} expects, it is reported as a group-count
-mismatch. \code{Cov}/\code{numObs}
--based input and \code{replace.constraints=TRUE} are not yet supported
-for multiple-group models.}
+mismatch. \code{Cov}/\code{numObs}-based input is not yet supported for
+multiple-group models. \code{replace.constraints=TRUE} IS supported
+(substituting a constraint into whichever group's \code{A}/\code{S}/
+\code{M} matrices contain it, including a constraint that spans
+multiple groups, e.g. constraining one group's variance to be a
+multiple of another's); a definition variable (\code{data.*}) inside
+such a constraint resolves against whichever group's own data it is
+used in, since (unlike two-level's between level) every group already
+carries its own full data slice.}
 
 \item{cluster}{A character string naming the column in \code{data}
 identifying level-2 (cluster) membership. Required (and only used) when
@@ -118,15 +124,6 @@ An object of class \code{mxsem}
 }
 \description{
 It fits a structural equation model by creating a mxModel from a RAM object.
-}
-\note{
-When there are constraints with \code{replace.constraints=TRUE} and
-\code{intervals.type="LB"} for a \strong{single-group} (non-two-level,
-non-multiple-group) model, it returns an error because some parameters in
-the model are replaced with the new parameters in the constraints. However,
-the names of these new parameters are not captured in the CI object. Users
-are advised to use \code{intervals.type="z"} before it is fixed. This does
-NOT affect two-level models, where the same combination works correctly.
 }
 \examples{
 
@@ -172,6 +169,23 @@ my.df2 <- data.frame(y=c(y1, y2), x=c(x1, x2),
 model <- "y ~ c(b,b)*x + c(a1,a2)*1"
 RAM <- lavaan2RAM(model, ngroups=2)
 my.fit <- sem(RAM=RAM, data=my.df2, group="g")
+summary(my.fit)
+
+## The same 2-group regression, extended with replace.constraints=TRUE:
+## group 2's residual variance is constrained to be exactly TWICE group
+## 1's, and group 1's own residual variance is reparameterised through
+## exp() (guaranteeing positivity). "resid1" never appears as a free
+## parameter itself -- lavaanify() would otherwise reject "a0" as
+## undeclared, and an ordinary (non-replaced) "==" constraint cannot
+## introduce a new free parameter this way; only replace.constraints=
+## TRUE can. The constraint chain is resolved across groups, so
+## "resid2" ends up expressed directly in terms of "a0" (not "resid1").
+model <- "y ~ c(b,b)*x + c(a1,a2)*1
+          y ~~ c(resid1,resid2)*y
+          resid1 == exp(a0)
+          resid2 == 2*resid1"
+RAM <- lavaan2RAM(model, ngroups=2)
+my.fit <- sem(RAM=RAM, data=my.df2, group="g", replace.constraints=TRUE)
 summary(my.fit)
 
 ## A two-level (random-intercept) regression model

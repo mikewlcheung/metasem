@@ -1,7 +1,12 @@
-## FIXME: when there are constraints with replace.constraints=TRUE and
-## intervals.type="LB", it returns an error because some parameters are
-## replaced with the new parameters in the constraints. However, the
-## names of these new parameters are not in the CI object.
+## NOTE (previously a FIXME here): replace.constraints=TRUE combined with
+## intervals.type="LB" was originally believed to error for single-group
+## models, with a matching @note on sem() itself. Retested after this
+## session's chained-constraint fix (.resolve.chained.constraints()) --
+## which is the likeliest original cause, since an unresolved chain used
+## to leave an orphaned, disconnected free parameter whose name would not
+## have matched what mxCI() was told to expect -- and confirmed working
+## correctly now, including with a chained constraint. See sem()'s @note
+## for the currently-accurate wording.
 
 
 #' Fit a structural equation model using OpenMx
@@ -59,9 +64,15 @@
 #' simply never treated as a group in the first place (this is what
 #' first-appearance order, above, naturally does); if that leaves fewer
 #' groups than \code{RAM} expects, it is reported as a group-count
-#' mismatch. \code{Cov}/\code{numObs}
-#' -based input and \code{replace.constraints=TRUE} are not yet supported
-#' for multiple-group models.
+#' mismatch. \code{Cov}/\code{numObs}-based input is not yet supported for
+#' multiple-group models. \code{replace.constraints=TRUE} IS supported
+#' (substituting a constraint into whichever group's \code{A}/\code{S}/
+#' \code{M} matrices contain it, including a constraint that spans
+#' multiple groups, e.g. constraining one group's variance to be a
+#' multiple of another's); a definition variable (\code{data.*}) inside
+#' such a constraint resolves against whichever group's own data it is
+#' used in, since (unlike two-level's between level) every group already
+#' carries its own full data slice.
 #' @param cluster A character string naming the column in \code{data}
 #' identifying level-2 (cluster) membership. Required (and only used) when
 #' \code{RAM} is a two-level RAM object, i.e., created by
@@ -81,13 +92,6 @@
 #' @param \dots Further arguments will be passed to either
 #' \code{\link[OpenMx]{mxRun}} or \code{\link[OpenMx]{mxTryHard}}
 #' @return An object of class \code{mxsem}
-#' @note When there are constraints with \code{replace.constraints=TRUE} and
-#' \code{intervals.type="LB"} for a \strong{single-group} (non-two-level,
-#' non-multiple-group) model, it returns an error because some parameters in
-#' the model are replaced with the new parameters in the constraints. However,
-#' the names of these new parameters are not captured in the CI object. Users
-#' are advised to use \code{intervals.type="z"} before it is fixed. This does
-#' NOT affect two-level models, where the same combination works correctly.
 #' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
 #' @keywords utilities
 #' @examples
@@ -134,6 +138,23 @@
 #' model <- "y ~ c(b,b)*x + c(a1,a2)*1"
 #' RAM <- lavaan2RAM(model, ngroups=2)
 #' my.fit <- sem(RAM=RAM, data=my.df2, group="g")
+#' summary(my.fit)
+#'
+#' ## The same 2-group regression, extended with replace.constraints=TRUE:
+#' ## group 2's residual variance is constrained to be exactly TWICE group
+#' ## 1's, and group 1's own residual variance is reparameterised through
+#' ## exp() (guaranteeing positivity). "resid1" never appears as a free
+#' ## parameter itself -- lavaanify() would otherwise reject "a0" as
+#' ## undeclared, and an ordinary (non-replaced) "==" constraint cannot
+#' ## introduce a new free parameter this way; only replace.constraints=
+#' ## TRUE can. The constraint chain is resolved across groups, so
+#' ## "resid2" ends up expressed directly in terms of "a0" (not "resid1").
+#' model <- "y ~ c(b,b)*x + c(a1,a2)*1
+#'           y ~~ c(resid1,resid2)*y
+#'           resid1 == exp(a0)
+#'           resid2 == 2*resid1"
+#' RAM <- lavaan2RAM(model, ngroups=2)
+#' my.fit <- sem(RAM=RAM, data=my.df2, group="g", replace.constraints=TRUE)
 #' summary(my.fit)
 #'
 #' ## A two-level (random-intercept) regression model
@@ -452,6 +473,13 @@ sem <- function(model.name="sem", RAM=NULL, data=NULL, Cov=NULL,
 
     ## Remove the constraints so they won't be added again
     mxalgebras[index] <- NULL
+
+    ## Any REMAINING ":="/"=="/"<"/">" entry that still references one of
+    ## the just-eliminated labels needs the same substitution applied to
+    ## its own formula (see .substitute.remaining.mxalgebras()).
+    subs <- setNames(lapply(as.list(const.rhs), function(r) parse(text=r)[[1]]),
+                     const.labels)
+    mxalgebras <- .substitute.remaining.mxalgebras(mxalgebras, subs)
   }
 
   ## Check whether there are replacements
@@ -459,10 +487,20 @@ sem <- function(model.name="sem", RAM=NULL, data=NULL, Cov=NULL,
   if (all(A==as.symMatrix(RAM$A))) {
     mx.model <- mxModel(mx.model, Amatrix)
   } else if (length(all.vars(parse(text=A))) == 0) {
-    ## All free parameters in A were replaced with numeric constants:
-    ## use a fixed MxMatrix instead of an mxAlgebra (as.mxAlgebra fails on
-    ## zero free variables due to paste0("0*", character(0)) yielding "0*")
-    mx.model <- mxModel(mx.model, as.mxMatrix(A, name="Amatrix"))
+    ## All free parameters in A were replaced with numeric constants: use
+    ## a fixed MxMatrix instead of an mxAlgebra (as.mxAlgebra fails on
+    ## zero free variables due to paste0("0*", character(0)) yielding
+    ## "0*"). as.mxMatrix() cannot evaluate a non-trivial constant
+    ## EXPRESSION -- it only recognises bare numbers or "value*label"
+    ## strings, silently treating anything else (e.g. "exp(0.4)", which
+    ## contains no "*") as an UNLABELLED FREE parameter with no starting
+    ## value instead of a fixed one. Confirmed by testing: without
+    ## evaluating by hand first, "sigma == exp(0.4)" left sigma free and
+    ## estimated at the data's own MLE, not fixed at exp(0.4) -- same fix
+    ## already applied to .twolevel.replace.one() and .build.group.mxmodel().
+    values <- matrix(vapply(A, function(z) eval(parse(text=z)), numeric(1)),
+                     nrow=nrow(A), ncol=ncol(A), dimnames=dimnames(A))
+    mx.model <- mxModel(mx.model, as.mxMatrix(values, name="Amatrix"))
   } else {
     A <- as.mxAlgebra(A, startvalues=startvalues, lbound=lbound, ubound=ubound,
                       name="Amatrix")
@@ -472,8 +510,12 @@ sem <- function(model.name="sem", RAM=NULL, data=NULL, Cov=NULL,
   if (all(S==as.symMatrix(RAM$S))) {
     mx.model <- mxModel(mx.model, Smatrix)
   } else if (length(all.vars(parse(text=S))) == 0) {
-    ## Same guard as for A above
-    mx.model <- mxModel(mx.model, as.mxMatrix(S, name="Smatrix"))
+    ## Same guard as for A above -- evaluate any constant EXPRESSION by
+    ## hand first, rather than handing raw expression text to
+    ## as.mxMatrix().
+    values <- matrix(vapply(S, function(z) eval(parse(text=z)), numeric(1)),
+                     nrow=nrow(S), ncol=ncol(S), dimnames=dimnames(S))
+    mx.model <- mxModel(mx.model, as.mxMatrix(values, name="Smatrix"))
   } else {
     S <- as.mxAlgebra(S, startvalues=startvalues, lbound=lbound, ubound=ubound,
                       name="Smatrix")
@@ -497,8 +539,12 @@ sem <- function(model.name="sem", RAM=NULL, data=NULL, Cov=NULL,
     if (all(M==as.symMatrix(RAM$M))) {
       mx.model <- mxModel(mx.model, Mmatrix)
     } else if (length(all.vars(parse(text=M))) == 0) {
-      ## Same guard as for A and S above
-      mx.model <- mxModel(mx.model, as.mxMatrix(M, name="Mmatrix"))
+      ## Same guard as for A and S above -- evaluate any constant
+      ## EXPRESSION by hand first, rather than handing raw expression text
+      ## to as.mxMatrix().
+      values <- matrix(vapply(M, function(z) eval(parse(text=z)), numeric(1)),
+                       nrow=nrow(M), ncol=ncol(M), dimnames=dimnames(M))
+      mx.model <- mxModel(mx.model, as.mxMatrix(values, name="Mmatrix"))
     } else {
       M <- as.mxAlgebra(M, startvalues=startvalues, lbound=lbound,
                         ubound=ubound, name="Mmatrix")
@@ -527,8 +573,17 @@ sem <- function(model.name="sem", RAM=NULL, data=NULL, Cov=NULL,
   ## ase) also matches "data.", wrongly dropping an ordinary free
   ## parameter from mxCI() here. Match only the literal "data." prefix.
   new.para.labels <- new.para.labels[!startsWith(new.para.labels, "data.")]
-  mx.model <- mxModel(mx.model, mxCI(new.para.labels))
-  
+  ## mxCI() rejects an empty reference vector outright ("'reference'
+  ## argument must be a character vector") rather than treating it as
+  ## "no CIs requested" -- confirmed by testing. Reachable whenever every
+  ## free parameter has been fixed (e.g. replace.constraints=TRUE fixing
+  ## every "==" target at a literal constant leaves nothing free at all),
+  ## which is a valid, if unusual, model to fit; skip the call entirely
+  ## rather than let it fail before the model is even run.
+  if (length(new.para.labels) > 0) {
+    mx.model <- mxModel(mx.model, mxCI(new.para.labels))
+  }
+
   ## A list of mxalgebras required SE or CI
   mxalgebras.ci <- NULL
   
@@ -941,17 +996,33 @@ plot.mxsem <- function(x, manNames=NULL, latNames=NULL,
 
   ## Single-group/multi-group submodels name their matrices "Amatrix" etc.
   ## (as.mxMatrix(RAM$A, name="Amatrix")); two-level submodels are built via
-  ## type="RAM" + mxPath(), which names them "A" etc. instead.
-  if ("Amatrix" %in% names(mx.sub@matrices)) {
+  ## type="RAM" + mxPath(), which names them "A" etc. instead. Checked
+  ## against EITHER @matrices or @algebras: replace.constraints=TRUE can
+  ## turn any of A/S/M into an mxAlgebra (not a plain mxMatrix), so
+  ## checking @matrices alone would misidentify the naming convention
+  ## entirely whenever "Amatrix" itself happens to be the one replaced.
+  has.name <- function(name) name %in% names(mx.sub@matrices) || name %in% names(mx.sub@algebras)
+  if (has.name("Amatrix")) {
     mat.names <- c(A="Amatrix", S="Smatrix", F="Fmatrix", M="Mmatrix")
   } else {
     mat.names <- c(A="A", S="S", F="F", M="M")
   }
 
-  A <- mx.sub@matrices[[mat.names[["A"]]]]$values
-  S <- mx.sub@matrices[[mat.names[["S"]]]]$values
-  F <- mx.sub@matrices[[mat.names[["F"]]]]$values
-  M <- mx.sub@matrices[[mat.names[["M"]]]]$values
+  ## A plain mxMatrix's $values already carries dimnames; an mxAlgebra's
+  ## $result never does (confirmed by testing) -- fall back to "RAM"'s own
+  ## dimnames for that specific matrix, which are unaffected by
+  ## replace.constraints and already match "mx.sub" here (RAM is the
+  ## caller's per-group/per-level slice, same as mx.sub).
+  get.mat <- function(name, dimnames.fallback) {
+    if (name %in% names(mx.sub@matrices)) return(mx.sub@matrices[[name]]$values)
+    values <- mx.sub@algebras[[name]]$result
+    if (!is.null(values) && is.null(dimnames(values))) dimnames(values) <- dimnames.fallback
+    values
+  }
+  A <- get.mat(mat.names[["A"]], dimnames(RAM$A))
+  S <- get.mat(mat.names[["S"]], dimnames(RAM$S))
+  F <- get.mat(mat.names[["F"]], dimnames(RAM$F))
+  M <- get.mat(mat.names[["M"]], dimnames(RAM$M))
   ## Fixed when M is NULL, i.e., no mean structure
   if (is.null(M)) M <- matrix(0, nrow=1, ncol=ncol(A))
 
@@ -1155,11 +1226,21 @@ plot.mxsem <- function(x, manNames=NULL, latNames=NULL,
 
 ## Build one group's self-contained mxModel (its own mxData, expectation,
 ## and fit function) from a single-group RAM list. Mirrors the matrix-
-## building portion of sem() for the single-group case, but deliberately
-## does not support RAM$mxalgebras/replace.constraints substitution -- that
-## is handled once, globally, by the caller (see FIXME in .sem.multigroup).
+## building portion of sem() for the single-group case, including its
+## replace.constraints=TRUE branching (unchanged / fully-constant /
+## algebra) -- "replacements" is the GLOBAL, already chain-resolved
+## label->rhs map computed once by .sem.multigroup() (NULL when
+## replace.constraints=FALSE, or when there is nothing to replace); it is
+## simply not found in this group's own A/S/M text when irrelevant to it.
+##
+## Unlike .sem.twolevel()'s equivalent (.twolevel.replace.one()), no
+## remove-and-readd/dimname patch is needed here: this function builds
+## Amatrix/Smatrix/Mmatrix as ordinary named mxMatrix objects up front and
+## passes dimnames=var.names directly to mxExpectationRAM() (the same
+## construction style the single-group path already uses, where its own
+## replace.constraints branch needs no such patch either).
 .build.group.mxmodel <- function(model.name, RAM, data, startvalues=NULL,
-                                 lbound=NULL, ubound=NULL) {
+                                 lbound=NULL, ubound=NULL, replacements=NULL) {
   Amatrix <- as.mxMatrix(RAM$A, name="Amatrix")
   Smatrix <- as.mxMatrix(RAM$S, name="Smatrix")
   Fmatrix <- as.mxMatrix(RAM$F, name="Fmatrix")
@@ -1178,7 +1259,10 @@ plot.mxsem <- function(x, manNames=NULL, latNames=NULL,
   ## labels in the user-supplied "startvalues" (shared across all groups --
   ## a label shared across groups via lavaan's c(l,l) syntax picks up the
   ## same override in every group it appears in, which is the correct
-  ## behaviour for an equality-constrained parameter).
+  ## behaviour for an equality-constrained parameter). When
+  ## replace.constraints applied, "startvalues" here also carries the
+  ## existing-parameter fallback values .sem.multigroup() collected (see
+  ## its own comment on the starting-value collision this avoids).
   para.labels <- c(Amatrix$labels[Amatrix$free], Smatrix$labels[Smatrix$free],
                    Mmatrix$labels[Mmatrix$free])
   if (!is.null(startvalues)) {
@@ -1194,17 +1278,73 @@ plot.mxsem <- function(x, manNames=NULL, latNames=NULL,
   Smatrix <- .addbound(Smatrix, lbound=lbound, ubound=ubound)
   Mmatrix <- .addbound(Mmatrix, lbound=lbound, ubound=ubound)
 
+  ## Substitute "replacements" into local symbolic copies of A/S/M (bare
+  ## labels/constants, no "value*" prefix -- same as.symMatrix() single-
+  ## group's own replace.constraints branch uses). A no-op (all(orig==new)
+  ## stays TRUE for every matrix) when replacements is NULL or irrelevant
+  ## to this group, so the branch below reduces to exactly today's
+  ## behaviour in that case.
+  A <- as.symMatrix(RAM$A); S <- as.symMatrix(RAM$S); M <- as.symMatrix(RAM$M)
+  A0 <- A; S0 <- S; M0 <- M
+  if (!is.null(replacements)) {
+    for (lab in names(replacements)) {
+      rhs <- replacements[[lab]]
+      if (any(lab==A)) A[which(lab==A)] <- rhs
+      if (any(lab==S)) S[which(lab==S)] <- rhs
+      if (any(lab==M)) M[which(lab==M)] <- rhs
+    }
+  }
+
+  ## Same unchanged/fully-constant/algebra branch single-group sem() uses.
+  add.one <- function(mx.model, orig, new, mat, name) {
+    if (all(orig==new)) {
+      mxModel(mx.model, mat)
+    } else if (length(all.vars(parse(text=new))) == 0) {
+      ## Fully constant after substitution (e.g. a constraint fixing a
+      ## parameter at a literal number, or at a numeric expression like
+      ## "exp(0.4)"). as.mxMatrix() cannot evaluate a non-trivial constant
+      ## EXPRESSION -- it only recognises bare numbers or "value*label"
+      ## strings, silently treating anything else (e.g. "exp(0.4)", which
+      ## contains no "*") as an UNLABELLED FREE parameter with no starting
+      ## value instead of a fixed one. Confirmed by testing: without
+      ## evaluating by hand first, "sigma1 == exp(0.4)" left sigma1 free
+      ## and estimated at the data's own MLE, not fixed at exp(0.4) --
+      ## same fix already applied to .twolevel.replace.one().
+      values <- matrix(vapply(new, function(z) eval(parse(text=z)), numeric(1)),
+                       nrow=nrow(new), ncol=ncol(new), dimnames=dimnames(new))
+      mxModel(mx.model, as.mxMatrix(values, name=name))
+    } else {
+      alg <- as.mxAlgebra(new, startvalues=startvalues, lbound=lbound,
+                          ubound=ubound, name=name)
+      mxModel(mx.model, alg$mxalgebra, alg$parameters, alg$list)
+    }
+  }
+  mx.model <- add.one(mx.model, A0, A, Amatrix, "Amatrix")
+  mx.model <- add.one(mx.model, S0, S, Smatrix, "Smatrix")
+  mx.model <- add.one(mx.model, M0, M, Mmatrix, "Mmatrix")
+
   ## Same expCov/expMean bookkeeping as the single-group path -- not used by
   ## the fit function, but kept for parity/future use (e.g. implied stats).
+  ## References "Amatrix"/"Smatrix"/"Mmatrix" by NAME, so it resolves
+  ## correctly regardless of whether add.one() above added a plain matrix
+  ## or an algebra under that name.
   Id <- as.mxMatrix(diag(ncol(Fmatrix$values)), name="Id")
   Id_A <- mxAlgebra(solve(Id - Amatrix), name="Id_A")
   expCov <- mxAlgebra(Id_A %&% Smatrix, name="expCov")
   expMean <- mxAlgebra(Mmatrix %*% t(Id_A), name="expMean")
 
-  mx.model <- mxModel(mx.model, Amatrix, Smatrix, Mmatrix, Fmatrix,
-                      Id, Id_A, expCov, expMean)
+  mx.model <- mxModel(mx.model, Fmatrix, Id, Id_A, expCov, expMean)
 
-  list(model=mx.model, para.labels=para.labels)
+  ## Post-substitution free-parameter labels (identical to "para.labels"
+  ## above when nothing was substituted for this group -- as.symMatrix()
+  ## strips to bare labels either way, and all.vars() naturally excludes
+  ## numeric constants -- so this single formula covers both cases,
+  ## mirroring single-group sem()'s own "new.para.labels").
+  new.para.labels <- unique(c(A, S, M))
+  new.para.labels <- all.vars(parse(text=new.para.labels))
+  new.para.labels <- new.para.labels[!startsWith(new.para.labels, "data.")]
+
+  list(model=mx.model, para.labels=new.para.labels)
 }
 
 ## Fit a multiple-group RAM object: one mxModel(type="RAM")-style submodel
@@ -1219,15 +1359,6 @@ plot.mxsem <- function(x, manNames=NULL, latNames=NULL,
 
   intervals.type <- match.arg(intervals.type)
 
-  ## FIXME: the mxAlgebra/mxConstraint substitution logic in the
-  ## single-group sem() (replace.constraints=TRUE) is not implemented here:
-  ## it assumes one flat set of free-parameter labels, which is ambiguous
-  ## once labels are spread across group submodels (a label may be free in
-  ## one group and absent in another). Revisit in a later phase.
-  if (isTRUE(replace.constraints)) {
-    stop("'replace.constraints=TRUE' is not yet supported for multiple-group ",
-        "RAM objects (class \"RAM_multigroup\").")
-  }
   if (is.null(data) || !is.data.frame(data)) {
     stop("Multiple-group models require a single data frame passed via ",
         "'data', plus 'group' naming the column that identifies group ",
@@ -1298,6 +1429,106 @@ plot.mxsem <- function(x, manNames=NULL, latNames=NULL,
         " have 0 rows in 'data'.")
   }
 
+  ## Every group's own genuine free-parameter labels (needed below to keep
+  ## a sanitized group name from colliding with one).
+  harvest.labels <- function(x) {
+    m <- as.mxMatrix(x)
+    m$labels[m$free]
+  }
+  para.labels <- unique(unlist(lapply(RAM, function(r) {
+    c(harvest.labels(r$A), harvest.labels(r$S), harvest.labels(r$M))
+  })))
+
+  ## ---- replace.constraints=TRUE: substitute "==" constraints whose LHS
+  ## is a genuine free parameter in ANY group directly into that group's
+  ## (and every other qualifying group's) A/S/M matrices, mirroring sem()'s
+  ## single-group substitution logic and .sem.twolevel()'s generalization
+  ## of it -- applied here across groups instead of levels. A constraint
+  ## may reference a label that lives in a DIFFERENT group entirely (e.g. a
+  ## ratio constraint across groups' variances); cross-group label
+  ## resolution needs no special handling, since OpenMx labels are already
+  ## global across a model tree, exactly as for two-level.
+  ##
+  ## mxAlgebra/mxConstraint from lavaan2RAM's group==0 rows (fn1 := ...,
+  ## a == b, etc.) are global, not group-specific, and lavaan2RAM() only
+  ## ever attaches them to the first group's RAM element.
+  ##
+  ## Deliberately computed BEFORE group names are sanitized below (not
+  ## just before .build.group.mxmodel() is called): a constraint's RHS
+  ## can introduce a genuinely NEW free-parameter label that never
+  ## appears anywhere in the original RAM matrices at all (e.g. "a0" in
+  ## "sigma1 == exp(a0)") -- "para.labels" above cannot know about these,
+  ## so group-name reservation must wait until they are known too, or a
+  ## group value equal to one of them (e.g. "a0") hits the exact same
+  ## named-entity/free-parameter collision as an ordinary label (see
+  ## "reserved" below) -- confirmed by testing.
+  mxalgebras <- RAM[[1]]$mxalgebras
+  replacements <- NULL
+  startvalues2 <- startvalues
+  introduced.labels <- character(0)
+
+  if (isTRUE(replace.constraints) && !is.null(mxalgebras)) {
+    index <- vapply(mxalgebras, function(x) {
+      form <- as.character(x$formula)
+      form[1]=="==" && form[2] %in% para.labels
+    }, logical(1))
+
+    if (any(index)) {
+      mxalgebras.const <- mxalgebras[index]
+      const.labels <- vapply(mxalgebras.const, function(x) as.character(x$formula)[2],
+                             character(1))
+      const.rhs <- vapply(mxalgebras.const, function(x) as.character(x$formula)[3],
+                          character(1))
+      const.rhs <- .resolve.chained.constraints(const.labels, const.rhs)
+      replacements <- const.rhs
+      names(replacements) <- const.labels
+      mxalgebras[index] <- NULL
+
+      ## Symbols newly introduced via the constraints' own RHS text (e.g.
+      ## "a0"/"a1" in "exp(a0+a1*data.x)"), excluding definition-variable
+      ## ("data.*") references, which are never free parameters.
+      introduced.labels <- all.vars(parse(text=const.rhs))
+      introduced.labels <- introduced.labels[!startsWith(introduced.labels, "data.")]
+
+      ## Any REMAINING ":="/"=="/"<"/">" entry that still references one
+      ## of the just-eliminated labels needs the same substitution applied
+      ## to its own formula (see .substitute.remaining.mxalgebras()).
+      subs <- setNames(lapply(as.list(const.rhs), function(r) parse(text=r)[[1]]),
+                       const.labels)
+      mxalgebras <- .substitute.remaining.mxalgebras(mxalgebras, subs)
+
+      ## Starting-value collision guard, same fix as two-level: a
+      ## constraint's RHS can reference an *untouched* ordinary free
+      ## parameter that lives in a different group (or the same one).
+      ## Collect every group's own existing "value*label" starting values
+      ## up front and thread them through as a fallback, so OpenMx doesn't
+      ## see two conflicting starting values for the same label (as.
+      ## mxAlgebra()'s own Xvars matrix otherwise defaults every symbol it
+      ## discovers to a flat starting value of 0, colliding with that
+      ## parameter's real one -- confirmed by testing: without this,
+      ## "resid2 == 2*resid1" errors outright with "the free parameter
+      ## 'resid1' has been assigned multiple starting values").
+      ram.starts <- function(x) {
+        lab <- gsub("^[^*]*\\*", "", x)
+        val <- suppressWarnings(as.numeric(gsub("\\*.*$", "", x)))
+        ok <- !is.na(val) & lab!=x & !startsWith(lab, "data.")
+        setNames(as.list(val[ok]), lab[ok])
+      }
+      ## unname() on the outer lapply() result is required: RAM (a
+      ## RAM_multigroup list) is itself named "1","2",... by lavaan2RAM(),
+      ## and do.call(c, <named list of named lists>) triggers R's
+      ## automatic outer.inner name-concatenation -- silently producing
+      ## names like "1.sigma1" instead of "sigma1", which never matches
+      ## anything in as.mxAlgebra()'s own Xvars$labels lookup, leaving
+      ## this guard completely inert. Confirmed by testing.
+      existing.starts <- do.call(c, unname(lapply(RAM, function(r) {
+        c(ram.starts(r$A), ram.starts(r$S), ram.starts(r$M))
+      })))
+      startvalues2 <- c(existing.starts, startvalues)
+      startvalues2 <- startvalues2[!duplicated(names(startvalues2), fromLast=TRUE)]
+    }
+  }
+
   ## Sanitize group values into legal, unique OpenMx model names. mxModel()
   ## rejects far more than just numeric-looking names -- e.g. "." and "-"
   ## are illegal too ("site.1"/"site-2" both fail), while some other
@@ -1318,23 +1549,34 @@ plot.mxsem <- function(x, manNames=NULL, latNames=NULL,
   ## (confirmed directly -- mxModel("data") errors with "is illegal
   ## because it is a reserved name", regardless of context); "sem" (this
   ## call's own model.name) collides because a model cannot contain a
-  ## child entity sharing its own name; and "Amatrix"/"Smatrix"/etc.
-  ## collide the same way once .build.group.mxmodel() tries to name a
-  ## matrix "Amatrix" INSIDE a submodel that is ITSELF already named
-  ## "Amatrix". Reserve all of them up front, before make.unique(), so a
-  ## group value equal to one of them gets a "_1" suffix like any other
-  ## collision instead of surfacing as an opaque OpenMx error.
+  ## child entity sharing its own name; "Amatrix"/"Smatrix"/etc. collide
+  ## the same way once .build.group.mxmodel() tries to name a matrix
+  ## "Amatrix" INSIDE a submodel that is ITSELF already named "Amatrix";
+  ## and a group's own FREE-PARAMETER LABELS collide because OpenMx
+  ## rejects a name used as both a named entity (the submodel) and a free
+  ## parameter within it (confirmed by testing: "In model 'b' the
+  ## following are used both as named entities and free parameters: 'b'",
+  ## reproducible with or without replace.constraints -- e.g. a group
+  ## value of "b" together with a shared slope labelled "b" via lavaan's
+  ## c(b,b) syntax). "introduced.labels" (computed above) covers the same
+  ## risk for a label that only comes into existence via a
+  ## replace.constraints substitution (e.g. a group literally named "a0"
+  ## colliding with "sigma1 == exp(a0)") -- para.labels alone cannot see
+  ## these, since they never appear in the original RAM matrices at all.
+  ## Reserve all of them up front, before make.unique(), so a group value
+  ## equal to one of them gets a "_1" suffix like any other collision
+  ## instead of surfacing as an opaque OpenMx error.
   reserved <- c(model.name, "data", "fitfunction", "expectation", "compute",
                "Amatrix", "Smatrix", "Fmatrix", "Mmatrix",
-               "Id", "Id_A", "expCov", "expMean")
+               "Id", "Id_A", "expCov", "expMean", para.labels, introduced.labels)
   group.names <- vapply(group.values.chr, sanitize.name, character(1))
   group.names <- make.unique(c(reserved, unname(group.names)), sep="_")[-seq_along(reserved)]
   group.map <- setNames(group.names, group.values.chr)
 
   built <- lapply(seq_along(RAM), function(i) {
     .build.group.mxmodel(model.name=group.names[i], RAM=RAM[[i]],
-                         data=data.list[[i]], startvalues=startvalues,
-                         lbound=lbound, ubound=ubound)
+                         data=data.list[[i]], startvalues=startvalues2,
+                         lbound=lbound, ubound=ubound, replacements=replacements)
   })
 
   submodels <- lapply(built, function(x) x$model)
@@ -1344,14 +1586,20 @@ plot.mxsem <- function(x, manNames=NULL, latNames=NULL,
   ## mxCI over the union of free-parameter labels across all groups (shared
   ## labels are OpenMx parameters known by name regardless of which
   ## submodel(s) declare them, so a single mxCI() at the container level is
-  ## sufficient -- no need to qualify by submodel name).
+  ## sufficient -- no need to qualify by submodel name). Each built$para.
+  ## labels already reflects post-substitution labels when
+  ## replace.constraints applied (see .build.group.mxmodel()).
   all.para.labels <- unique(unlist(lapply(built, function(x) x$para.labels)))
-  mx.model <- mxModel(mx.model, mxCI(all.para.labels))
+  ## mxCI() rejects an empty reference vector outright rather than treating
+  ## it as "no CIs requested" (confirmed by testing) -- reachable whenever
+  ## every group's free parameters have all been fixed via
+  ## replace.constraints=TRUE, a valid, if unusual, model to fit.
+  if (length(all.para.labels) > 0) {
+    mx.model <- mxModel(mx.model, mxCI(all.para.labels))
+  }
 
-  ## mxAlgebra/mxConstraint from lavaan2RAM's group==0 rows (fn1 := ...,
-  ## a == b, etc.) are global, not group-specific, and lavaan2RAM() only
-  ## ever attaches them to the first group's RAM element.
-  mxalgebras <- RAM[[1]]$mxalgebras
+  ## Constraints already consumed by the replace.constraints substitution
+  ## above have already been removed from "mxalgebras" at this point.
   mxalgebras.ci <- NULL
   if (!is.null(mxalgebras)) {
     for (i in seq_along(mxalgebras)) {
@@ -1576,6 +1824,56 @@ plot.mxsem <- function(x, manNames=NULL, latNames=NULL,
   vapply(exprs, deparse1, character(1))
 }
 
+## After replace.constraints=TRUE eliminates a label (folding it into an
+## algebra computed from other, "real" free parameters), any REMAINING
+## mxAlgebra (a lavaan ":=" defined parameter) or mxConstraint (an
+## unconsumed "=="/"<"/">" row) that still references that label by name
+## needs the SAME substitution applied to ITS OWN formula, or it fails at
+## mxRun() with an "Unknown reference" error the moment the model tries to
+## resolve it -- confirmed by testing: "foo := sigma1 + sigma2; sigma1 ==
+## exp(a0)" errors this way for "foo" once "sigma1" is fully replaced.
+## ":=" rows were never part of the "==" substitution set to begin with,
+## in any of sem()'s three RAM dispatch paths (single-group, two-level,
+## multiple-group) -- this is called from all three, right after each
+## removes its own consumed "==" entries from "mxalgebras".
+##
+## "mxalgebras" is the REMAINING (already-consumed-entries-removed)
+## constraint list; "subs" is the resolved label->expression map (as
+## PARSED language objects, not text) from the "==" constraints that WERE
+## just replaced. An entry that references none of "subs"'s labels is
+## returned completely untouched (same object, not just an equivalent
+## rebuild) -- cheap to check via all.vars(), and avoids needlessly
+## rebuilding the vast majority of models' constraints, which reference
+## no replaced label at all.
+##
+## mxAlgebra/mxConstraint objects are rebuilt via deparse-then-eval,
+## mirroring lavaan2RAM()'s own construction of these exact objects
+## (Amatrix/Smatrix's ":="/"==" rows) -- both take their first argument as
+## a single whole-expression formula (for mxConstraint, INCLUDING the
+## comparison operator, e.g. "sigma1 == exp(a0)", not separate lhs/op/rhs
+## arguments), confirmed directly against mxAlgebra()/mxConstraint()'s own
+## $formula slot. A ":="-defined name is distinguished from an unconsumed
+## "=="/"<"/">" row by the same "^constraint[0-9]+$" naming convention
+## already used elsewhere in this file for exactly this purpose.
+.substitute.remaining.mxalgebras <- function(mxalgebras, subs) {
+  if (is.null(mxalgebras) || length(subs) == 0) return(mxalgebras)
+
+  for (nm in names(mxalgebras)) {
+    formula <- mxalgebras[[nm]]$formula
+    if (length(intersect(all.vars(formula), names(subs))) == 0) next
+
+    new.text <- deparse1(.substitute.symbols(formula, subs))
+    if (grepl("^constraint[0-9]+$", nm)) {
+      mxalgebras[[nm]] <- eval(parse(text=paste0(
+        "mxConstraint(", new.text, ", name='", nm, "')")))
+    } else {
+      mxalgebras[[nm]] <- eval(parse(text=paste0(
+        "mxAlgebra(", new.text, ", name='", nm, "')")))
+    }
+  }
+  mxalgebras
+}
+
 ## Apply one A/S/M-matrix "==" constraint substitution (replace.constraints
 ## =TRUE) to "model", which is either the top ("within") model or the
 ## "between" submodel of a two-level fit: remove the auto-built matrix
@@ -1761,6 +2059,13 @@ plot.mxsem <- function(x, manNames=NULL, latNames=NULL,
       }
       mxalgebras[index] <- NULL
 
+      ## Any REMAINING ":="/"=="/"<"/">" entry that still references one
+      ## of the just-eliminated labels needs the same substitution applied
+      ## to its own formula (see .substitute.remaining.mxalgebras()).
+      subs <- setNames(lapply(as.list(const.rhs), function(r) parse(text=r)[[1]]),
+                       const.labels)
+      mxalgebras <- .substitute.remaining.mxalgebras(mxalgebras, subs)
+
       ## A constraint's RHS can reference a label that is itself an
       ## ORDINARY, untouched free parameter elsewhere in the model (most
       ## often across levels, e.g. "residB == 2*residW" leaves "residW"
@@ -1859,7 +2164,13 @@ plot.mxsem <- function(x, manNames=NULL, latNames=NULL,
   } else {
     all.para.labels <- unique(c(between.build$para.labels, within.build$para.labels))
   }
-  mx.model <- mxModel(mx.model, mxCI(all.para.labels))
+  ## mxCI() rejects an empty reference vector outright rather than treating
+  ## it as "no CIs requested" (confirmed by testing) -- reachable whenever
+  ## every within- and between-level free parameter has been fixed via
+  ## replace.constraints=TRUE, a valid, if unusual, model to fit.
+  if (length(all.para.labels) > 0) {
+    mx.model <- mxModel(mx.model, mxCI(all.para.labels))
+  }
 
   ## mxAlgebra/mxConstraint from lavaan2RAM()'s level==0 rows (fn1 := ...,
   ## a == b, etc.), attached at the container level -- see
