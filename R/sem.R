@@ -499,38 +499,10 @@ sem <- function(model.name="sem", RAM=NULL, data=NULL, Cov=NULL,
   warning.msg <- error.msg <- NULL
 
   if (run) {
-    ## Default is z
-    mx.fit <- tryCatch(mxRun(mx.model, intervals=(intervals.type=="LB"),
-                             suppressWarnings=TRUE, silent=TRUE, ...),
-                       error=function(e) e)
-
-    ## Check if any errors or warnings
-    if (inherits(mx.fit, "error")) {
-      mx.fit <- tryCatch(mxTryHard(mx.model, extraTries=50, intervals=FALSE,
-                                   silent=TRUE),
-                         warning = function(w) {
-                           warning.msg <<- conditionMessage(w)
-                           cat(warning.msg)
-                         },
-                         error=function(e) {
-                           error.msg <<- conditionMessage(e)
-                           cat(error.msg)
-                         })
-                         
-      mx.fit <- tryCatch(mxRun(mx.fit, intervals=(intervals.type=="LB"),
-                               suppressWarnings=TRUE, silent=TRUE, ...),
-                         warning = function(w) {
-                           warning.msg <<- conditionMessage(w)
-                           cat(warning.msg)
-                         },
-                         error=function(e) {
-                           error.msg <<- conditionMessage(e)
-                           cat(error.msg)
-                         })
-      if (inherits(mx.fit, "error")) {   
-        warning("Error in running mxModel.\n")
-      }
-    }
+    fallback <- .run.mxTryHard.fallback(mx.model, intervals.type, ...)
+    mx.fit <- fallback$mx.fit
+    warning.msg <- fallback$warning.msg
+    error.msg <- fallback$error.msg
   } else {
     mx.fit <- mx.model
   }
@@ -559,6 +531,7 @@ create.mxModel <- function(model.name="sem", RAM=NULL, data=NULL,
 summary.mxsem <- function(object, robust=FALSE, ...) {
   if (!is.element("mxsem", class(object)))
     stop("\"object\" must be an object of class \"mxsem\".")
+  .check.mx.fit(object)
 
   ## imxRobustSE() cannot compute row-wise gradients through a submodel
   ## unless the top model's fit function is mxFitFunctionMultigroup -- true
@@ -714,12 +687,14 @@ print.summary.mxsem <- function(x, ...) {
 coef.mxsem <- function(object, ...) {
   if (!is.element("mxsem", class(object)))
     stop("\"object\" must be an object of class \"mxsem\".")
+  .check.mx.fit(object)
   coef(object$mx.fit)
 }
 
 vcov.mxsem <- function(object, robust=FALSE, ...) {
   if (!is.element("mxsem", class(object)))
     stop("\"object\" must be an object of class \"mxsem\".")
+  .check.mx.fit(object)
 
   ## Same guard as summary.mxsem(robust=TRUE) -- see its comment for why
   ## imxRobustSE() cannot handle the two-level (relational) path. Originally
@@ -739,6 +714,7 @@ vcov.mxsem <- function(object, robust=FALSE, ...) {
 }
 
 anova.mxsem <- function(object, ..., all=FALSE) {
+  lapply(c(list(object), list(...)), .check.mx.fit)
   base <- lapply(list(object), function(x) x$mx.fit)
   comparison <- lapply(list(...), function(x) x$mx.fit)
   mxCompare(base=base, comparison=comparison, all=all)
@@ -759,6 +735,7 @@ plot.mxsem <- function(x, manNames=NULL, latNames=NULL,
 
   if (!inherits(x, "mxsem"))
     stop("'mxsem' object is required.\n")
+  .check.mx.fit(x)
 
   RAM <- x$RAM
   layout <- match.arg(layout)
@@ -994,6 +971,95 @@ plot.mxsem <- function(x, manNames=NULL, latNames=NULL,
   ## adj avoids every collision.
   if (!is.null(main)) graphics::title(main=main, line=main.line, adj=main.adj)
   invisible(out)
+}
+
+## Run "mx.model" via mxRun(); if that errors, retry via mxTryHard() and a
+## final mxRun(). Shared by sem() (single-group), .sem.multigroup(), and
+## .sem.twolevel(), which used to each inline their own copy of this logic.
+##
+## Fixes a bug present in all three former copies: they wrapped the
+## mxTryHard()/mxRun() retry in tryCatch(..., warning=function(w) {...}),
+## and that handler's return value (from cat(), used only for its
+## printing side effect) was implicitly NULL -- not an object classed
+## "error". Two consequences followed. (1) tryCatch()'s warning handler
+## unwinds and returns on the FIRST warning raised anywhere during the
+## wrapped call, so a single warning from deep inside mxTryHard()
+## immediately discarded the whole in-progress retry and replaced it with
+## NULL -- defeating the very purpose of mxTryHard(), which exists to
+## push through exactly this kind of warning across many attempts. (2)
+## When the model genuinely could not be fit at all (e.g. a missing data
+## column), the final mx.fit ended up as plain NULL, which is not classed
+## "error"; the subsequent `inherits(mx.fit, "error")` check was therefore
+## always FALSE, so the intended `warning("Error in running mxModel.\n")`
+## never fired and the caller had no indication anything had failed until
+## summary()/plot() crashed later with unrelated-looking internal errors
+## (e.g. "$ operator is invalid for atomic vectors").
+##
+## Fixed here by using withCallingHandlers() for warnings -- which records
+## the message but resumes execution via muffleWarning instead of
+## unwinding, so mxTryHard() can actually finish its job -- and by having
+## the error handler return the error condition itself (keeping it classed
+## "error") instead of the implicit NULL from cat().
+.run.mxTryHard.fallback <- function(mx.model, intervals.type, ...) {
+  warning.msg <- error.msg <- NULL
+
+  mx.fit <- tryCatch(mxRun(mx.model, intervals=(intervals.type=="LB"),
+                           suppressWarnings=TRUE, silent=TRUE, ...),
+                     error=function(e) e)
+
+  if (inherits(mx.fit, "error")) {
+    mx.fit <- withCallingHandlers(
+      tryCatch(mxTryHard(mx.model, extraTries=50, intervals=FALSE, silent=TRUE),
+               error=function(e) {
+                 error.msg <<- conditionMessage(e)
+                 cat(error.msg)
+                 e
+               }),
+      warning=function(w) {
+        warning.msg <<- conditionMessage(w)
+        cat(warning.msg)
+        invokeRestart("muffleWarning")
+      })
+
+    if (!inherits(mx.fit, "error")) {
+      mx.fit <- withCallingHandlers(
+        tryCatch(mxRun(mx.fit, intervals=(intervals.type=="LB"),
+                       suppressWarnings=TRUE, silent=TRUE, ...),
+                 error=function(e) {
+                   error.msg <<- conditionMessage(e)
+                   cat(error.msg)
+                   e
+                 }),
+        warning=function(w) {
+          warning.msg <<- conditionMessage(w)
+          cat(warning.msg)
+          invokeRestart("muffleWarning")
+        })
+    }
+
+    if (inherits(mx.fit, "error")) {
+      warning("Error in running mxModel.\n")
+      mx.fit <- NULL
+    }
+  }
+
+  list(mx.fit=mx.fit, warning.msg=warning.msg, error.msg=error.msg)
+}
+
+## Stop with a clear, actionable message if "object" (an "mxsem" object)
+## failed to fit -- i.e. its mx.fit is not a valid MxModel, the scenario
+## .run.mxTryHard.fallback() above now correctly signals (see its comment)
+## instead of leaving mx.fit as an untyped NULL that downstream OpenMx/base
+## R calls in summary.mxsem()/coef.mxsem()/vcov.mxsem()/plot.mxsem() would
+## otherwise choke on with unrelated-looking internal errors.
+.check.mx.fit <- function(object) {
+  if (!inherits(object$mx.fit, "MxModel")) {
+    reason <- if (!is.null(object$error)) object$error
+             else if (!is.null(object$warning)) object$warning
+             else "unknown reason"
+    stop("The model was not fitted successfully, so there is no fitted ",
+        "model to use here. Reported reason: ", reason, call.=FALSE)
+  }
 }
 
 ## Add lbound and ubound to Amatrix, Smatrix, and Mmatrix
@@ -1255,36 +1321,10 @@ plot.mxsem <- function(x, manNames=NULL, latNames=NULL,
   warning.msg <- error.msg <- NULL
 
   if (run) {
-    mx.fit <- tryCatch(mxRun(mx.model, intervals=(intervals.type=="LB"),
-                             suppressWarnings=TRUE, silent=TRUE, ...),
-                       error=function(e) e)
-
-    if (inherits(mx.fit, "error")) {
-      mx.fit <- tryCatch(mxTryHard(mx.model, extraTries=50, intervals=FALSE,
-                                   silent=TRUE),
-                         warning = function(w) {
-                           warning.msg <<- conditionMessage(w)
-                           cat(warning.msg)
-                         },
-                         error=function(e) {
-                           error.msg <<- conditionMessage(e)
-                           cat(error.msg)
-                         })
-
-      mx.fit <- tryCatch(mxRun(mx.fit, intervals=(intervals.type=="LB"),
-                               suppressWarnings=TRUE, silent=TRUE, ...),
-                         warning = function(w) {
-                           warning.msg <<- conditionMessage(w)
-                           cat(warning.msg)
-                         },
-                         error=function(e) {
-                           error.msg <<- conditionMessage(e)
-                           cat(error.msg)
-                         })
-      if (inherits(mx.fit, "error")) {
-        warning("Error in running mxModel.\n")
-      }
-    }
+    fallback <- .run.mxTryHard.fallback(mx.model, intervals.type, ...)
+    mx.fit <- fallback$mx.fit
+    warning.msg <- fallback$warning.msg
+    error.msg <- fallback$error.msg
   } else {
     mx.fit <- mx.model
   }
@@ -1396,6 +1436,50 @@ plot.mxsem <- function(x, manNames=NULL, latNames=NULL,
        para.labels=c(Amx$labels[Amx$free], Smx$labels[Smx$free], Mmx$labels[Mmx$free]))
 }
 
+## Apply one A/S/M-matrix "==" constraint substitution (replace.constraints
+## =TRUE) to "model", which is either the top ("within") model or the
+## "between" submodel of a two-level fit: remove the auto-built matrix
+## named "mat.name" and re-add either a plain fixed mxMatrix (if every
+## free symbol was substituted away, leaving a constant) or an mxAlgebra
+## decomposition (if free parameters remain) -- the same unchanged/
+## constant/algebra branching sem()'s single-group path already uses.
+## Returns "model" untouched if "new.sym" is identical to "orig.sym"
+## (nothing to replace in this particular matrix).
+##
+## "model" here is always a type="RAM" model whose A/S/F/M matrices were
+## auto-built by mxModel() from mxPath() calls (see .RAM2paths() above).
+## Unlike sem()'s single-group path -- which passes dimnames=var.names
+## directly to mxExpectationRAM() -- that auto-built expectation relies on
+## the matrix OBJECTS themselves carrying dimnames, which neither
+## as.mxAlgebra()'s result nor a plain numeric matrix has by default;
+## both are given "new.sym"'s dimnames explicitly below (confirmed
+## necessary by testing: an M-matrix replacement lacking them fails with
+## "does not contain dimnames").
+.twolevel.replace.one <- function(model, mat.name, orig.sym, new.sym,
+                                  startvalues, lbound, ubound) {
+  if (all(orig.sym==new.sym)) return(model)
+
+  model <- mxModel(model, mat.name, remove=TRUE)
+
+  if (length(all.vars(parse(text=new.sym))) == 0) {
+    ## Fully constant after substitution (e.g. a constraint fixing a
+    ## parameter at a literal number, or at a numeric expression like
+    ## "exp(0.4)"). as.mxMatrix() cannot evaluate a non-trivial constant
+    ## EXPRESSION -- it only recognises bare numbers or "value*label"
+    ## strings -- so the expression is evaluated by hand first and a
+    ## plain numeric matrix (which as.mxMatrix() handles natively,
+    ## dimnames included) is passed instead.
+    values <- matrix(vapply(new.sym, function(z) eval(parse(text=z)), numeric(1)),
+                     nrow=nrow(new.sym), ncol=ncol(new.sym), dimnames=dimnames(new.sym))
+    mxModel(model, as.mxMatrix(values, name=mat.name))
+  } else {
+    alg <- as.mxAlgebra(new.sym, startvalues=startvalues, lbound=lbound,
+                        ubound=ubound, name=mat.name)
+    dimnames(alg$mxalgebra) <- dimnames(new.sym)
+    mxModel(model, alg$mxalgebra, alg$parameters, alg$list)
+  }
+}
+
 ## Fit a two-level RAM object using OpenMx's relational SEM mechanism: a
 ## level-2 ("between") mxModel(type="RAM") with mxData(primaryKey=cluster),
 ## nested inside a level-1 ("within") mxModel(type="RAM") that links to it
@@ -1410,13 +1494,6 @@ plot.mxsem <- function(x, manNames=NULL, latNames=NULL,
 
   intervals.type <- match.arg(intervals.type)
 
-  ## FIXME: as in .sem.multigroup(), the mxAlgebra/mxConstraint
-  ## substitution logic in the single-group sem() (replace.constraints=
-  ## TRUE) is not implemented here. Revisit in a later phase.
-  if (isTRUE(replace.constraints)) {
-    stop("'replace.constraints=TRUE' is not yet supported for two-level ",
-        "RAM objects (class \"RAM_twolevel\").")
-  }
   if (is.null(data) || !is.data.frame(data)) {
     stop("Two-level models require a single data frame of individual-level ",
         "(level-1) rows passed via 'data', plus 'cluster' naming the column ",
@@ -1479,20 +1556,93 @@ plot.mxsem <- function(x, manNames=NULL, latNames=NULL,
                          free=FALSE, values=1, joinKey=cluster)
   }
 
+  ## ---- replace.constraints=TRUE: substitute "==" constraints whose LHS
+  ## is a genuine free parameter at either level directly into the
+  ## within/between A/S/M matrices, mirroring sem()'s single-group
+  ## substitution logic (see as.symMatrix()/as.mxAlgebra() there), but
+  ## applied across both levels -- including a constraint that spans them
+  ## (e.g. equating a between-level parameter to a function of a
+  ## within-level one; label resolution across the two submodels needs no
+  ## special handling, since OpenMx labels are already global across a
+  ## model tree). mxalgebras is mutated here (consumed constraints
+  ## removed) so the ordinary "==" / ":=" loop further below only adds
+  ## whatever was NOT replaced.
+  mxalgebras <- RAM$mxalgebras
+  Aw <- Aw0 <- as.symMatrix(RAM$within$A)
+  Sw <- Sw0 <- as.symMatrix(RAM$within$S)
+  Mw <- Mw0 <- as.symMatrix(RAM$within$M)
+  Ab <- Ab0 <- as.symMatrix(RAM$between$A)
+  Sb <- Sb0 <- as.symMatrix(RAM$between$S)
+  Mb <- Mb0 <- as.symMatrix(RAM$between$M)
+
+  if (isTRUE(replace.constraints) && !is.null(mxalgebras)) {
+    para.labels <- unique(c(within.build$para.labels, between.build$para.labels))
+    index <- vapply(mxalgebras, function(x) {
+      form <- as.character(x$formula)
+      form[1]=="==" && form[2] %in% para.labels
+    }, logical(1))
+
+    if (any(index)) {
+      mxalgebras.const <- mxalgebras[index]
+      for (i in seq_along(mxalgebras.const)) {
+        form <- as.character(mxalgebras.const[[i]]$formula)
+        if (any(form[2]==Aw)) Aw[which(form[2]==Aw)] <- form[3]
+        if (any(form[2]==Sw)) Sw[which(form[2]==Sw)] <- form[3]
+        if (any(form[2]==Mw)) Mw[which(form[2]==Mw)] <- form[3]
+        if (any(form[2]==Ab)) Ab[which(form[2]==Ab)] <- form[3]
+        if (any(form[2]==Sb)) Sb[which(form[2]==Sb)] <- form[3]
+        if (any(form[2]==Mb)) Mb[which(form[2]==Mb)] <- form[3]
+      }
+      mxalgebras[index] <- NULL
+
+      ## Between-level replacements must land on "between.model" BEFORE it
+      ## is nested into "mx.model" below -- mxModel(model, "S",
+      ## remove=TRUE) only ever reaches into "model"'s own direct children,
+      ## not a submodel's.
+      between.model <- .twolevel.replace.one(between.model, "A", Ab0, Ab,
+                                             startvalues, lbound, ubound)
+      between.model <- .twolevel.replace.one(between.model, "S", Sb0, Sb,
+                                             startvalues, lbound, ubound)
+      between.model <- .twolevel.replace.one(between.model, "M", Mb0, Mb,
+                                             startvalues, lbound, ubound)
+    }
+  }
+
   mx.model <- mxModel(model.name, type="RAM", between.model,
                       manifestVars=manifest.vars, latentVars=latent.vars,
                       mxData(data, type="raw"),
                       within.build$paths, join.paths)
 
-  ## mxCI over the union of free-parameter labels across both levels.
-  all.para.labels <- unique(c(between.build$para.labels, within.build$para.labels))
+  ## Within-level replacements land on "mx.model" itself (the top model
+  ## IS the "within" level here), so this can only happen after it exists.
+  if (isTRUE(replace.constraints) && !is.null(RAM$mxalgebras)) {
+    mx.model <- .twolevel.replace.one(mx.model, "A", Aw0, Aw, startvalues, lbound, ubound)
+    mx.model <- .twolevel.replace.one(mx.model, "S", Sw0, Sw, startvalues, lbound, ubound)
+    mx.model <- .twolevel.replace.one(mx.model, "M", Mw0, Mw, startvalues, lbound, ubound)
+  }
+
+  ## mxCI over the union of free-parameter labels across both levels. When
+  ## replace.constraints applied, some ORIGINAL labels (e.g. a parameter
+  ## that got replaced by an algebra) are no longer free parameters at
+  ## all, so this is recomputed from the (possibly substituted) matrices
+  ## instead -- exactly mirroring how sem()'s single-group path computes
+  ## its own "new.para.labels" (all.vars() over the substituted matrices,
+  ## excluding "data." definition-variable references).
+  if (isTRUE(replace.constraints) && !is.null(RAM$mxalgebras)) {
+    all.para.labels <- unique(c(Aw, Sw, Mw, Ab, Sb, Mb))
+    all.para.labels <- all.vars(parse(text=all.para.labels))
+    all.para.labels <- all.para.labels[!startsWith(all.para.labels, "data.")]
+  } else {
+    all.para.labels <- unique(c(between.build$para.labels, within.build$para.labels))
+  }
   mx.model <- mxModel(mx.model, mxCI(all.para.labels))
 
   ## mxAlgebra/mxConstraint from lavaan2RAM()'s level==0 rows (fn1 := ...,
   ## a == b, etc.), attached at the container level -- see
   ## .lavaan2RAM.twolevel()'s comment on why these live at RAM$mxalgebras
-  ## directly (not nested under "within"/"between").
-  mxalgebras <- RAM$mxalgebras
+  ## directly (not nested under "within"/"between"). Constraints already
+  ## consumed by the replace.constraints substitution above have already
+  ## been removed from "mxalgebras" at this point.
   mxalgebras.ci <- NULL
   if (!is.null(mxalgebras)) {
     for (i in seq_along(mxalgebras)) {
@@ -1514,36 +1664,10 @@ plot.mxsem <- function(x, manNames=NULL, latNames=NULL,
   warning.msg <- error.msg <- NULL
 
   if (run) {
-    mx.fit <- tryCatch(mxRun(mx.model, intervals=(intervals.type=="LB"),
-                             suppressWarnings=TRUE, silent=TRUE, ...),
-                       error=function(e) e)
-
-    if (inherits(mx.fit, "error")) {
-      mx.fit <- tryCatch(mxTryHard(mx.model, extraTries=50, intervals=FALSE,
-                                   silent=TRUE),
-                         warning = function(w) {
-                           warning.msg <<- conditionMessage(w)
-                           cat(warning.msg)
-                         },
-                         error=function(e) {
-                           error.msg <<- conditionMessage(e)
-                           cat(error.msg)
-                         })
-
-      mx.fit <- tryCatch(mxRun(mx.fit, intervals=(intervals.type=="LB"),
-                               suppressWarnings=TRUE, silent=TRUE, ...),
-                         warning = function(w) {
-                           warning.msg <<- conditionMessage(w)
-                           cat(warning.msg)
-                         },
-                         error=function(e) {
-                           error.msg <<- conditionMessage(e)
-                           cat(error.msg)
-                         })
-      if (inherits(mx.fit, "error")) {
-        warning("Error in running mxModel.\n")
-      }
-    }
+    fallback <- .run.mxTryHard.fallback(mx.model, intervals.type, ...)
+    mx.fit <- fallback$mx.fit
+    warning.msg <- fallback$warning.msg
+    error.msg <- fallback$error.msg
   } else {
     mx.fit <- mx.model
   }
