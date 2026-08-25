@@ -68,17 +68,26 @@
 #' \code{\link[metaSEM]{lavaan2RAM}} from \code{lavaan}'s two-level
 #' (\code{level: 1} / \code{level: 2}) syntax. \code{data} must be a single
 #' data frame of individual-level (level-1) rows in this case.
-#' \code{Cov}/\code{numObs}-based input and \code{replace.constraints=TRUE}
-#' are not yet supported for two-level models, and neither is combining
-#' two-level and multiple-group models in the same call.
+#' \code{Cov}/\code{numObs}-based input is not yet supported for two-level
+#' models, and neither is combining two-level and multiple-group models in
+#' the same call. \code{replace.constraints=TRUE} IS supported for
+#' two-level models (substituting a constraint into whichever of the
+#' within-/between-level \code{A}/\code{S}/\code{M} matrices contains it,
+#' including a constraint that spans both levels); a definition variable
+#' (\code{data.*}) may be used in such a constraint for a level-1 (within)
+#' parameter, but not yet for a genuine level-2-only (between, cluster-level)
+#' covariate, since \code{data} passed to the level-2 submodel currently
+#' carries only the cluster ID column.
 #' @param \dots Further arguments will be passed to either
 #' \code{\link[OpenMx]{mxRun}} or \code{\link[OpenMx]{mxTryHard}}
 #' @return An object of class \code{mxsem}
 #' @note When there are constraints with \code{replace.constraints=TRUE} and
-#' \code{intervals.type="LB"}, it returns an error because some parameters in
+#' \code{intervals.type="LB"} for a \strong{single-group} (non-two-level,
+#' non-multiple-group) model, it returns an error because some parameters in
 #' the model are replaced with the new parameters in the constraints. However,
 #' the names of these new parameters are not captured in the CI object. Users
-#' are advised to use \code{intervals.type="z"} before it is fixed.
+#' are advised to use \code{intervals.type="z"} before it is fixed. This does
+#' NOT affect two-level models, where the same combination works correctly.
 #' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
 #' @keywords utilities
 #' @examples
@@ -242,6 +251,36 @@
 #' RAM <- lavaan2RAM(model, std.lv=FALSE)
 #' my.fit <- sem(RAM=RAM, data=my.df6, cluster="studyID")
 #' summary(my.fit)
+#'
+#' ## A two-level location-scale meta-analysis: replace.constraints=TRUE
+#' ## lets the WITHIN-study heterogeneity (tauW, on fw) be a function of an
+#' ## effect-size-level moderator xi, while yi's own residual stays fixed
+#' ## at its KNOWN sampling variance (data.vi), exactly as in the previous
+#' ## example. data.xi is a definition variable, so its per-row value is
+#' ## looked up from the data instead of estimated. "tauW" never appears
+#' ## as a free parameter itself here -- lavaanify() would otherwise reject
+#' ## a0/a1 as undeclared, and an ordinary (non-replaced) "==" constraint
+#' ## cannot introduce new free parameters this way; only
+#' ## replace.constraints=TRUE can.
+#' set.seed(107)
+#' xi <- rnorm(N)
+#' a0 <- -4; a1 <- 0.8
+#' tauWi <- exp(a0 + a1*xi)
+#' yi2 <- rnorm(N, studyEffect + rnorm(N, 0, sqrt(tauWi)), sqrt(vi))
+#' my.df7 <- data.frame(studyID=studyID, yi=yi2, vi=vi, xi=xi)
+#'
+#' model <- "level: 1
+#'             fw =~ 1*yi
+#'             fw ~~ tauW*fw
+#'             yi ~~ data.vi*yi
+#'           level: 2
+#'             yi ~ mu*1
+#'             yi ~~ tauB*yi
+#'           tauW == exp(a0 + a1*data.xi)"
+#' RAM <- lavaan2RAM(model, std.lv=FALSE)
+#' my.fit <- sem(RAM=RAM, data=my.df7, cluster="studyID",
+#'               replace.constraints=TRUE)
+#' summary(my.fit)
 #' }
 #'
 sem <- function(model.name="sem", RAM=NULL, data=NULL, Cov=NULL,
@@ -379,22 +418,35 @@ sem <- function(model.name="sem", RAM=NULL, data=NULL, Cov=NULL,
     ## Extract constraints that needed to be replaced
     mxalgebras.const <- mxalgebras[index]
 
-    for (i in seq_along(mxalgebras.const)) {
-      form <- as.character(mxalgebras.const[[i]]$formula)
+    ## Resolve any constraint whose RHS references another constraint's
+    ## OWN label to a fixed point BEFORE applying any of them -- otherwise
+    ## a chain (e.g. "residW == exp(a0); residB == 2*residW") would apply
+    ## each constraint's un-expanded RHS text independently and silently
+    ## reintroduce the eliminated label as a brand-new, disconnected free
+    ## parameter (see .resolve.chained.constraints()).
+    const.labels <- vapply(mxalgebras.const, function(x) as.character(x$formula)[2],
+                           character(1))
+    const.rhs <- vapply(mxalgebras.const, function(x) as.character(x$formula)[3],
+                        character(1))
+    const.rhs <- .resolve.chained.constraints(const.labels, const.rhs)
+
+    for (i in seq_along(const.labels)) {
+      lab <- const.labels[i]
+      rhs <- const.rhs[i]
 
       ## Replace the A matrix
-      if (any(grep(form[2], A))) {
-        A[which(form[2]==A)] <- form[3]
+      if (any(grep(lab, A))) {
+        A[which(lab==A)] <- rhs
       }
 
       ## Replace the S matrix
-      if (any(grep(form[2], S))) {
-        S[which(form[2]==S)] <- form[3]
+      if (any(grep(lab, S))) {
+        S[which(lab==S)] <- rhs
       }
 
       ## Replace the M matrix
-      if (any(grep(form[2], M))) {
-        M[which(form[2]==M)] <- form[3]
+      if (any(grep(lab, M))) {
+        M[which(lab==M)] <- rhs
       }
     }
 
@@ -1436,6 +1488,94 @@ plot.mxsem <- function(x, manNames=NULL, latNames=NULL,
        para.labels=c(Amx$labels[Amx$free], Smx$labels[Smx$free], Mmx$labels[Mmx$free]))
 }
 
+## Substitute every bare-symbol occurrence of a name in "subs" appearing
+## within language object "e" with the corresponding (already-resolved)
+## replacement language object in "subs". A plain recursive AST walk, not
+## string regex -- so a label can't be mismatched against a substring of
+## an unrelated identifier, and operator precedence in the surrounding
+## expression is automatically preserved (e.g. "2*residW" with residW's
+## replacement "a+b" correctly becomes "2 * (a + b)", never "2*a+b",
+## because the substitution happens on the parsed call tree, where
+## "residW" is a single argument node, not by textually splicing "a+b" in
+## place of a matched substring).
+.substitute.symbols <- function(e, subs) {
+  if (is.symbol(e)) {
+    nm <- as.character(e)
+    if (nm %in% names(subs)) return(subs[[nm]])
+    return(e)
+  } else if (is.call(e)) {
+    args <- as.list(e)
+    e[] <- c(args[1], lapply(args[-1], .substitute.symbols, subs=subs))
+    return(e)
+  } else {
+    return(e)
+  }
+}
+
+## Resolve CHAINED replace.constraints=TRUE substitutions to a fixed point
+## before they are applied to the RAM matrices. Given the labels and RHS
+## text of every "label == RHS" constraint about to be substituted, expand
+## any RHS that itself references another constraint's own LHS label, so
+## every RETURNED rhs is expressed purely in terms of parameters that are
+## NOT themselves being eliminated in this same batch.
+##
+## Without this, applying each constraint independently -- each LHS label
+## replaced by its OWN, unexpanded RHS text, in one pass over the RAM
+## matrices, which is what both sem() and .sem.twolevel() used to do --
+## can silently reintroduce an eliminated label as a brand-new,
+## disconnected free parameter wherever ANOTHER constraint's RHS still
+## mentions it by name. Confirmed by testing: "residW == exp(a0); residB
+## == 2*residW" left "residW" as an independent free parameter (unrelated
+## to "exp(a0)") in whichever matrix the second constraint touched,
+## silently fitting a different model than the one written.
+##
+## "labels" and "rhs" are parallel character vectors, one per qualifying
+## constraint; order-independent (a chain may be written in either
+## dependency direction). Raises a clear error, naming the offending
+## labels, for a constraint set that can never resolve to a fixed point
+## (e.g. "a == b; b == a", or a parameter referencing its own label, even
+## indirectly through another constraint) rather than silently leaving an
+## unresolved self-reference for the matrix-substitution step to mishandle
+## the same way. The per-symbol loop below is bounded (at most
+## length(labels)+1 passes) regardless of whether a cycle is present, so
+## it cannot hang; the definitive cycle/self-reference check happens once,
+## after the loop, by testing whether a label still appears within its own
+## (as far as possible) resolved expression.
+.resolve.chained.constraints <- function(labels, rhs) {
+  exprs <- lapply(rhs, function(r) parse(text=r)[[1]])
+  names(exprs) <- labels
+
+  for (iter in seq_len(length(labels) + 1L)) {
+    changed <- FALSE
+    for (i in seq_along(exprs)) {
+      hit <- intersect(all.vars(exprs[[i]]), labels[-i])
+      if (length(hit) > 0) {
+        exprs[[i]] <- .substitute.symbols(exprs[[i]], exprs[hit])
+        changed <- TRUE
+      }
+    }
+    if (!changed) break
+  }
+
+  self.ref <- vapply(seq_along(exprs), function(i) labels[i] %in% all.vars(exprs[[i]]),
+                     logical(1))
+  if (any(self.ref)) {
+    stop("Cyclic (or self-referential) 'replace.constraints=TRUE' ",
+        "substitution detected among: ", paste(labels[self.ref], collapse=", "),
+        ". Each parameter's constraint must not reference its own label, ",
+        "even indirectly through another constraint.", call.=FALSE)
+  }
+  ## deparse() (unlike as.character() on a whole call, used to extract
+  ## "rhs" in the first place) wraps source text onto multiple lines once
+  ## it exceeds its default width.cutoff -- returning a character vector
+  ## of length > 1 for a sufficiently long resolved expression, which
+  ## vapply(..., character(1)) then rejects outright ("result is length
+  ## N"), failing a perfectly valid long constraint before the model is
+  ## even built. deparse1() (R >= 4.0.0; this package requires >= 4.2.0)
+  ## exists exactly for this -- deparse, then collapse onto one line.
+  vapply(exprs, deparse1, character(1))
+}
+
 ## Apply one A/S/M-matrix "==" constraint substitution (replace.constraints
 ## =TRUE) to "model", which is either the top ("within") model or the
 ## "between" submodel of a two-level fit: remove the auto-built matrix
@@ -1467,11 +1607,22 @@ plot.mxsem <- function(x, manNames=NULL, latNames=NULL,
     ## "exp(0.4)"). as.mxMatrix() cannot evaluate a non-trivial constant
     ## EXPRESSION -- it only recognises bare numbers or "value*label"
     ## strings -- so the expression is evaluated by hand first and a
-    ## plain numeric matrix (which as.mxMatrix() handles natively,
-    ## dimnames included) is passed instead.
+    ## plain numeric matrix is passed instead.
     values <- matrix(vapply(new.sym, function(z) eval(parse(text=z)), numeric(1)),
                      nrow=nrow(new.sym), ncol=ncol(new.sym), dimnames=dimnames(new.sym))
-    mxModel(model, as.mxMatrix(values, name=mat.name))
+    mat <- as.mxMatrix(values, name=mat.name)
+    ## as.mxMatrix() silently SKIPS setting dimnames on the mxMatrix it
+    ## builds whenever rownames(x)[1]=="1" (its own convention for
+    ## identifying an M/mean-vector row -- see as.mxMatrix.R) -- which is
+    ## ALWAYS true for an M-matrix replacement, even though "values" above
+    ## was itself built with dimnames. Confirmed by testing: without this,
+    ## a constant M replacement (e.g. "ymean_between == 1") reaches
+    ## mxRun() as "the M matrix ... does not contain dimnames", exactly the
+    ## failure the algebra branch below already guards against. Set
+    ## unconditionally here too, for consistency with that branch (a no-op
+    ## for A/S, which as.mxMatrix() already dimnames correctly).
+    dimnames(mat) <- dimnames(new.sym)
+    mxModel(model, mat)
   } else {
     alg <- as.mxAlgebra(new.sym, startvalues=startvalues, lbound=lbound,
                         ubound=ubound, name=mat.name)
@@ -1568,6 +1719,7 @@ plot.mxsem <- function(x, manNames=NULL, latNames=NULL,
   ## removed) so the ordinary "==" / ":=" loop further below only adds
   ## whatever was NOT replaced.
   mxalgebras <- RAM$mxalgebras
+  startvalues2 <- startvalues
   Aw <- Aw0 <- as.symMatrix(RAM$within$A)
   Sw <- Sw0 <- as.symMatrix(RAM$within$S)
   Mw <- Mw0 <- as.symMatrix(RAM$within$M)
@@ -1584,28 +1736,100 @@ plot.mxsem <- function(x, manNames=NULL, latNames=NULL,
 
     if (any(index)) {
       mxalgebras.const <- mxalgebras[index]
-      for (i in seq_along(mxalgebras.const)) {
-        form <- as.character(mxalgebras.const[[i]]$formula)
-        if (any(form[2]==Aw)) Aw[which(form[2]==Aw)] <- form[3]
-        if (any(form[2]==Sw)) Sw[which(form[2]==Sw)] <- form[3]
-        if (any(form[2]==Mw)) Mw[which(form[2]==Mw)] <- form[3]
-        if (any(form[2]==Ab)) Ab[which(form[2]==Ab)] <- form[3]
-        if (any(form[2]==Sb)) Sb[which(form[2]==Sb)] <- form[3]
-        if (any(form[2]==Mb)) Mb[which(form[2]==Mb)] <- form[3]
+
+      ## Resolve any constraint whose RHS references another constraint's
+      ## OWN label to a fixed point BEFORE applying any of them -- see
+      ## .resolve.chained.constraints() for why (confirmed by testing:
+      ## without this, "residW == exp(a0); residB == 2*residW" silently
+      ## reintroduced "residW" as a disconnected free parameter instead of
+      ## leaving the model expressed purely in terms of "a0").
+      const.labels <- vapply(mxalgebras.const, function(x) as.character(x$formula)[2],
+                             character(1))
+      const.rhs <- vapply(mxalgebras.const, function(x) as.character(x$formula)[3],
+                          character(1))
+      const.rhs <- .resolve.chained.constraints(const.labels, const.rhs)
+
+      for (i in seq_along(const.labels)) {
+        lab <- const.labels[i]
+        rhs <- const.rhs[i]
+        if (any(lab==Aw)) Aw[which(lab==Aw)] <- rhs
+        if (any(lab==Sw)) Sw[which(lab==Sw)] <- rhs
+        if (any(lab==Mw)) Mw[which(lab==Mw)] <- rhs
+        if (any(lab==Ab)) Ab[which(lab==Ab)] <- rhs
+        if (any(lab==Sb)) Sb[which(lab==Sb)] <- rhs
+        if (any(lab==Mb)) Mb[which(lab==Mb)] <- rhs
       }
       mxalgebras[index] <- NULL
+
+      ## A constraint's RHS can reference a label that is itself an
+      ## ORDINARY, untouched free parameter elsewhere in the model (most
+      ## often across levels, e.g. "residB == 2*residW" leaves "residW"
+      ## alone) -- as.mxAlgebra() (inside .twolevel.replace.one() below)
+      ## otherwise defaults every symbol it discovers to a flat starting
+      ## value of 0, colliding with that parameter's real starting value
+      ## (e.g. "0.5*residW" in the untouched matrix) and raising OpenMx's
+      ## "has been assigned multiple starting values" error on the very
+      ## first attempt -- self-corrected by the mxTryHard() retry that
+      ## follows, but needlessly so (confirmed by testing). Collecting
+      ## every already-labelled parameter's own starting value up front and
+      ## passing it through to every .twolevel.replace.one() call below
+      ## avoids the conflict outright. Any label the caller supplied
+      ## through "startvalues" still wins (listed second: as.mxAlgebra()
+      ## applies its "startvalues" list in order, so a later entry for the
+      ## same label overwrites an earlier one).
+      ram.starts <- function(x) {
+        lab <- gsub("^[^*]*\\*", "", x)
+        val <- suppressWarnings(as.numeric(gsub("\\*.*$", "", x)))
+        ok <- !is.na(val) & lab!=x & !startsWith(lab, "data.")
+        setNames(as.list(val[ok]), lab[ok])
+      }
+      existing.starts <- c(ram.starts(RAM$within$A), ram.starts(RAM$within$S),
+                           ram.starts(RAM$within$M), ram.starts(RAM$between$A),
+                           ram.starts(RAM$between$S), ram.starts(RAM$between$M))
+      startvalues2 <- c(existing.starts, startvalues)
+      startvalues2 <- startvalues2[!duplicated(names(startvalues2), fromLast=TRUE)]
 
       ## Between-level replacements must land on "between.model" BEFORE it
       ## is nested into "mx.model" below -- mxModel(model, "S",
       ## remove=TRUE) only ever reaches into "model"'s own direct children,
       ## not a submodel's.
       between.model <- .twolevel.replace.one(between.model, "A", Ab0, Ab,
-                                             startvalues, lbound, ubound)
+                                             startvalues2, lbound, ubound)
       between.model <- .twolevel.replace.one(between.model, "S", Sb0, Sb,
-                                             startvalues, lbound, ubound)
+                                             startvalues2, lbound, ubound)
       between.model <- .twolevel.replace.one(between.model, "M", Mb0, Mb,
-                                             startvalues, lbound, ubound)
+                                             startvalues2, lbound, ubound)
     }
+  }
+
+  ## Genuine level-2-only (between, cluster-level) definition variables are
+  ## not yet supported: "between.data" (built just above) only ever carries
+  ## the cluster ID column, never a real cluster-level covariate, so a
+  ## "data.*" reference among the (possibly replace.constraints-substituted)
+  ## between-level matrices can never resolve -- whether written directly
+  ## in the model (e.g. "y ~~ data.z*y" at "level: 2") or introduced via a
+  ## constraint substitution (e.g. "residB == exp(c0+c1*data.z)"). Left
+  ## unchecked, this reaches mxRun() as a hard R error that sem()'s own
+  ## mxRun-then-mxTryHard() fallback mistakes for "maybe just needs a
+  ## better start", burning through 50 retries before finally re-raising
+  ## OpenMx's own message -- which does not even mention that between-level
+  ## definition variables are the actual limitation. Caught here instead,
+  ## before any of that, with a message that says so directly. (A
+  ## within-level, i.e. "level: 1", definition variable is fully supported
+  ## and is not affected by this check.)
+  between.vars <- all.vars(parse(text=c(Ab, Sb, Mb)))
+  between.defvars <- between.vars[startsWith(between.vars, "data.")]
+  missing.cols <- setdiff(sub("^data\\.", "", between.defvars), colnames(between.data))
+  if (length(missing.cols) > 0) {
+    stop("Genuine level-2-only (between, cluster-level) definition ",
+        "variable(s) are not yet supported: ",
+        paste0("'data.", missing.cols, "'", collapse=", "),
+        " reference column(s) that the level-2 (between) data does not ",
+        "carry -- it currently contains only the cluster ID. A within-",
+        "level (\"level: 1\") definition variable (e.g. \"data.vi\") is ",
+        "supported; a genuine cluster-level covariate referenced at ",
+        "\"level: 2\" (directly, or via a replace.constraints substitution) ",
+        "is not.", call.=FALSE)
   }
 
   mx.model <- mxModel(model.name, type="RAM", between.model,
@@ -1616,9 +1840,9 @@ plot.mxsem <- function(x, manNames=NULL, latNames=NULL,
   ## Within-level replacements land on "mx.model" itself (the top model
   ## IS the "within" level here), so this can only happen after it exists.
   if (isTRUE(replace.constraints) && !is.null(RAM$mxalgebras)) {
-    mx.model <- .twolevel.replace.one(mx.model, "A", Aw0, Aw, startvalues, lbound, ubound)
-    mx.model <- .twolevel.replace.one(mx.model, "S", Sw0, Sw, startvalues, lbound, ubound)
-    mx.model <- .twolevel.replace.one(mx.model, "M", Mw0, Mw, startvalues, lbound, ubound)
+    mx.model <- .twolevel.replace.one(mx.model, "A", Aw0, Aw, startvalues2, lbound, ubound)
+    mx.model <- .twolevel.replace.one(mx.model, "S", Sw0, Sw, startvalues2, lbound, ubound)
+    mx.model <- .twolevel.replace.one(mx.model, "M", Mw0, Mw, startvalues2, lbound, ubound)
   }
 
   ## mxCI over the union of free-parameter labels across both levels. When

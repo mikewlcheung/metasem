@@ -99,9 +99,16 @@ identifying level-2 (cluster) membership. Required (and only used) when
 \code{\link[metaSEM]{lavaan2RAM}} from \code{lavaan}'s two-level
 (\code{level: 1} / \code{level: 2}) syntax. \code{data} must be a single
 data frame of individual-level (level-1) rows in this case.
-\code{Cov}/\code{numObs}-based input and \code{replace.constraints=TRUE}
-are not yet supported for two-level models, and neither is combining
-two-level and multiple-group models in the same call.}
+\code{Cov}/\code{numObs}-based input is not yet supported for two-level
+models, and neither is combining two-level and multiple-group models in
+the same call. \code{replace.constraints=TRUE} IS supported for
+two-level models (substituting a constraint into whichever of the
+within-/between-level \code{A}/\code{S}/\code{M} matrices contains it,
+including a constraint that spans both levels); a definition variable
+(\code{data.*}) may be used in such a constraint for a level-1 (within)
+parameter, but not yet for a genuine level-2-only (between, cluster-level)
+covariate, since \code{data} passed to the level-2 submodel currently
+carries only the cluster ID column.}
 
 \item{\dots}{Further arguments will be passed to either
 \code{\link[OpenMx]{mxRun}} or \code{\link[OpenMx]{mxTryHard}}}
@@ -114,10 +121,12 @@ It fits a structural equation model by creating a mxModel from a RAM object.
 }
 \note{
 When there are constraints with \code{replace.constraints=TRUE} and
-\code{intervals.type="LB"}, it returns an error because some parameters in
+\code{intervals.type="LB"} for a \strong{single-group} (non-two-level,
+non-multiple-group) model, it returns an error because some parameters in
 the model are replaced with the new parameters in the constraints. However,
 the names of these new parameters are not captured in the CI object. Users
-are advised to use \code{intervals.type="z"} before it is fixed.
+are advised to use \code{intervals.type="z"} before it is fixed. This does
+NOT affect two-level models, where the same combination works correctly.
 }
 \examples{
 
@@ -279,6 +288,36 @@ model <- "level: 1
             yi ~~ tauB*yi"
 RAM <- lavaan2RAM(model, std.lv=FALSE)
 my.fit <- sem(RAM=RAM, data=my.df6, cluster="studyID")
+summary(my.fit)
+
+## A two-level location-scale meta-analysis: replace.constraints=TRUE
+## lets the WITHIN-study heterogeneity (tauW, on fw) be a function of an
+## effect-size-level moderator xi, while yi's own residual stays fixed
+## at its KNOWN sampling variance (data.vi), exactly as in the previous
+## example. data.xi is a definition variable, so its per-row value is
+## looked up from the data instead of estimated. "tauW" never appears
+## as a free parameter itself here -- lavaanify() would otherwise reject
+## a0/a1 as undeclared, and an ordinary (non-replaced) "==" constraint
+## cannot introduce new free parameters this way; only
+## replace.constraints=TRUE can.
+set.seed(107)
+xi <- rnorm(N)
+a0 <- -4; a1 <- 0.8
+tauWi <- exp(a0 + a1*xi)
+yi2 <- rnorm(N, studyEffect + rnorm(N, 0, sqrt(tauWi)), sqrt(vi))
+my.df7 <- data.frame(studyID=studyID, yi=yi2, vi=vi, xi=xi)
+
+model <- "level: 1
+            fw =~ 1*yi
+            fw ~~ tauW*fw
+            yi ~~ data.vi*yi
+          level: 2
+            yi ~ mu*1
+            yi ~~ tauB*yi
+          tauW == exp(a0 + a1*data.xi)"
+RAM <- lavaan2RAM(model, std.lv=FALSE)
+my.fit <- sem(RAM=RAM, data=my.df7, cluster="studyID",
+              replace.constraints=TRUE)
 summary(my.fit)
 }
 
