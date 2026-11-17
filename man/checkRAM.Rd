@@ -25,6 +25,8 @@ It returns silently if no error has been detected; otherwise, it
 returns a warning message.
 }
 \description{
+Variable names must not contain periods; rename them consistently, e.g., \code{x.1} to \code{x_1}, and check for duplicate names.
+
 It provides simple checks on the correctness of the RAM formulation.
 }
 \examples{

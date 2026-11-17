@@ -5,7 +5,7 @@
 # apply(a, c(1,2),mean, na.rm=TRUE)
 .startValues <- function(x, cor.analysis=TRUE, n=NULL) {
   no.var <- max(sapply(x, ncol))
-  my.data <- sapply(x, as.vector)
+  my.data <- do.call(cbind, lapply(x, as.vector))
   if (is.null(n)) {
       ## Unweighted mean
       my.start <- apply(my.data, 1, weighted.mean, na.rm=TRUE)
@@ -72,41 +72,28 @@
     out
   } else {
     miss.index <- is.na(Diag(x))
-    x <- x[!miss.index, !miss.index]
-    if (!is.pd(x))
+    x <- x[!miss.index, !miss.index, drop=FALSE]
+    if (!isTRUE(is.pd(x)))
       stop("\"x\" is not positive definite.\n")
     no.var <- ncol(x)
     vars <- paste("v", 1:no.var, sep="")
     dimnames(x) <- list(vars, vars)
     obsCov <- mxData(observed=x, type='cov', numObs=n)
-    ## if (missing(model))
-    ##   stop("\"model\" was not specified.\n")
-    ## model <- match.arg(model)
-    ## switch(model,
-    ##        saturated = expCov <- mxMatrix("Symm", nrow=no.var, ncol=no.var, free=TRUE, 
-    ##                                       values=vech(x), name="expCov"),
-    ##        independent = expCov <- mxMatrix("Diag", nrow=no.var, ncol=no.var, free=TRUE, 
-    ##                                         values=diag(x), name="expCov")
-    ##  )
-    expCov <- mxMatrix("Diag", nrow=no.var, ncol=no.var, free=TRUE, 
-                       values=Diag(x), name="expCov")    
     objective <- mxExpectationNormal(covariance = "expCov", dimnames=vars)
-   
-    mx.model <- mxModel("model", expCov, obsCov, objective, mxFitFunctionML())
-    mx.model <- mxOption(mx.model, "Calculate Hessian", "No") 
-    mx.model <- mxOption(mx.model, "Standard Errors"  , "No")
-    
-    fit <- tryCatch(mxRun(mx.model, silent=TRUE, suppressWarnings=TRUE), error = function(e) e)
-    
-    if (inherits(fit, "error")) {
-        return(c(SaturatedLikelihood=NA, IndependenceLikelihood=NA,
-                 independenceDoF=no.var*(no.var-1)/2))
-        ## stop(print(fit))
-    } else {
-        #fit@output$Minus2LogLikelihood
-        ## c(unlist(summary(fit)[c("SaturatedLikelihood", "IndependenceLikelihood", "independenceDoF")]))
-       return(c(unlist(fit@output[c("SaturatedLikelihood", "IndependenceLikelihood")]), independenceDoF=no.var*(no.var-1)/2))
+    fit.baseline <- function(type) {
+      expCov <- mxMatrix(type, nrow=no.var, ncol=no.var, free=TRUE,
+                         values=if (type == "Symm") vech(x) else diag(x), name="expCov")
+      model <- mxModel("model", expCov, obsCov, objective, mxFitFunctionML())
+      model <- mxOption(model, "Calculate Hessian", "No")
+      model <- mxOption(model, "Standard Errors", "No")
+      fit <- mxRun(model, silent=TRUE, suppressWarnings=TRUE)
+      if (!is.finite(fit@output$fit) || !fit@output$status$code %in% c(0L, 1L))
+        stop("The ", type, " baseline model did not converge; fit statistics are unavailable.")
+      fit@output$fit
     }
+    c(SaturatedLikelihood=fit.baseline("Symm"),
+      IndependenceLikelihood=fit.baseline("Diag"),
+      independenceDoF=no.var*(no.var-1)/2)
   }
 }
 
@@ -120,10 +107,10 @@
     ## meta3L or meta3LML class
   if ( any(c("meta3L","meta3LFIML") %in% class(object)) ) {
     ## Tau2 with predictors
-    Tau2_2model <- tryCatch( eval(parse(text="mxEval(Tau2_2, object$mx.fit)")), error = function(e) NA )
-    Tau2_3model <- tryCatch( eval(parse(text="mxEval(Tau2_3, object$mx.fit)")), error = function(e) NA )
-    Tau2_2base <- tryCatch( eval(parse(text="mxEval(Tau2_2, object$mx0.fit$mx.fit)")), error = function(e) NA )
-    Tau2_3base <- tryCatch( eval(parse(text="mxEval(Tau2_3, object$mx0.fit$mx.fit)")), error = function(e) NA )           
+    Tau2_2model <- tryCatch( mxEvalByName("Tau2_2", object$mx.fit), error = function(e) NA )
+    Tau2_3model <- tryCatch( mxEvalByName("Tau2_3", object$mx.fit), error = function(e) NA )
+    Tau2_2base <- tryCatch( mxEvalByName("Tau2_2", object$mx0.fit$mx.fit), error = function(e) NA )
+    Tau2_3base <- tryCatch( mxEvalByName("Tau2_3", object$mx0.fit$mx.fit), error = function(e) NA )           
 
     R2_2 <- max((1-Tau2_2model/Tau2_2base), 0)
     R2_3 <- max((1-Tau2_3model/Tau2_3base), 0)
@@ -132,10 +119,10 @@
                                 c("Level 2", "Level 3"))
     } else {
     ## Return NA when Tau2 values cannot be retrieved, e.g., constrained at lbound or no name
-    Tau2model <- sapply(1:no.y, function(x) { temp <- paste("mxEval(Tau2_",x,"_",x,", object$mx.fit)", sep="")
-                        tryCatch( eval(parse(text=temp)), error = function(e) NA ) })
-    Tau2base <- sapply(1:no.y, function(x) { temp <- paste("mxEval(Tau2_",x,"_",x,", object$mx0.fit$mx.fit)", sep="")
-                       tryCatch( eval(parse(text=temp)), error = function(e) NA ) })
+    Tau2model <- sapply(1:no.y, function(x)
+                        tryCatch( mxEvalByName(paste0("Tau2_",x,"_",x), object$mx.fit), error = function(e) NA ))
+    Tau2base <- sapply(1:no.y, function(x)
+                       tryCatch( mxEvalByName(paste0("Tau2_",x,"_",x), object$mx0.fit$mx.fit), error = function(e) NA ))
     R2_2 <- pmax((1-Tau2model/Tau2base), 0)
     R2.values <- rbind(Tau2base, Tau2model, R2_2)
     dimnames(R2.values) <- list( c("Tau2 (no predictor)", "Tau2 (with predictors)", "R2"),
@@ -161,15 +148,12 @@
       
   ## meta3L class
   if ( "meta3L" %in% class(object) ) {
-    I2.names <- c("I2q","I2hm","I2am")
-    ## Rearrange different I2 into the standard format
-    I2.names <- I2.names[ c("I2q","I2hm","I2am") %in% I2 ]
     I2.names <- c(outer(I2, c("_2","_3"), paste, sep=""))
    
     ## Wald test, no CI
     if (is.null(dimnames(my.ci))) {
       I2.values <- matrix(NA, nrow=length(I2.names), ncol=3)
-      I2.values[,2] <- eval(parse(text = paste("mxEval(c(", paste(I2.names, collapse=","), "), object$mx.fit)", sep="")))
+      I2.values[,2] <- unlist(lapply(I2.names, function(x) c(mxEvalByName(x, object$mx.fit))))
     } else {
       name <- sapply(unlist(dimnames(my.ci)[1]), function(x)
                            {strsplit(x, ".", fixed=TRUE)[[1]][2]}, USE.NAMES=FALSE)
@@ -205,7 +189,7 @@
     ## Wald test, no CI
     if (is.null(dimnames(my.ci))) {
       I2.values <- matrix(NA, nrow=length(I2.names)*no.y, ncol=3)
-      I2.values[,2] <- eval(parse(text = paste("mxEval(I2_values, object$mx.fit)", sep="")))
+      I2.values[,2] <- mxEvalByName("I2_values", object$mx.fit)
     } else {## LB CI  model.name <- "Meta analysis with ML."
         ## modified to remove NA in row names
       name <- sapply(unlist(dimnames(my.ci)[1]), function(x)
@@ -236,7 +220,9 @@
 ## Modified from rmseaConfidenceIntervalHelper() in OpenMx
 .rmseaCI <- function(chi.squared, df, N, G=1, lower=.05, upper=.95){
 
-    if (df==0) {
+    if (is.na(chi.squared) || is.na(df) || df < 0) {
+        return(c(lower=NA_real_, upper=NA_real_))
+    } else if (df==0) {
         return(c(lower=0, upper=0))
     } else {
         pChiSqFun <- function(x, val, degf, goal){ goal - pchisq(val, degf, ncp=x) }  
@@ -261,12 +247,41 @@
             upper.lam <- 0
         }
 
-        ## Steiger (1998, Eq. 24) A note on multiple sample extensions of the RMSEA fit indices. SEM, 5(4), 411-419.
-        lower.rmsea <- sqrt(G)*sqrt(max((lower.lam)/(N-G)/df, 0))
-        upper.rmsea <- sqrt(G)*sqrt(max((upper.lam)/(N-G)/df, 0))
+        ## Normal-theory maximum likelihood convention, matching the point estimate.
+        lower.rmsea <- sqrt(G)*sqrt(max((lower.lam)/N/df, 0))
+        upper.rmsea <- sqrt(G)*sqrt(max((upper.lam)/N/df, 0))
 
         return(c(lower=lower.rmsea, upper=upper.rmsea))
     }
+}
+
+## Fit indices of the target model shared by summary.wls() and summary.tssem1FEM()
+## df=0 follows lavaan: p=NA, RMSEA=0 with CI (0,0), TLI=1, CFI by its formula.
+## df<0 (more free parameters than observed statistics): all indices are NA.
+.fitIndices <- function(tT, dfT, tB, dfB, N, G=1) {
+    na.out <- list(p=NA_real_, RMSEA=NA_real_, RMSEA.CI=c(lower=NA_real_, upper=NA_real_),
+                   TLI=NA_real_, CFI=NA_real_)
+    if (is.na(tT) || is.na(dfT)) return(na.out)
+    if (dfT < 0) {
+        warning("The model has more free parameters than observed statistics (df = ", dfT,
+                "). It is not identified, and the fit indices are not computed.\n")
+        return(na.out)
+    }
+    if (dfT == 0) {
+        p <- NA_real_
+        RMSEA <- 0
+        TLI <- 1
+    } else {
+        p <- pchisq(tT, df=dfT, lower.tail=FALSE)
+        RMSEA <- sqrt(G)*sqrt(max((tT-dfT)/N,0)/dfT)
+        ## Hu and Bentler (1998)
+        TLI <- (tB/dfB - tT/dfT)/(tB/dfB-1)
+    }
+    RMSEA.CI <- .rmseaCI(chi.squared=tT, df=dfT, N=N, G=G, lower=.05, upper=.95)
+    numerator <- max(tT-dfT, 0)
+    denominator <- max(tT-dfT, tB-dfB, 0)
+    CFI <- if (isTRUE(denominator == 0)) 1 else 1 - numerator/denominator
+    list(p=p, RMSEA=RMSEA, RMSEA.CI=RMSEA.CI, TLI=TLI, CFI=CFI)
 }
 
 ## Use chol2inv() first and ginv() if there are problems
@@ -299,10 +314,63 @@
     } else {
         psNames <- vech(outer(x, x, paste, sep = "_"))
     }
+    ## Distinct pairs can have the same concatenation when variable names
+    ## themselves contain underscores. Keep historical names where unique.
+    psNames <- make.unique(as.character(psNames), sep="_dup")
     
     ## Names for the sampling covariance matrix of the correlation vector
     psCovNames <- paste("C(", outer(psNames, psNames, paste, sep = " "), ")", sep="")
-    psCovNames <- vech(matrix(psCovNames, nrow=length(psNames), ncol=length(psNames)))
+    psCovNames <- make.unique(as.character(vech(matrix(psCovNames, nrow=length(psNames), ncol=length(psNames)))), sep="_dup")
 
     list(ylabels=psNames, vlabels=psCovNames)
+}
+## OpenMx's default "Feasibility tolerance" (5e-2) lets constraints be
+## violated by up to 0.05 at the solution, which can change the estimates of
+## models with active inequality constraints. Models with mxConstraints are
+## fitted with a tight tolerance unless the user has set one, either globally
+## with mxOption(NULL, ...) or on the model.
+.feasibility.tolerance <- 1e-6
+
+.has.constraints <- function(model) {
+  length(model@constraints) > 0 ||
+    any(vapply(model@submodels, .has.constraints, logical(1)))
+}
+
+.tighten.feasibility <- function(model) {
+  if (!.has.constraints(model) ||
+      !is.null(model@options[["Feasibility tolerance"]]) ||
+      as.numeric(mxOption(NULL, "Feasibility tolerance")) != 0.05)
+    return(model)
+  mxOption(model, "Feasibility tolerance", .feasibility.tolerance)
+}
+
+## After fitting a model with mxConstraints: rerun once from the solution if
+## the status code is neither 0 nor 1, and warn if a constraint is still
+## violated by more than 10 times the feasibility tolerance in use.
+.check.constraints <- function(fit, rerun=TRUE, ...) {
+  if (!inherits(fit, "MxModel") || !.has.constraints(fit)) return(fit)
+  if (rerun && !(fit@output$status$code %in% c(0, 1))) {
+    refit <- tryCatch(mxRun(fit, silent=TRUE, suppressWarnings=TRUE, ...),
+                      error=function(e) e)
+    if (!inherits(refit, "error")) fit <- refit
+  }
+  tolerance <- fit@options[["Feasibility tolerance"]]
+  if (is.null(tolerance)) tolerance <- mxOption(NULL, "Feasibility tolerance")
+  violation <- max(abs(as.numeric(fit@output$constraintFunctionValues)), 0)
+  if (is.finite(violation) && violation > 10*as.numeric(tolerance))
+    warning("A constraint is violated by ", signif(violation, 3),
+            " at the solution (OpenMx status code ", fit@output$status$code,
+            "). The estimates may be wrong. You are advised to rerun the ",
+            "model, e.g., with rerun().",
+            call.=FALSE)
+  fit
+}
+
+## mxTryHard() prints its progress to the console and its notes as messages,
+## even with silent=TRUE. Internal fallbacks run it quietly; warnings and
+## errors are kept.
+.quiet <- function(expr) {
+  value <- NULL
+  utils::capture.output(value <- suppressMessages(expr))
+  value
 }

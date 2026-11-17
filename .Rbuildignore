@@ -3,3 +3,19 @@
 .git
 .claude
 ^dev$
+^readings$
+^cluster_robust$
+^AGENTS\.md$
+^Demonstration\.Rmd$
+^Demonstration_old\.md$
+^my own tests$
+^masem3l$
+^rcmasem$
+^my_own_tests_updated$
+^vignettes/Examples\.md$
+^vignettes/Examples\.Rmd$
+^vignettes/metaSEM\.Rnw$
+^vignettes/metaSEM\.bib$
+^vignettes/Fig[1-5]\.pdf$
+^vignettes/Examples_files$
+^00details\.log$

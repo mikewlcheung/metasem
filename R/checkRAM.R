@@ -1,6 +1,7 @@
 #' Check the correctness of the RAM formulation
 #' 
 #' It provides simple checks on the correctness of the RAM formulation.
+#' Variable names must not contain periods; rename them consistently, e.g., \code{x.1} to \code{x_1}, and check for duplicate names.
 #' 
 #' 
 #' @param Amatrix An asymmetric matrix in the RAM specification with
@@ -58,6 +59,8 @@
 #' }
 #' 
 checkRAM <- function(Amatrix, Smatrix, cor.analysis=TRUE) {
+    if (!missing(Amatrix)) .check.model.matrix(Amatrix)
+    if (!missing(Smatrix)) .check.model.matrix(Smatrix)
     if (missing(Amatrix)&missing(Smatrix)) {
         warning("Either 'Amatrix' or 'Smatrix' must be present.")
     }    

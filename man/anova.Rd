@@ -10,6 +10,15 @@
 \alias{anova.osmasem2}
 \alias{anova.mxsem}
 \title{Compare Nested Models with Likelihood Ratio Statistic}
+\usage{
+\method{anova}{wls}(object, ..., all = FALSE)
+\method{anova}{meta}(object, ..., all = FALSE)
+\method{anova}{meta3LFIML}(object, ..., all = FALSE)
+\method{anova}{reml}(object, ..., all = FALSE)
+\method{anova}{osmasem}(object, ..., all = FALSE)
+\method{anova}{osmasem2}(object, ..., all = FALSE)
+\method{anova}{mxsem}(object, ..., all = FALSE)
+}
 \arguments{
 \item{object}{An object or a list of objects of various classes. It will be
 passed to the \code{base} argument in \code{\link[OpenMx]{mxCompare}}.}

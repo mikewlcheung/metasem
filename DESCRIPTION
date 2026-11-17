@@ -1,11 +1,11 @@
 Package: metaSEM
 Type: Package
 Title: Meta-Analysis using Structural Equation Modeling
-Version: 1.6.0
-Date: 2026-08-22
+Version: 2.0
+Date: 2026-11-16
 Depends: R (>= 4.2.0), OpenMx
-Imports: Matrix, MASS, ellipse, graphics, stats, utils, mvtnorm, numDeriv, lavaan
-Suggests: metafor, semPlot, R.rsp, testthat, matrixcalc
+Imports: Matrix, MASS, ellipse, graphics, stats, utils, mvtnorm, numDeriv, lavaan, methods
+Suggests: metafor, semPlot, testthat, matrixcalc, sandwich, R.rsp
 VignetteBuilder: R.rsp
 Authors@R: person(given = "Mike", family = "Cheung", role = c("aut","cre"), email = "mikewlcheung@nus.edu.sg", comment = c(ORCID = "0000-0003-0113-0758"))
 Maintainer: Mike Cheung <mikewlcheung@nus.edu.sg>
@@ -22,5 +22,4 @@ LazyData: yes
 ByteCompile: yes
 URL: https://github.com/mikewlcheung/metasem
 BugReports: https://github.com/mikewlcheung/metasem/issues
-RoxygenNote: 8.0.0
-Config/roxygen2/version: 8.0.0
+Config/roxygen2/version: 8.1.1

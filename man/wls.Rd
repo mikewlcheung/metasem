@@ -52,12 +52,17 @@ where \eqn{p}{p} is the number of variables.}
 matrix of either \code{\link[OpenMx]{vechs}} \code{(Cov)} or
 \code{\link[OpenMx]{vech}} \code{(Cov)} where \eqn{p* = p(p-1)/2 }{p* =
 p(p-1)/2} for correlation matrix and \eqn{p* = p(p+1)/2 }{p* = p(p+1)/2} for
-covariance matrix.}
+covariance matrix. When both dimensions have recognizable, unique labels, they are aligned to Cov before subsetting; reversed pair names are accepted when they uniquely identify a pair. Partially matching labels are rejected; wholly different labels produce a warning and use position. Unnamed matrices use position.}
 
 \item{n}{Sample size.}
 
 \item{RAM}{A RAM object including a list of matrices of the model returned
-from \code{\link[metaSEM]{lavaan2RAM}}.}
+from \code{\link[metaSEM]{lavaan2RAM}}. When the observed variable names
+in RAM and Cov match, RAM is reordered to match Cov. If both have names
+that do not match, positional matching is retained with a warning.
+Unnamed inputs are matched by position. The number of observed variables
+must match the matrix dimension. Separately supplied named Fmatrix rows are also
+aligned to Cov; Amatrix and Smatrix retain their node order. Named node dimensions of the separately supplied matrices must agree in order.}
 
 \item{Amatrix}{If \code{RAM} is not specified, an \code{Amatrix} is
 required. An asymmetric matrix in the RAM specification with
@@ -91,7 +96,10 @@ confidence intervals (CIs) by specifying \code{intervals.type="LB"}.  If
 \code{diag.constraints=FALSE} and \code{cor.analysis=TRUE}, the diagonals
 are automatically constrained as ones by treating the error variances as
 computed values rather than as parameters. Since the error variances are not
-parameters, they are not reported.}
+parameters, they are not reported. Fixed dependent residual variances are
+ignored with a warning in this implicit method. In the explicit-constraint
+method, fixed dependent residuals do not receive a unit-variance constraint;
+a warning asks the user to verify the model-implied variance.}
 
 \item{cor.analysis}{Logical. Analysis of correlation or covariance
 structure. If \code{cor.analysis=TRUE}, \code{\link[OpenMx]{vechs}} is used
@@ -127,9 +135,8 @@ create new matrices using these names.}
 \item{subset.variables}{An optional character vector of variable names to
 select variables in the analysis. For example, there are 10 variables in
 \code{Cov}, say, x1 to x10. We may use \code{c("x1", "x2", "x3")} to select
-three variables in the analysis. Please note that this argument does not
-reorder the data. That is, \code{c("x3", "x2", "x1")} is the same as
-\code{c("x1", "x2", "x3")}.}
+three variables in the analysis. The order supplied here is used for both
+the selected covariance matrix and its asymptotic covariance matrix.}
 
 \item{model.name}{A string for the model name in
 \code{\link[OpenMx]{mxModel}}. If it is missing, the default is "TSSEM2 (or
@@ -164,11 +171,15 @@ freedom of the independent model returned by \code{.indepwlsChisq}}
 \item{mx.fit}{A fitted object returned from \code{\link[OpenMx]{mxRun}}}
 }
 \description{
+Variable names in the matrices, RAM model, and \code{subset.variables}, and ordinary parameter labels, must not contain periods. Rename them consistently, e.g., \code{x.1} to \code{x_1}, and check for duplicate names.
+
 It fits a correlation or covariance structure with weighted least squares
 (WLS) estimation method where the inverse of the asymptotic covariance
 matrix is used as the weight matrix. \code{tssem2} conducts the second stage
 analysis of the two-stage structural equation modeling (TSSEM).
 \code{tssem2} is a wrapper of \code{wls}.
+WLS summaries use the supplied sample size \code{n} as the RMSEA denominator;
+see \code{\link[metaSEM]{summary}} for the formula.
 }
 \note{
 If the input is a list of \code{tssem1.obj}, it returns a list of

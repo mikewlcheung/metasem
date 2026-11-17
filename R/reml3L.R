@@ -4,6 +4,7 @@
 #' It estimates the variance components of random-effects in three-level
 #' univariate meta-analysis with restricted (residual) maximum likelihood
 #' (REML) estimation method.
+#' Variable names and data column names must not contain periods. Rename them consistently, for example \code{x.1} to \code{x_1}, and check that the new names are unique. Study, group, and cluster values may contain periods.
 #'
 #' Restricted (residual) maximum likelihood obtains the parameter estimates on
 #' the transformed data that do not include the fixed-effects parameters. A
@@ -27,6 +28,15 @@
 #' parameter estimates.
 #'
 #' @aliases reml3 reml3L
+#' @usage
+#' reml3L(y, v, cluster, x, data, RE2.startvalue = 0.1, RE2.lbound = 1e-10,
+#'     RE3.startvalue = RE2.startvalue, RE3.lbound = RE2.lbound, RE.equal = FALSE,
+#'     intervals.type = c("z", "LB"), model.name = "Variance component with REML",
+#'     suppressWarnings = TRUE, silent = TRUE, run = TRUE, ...)
+#' reml3(y, v, cluster, x, data, RE2.startvalue = 0.1, RE2.lbound = 1e-10,
+#'     RE3.startvalue = RE2.startvalue, RE3.lbound = RE2.lbound, RE.equal = FALSE,
+#'     intervals.type = c("z", "LB"), model.name = "Variance component with REML",
+#'     suppressWarnings = TRUE, silent = TRUE, run = TRUE, ...)
 #' @param y A vector of \eqn{k}{k} studies of effect size.
 #' @param v A vector of \eqn{k}{k} studies of sampling variance.
 #' @param cluster A vector of \eqn{k}{k} characters or numbers indicating the
@@ -60,11 +70,9 @@
 #' \item{mx.fit}{A fitted object returned from \code{\link[OpenMx]{mxRun}}}
 #' @note \code{reml} is more computationally intensive than \code{meta}.
 #' Moreover, \code{reml} is more likely to encounter errors during
-#' optimization. Since a likelihood function is directly employed to obtain the
-#' parameter estimates, there is no number of studies and number of observed
-#' statistics returned by \code{\link[OpenMx]{mxRun}}. Ad hoc steps are used to
-#' modify \code{mx.fit@runstate$objectives[[1]]@numObs} and
-#' \code{mx.fit@runstate$objectives[[1]]@numStats}.
+#' optimization. The algebra fit function records the number of studies and
+#' the number of residual statistics (studies minus columns of the fixed-effects
+#' design matrix), including when \code{RE.equal=TRUE}.
 #' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
 #' @seealso \code{\link[metaSEM]{meta3L}}, \code{\link[metaSEM]{reml}},
 #' \code{\link[metaSEM]{Cooper03}}, \code{\link[metaSEM]{Bornmann07}}
@@ -88,6 +96,7 @@ reml3L <- function(y, v, cluster, x, data, RE2.startvalue=0.1, RE2.lbound=1e-10,
                   intervals.type=c("z", "LB"), model.name="Variance component with REML",
                   suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
   mf <- match.call()
+  .check.meta.input.names(mf, if (!missing(data)) data else NULL)
   if (missing(data)) {
     data <- sys.frame(sys.parent())
   } else {
@@ -105,8 +114,10 @@ reml3L <- function(y, v, cluster, x, data, RE2.startvalue=0.1, RE2.lbound=1e-10,
   cluster.order <- order(cluster)
   cluster <- cluster[cluster.order]
   y <- eval(my.y, data, enclos = sys.frame(sys.parent()))
+  .check.no.period(colnames(y), "Variable column names")
   y <- y[cluster.order]
   v <- eval(my.v, data, enclos = sys.frame(sys.parent()))
+  .check.no.period(colnames(v), "Variable column names")
   v <- v[cluster.order]
   no.studies <- length(y)
 
@@ -120,6 +131,7 @@ reml3L <- function(y, v, cluster, x, data, RE2.startvalue=0.1, RE2.lbound=1e-10,
   } else {
     my.x <- mf[[match("x", names(mf))]]
     x <- eval(my.x, data, enclos = sys.frame(sys.parent()))
+    .check.no.period(colnames(x), "Variable column names")
     if (is.vector(x)) x <- x[cluster.order] else x <- x[cluster.order, ]
     X <- cbind(X, x)
     no.x <- ncol(X)-1
@@ -162,7 +174,7 @@ reml3L <- function(y, v, cluster, x, data, RE2.startvalue=0.1, RE2.lbound=1e-10,
   # Constrain equal variances
   if (RE.equal) {
     reml.model <- mxModel(model=model.name, X, Y, V, Tau_2, Tau_3, W, alpha, obj,
-                          mxFitFunctionAlgebra("obj"), mxCI(c("Tau2")))
+                          mxFitFunctionAlgebra("obj", numObs=no.studies, numStats=numStats), mxCI(c("Tau2")))
     reml.model <- omxSetParameters(reml.model, labels=c("Tau2_2", "Tau2_3"), newlabels=c("Tau2", "Tau2"),
                                    values=c(RE2.startvalue, RE2.startvalue), lbound=c(RE2.lbound, RE2.lbound))
   } else {

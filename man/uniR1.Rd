@@ -20,6 +20,9 @@ the standard errors of the correlation matrix, and the standard deviations
 (heterogeneity) of the correlation matrix.
 }
 \description{
+Variable names in the input matrices must not contain periods; rename them
+consistently, e.g., \code{x.1} to \code{x_1}, and check for duplicate names.
+
 It conducts the first stage analysis of the uniR analysis by pooling
 elements of the correlation coefficients individually.
 }

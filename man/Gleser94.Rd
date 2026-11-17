@@ -58,8 +58,8 @@ Gleser94$MES$Coached.V22 <- with(Gleser94$MES, SD.Coached.Verbal^2)
 ## Assuming homogeneity of covariance matrices
 my.MES <- t(apply(Gleser94$MES, MARGIN=1,
             function(x)
-            smdMES(m1=x[c("Mean.Uncoached.Math", "Mean.Uncoached.Verbal")],
-                   m2=x[c("Mean.Coached.Math", "Mean.Coached.Verbal")],
+            smdMES(m1=unname(x[c("Mean.Uncoached.Math", "Mean.Uncoached.Verbal")]),
+                   m2=unname(x[c("Mean.Coached.Math", "Mean.Coached.Verbal")]),
                    V1=vec2symMat(x[c("Uncoached.V11", "Uncoached.V21", "Uncoached.V22")]),
                    V2=vec2symMat(x[c("Coached.V11", "Coached.V21", "Coached.V22")]),
                    n1=x["N.Uncoached"],

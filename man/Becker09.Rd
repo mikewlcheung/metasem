@@ -118,8 +118,17 @@ title("Team sport")
 
 
 #### Random-effects model
+## These are correlation matrices. In study 5, two variables have reported
+## correlations but missing diagonals; set those observed diagonals to 1.
+becker_cor <- lapply(Becker09$data, function(S) {
+  observed <- vapply(seq_len(nrow(S)), function(i) any(!is.na(S[i, -i])), logical(1))
+  d <- diag(S)
+  d[is.na(d) & observed] <- 1
+  diag(S) <- d
+  S
+})
 ## First stage analysis
-random1 <- tssem1(Becker09$data, Becker09$n, method="REM", RE.type="Diag")
+random1 <- tssem1(becker_cor, Becker09$n, method="REM", RE.type="Diag")
 summary(random1)
 
 ## Second stage analysis

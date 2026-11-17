@@ -2,6 +2,8 @@
 #'
 #' It calculates effect sizes with Delta Method by formulating the effect sizes
 #' as functions of SEM in lavaan.
+#' Variable names, data column names and ordinary parameter labels must not
+#' contain periods; rename them consistently, e.g., \code{x.1} to \code{x_1}.
 #'
 #'
 #' @param model A lavaan model. Effect sizes are defined as functions of SEM
@@ -60,6 +62,12 @@
 #'
 calEffSizes <- function(model, data=NULL, n, Cov, Mean=NULL, group=NULL,
                         lavaan.output=FALSE, warn=FALSE, ...) {
+
+    .check.no.period(colnames(data), "Data column names")
+    .check.no.period(group, "Group column names")
+    if (!missing(Cov)) .check.cov.names(Cov)
+    .check.mean.names(Mean)
+    .check.lavaan.model.names(model)
 
     ## When raw data are present
     if (!is.null(data)) {

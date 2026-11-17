@@ -5,6 +5,11 @@
 \alias{uniR2mx}
 \alias{uniR2lavaan}
 \title{Second Stage analysis of the univariate R (uniR) approach}
+\usage{
+uniR2mx(x, RAM = NULL, Amatrix = NULL, Smatrix = NULL, Fmatrix = NULL, model.name = NULL,
+    suppressWarnings = TRUE, silent = TRUE, run = TRUE, ...)
+uniR2lavaan(x, model, ...)
+}
 \arguments{
 \item{x}{An object of class \code{uniR1} from \code{\link[metaSEM]{uniR1}}.}
 
@@ -55,10 +60,17 @@ A fitted object returned from \code{\link[OpenMx]{mxRun}} or
 \code{\link[lavaan]{sem}}.
 }
 \description{
+Variable names and ordinary parameter labels must not contain periods;
+rename consistently, e.g., \code{x.1} to \code{x_1}.
+
 It conducts the second stage analysis of the uniR analysis by fitting
 structural equation models on the average correlation matrix.
 }
 \details{
+In \code{uniR2mx()}, observed variables are aligned by name when possible.
+If the pooled matrix is named but observed names are unavailable or differ,
+positional matching is used with a warning; check the variable order.
+
 This function implements the univariate r approach proposed by Viswesvaran
 and Ones (1995) to conduct meta-analytic structural equation modeling
 (MASEM). It treats the average correlation matrix as if it was a covariance

@@ -44,6 +44,9 @@ Effect sizes and their sampling covariance matrix or a lavaan fitted
 object.
 }
 \description{
+Variable names, data column names and ordinary parameter labels must not
+contain periods; rename them consistently, e.g., \code{x.1} to \code{x_1}.
+
 It calculates effect sizes with Delta Method by formulating the effect sizes
 as functions of SEM in lavaan.
 }

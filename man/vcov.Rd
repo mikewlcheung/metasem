@@ -15,7 +15,25 @@
 \alias{vcov.mxsem}
 \title{Extract Covariance Matrix Parameter Estimates from Objects of Various
 Classes}
+\usage{
+\method{vcov}{tssem1FEM}(object, ...)
+\method{vcov}{tssem1FEM.cluster}(object, ...)
+\method{vcov}{tssem1REM}(object, select = c("all", "fixed", "random"), robust = FALSE, ...)
+\method{vcov}{wls}(object, ...)
+\method{vcov}{wls.cluster}(object, ...)
+\method{vcov}{meta}(object, select = c("all", "fixed", "random"), robust = FALSE, ...)
+\method{vcov}{meta3LFIML}(object, select = c("all", "fixed", "random", "allX"), robust = FALSE,
+    ...)
+\method{vcov}{reml}(object, ...)
+\method{vcov}{osmasem}(object, select = c("fixed", "all", "random"), robust = FALSE, ...)
+\method{vcov}{osmasem2}(object, select = c("fixed", "all", "random"), robust = FALSE, ...)
+\method{vcov}{mxsem}(object, robust = FALSE, smallSample = FALSE, ...)
+}
 \arguments{
+\item{smallSample}{Logical. For \code{mxsem} objects, whether to apply the
+small-sample correction to the cluster-robust covariance matrix; requires
+\code{robust=TRUE}. See \code{\link{clusterRobustSE}}.}
+
 \item{object}{An object returned from objects of various classes}
 
 \item{select}{Select \code{all} for both fixed- and random-effects
@@ -31,7 +49,9 @@ auxiliary variables.}
 \code{tssemRobust1}, which to be passed to \code{\link[metafor]{robust}}.}
 }
 \value{
-A variance-covariance matrix of the parameter estimates.
+A variance-covariance matrix of the parameter estimates. For
+\code{osmasem} and \code{osmasem2}, the result remains a matrix when
+one parameter is selected; an empty selection returns a 0 by 0 matrix.
 }
 \description{
 It extracts the variance-covariance matrix of the parameter estimates from

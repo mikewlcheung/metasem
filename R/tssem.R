@@ -1,7 +1,14 @@
 tssem1FEM <- function(Cov, n, cor.analysis=TRUE, model.name=NULL,
                       cluster=NULL, suppressWarnings=TRUE, silent=TRUE,
                       run=TRUE, ...) {
-    
+  .check.cov.names(Cov)
+  if (!is.list(Cov) || !length(Cov) ||
+      any(!vapply(Cov, is.matrix, logical(1))))
+    stop("'Cov' must be a nonempty list of covariance/correlation matrices.")
+  if (length(Cov) != length(n))
+    stop("Lengths of 'Cov' and 'n' are different.")
+  Cov <- .align.study.matrices(Cov)
+
   ## Function to mark diagonals as NA when all correlation coefficients of the variable are NA
   ## assuming matrices are symmetric
   addDiagNA <- function(x) {
@@ -15,7 +22,12 @@ tssem1FEM <- function(Cov, n, cor.analysis=TRUE, model.name=NULL,
       if (is.list(x)) lapply(x, add_NA) else add_NA(x)
   }
   ## Mark the diagonals as NA when all correlation coefficients are NA
-  Cov <- addDiagNA(Cov)
+  if (cor.analysis) Cov <- addDiagNA(Cov)
+  empty <- which(vapply(Cov, function(x) all(is.na(diag(x))), logical(1)))
+  if (length(empty))
+    stop("Study ", paste(empty, collapse=", "), if (cor.analysis)
+         " has no observed correlations; remove it from the correlation analysis." else
+         " has no observed variances; remove it from the covariance analysis.")
 
   ## Smooth non-symmetric matrices probably due to rounding
   ## assuming no input error in the matrices
@@ -24,6 +36,14 @@ tssem1FEM <- function(Cov, n, cor.analysis=TRUE, model.name=NULL,
   } else {
       Cov <- (Cov+t(Cov))/2
   }
+
+  ## FEM can omit whole variables, but mxData cannot use a covariance matrix
+  ## with a missing entry among the variables that remain in a study.
+  if (any(vapply(Cov, function(x) {
+    present <- !is.na(diag(x))
+    anyNA(x[present, present, drop=FALSE])
+  }, logical(1))))
+    stop("Fixed-effects TSSEM requires complete correlations among variables present in each study; use method='REM' for partially missing correlations.")
 
   ## Split the data by cluster
   if (!is.null(cluster)) {
@@ -34,20 +54,13 @@ tssem1FEM <- function(Cov, n, cor.analysis=TRUE, model.name=NULL,
       ## Need to correct it to tssem1()
       out[[i]] <- tssem1FEM(data.cluster[[i]], n.cluster[[i]],
                            cor.analysis=cor.analysis, model.name=model.name,
-                           suppressWarnings=suppressWarnings, ...)
+                           suppressWarnings=suppressWarnings, silent=silent,
+                           run=run, ...)
     }
     names(out) <- names(data.cluster)
     class(out) <- "tssem1FEM.cluster"
     out
   } else {
-    ## Throw an error when df and n are in different lengths.
-    if (length(Cov) != length(n)) stop("Lengths of \"df\" and \"n\" are different.\n") 
-      
-    ## Check whether all studies have the same dimensions
-    my.range <- range(sapply(Cov, function(x) {ncol(x)}))
-    if ( !all.equal(my.range[1], my.range[2]) )
-      stop("Dimensions of groups are not the same!\n")
-
     no.groups <- length(Cov)
     no.var <- ncol(Cov[[1]])
 
@@ -150,6 +163,8 @@ tssem1FEM <- function(Cov, n, cor.analysis=TRUE, model.name=NULL,
     } else {
         ## Calculate 2LL of the saturated and independence models and the DF of independence model
         baseMinus2LL <- tryCatch(.minus2LL(x=Cov, n=n), error = function(e) e)
+        if (inherits(baseMinus2LL, "error"))
+          warning("Could not calculate baseline likelihoods: ", conditionMessage(baseMinus2LL))
 
         out <- list(call = match.call(), cor.analysis=cor.analysis, data=Cov, n = n,
                     baseMinus2LL = baseMinus2LL, mx.model=tssem1, mx.fit = mx.fit,
@@ -166,36 +181,62 @@ tssem1REM <- function(Cov, n, cor.analysis=TRUE, RE.type=c("Diag", "Symm", "Zero
                       I2="I2q", acov=c("weighted", "individual", "unweighted"),
                       asyCovOld=FALSE, model.name=NULL, suppressWarnings=TRUE, silent=TRUE,
                       run=TRUE, ...) {
+  .check.cov.names(Cov)
   ## It handles missing effect sizes rather than missing correlations. Thus, it is more flexible than tssem1FEM().
-  ## ACOV is calculated without missing data by assuming 1 and 0 for the missing variances and covariances.
-  ## Missing values are indicated by the missing effect sizes.
+  ## Missing effect sizes are indicated in the observed data; sampling
+  ## covariances follow the selected working-matrix assumption.
 
   acov <- match.arg(acov, c("weighted", "individual", "unweighted"))
     
   ## Throw an error when df and n are in different lengths.
-  if (length(Cov) != length(n)) stop("Lengths of \"df\" and \"n\" are different.\n")   
+  if (length(Cov) != length(n)) stop("Lengths of 'Cov' and 'n' are different.")
+  Cov <- .align.study.matrices(Cov)
     
+  ## A reported covariance cannot be standardized when either of its
+  ## variances is missing. Legacy individual weights also cannot use it
+  ## without inventing a variance, even in covariance analysis.
+  check.reported.variance <- function(i) {
+    x <- Cov[[i]]
+    missing.variance <- which(is.na(diag(x)))
+    if (!length(missing.variance)) return(invisible(NULL))
+    affected <- vapply(missing.variance, function(j) {
+      others <- setdiff(seq_len(nrow(x)), j)
+      any(!is.na(x[j, others])) || any(!is.na(x[others, j]))
+    }, logical(1))
+    if (any(affected)) {
+      j <- missing.variance[which(affected)[1L]]
+      variable <- if (is.null(colnames(x))) as.character(j) else colnames(x)[j]
+      stop("Study ", i, " reports a covariance involving variable '", variable,
+           "' but its variance is missing. Supply the variance",
+           if (!cor.analysis) " or choose an appropriate pooled working matrix" else " to calculate the correlation", ".", call.=FALSE)
+    }
+    invisible(NULL)
+  }
+  if (cor.analysis || (asyCovOld && acov == "individual"))
+    for (i in seq_along(Cov)) check.reported.variance(i)
+
   ## Get the original variable names
   original.names <- colnames(Cov[[1]])
 
   ## Calculate the asymptotic sampling covariance matrix of the correlation matrix
   if (asyCovOld) {
-      ## SEM approach is sensitive to NA. Additional care is required.      
-        
-      if (cor.analysis) {
-        ## Replace diagonals with 1.0
-        my.complete <- lapply(Cov, function (x) { Diag(x)[is.na(Diag(x))] <- 1; x })
-      } else {
-        ## Replace diagonals with the mean of diagonals
-        my.complete <- lapply(Cov, function (x) { Diag(x)[is.na(Diag(x))] <- mean(Diag(x), na.rm=TRUE); x })
-      }
-      
-      ## Replace missing variables with 0.0 regardless of cor.analysis
-      my.complete <- lapply(my.complete, function (x) { x[is.na(x)] <- 0; x })
-          
+      ## Preserve the historical placeholder for wholly missing variables
+      ## with individual weights, but never replace a missing covariance
+      ## between observed variables. For pooled weights, average the actual
+      ## observed entries rather than including artificial zeros.
+      if (acov == "individual") {
+        my.complete <- lapply(seq_along(Cov), function(i) {
+          x <- Cov[[i]]
+          .check.asycovold.missing(x)
+          if (cor.analysis) Diag(x)[is.na(Diag(x))] <- 1
+          else Diag(x)[is.na(Diag(x))] <- mean(Diag(x), na.rm=TRUE)
+          x[is.na(x)] <- 0
+          x
+        })
+      } else my.complete <- Cov
       acovR <- asyCovOld(x=my.complete, n=n, cor.analysis=cor.analysis, dropNA=FALSE, as.matrix=TRUE, acov=acov)
   } else {
-      ## asyCov() will break down when there are NA
+      ## Unknown sampling covariances are propagated by asyCov().
       acovR <- asyCov(x=Cov, n=n, cor.analysis=cor.analysis, as.matrix=TRUE, acov=acov)
   }
     
@@ -209,8 +250,19 @@ tssem1REM <- function(Cov, n, cor.analysis=TRUE, RE.type=c("Diag", "Symm", "Zero
   } else {
     ES <- list2matrix(x=Cov, diag=TRUE)
   }
-  ## no. of effect sizes
+  ## meta() removes effects whose sampling variances are missing. Diagnose
+  ## that before the fit so a reported statistic is never silently dropped.
   no.es <- ncol(ES)
+  index <- matrix(NA_integer_, no.es, no.es)
+  index[lower.tri(index, diag=TRUE)] <- seq_len(no.es*(no.es+1L)/2L)
+  sampling.variances <- acovR[, diag(index), drop=FALSE]
+  missing.variance <- !is.na(ES) & !is.finite(sampling.variances)
+  if (any(missing.variance)) {
+    position <- which(missing.variance, arr.ind=TRUE)[1L, ]
+    effect <- if (is.null(colnames(ES))) as.character(position[2L]) else colnames(ES)[position[2L]]
+    stop("Study ", position[1L], " reports '", effect,
+         "' but its sampling variance is unavailable. Supply the missing covariance information or choose an appropriate working matrix.", call.=FALSE)
+  }
 
   if (is.null(model.name)) {
     if (cor.analysis) {
@@ -223,14 +275,14 @@ tssem1REM <- function(Cov, n, cor.analysis=TRUE, RE.type=c("Diag", "Symm", "Zero
   RE.type <- match.arg(RE.type, c("Diag", "Symm", "Zero", "User"))
   switch( RE.type,
          Symm = mx.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2, RE.startvalues=RE.startvalues,
-                               RE.lbound=RE.lbound, suppressWarnings=TRUE, silent=silent, run=run, ...),
+                               RE.lbound=RE.lbound, suppressWarnings=suppressWarnings, silent=silent, run=run, ...),
          Diag = mx.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2,
                                RE.constraints=Diag(paste0(RE.startvalues, "*Tau2_", 1:no.es, "_", 1:no.es)),
-                               RE.lbound=RE.lbound, suppressWarnings=TRUE, silent=silent, run=run, ...),
+                               RE.lbound=RE.lbound, suppressWarnings=suppressWarnings, silent=silent, run=run, ...),
          Zero = mx.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2, RE.constraints=matrix(0, ncol=no.es, nrow=no.es),
-                               suppressWarnings=TRUE, silent=silent, run=run, ...),
+                               suppressWarnings=suppressWarnings, silent=silent, run=run, ...),
          User = mx.fit <- meta(y=ES, v=acovR, model.name=model.name, I2=I2, RE.constraints=RE.constraints,
-                               suppressWarnings=TRUE, silent=silent, run=run, ...) )
+                               suppressWarnings=suppressWarnings, silent=silent, run=run, ...) )
 
   ## Return mx model without running the analysis
   if (run==FALSE) return(mx.fit)
@@ -258,10 +310,43 @@ tssem1REM <- function(Cov, n, cor.analysis=TRUE, RE.type=c("Diag", "Symm", "Zero
 #' correlation/covariance matrices. \code{tssem1FEM()} and \code{tssem1REM()}
 #' use fixed- and random-effects models, respectively. \code{tssem1()} is a
 #' wrapper of these functions.
+#' The fixed-effects summary reports RMSEA using total sample size N as the
+#' denominator; see \code{\link[metaSEM]{summary}} for the formula.
+#' Variable names and data column names must not contain periods. Rename them consistently, for example \code{x.1} to \code{x_1}, and check that the new names are unique. Study, group, and cluster values may contain periods.
 #' 
 #' 
 #' @aliases tssem1 tssem1FEM tssem1REM
-#' @param Cov A list of correlation/covariance matrices
+#' @usage
+#' tssem1(Cov, n, method = c("REM", "FEM"), cor.analysis = TRUE,
+#'     cluster = NULL, RE.type = c("Diag", "Symm", "Zero",
+#'         "User"), RE.startvalues = 0.1, RE.lbound = 1e-10,
+#'     RE.constraints = NULL, I2 = "I2q", acov = c("weighted",
+#'         "individual", "unweighted"), asyCovOld = FALSE,
+#'     model.name = NULL, suppressWarnings = TRUE, silent = TRUE,
+#'     run = TRUE, ...)
+#' tssem1FEM(Cov, n, cor.analysis = TRUE, model.name = NULL,
+#'     cluster = NULL, suppressWarnings = TRUE, silent = TRUE,
+#'     run = TRUE, ...)
+#' tssem1REM(Cov, n, cor.analysis = TRUE, RE.type = c("Diag",
+#'     "Symm", "Zero", "User"), RE.startvalues = 0.1,
+#'     RE.lbound = 1e-10, RE.constraints = NULL, I2 = "I2q",
+#'     acov = c("weighted", "individual", "unweighted"),
+#'     asyCovOld = FALSE, model.name = NULL, suppressWarnings = TRUE,
+#'     silent = TRUE, run = TRUE, ...)
+#' @param Cov A list of correlation/covariance matrices. For both TSSEM methods,
+#' named matrices must all have unique row and column names for the
+#' same variables; each study is aligned to the first study's variable order
+#' before pooling and calculating sampling covariances. If all matrices are
+#' unnamed, their positions are used. Fixed-effects TSSEM requires complete
+#' correlations among the variables present in each study; random-effects
+#' TSSEM can handle partially missing correlations. It rejects a reported
+#' statistic whose sampling variance is unavailable rather than silently
+#' removing that statistic. Supply the missing information or choose an
+#' appropriate pooled working matrix. For correlation analysis, reported
+#' covariances require both corresponding variances so they can be standardized.
+#' Fixed-effects covariance analysis retains studies reporting only a variance.
+#' Fixed-effects correlation analysis rejects studies with no observed correlations;
+#' covariance analysis rejects studies with no observed variances.
 #' @param n A vector of sample sizes
 #' @param method Either \code{"REM"} (default if missing) or \code{"FEM"}.  If
 #' it is \code{"REM"}, a random-effects meta-analysis will be applied. If it is \code{"FEM"},
@@ -309,8 +394,9 @@ tssem1REM <- function(Cov, n, cor.analysis=TRUE, RE.type=c("Diag", "Symm", "Zero
 #' or weighted mean with the sample sizes. The average correlation/covariance
 #' matrix is used to calculate the sampling variance-covariance matrices. This
 #' argument is ignored with the \code{method="FEM"} argument.
-#' @param asyCovOld Whether the old \code{asyCov} is used. See
-#' \code{\link[metaSEM]{asyCov}}.
+#' @param asyCovOld Whether to use the legacy Hessian-based method. It requires
+#' complete covariances among retained variables in its working matrix.
+#' \code{asyCov()} is preferred. See \code{\link[metaSEM]{asyCov}}.
 #' @param model.name A string for the model name in
 #' \code{\link[OpenMx]{mxModel}}.
 #' @param suppressWarnings Logical. If \code{TRUE}, warnings are suppressed. It
@@ -368,6 +454,11 @@ tssem1 <- function(Cov, n, method=c("REM", "FEM"), cor.analysis=TRUE, cluster=NU
 #' matrix is used as the weight matrix. \code{tssem2} conducts the second stage
 #' analysis of the two-stage structural equation modeling (TSSEM).
 #' \code{tssem2} is a wrapper of \code{wls}.
+#' WLS summaries use the supplied sample size \code{n} as the RMSEA denominator;
+#' see \code{\link[metaSEM]{summary}} for the formula.
+#' Variable names in the matrices, RAM model, and \code{subset.variables},
+#' and ordinary parameter labels, must not contain periods. Rename them
+#' consistently, e.g., \code{x.1} to \code{x_1}, and check for duplicate names.
 #' 
 #' 
 #' @aliases wls tssem2
@@ -380,10 +471,19 @@ tssem1 <- function(Cov, n, method=c("REM", "FEM"), cor.analysis=TRUE, cluster=NU
 #' matrix of either \code{\link[OpenMx]{vechs}} \code{(Cov)} or
 #' \code{\link[OpenMx]{vech}} \code{(Cov)} where \eqn{p* = p(p-1)/2 }{p* =
 #' p(p-1)/2} for correlation matrix and \eqn{p* = p(p+1)/2 }{p* = p(p+1)/2} for
-#' covariance matrix.
+#' covariance matrix. When both dimensions have recognizable, unique labels,
+#' they are aligned to Cov before subsetting; reversed pair names are accepted
+#' when they uniquely identify a pair. Partially matching labels are
+#' rejected; wholly different labels produce a warning and use position.
+#' Unnamed matrices use position.
 #' @param n Sample size.
 #' @param RAM A RAM object including a list of matrices of the model returned
-#' from \code{\link[metaSEM]{lavaan2RAM}}.
+#' from \code{\link[metaSEM]{lavaan2RAM}}. When the observed variable names
+#' in RAM and Cov match, RAM is reordered to match Cov. If both have names
+#' that do not match, positional matching is retained with a warning.
+#' Unnamed inputs are matched by position. The number of observed variables
+#' must match the matrix dimension. Separately supplied named Fmatrix rows are also
+#' aligned to Cov; Amatrix and Smatrix retain their node order. Named node dimensions of the separately supplied matrices must agree in order.
 #' @param Amatrix If \code{RAM} is not specified, an \code{Amatrix} is
 #' required. An asymmetric matrix in the RAM specification with
 #' \code{\link[OpenMx]{MxMatrix-class}}. If it is \code{NULL}, a matrix of zero
@@ -413,7 +513,10 @@ tssem1 <- function(Cov, n, method=c("REM", "FEM"), cor.analysis=TRUE, cluster=NU
 #' \code{diag.constraints=FALSE} and \code{cor.analysis=TRUE}, the diagonals
 #' are automatically constrained as ones by treating the error variances as
 #' computed values rather than as parameters. Since the error variances are not
-#' parameters, they are not reported.
+#' parameters, they are not reported. Fixed dependent residual variances are
+#' ignored with a warning in this implicit method. In the explicit-constraint
+#' method, fixed dependent residuals do not receive a unit-variance constraint;
+#' a warning asks the user to verify the model-implied variance.
 #' @param cor.analysis Logical. Analysis of correlation or covariance
 #' structure. If \code{cor.analysis=TRUE}, \code{\link[OpenMx]{vechs}} is used
 #' to vectorize \code{S}; otherwise, \code{\link[OpenMx]{vech}} is used to
@@ -449,9 +552,8 @@ tssem1 <- function(Cov, n, method=c("REM", "FEM"), cor.analysis=TRUE, cluster=NU
 #' @param subset.variables An optional character vector of variable names to
 #' select variables in the analysis. For example, there are 10 variables in
 #' \code{Cov}, say, x1 to x10. We may use \code{c("x1", "x2", "x3")} to select
-#' three variables in the analysis. Please note that this argument does not
-#' reorder the data. That is, \code{c("x3", "x2", "x1")} is the same as
-#' \code{c("x1", "x2", "x3")}.
+#' three variables in the analysis. The order supplied here is used for both
+#' the selected covariance matrix and its asymptotic covariance matrix.
 #' @param suppressWarnings Logical. If \code{TRUE}, warnings are suppressed.
 #' The argument to be passed to \code{\link[OpenMx]{mxRun}}.
 #' @param silent Logical. An argument to be passed to
@@ -629,11 +731,64 @@ tssem1 <- function(Cov, n, method=c("REM", "FEM"), cor.analysis=TRUE, cluster=NU
 #' summary(wls.fit3b)
 #' }
 #' 
+.align.wls.acov <- function(Cov, aCov, cor.analysis) {
+  vars <- rownames(Cov)
+  rows <- rownames(aCov); cols <- colnames(aCov)
+  if (is.null(vars) || (is.null(rows) && is.null(cols))) return(aCov)
+  if (is.null(rows) || is.null(cols) || anyDuplicated(rows) || anyDuplicated(cols))
+    stop("Named 'aCov' must have unique row and column names on both axes.", call.=FALSE)
+  expected <- .genCorNames(vars, cor.analysis=cor.analysis)$ylabels
+  if (setequal(rows, expected) && setequal(cols, expected))
+    return(aCov[expected, expected, drop=FALSE])
+  pairs <- which(lower.tri(Cov, diag=!cor.analysis), arr.ind=TRUE)
+  reversed <- paste0(vars[pairs[,2L]], "_", vars[pairs[,1L]])
+  aliases <- split(rep(seq_along(expected), 2L), c(expected, reversed))
+  aliases <- lapply(aliases, unique)
+  index <- function(labels) {
+    hits <- lapply(labels, function(label) aliases[[label]])
+    if (any(lengths(hits) > 1L))
+      stop("Ambiguous 'aCov' pair labels; rename the variables or use the exact generated labels.", call.=FALSE)
+    vapply(hits, function(z) if (length(z)) z else NA_integer_, integer(1))
+  }
+  ri <- index(rows); ci <- index(cols)
+  if (!anyNA(ri) && !anyNA(ci) && !anyDuplicated(ri) && !anyDuplicated(ci) &&
+      setequal(ri, seq_along(expected)) && setequal(ci, seq_along(expected))) {
+    out <- aCov[match(seq_along(expected), ri), match(seq_along(expected), ci), drop=FALSE]
+    dimnames(out) <- list(expected, expected)
+    return(out)
+  }
+  if (any(!is.na(ri)) || any(!is.na(ci)))
+    stop("The names of 'aCov' partially match the elements of Cov; check their order and spelling.", call.=FALSE)
+  warning("The names of 'aCov' do not identify the elements of Cov; matching by position.", call.=FALSE)
+  aCov
+}
+
+.align.wls.filter <- function(Fmatrix, Cov) {
+  vals <- Fmatrix$values
+  if (nrow(vals) != nrow(Cov))
+    stop("Fmatrix has ", nrow(vals), " observed variables, but Cov has ", nrow(Cov), ".", call.=FALSE)
+  obs <- rownames(vals); vars <- rownames(Cov)
+  if (is.null(obs) || is.null(vars)) return(Fmatrix)
+  if (anyDuplicated(obs) || anyDuplicated(vars))
+    stop("Observed variable names in Fmatrix and Cov must be unique.", call.=FALSE)
+  if (setequal(obs, vars)) return(Fmatrix[match(vars, obs), , drop=FALSE])
+  warning("Observed variable names in Fmatrix and Cov do not match; matching by position. Check the variable order and possible typos; estimates may be affected.", call.=FALSE)
+  Fmatrix
+}
+
 wls <- function(Cov, aCov, n, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, 
                 diag.constraints=FALSE, cor.analysis=TRUE, intervals.type=c("z", "LB"), 
                 mx.algebras=NULL, mxModel.Args=NULL, subset.variables=NULL,
                 model.name=NULL, suppressWarnings=TRUE, 
                 silent=TRUE, run=TRUE, ...) {
+
+    .check.cov.names(Cov)
+    .check.ram.names(RAM)
+    for (mat in list(Amatrix, Smatrix, Fmatrix)) .check.model.matrix(mat)
+    .check.no.period(subset.variables, "subset.variables")
+    if (inherits(RAM, c("RAM_multigroup", "RAM_twolevel", "RAM_multigroup_twolevel")))
+        stop("wls() supports single-group, single-level RAM models only.", call.=FALSE)
+    aCov <- .align.wls.acov(Cov, aCov, cor.analysis)
 
     ## Filter out variables not used in the analysis
     if (!is.null(subset.variables)) {
@@ -642,27 +797,47 @@ wls <- function(Cov, aCov, n, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL
         if (any(index)) {
             stop(paste0(paste0(subset.variables[index], collapse = ", "), " are not in the \"Cov\".\n"))
         }
-        index <- (obslabels %in% subset.variables)
-        ## A square matrix of dimensions subset.variables
-        index.mat <- matrix(TRUE, nrow=length(index), ncol=length(index))
-        index.mat[!index, ] <- index.mat[, !index] <- FALSE
-
-        if (cor.analysis) {
-            subset.acov <- vechs(index.mat)
-        } else {
-            subset.acov <- vech(index.mat)
-        }
+        if (anyDuplicated(subset.variables))
+            stop("'subset.variables' must not contain duplicates.")
+        p.full <- length(obslabels)
+        pair.index <- matrix(NA_integer_, p.full, p.full)
+        lower <- lower.tri(pair.index, diag=!cor.analysis)
+        pair.index[lower] <- seq_len(sum(lower))
+        pair.index[upper.tri(pair.index)] <- t(pair.index)[upper.tri(pair.index)]
+        selected <- match(subset.variables, obslabels)
+        pair.index <- pair.index[selected, selected, drop=FALSE]
+        subset.acov <- if (cor.analysis) vechs(pair.index) else vech(pair.index)
 
         ## Filter the variables
-        Cov <- Cov[subset.variables, subset.variables]
-        aCov <- aCov[subset.acov, subset.acov]
+        Cov <- Cov[subset.variables, subset.variables, drop=FALSE]
+        aCov <- aCov[subset.acov, subset.acov, drop=FALSE]
     }
     
+    if (cor.analysis && nrow(Cov) < 2L)
+        stop("Correlation WLS requires at least two observed variables.", call.=FALSE)
     ## Read RAM first. If it is not specified, read individual matrices
     if (!is.null(RAM)) {
+        if (nrow(RAM$F) != nrow(Cov))
+            stop("RAM has ", nrow(RAM$F), " observed variables, but Cov has ",
+                 nrow(Cov), ". Check 'subset.variables' and the RAM.", call.=FALSE)
+        obs <- rownames(RAM$F)
+        data.names <- rownames(Cov)
+        if (!is.null(obs) && !is.null(data.names)) {
+            if (length(obs) == length(data.names) && !anyDuplicated(obs) &&
+                !anyDuplicated(data.names) && setequal(obs, data.names)) {
+                RAM$F <- RAM$F[data.names, , drop=FALSE]
+            } else {
+                warning("Observed variable names in RAM and Cov do not match; ",
+                        "matching by position. Check the variable order and possible typos; ",
+                        "estimates may be affected.", call.=FALSE)
+            }
+        }
         Amatrix <- as.mxMatrix(RAM$A, name="Amatrix")
         Smatrix <- as.mxMatrix(RAM$S, name="Smatrix")
         Fmatrix <- as.mxMatrix(RAM$F, name="Fmatrix")
+        ## Bounds from inequalities in the lavaan syntax (see lavaan2RAM())
+        Amatrix <- .addbound(Amatrix, attr(RAM, "lbound"), attr(RAM, "ubound"))
+        Smatrix <- .addbound(Smatrix, attr(RAM, "lbound"), attr(RAM, "ubound"))
     } else {
         if (is.null(Smatrix)) {
             stop("\"Smatrix\" matrix is not specified.\n")
@@ -688,13 +863,26 @@ wls <- function(Cov, aCov, n, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL
 
         if (is.null(Fmatrix)) {
             ## If Fmatrix is not specified, use an identity matrix.
-            Fmatrix <- as.mxMatrix(Diag(rep(p,1)), name="Fmatrix")
+            f <- Diag(rep(p,1))
+            if (!is.null(rownames(Smatrix$values)))
+              dimnames(f) <- list(rownames(Smatrix$values), rownames(Smatrix$values))
+            Fmatrix <- as.mxMatrix(f, name="Fmatrix")
         } else if (is.matrix(Fmatrix)) {
             Fmatrix <- as.mxMatrix(Fmatrix, name="Fmatrix")
         } else {
             ## Change the name of the input mxMatrix
             Fmatrix@name <- "Fmatrix"
         }    
+        Fmatrix <- .align.wls.filter(Fmatrix, Cov)
+        if (!identical(dim(Amatrix$values), c(p,p)) ||
+            !identical(dim(Smatrix$values), c(p,p)) || ncol(Fmatrix$values) != p)
+            stop("Amatrix and Smatrix must be square with matching dimensions, and Fmatrix must have the same number of columns.", call.=FALSE)
+        node.names <- c(dimnames(Amatrix$values), dimnames(Smatrix$values),
+                        list(colnames(Fmatrix$values)))
+        node.names <- Filter(Negate(is.null), node.names)
+        if (length(node.names) > 1L &&
+            any(!vapply(node.names[-1L], identical, logical(1), node.names[[1L]])))
+            stop("Named Amatrix, Smatrix and Fmatrix node dimensions must have the same names in the same order.", call.=FALSE)
     }      
     
   ## CheckRAM
@@ -753,6 +941,9 @@ wls <- function(Cov, aCov, n, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL
     Constraints <- Diag(Smatrix@free)
     ## Use nonlinear constraints to impose diagonals as 1
     if (diag.constraints & (sum(Constraints)>0)) {
+      dv <- rowSums(Amatrix$free | (!is.na(Amatrix$values) & Amatrix$values != 0)) > 0
+      if (any(dv & !Constraints))
+        warning("wls() does not impose an explicit unit-variance constraint for dependent variables with fixed residual variances; verify their model-implied variances.", call.=FALSE)
       
       One <- mxMatrix("Full", values=1, ncol=1, nrow=sum(Constraints), free=FALSE, name="One")
       select <- create.Fmatrix(Constraints, name="select")
@@ -771,7 +962,9 @@ wls <- function(Cov, aCov, n, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL
     ## Consider error variances as functions of parameters  
       ## check types of variables
       ## dv: variables pointed by some variables
-      dv <- apply(Amatrix$free, 1, any)
+      dv <- rowSums(Amatrix$free | (!is.na(Amatrix$values) & Amatrix$values != 0)) > 0
+      if (any(dv & !diag(Smatrix$free)))
+        warning("For correlation analysis without explicit diagonal constraints, wls() computes dependent-variable residual variances; their fixed values in Smatrix are ignored.", call.=FALSE)
 #       ## iv: variables pointed towards other variables
 #       iv <- apply(Amatrix$free, 2, any)
 #       ## med: mediators
@@ -787,70 +980,37 @@ wls <- function(Cov, aCov, n, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL
 
       ## Use it rather than Smatrix in mxCI()
       S1_labels <- S1$labels
+      S1_labels[!S1$free] <- NA
       diag(S1_labels) <- NA
       S1_labels <- c(na.omit(unique(c(S1_labels))))
 
-      ## A function to extract levels of path directions started from IVs to DVs
-      path <- function(Amatrix) {
-        ## assuming non-recursive models
-        if (is.matrix(Amatrix)) Amatrix <- as.mxMatrix(Amatrix)
-        A <- Amatrix$free
-        
-        if (any(Diag(A))) stop("Diagonals on 'A' must be zeros\n")
-        ## no. of variables
-        p <- ncol(A)
-        dv <- apply(A, 1, any)
-        ## iv: variables pointed towards other variables
-        iv <- apply(A, 2, any)
-        
-        Level <- list()
-        ## IVs
-        Level[[1]] <- iv==TRUE&dv==FALSE
-        ## no. of variables counted
-        count <- length((1:p)[Level[[1]]])
-        
-        ## do until all p variables are countered 
-        while(p > count) {
-          level <- length(Level)
-          ## predicated by previous level
-          cand1 <- A[, Level[[level]], drop=FALSE]
-          cand1 <- apply(cand1, 1, any)
-          ## predicted by cand1
-          cand2 <- A[, cand1, drop=FALSE]
-          cand2 <- apply(cand2, 1, any)
-          Level[[level+1]] <- cand1==TRUE&cand2==FALSE
-          ## no. of elements counted
-          count <- count + length((1:p)[Level[[level+1]]])
-        }
-        Level
-      }
-      
-      ## Levels of directions
-      Level <- path(Amatrix)
+      ## Levels of dependent variables in an acyclic path model.
+      path.levels <- .pathLevels(Amatrix)
+      Level <- c(path.levels$IV, path.levels$DV)
 
       ## no error variance involved for ALL variables
       impliedS1 <- mxAlgebra( solve(Id-Amatrix)%&%S1, name="impliedS1")
       
       ## setup for error variances for mediators and dvs
       ## Excluded level1 as they are ivs (started with i=2)
-      for (i in 2:length(Level)) {
+      levels <- if (length(Level) > 1L) seq.int(2L, length(Level)) else integer(0)
+      extra <- list()
+      for (i in levels) {
         ## filter the diagonals of mediators
-        text1 <- paste("sel",i, " <- as.mxMatrix(diag(Level[[",i,"]]), name='sel",i,"')", sep="" )
-        eval(parse(text=text1))
+        extra[[length(extra)+1L]] <- as.mxMatrix(diag(Level[[i]]), name=paste0("sel", i))
         ## extract the error variances of mediators based on the previous model implied covariance matrix (i-1)
-        text2 <- paste("E",i, " <- mxAlgebra(vec2diag(diag2vec(Id-impliedS",i-1,"))*sel",i,", name='E",i,"')", sep="" )
-        eval(parse(text=text2))
+        extra[[length(extra)+1L]] <- mxAlgebraFromString(paste0("vec2diag(diag2vec(Id-impliedS", i-1,
+                                                     "))*sel", i), name=paste0("E", i))
         ## Implied covariance matrix with estimated error variances on mediators for (i)
-        text3 <- paste("E", 2:i, sep="", collapse="+")
-        text4 <- paste("impliedS",i, " <- mxAlgebra(solve(Id-Amatrix)%&%(S1+",text3,"), name='impliedS",i,"')", sep="")
-        eval(parse(text=text4))
+        extra[[length(extra)+1L]] <- mxAlgebraFromString(paste0("solve(Id-Amatrix)%&%(S1+",
+                                                     paste0("E", seq.int(2L, i), collapse="+"), ")"),
+                                              name=paste0("impliedS", i))
       }
-      
+
       ## Final Smatrix including all error variances
-      text5 <- paste("E", 2:length(Level), sep="", collapse="+")
       ## Smatrix=S1+E2+E3...
-      text6 <- paste("Smatrix <- mxAlgebra(S1+", text5, ", name='Smatrix')", sep="")
-      eval(parse(text=text6))
+      Smatrix <- mxAlgebraFromString(paste0("S1", if (length(levels)) paste0("+E", levels, collapse="")),
+                                     name="Smatrix")
       
       impliedS <- mxAlgebra((Fmatrix%*%solve(Id-Amatrix))%&%Smatrix, name="impliedS")
       
@@ -863,11 +1023,7 @@ wls <- function(Cov, aCov, n, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL
                           S1, mxCI(c("Amatrix", S1_labels)))
       
       ## Add the matrices into mx.model
-      text6a <- paste(",sel",2:length(Level), sep="", collapse="")
-      text6b <- paste(",E",2:length(Level), sep="", collapse="")
-      text6c <- paste(",impliedS",2:length(Level), sep="", collapse="")
-      text7 <- paste("mx.model <- mxModel(mx.model",text6a, text6b, text6c, ")", sep="")
-      eval(parse(text=text7))
+      if (length(extra)) mx.model <- do.call(mxModel, c(list(mx.model), extra))
     }  ## if (diag.constraints & (sum(Constraints)>0))
   } else {
     ## analysis of covariance rather than correlation matrix
@@ -890,7 +1046,8 @@ wls <- function(Cov, aCov, n, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL
     }
     ## check if they are mxalgebra, not mxconstraint
     algebra.names <- names(RAM$mxalgebras)
-    isalgebra <- !grepl("^constraint[0-9]+", algebra.names)
+    isalgebra <- !vapply(RAM$mxalgebras, inherits, logical(1),
+                         what="MxConstraint")
     if (any(isalgebra)) {
         ## Remove names for mxconstraints
         algebra.names <- algebra.names[isalgebra]
@@ -914,10 +1071,12 @@ wls <- function(Cov, aCov, n, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL
   }
     
   ## Return mx model without running the analysis
+  mx.model <- .tighten.feasibility(mx.model)
   if (run==FALSE) return(mx.model)
 
   mx.fit <- tryCatch( mxRun(mx.model, intervals=intervals, suppressWarnings=suppressWarnings, silent=silent, ...), 
                       error = function(e) e)
+  mx.fit <- .check.constraints(mx.fit, intervals=intervals)
 
   # try to run it with error message as output
   if (inherits(mx.fit, "error")) {
@@ -941,10 +1100,16 @@ wls <- function(Cov, aCov, n, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL
 tssem2 <- function(tssem1.obj, RAM=NULL, Amatrix=NULL, Smatrix=NULL, Fmatrix=NULL, diag.constraints=FALSE,
                    intervals.type = c("z", "LB"), mx.algebras=NULL, mxModel.Args=NULL, subset.variables=NULL,
                    model.name=NULL, suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
-  if ( !is.element( class(tssem1.obj)[1], c("tssem1FEM.cluster", "tssem1FEM", "tssem1REM")) )
+  .check.ram.names(RAM)
+  for (mat in list(Amatrix, Smatrix, Fmatrix)) .check.model.matrix(mat)
+  .check.no.period(subset.variables, "subset.variables")
+  if (!inherits(tssem1.obj, c("tssem1FEM.cluster", "tssem1FEM", "tssem1REM")))
       stop("\"tssem1.obj\" must be of neither class \"tssem1FEM.cluster\", class \"tssem1FEM\" or \"tssem1REM\".")
+  .check.no.period(tssem1.obj$original.names, "Observed variable names")
 
-  switch(class(tssem1.obj)[1],
+  type <- if (inherits(tssem1.obj, "tssem1FEM.cluster")) "tssem1FEM.cluster"
+          else if (inherits(tssem1.obj, "tssem1FEM")) "tssem1FEM" else "tssem1REM"
+  switch(type,
          tssem1FEM.cluster = { out <- lapply(tssem1.obj, tssem2, RAM=RAM, Amatrix=Amatrix, Smatrix=Smatrix, Fmatrix=Fmatrix,
                                              diag.constraints=diag.constraints, intervals.type=intervals.type,
                                              mx.algebras=mx.algebras, mxModel.Args=mxModel.Args,
@@ -1044,9 +1209,9 @@ tssemParaVar <- function(tssem1.obj, tssem2.obj, method=c("bootstrap", "delta"),
     if (interval <=0 | interval >=1) stop("'interval' must be within 0 and 1.\n")
     
     ## Means of stage 1
-    Means <- eval(parse(text="mxEval(Inter, tssem1.obj$mx.fit)"))
+    Means <- mxEvalByName("Inter", tssem1.obj$mx.fit)
     ## Variance componet of the correlation coefficients
-    V <- eval(parse(text="mxEval(Tau, tssem1.obj$mx.fit)"))
+    V <- mxEvalByName("Tau", tssem1.obj$mx.fit)
 
     mx.model <- tssem2.obj$mx.fit
     ## Maximize the speed

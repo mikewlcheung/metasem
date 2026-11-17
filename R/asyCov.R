@@ -1,8 +1,129 @@
+## Normalize intentional scalar reuse and align comparable named studies.
+.prepare.asycov.input <- function(x, n) {
+  if (!is.numeric(n) || is.complex(n) || !length(n) || anyNA(n) ||
+      any(!is.finite(n)) || any(n <= 0))
+    stop("'n' must contain positive finite sample sizes.", call.=FALSE)
+  if (!is.list(x) || is.data.frame(x)) return(list(x=x, n=n))
+  if (!length(x)) stop("'x' must contain at least one matrix.", call.=FALSE)
+  if (length(x) != length(n)) {
+    if (length(n) == 1L) n <- rep(n, length(x))
+    else if (length(x) == 1L) x <- rep(x, length(n))
+    else stop("Lengths of 'x' and 'n' must match, unless one has length one.", call.=FALSE)
+  }
+  ## Individual covariance matrices of different sizes remain supported.
+  if (all(vapply(x, is.matrix, logical(1))) &&
+      length(unique(vapply(x, nrow, integer(1)))) == 1L &&
+      length(unique(vapply(x, ncol, integer(1)))) == 1L)
+    x <- .align.study.matrices(x)
+  list(x=x, n=n)
+}
+
+## Check only matrices whose entries are known. Missing entries are not zeros:
+## a partial matrix may still have a positive-definite completion. Every fully
+## specified 1- or 2-variable principal submatrix must itself be positive definite.
+.check.asycov.matrix <- function(x, context="input", alternatives=FALSE,
+                                  work.limit=100000L) {
+  if (!is.matrix(x) || !is.numeric(x) || nrow(x) != ncol(x))
+    stop("The ", context, " matrix must be a square numeric matrix.", call.=FALSE)
+  describe <- function(position) {
+    rows <- rownames(x); cols <- colnames(x)
+    row <- if (is.null(rows)) as.character(position[1L]) else rows[position[1L]]
+    col <- if (is.null(cols)) as.character(position[2L]) else cols[position[2L]]
+    paste0("[", row, ", ", col, "]")
+  }
+  nonfinite <- which(!is.na(x) & !is.finite(x), arr.ind=TRUE)
+  if (nrow(nonfinite))
+    stop("The ", context, " matrix contains non-finite observed entries, including ",
+         describe(nonfinite[1L, ]), ".", call.=FALSE)
+  asymmetric <- which(is.na(x) != is.na(t(x)), arr.ind=TRUE)
+  if (nrow(asymmetric))
+    stop("The ", context, " matrix has an asymmetric missing-value pattern at ",
+         describe(asymmetric[1L, ]), "; provide both entries of each observed pair.", call.=FALSE)
+  keep <- !is.na(diag(x))
+  x <- x[keep, keep, drop=FALSE]
+  if (!nrow(x)) return(invisible(NULL))
+  other <- if (context == "weighted average") "acov='individual' or acov='unweighted'"
+           else if (context == "unweighted average") "acov='individual' or acov='weighted'"
+           else "acov='weighted' or acov='unweighted'"
+  message <- paste0("The ", context, " matrix is not positive definite. Check the study matrices",
+      if (alternatives) paste0("; consider ", other, " if appropriate. Other acov methods have different assumptions and may also fail") else " or provide a suitable working matrix", ".")
+  check <- function(m) {
+    if (any(!is.finite(m)) || !isSymmetric(unname(m), tol=1e-8) ||
+        inherits(tryCatch(chol(m), error=function(e) e), "error"))
+      stop(message, call.=FALSE)
+  }
+  for (i in seq_len(nrow(x))) check(x[i, i, drop=FALSE])
+  if (!anyNA(x)) {
+    check(x)
+  } else if (nrow(x) > 1L) {
+    for (i in seq_len(nrow(x)-1L)) for (j in (i+1L):nrow(x)) {
+      pair <- x[c(i,j), c(i,j), drop=FALSE]
+      if (!anyNA(pair)) check(pair)
+    }
+    ## Maximal fully observed principal submatrices are maximal cliques of
+    ## the graph of known covariances. Bron-Kerbosch with pivoting checks each
+    ## maximal clique; every other fully observed principal submatrix is
+    ## contained in one of them. Searching all cliques can be exponential.
+    known <- !is.na(x) & !is.na(t(x))
+    diag(known) <- FALSE
+    work <- 0L
+    incomplete <- FALSE
+    visit <- function(selected, candidates, excluded) {
+      if (incomplete) return(invisible(NULL))
+      work <<- work + 1L
+      if (work > work.limit) {
+        incomplete <<- TRUE
+        return(invisible(NULL))
+      }
+      if (!length(candidates) && !length(excluded)) {
+        if (length(selected) > 2L) check(x[selected, selected, drop=FALSE])
+        return(invisible(NULL))
+      }
+      possible <- c(candidates, excluded)
+      if (!length(possible)) return(invisible(NULL))
+      degree <- vapply(possible, function(u) sum(known[u, candidates]), integer(1))
+      pivot <- possible[which.max(degree)]
+      branch <- candidates[!known[pivot, candidates]]
+      for (v in branch) {
+        neighbors <- which(known[v, ])
+        visit(c(selected, v), intersect(candidates, neighbors),
+              intersect(excluded, neighbors))
+        if (incomplete) break
+        candidates <- candidates[candidates != v]
+        excluded <- c(excluded, v)
+      }
+      invisible(NULL)
+    }
+    visit(integer(), seq_len(nrow(x)), integer())
+    if (incomplete)
+      warning("Positive-definiteness validation of the ", context,
+              " matrix was incomplete because the search limit was reached; ",
+              "some fully observed submatrices were not checked.", call.=FALSE)
+  }
+  invisible(NULL)
+}
+
+## The Hessian approach needs all covariances among retained variables.
+.check.asycovold.missing <- function(x) {
+  present <- !is.na(diag(x))
+  retained <- x[present, present, drop=FALSE]
+  if (!nrow(retained))
+    stop("asyCovOld() requires at least one observed variable.", call.=FALSE)
+  if (anyNA(retained))
+    stop("asyCovOld() requires all covariances among retained variables; use asyCov() for partial matrices or supply an explicit working matrix.", call.=FALSE)
+  invisible(NULL)
+}
+
 #### Generate asymptotic covariance matrix of correlation/covariance matrix by *column major*
 #' @rdname asyCov
 asyCovOld <- function(x, n, cor.analysis=TRUE, dropNA=FALSE, as.matrix=TRUE,
                       acov=c("individual", "unweighted", "weighted"),
                       suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
+
+    .check.cov.names(x)
+    input <- .prepare.asycov.input(x, n)
+    x <- input$x
+    n <- input$n
 
     makeSymmetric <- function(x) {x[lower.tri(x)] = t(x)[lower.tri(t(x))]; x}
     
@@ -10,6 +131,12 @@ asyCovOld <- function(x, n, cor.analysis=TRUE, dropNA=FALSE, as.matrix=TRUE,
 
         ## whether to use average correlation matrix
         acov <- match.arg(acov, c("individual", "unweighted", "weighted"))
+        if (acov == "individual") {
+            for (i in seq_along(x)) {
+                .check.asycovold.missing(x[[i]])
+                .check.asycov.matrix(x[[i]], paste0("study ", i), alternatives=TRUE)
+            }
+        }
         if (acov != "individual") {
             ## Replace NA with 0 before calculations
             my.x <- lapply(x, function(x) {x[is.na(x)] <- 0; x} )
@@ -23,8 +150,15 @@ asyCovOld <- function(x, n, cor.analysis=TRUE, dropNA=FALSE, as.matrix=TRUE,
                 my.x <- Reduce("+", my.x)/pattern.n(x, n)
             }
 
-            ## Make sure that the diagonals are 1 for correlation analysis
-            if (cor.analysis) my.x <- cov2cor(my.x)
+            .check.asycovold.missing(my.x)
+            .check.asycov.matrix(my.x, paste(acov, "average"), alternatives=TRUE)
+            ## cov2cor() replaces even missing diagonals by 1. Preserve
+            ## entirely unreported variables so the legacy path can drop them.
+            if (cor.analysis) {
+                missing.diag <- is.na(diag(my.x))
+                my.x <- suppressWarnings(cov2cor(my.x))
+                diag(my.x)[missing.diag] <- NA_real_
+            }
 
             ## Make sure that it is symmetric
             ## Fix the error message from OpenMx::verifyCovarianceMatrix
@@ -39,7 +173,7 @@ asyCovOld <- function(x, n, cor.analysis=TRUE, dropNA=FALSE, as.matrix=TRUE,
         # Check if it returns a matrix or a list
         if (as.matrix) {
           # No. of variables
-          if (!identical(0, var(sapply(x, function(x){dim(x)[[1]]}))))
+          if (length(unique(vapply(x, nrow, integer(1)))) != 1L)
             stop("The dimensions of matrices should be the same in order to stack them together!")
           
           if (is.null(dimnames(x[[1]]))) {
@@ -47,15 +181,7 @@ asyCovOld <- function(x, n, cor.analysis=TRUE, dropNA=FALSE, as.matrix=TRUE,
           } else {
             oldNames <- dimnames(x[[1]])[[1]]
           }
-          psOldNames <- outer(oldNames, oldNames, paste, sep = "_")          
-          if (cor.analysis) {
-            psOldNames <- vechs(psOldNames)
-          } else {
-            psOldNames <- vech(psOldNames)
-          }
-          # cov/var of psOldNames
-          psCovNames <- paste("C(", outer(psOldNames, psOldNames, paste, sep = " "), ")", sep="")
-          psCovNames <- vech(matrix(psCovNames, nrow=length(psOldNames), ncol=length(psOldNames)))
+          psCovNames <- .genCorNames(oldNames, cor.analysis=cor.analysis)$vlabels
 
           ## Fixed a bug before v.0.7-0 that uses only the first n 
           ## out.list <- lapply(x, asyCov, n = n, cor.analysis = cor.analysis, silent = silent,
@@ -85,9 +211,9 @@ asyCovOld <- function(x, n, cor.analysis=TRUE, dropNA=FALSE, as.matrix=TRUE,
       
         # Assumption: check the diagonals for missing data only
         miss.index <- is.na(Diag(x))
-        x.new <- x[!miss.index, !miss.index]
-        if (!is.pd(x.new)) 
-            stop("x is not positive definite!\n")
+        .check.asycovold.missing(x)
+        x.new <- x[!miss.index, !miss.index, drop=FALSE]
+        .check.asycov.matrix(x.new, "input")
         p <- nrow(x.new)
         if (is.null(dimnames(x))) {
             oldNames <- paste("x", 1:nrow(x), sep = "")
@@ -98,20 +224,20 @@ asyCovOld <- function(x, n, cor.analysis=TRUE, dropNA=FALSE, as.matrix=TRUE,
             cNames <- dimnames(x.new)[[1]]
         }
         # create matrix of labels for ps
-        psOldNames <- outer(oldNames, oldNames, paste, sep = "_")
-        psMatnames <- outer(cNames, cNames, paste, sep = "_")
+        psOldNames <- .genCorNames(oldNames, cor.analysis=cor.analysis)$ylabels
+        full.index <- matrix(NA_integer_, length(oldNames), length(oldNames))
+        full.index[lower.tri(full.index, diag=!cor.analysis)] <- seq_along(psOldNames)
+        full.index[upper.tri(full.index)] <- t(full.index)[upper.tri(full.index)]
+        kept.index <- full.index[!miss.index, !miss.index, drop=FALSE]
+        acovName <- psOldNames[if (cor.analysis) vechs(kept.index) else vech(kept.index)]
         
         if (cor.analysis) {
-            psOldNames <- vechs(psOldNames)
-            acovName <- vechs(psMatnames)
             S <- mxMatrix("Stand", nrow = p, ncol = p, free = TRUE, values = jitter(vechs(cov2cor(x.new))), 
                 name = "S", labels = acovName)
             D <- mxMatrix("Diag", nrow = p, ncol = p, free = TRUE, values = sqrt(Diag(x.new)), 
                 name = "D")
             modelName <- "Asymptotic covariance matrix of correlation matrix"
         } else {
-            psOldNames <- vech(psOldNames)
-            acovName <- vech(psMatnames)
             S <- mxMatrix("Symm", nrow = p, ncol = p, free = TRUE, values = jitter(vech(x.new)), 
                 name = "S", labels = acovName)
             D <- mxMatrix("Iden", nrow = p, ncol = p, name = "D")
@@ -162,6 +288,8 @@ asyCovOld <- function(x, n, cor.analysis=TRUE, dropNA=FALSE, as.matrix=TRUE,
 
 
 #' Compute Asymptotic Covariance Matrix of a Correlation/Covariance Matrix
+#'
+#' Variable names and data column names must not contain periods. Rename them consistently, for example \code{x.1} to \code{x_1}, and check that the new names are unique. Study, group, and cluster values may contain periods.
 #' 
 #' It computes the asymptotic sampling covariance matrix of a
 #' correlation/covariance matrix under the assumption of multivariate
@@ -170,12 +298,22 @@ asyCovOld <- function(x, n, cor.analysis=TRUE, dropNA=FALSE, as.matrix=TRUE,
 #' 
 #' @aliases asyCov asyCovOld
 #' @param x A correlation/covariance matrix or a list of correlation/covariance
-#' matrices. \code{NA} on the variables or other values defined in
-#' \code{na.strings} will be removed before the analysis. Note that it only
-#' checks the diagonal elements of the matrices. If there are missing values,
-#' make sure that the diagonals are coded with \code{NA} or values defined in
-#' \code{na.strings}.
-#' @param n Sample size or a vector of sample sizes
+#' matrices. Missing-value patterns must be symmetric, and observed entries
+#' must be finite. In \code{asyCov()}, missing input elements can propagate to sampling
+#' covariance entries. In covariance analysis, entries that can be determined from
+#' the available values are retained. A known zero times an unknown covariance
+#' is treated as zero. A missing statistic has a missing row and column in its
+#' sampling covariance matrix. For lists, \code{acov="weighted"} and
+#' \code{acov="unweighted"} use available-study averages as a common working
+#' matrix before calculating sampling covariances. A pair missing from every
+#' study remains unknown. The resulting missing sampling covariances may need
+#' an explicit approximation before fitting a meta-analysis. \code{asyCovOld()}
+#' identifies missing variables using the diagonal. A one-variable covariance
+#' matrix is supported; a one-variable correlation matrix has no correlations
+#' to analyze.
+#' @param n Positive finite sample size or vector of sample sizes. For a list
+#' of studies, lengths must match unless one input has length one; named
+#' study matrices of equal size are aligned by variable names.
 #' @param cor.analysis Logical. The output is either a correlation or
 #' covariance matrix.
 #' @param dropNA Logical. If it is \code{TRUE}, the resultant dimensions will
@@ -189,13 +327,17 @@ asyCovOld <- function(x, n, cor.analysis=TRUE, dropNA=FALSE, as.matrix=TRUE,
 #' Note that if it is \code{TRUE}, \code{dropNA} will be \code{FALSE}
 #' automatically. This option is useful when passing the asymptotic covariance
 #' matrices to \code{\link[metaSEM]{meta}}
-#' @param acov If it is \code{individual} (the default), the sampling
+#' @param acov If it is \code{individual}, the sampling
 #' variance-covariance matrices are calculated based on the individual
 #' correlation/covariance matrix. If it is either \code{unweighted} or
 #' \code{weighted}, the average correlation/covariance matrix is calculated
 #' based on the unweighted or weighted mean with the sample sizes. The average
 #' correlation/covariance matrix is used to calculate the sampling
-#' variance-covariance matrices.
+#' variance-covariance matrices. Fully specified non-positive-definite input
+#' or pooled working matrices are rejected. With missing entries, fully
+#' specified principal submatrices are checked using a bounded search. A
+#' warning is issued if the search limit is reached. Even a complete search
+#' does not guarantee that the partial matrix has a positive-definite completion.
 #' @param suppressWarnings Logical. If \code{TRUE}, warnings are suppressed. It
 #' is passed to \code{\link[OpenMx]{mxRun}}.
 #' @param silent Logical. An argument to be passed to
@@ -213,7 +355,11 @@ asyCovOld <- function(x, n, cor.analysis=TRUE, dropNA=FALSE, as.matrix=TRUE,
 #' Siotani (1976) for correlation matrix and Yuan and Bentler (2007, p. 371)
 #' for covariance matrix. Arguments such as \code{dropNA},
 #' \code{suppressWarnings}, \code{silent}, and \code{run} were dropped. The
-#' original version was renamed to \code{asyCovOld} for compatibility.
+#' original version was renamed to \code{asyCovOld} for compatibility. It is
+#' retained as a legacy Hessian-based method; \code{asyCov} is preferred.
+#' \code{asyCovOld} requires all covariances among variables with observed
+#' diagonals. Supply an explicit working matrix or use \code{asyCov} for
+#' partially observed pairs.
 #' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
 #' @references Cheung, M. W.-L., & Chan, W. (2004). Testing dependent
 #' correlation coefficients via structural equation modeling.
@@ -250,14 +396,22 @@ asyCovOld <- function(x, n, cor.analysis=TRUE, dropNA=FALSE, as.matrix=TRUE,
 asyCov <- function(x, n, cor.analysis=TRUE, as.matrix=TRUE,
                    acov=c("weighted", "individual", "unweighted"), ...) {
 
+    .check.cov.names(x)
+    input <- .prepare.asycov.input(x, n)
+    x <- input$x
+    n <- input$n
+
     ## Copy lower tri to upper tri
     makeSymmetric <- function(x) {x[upper.tri(x)] = t(x)[upper.tri(t(x))]; x}
     
     ## Main function to calculate acov for R or S multiplied by N
-    N_Acov <- function(x, cor.analysis) {
+    N_Acov <- function(x, cor.analysis, context="input", alternatives=FALSE) {
 
+        .check.asycov.matrix(x, context, alternatives)
         ## No. of variables
         p <- ncol(x)
+        if (cor.analysis && p < 2L)
+            stop("At least two variables are required for correlation analysis.")
         ## No. of correlations
         ps <- p*(p-1)/2
         
@@ -299,23 +453,29 @@ asyCov <- function(x, n, cor.analysis=TRUE, as.matrix=TRUE,
             ## Analysis of covariance matrix
         } else {
 
-            if (!requireNamespace("matrixcalc", quietly=TRUE))    
-                stop("\"matrixcalc\" package is required for this function.")
-           
-            ## index of NA in ps x px acov
-            index_NA <- vech(is.na(x))
+            ## Normal-theory covariance of sample covariance elements:
+            ## n Cov(s_ij, s_kl) = x_ik*x_jl + x_il*x_jk.
+            ## Work in vech order and retain unknown inputs instead of
+            ## substituting zero. A known zero times an unknown finite
+            ## covariance is nevertheless known to be zero.
+            pairs <- which(lower.tri(x, diag=TRUE), arr.ind=TRUE)
+            i <- pairs[, 1L]
+            j <- pairs[, 2L]
+            multiply <- function(a, b) {
+                product <- a*b
+                known.zero <- (!is.na(a) & a == 0 & is.na(b)) |
+                              (!is.na(b) & b == 0 & is.na(a))
+                product[known.zero] <- 0
+                product
+            }
+            out <- multiply(x[i, i, drop=FALSE], x[j, j, drop=FALSE]) +
+                   multiply(x[i, j, drop=FALSE], x[j, i, drop=FALSE])
 
-            ## Replace NA with 0 before calculations
-            x[is.na(x)] <- 0
-            
-            ## Generalized inverse of the D matrix
-            Dm <- matrixcalc::D.matrix(p)
-            Dg <- MASS::ginv(Dm)
-            ## Yuan & Bentler (Handbook of Latent Variable and Related Models, p. 371)
-            out <- 2*Dg %*% (x %x% x) %*% t(Dg)
-
-            ## Restore NA
-            out[index_NA, ] <- out[, index_NA] <- NA
+            ## A missing sample covariance itself has no sampling variance
+            ## or covariance in the returned matrix, even if the formula is
+            ## otherwise determined by zeros.
+            missing <- is.na(x[cbind(i, j)])
+            out[missing, ] <- out[, missing] <- NA_real_
         }
             
         ## Check dimnames is defined. If not, use x1, x2, etc
@@ -325,13 +485,7 @@ asyCov <- function(x, n, cor.analysis=TRUE, as.matrix=TRUE,
             obsvars <- colnames(x)
         }
             
-        if (cor.analysis) {
-            psvars <- vechs(outer(obsvars, obsvars,
-                                  function(x, y) paste(x, y, sep="_")))
-        } else {
-            psvars <- vech(outer(obsvars, obsvars,
-                                 function(x, y) paste(x, y, sep="_")))
-        }
+        psvars <- .genCorNames(obsvars, cor.analysis=cor.analysis)$ylabels
 
         ## out is n*acov, not acov
         dimnames(out) <- list(psvars, psvars)
@@ -365,7 +519,8 @@ asyCov <- function(x, n, cor.analysis=TRUE, as.matrix=TRUE,
         if (acov=="individual") {
 
             ## A list of n*acov
-            out <- lapply(x, N_Acov, cor.analysis=cor.analysis)
+            out <- lapply(seq_along(x), function(i)
+                N_Acov(x[[i]], cor.analysis, paste0("study ", i), alternatives=TRUE))
             ## Divide them with n
             out <- mapply("/", out, n, SIMPLIFY=FALSE)
 
@@ -385,7 +540,7 @@ asyCov <- function(x, n, cor.analysis=TRUE, as.matrix=TRUE,
             }
 
             ## my.x is one correlation matrix
-            out <- N_Acov(my.x, cor.analysis)
+            out <- N_Acov(my.x, cor.analysis, paste(acov, "average"), alternatives=TRUE)
             out <- lapply(n, function(z) out/z)        
             
         } # if (acov=="individual")
@@ -405,6 +560,7 @@ asyCov <- function(x, n, cor.analysis=TRUE, as.matrix=TRUE,
         ## Name crash with matrixcalc::vech
         pssvars <- OpenMx::vech(outer(psvars, psvars,
                                       function(y, z) paste0("C(", y, " ", z, ")")))
+        pssvars <- make.unique(as.character(pssvars), sep="_dup")
         
         ## Return a packed matrix selecting the lower triangles including the diagonals
         out <- t(sapply(out, vech))

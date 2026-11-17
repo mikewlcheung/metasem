@@ -18,6 +18,9 @@ from \code{\link[metaSEM]{lavaan2RAM}}.}
 A character matrix.
 }
 \description{
+The moderator column name must not contain periods; for example, use
+\code{mod_1} instead of \code{mod.1}.
+
 It creates a moderator matrix used in OSMASEM.
 }
 \examples{

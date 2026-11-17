@@ -23,7 +23,7 @@ create.Tau2(
 the random effects).}
 
 \item{Tau1.labels}{Parameter labels in \code{Tau1}. The default is
-\code{Tau1_1}, \code{Tau1_2}, etc.}
+\code{Tau1_1}, \code{Tau1_2}, etc. Labels must not contain periods.}
 
 \item{RE.type}{Either \code{"Diag"}, \code{"CSymm"}, \code{"HCSymm"},
 \code{"Symm"}, \code{"Zero"} or \code{"User"}. If it is\code{"Diag"} (the

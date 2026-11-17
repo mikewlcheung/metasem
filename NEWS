@@ -1,3 +1,53 @@
+Release 2.0 (Nov 15, 2026)
+====================================
+* Release to CRAN.
+Breaking changes below are relative to CRAN version 1.5.0.
+* Breaking change: R 4.2.0 or later is required; version 1.5.0 supported R 3.4.0 and later.
+* Breaking change: variable names, data column names, and ordinary parameter labels containing periods are rejected. Rename them consistently (for example, x.1 to x_1); OpenMx definition-variable references such as data.x_1 remain supported.
+* Breaking change: osmasem() has a new RE.User argument before data. Calls passing data or later arguments by position must name those arguments.
+* Breaking change: osmasem2() no longer provides likelihood-based confidence intervals or returns the intervals.type field. Remove intervals.type; a likelihood-based request now raises an error and z is deprecated. Arguments after mean.analysis in older positional calls must be named.
+* Breaking change: is.pd() now returns FALSE for singular or asymmetric matrices previously accepted as positive definite.
+* Breaking change: list2matrix(), tssem1(), and Cor2DataFrame() require study matrices either to have consistent, unique row and column variable names or to be entirely unnamed. osmasem() and osmasem2() reject partially matching RAM and data variable names; rename them consistently.
+* Breaking change: rCorSam(), asyCov(), and asyCovOld() require matching input lengths unless one input has length one; asyCov sample sizes must be positive and finite. smdMTS(homogeneity="none", all.comparisons=TRUE) rejects an incomplete first group instead of using another group as the standardizer.
+* Breaking change: osmasem() rejects covariance-formatted data; use osmasem2(cor.analysis=FALSE) for covariance models.
+* Breaking change: summary() for sem() fits rejects robust=TRUE with likelihood-based intervals; use intervals.type="z" for robust standard errors or robust=FALSE for likelihood-based intervals.
+* Breaking change: calEffSizes() now suppresses lavaan warnings by default; use warn=TRUE to show them as in version 1.5.0.
+* Breaking change: lavaan2RAM() is restricted to documented options and syntax. Composite `<~` and pass-through options such as orthogonal, group.equal, and effect.coding are no longer supported; use explicit group labels such as c(b, b)*x for equality. Some previously accepted options could silently produce the wrong model.
+* Breaking change: meta() and metaFIML() reject missing sampling covariances between observed effects; sem() rejects unnamed or unknown bounds.
+* Breaking change: asyCov(cor.analysis=FALSE) returns NA for sampling covariances that depend on missing input covariances; previous sampling weights and fitted results could be incorrect.
+* Breaking change: asyCov() rejects non-positive-definite working matrices; asyCovOld() more strictly checks positive definiteness and rejects missing covariances among retained variables. The legacy tssem1() path no longer replaces missing observed covariances with zero.
+* Breaking change: tssem1() rejects reported statistics without available sampling variances rather than silently omitting them; partial working-matrix validation now systematically checks observed submatrices.
+* Breaking change: asyCov() rejects asymmetric missingness and non-finite observed entries.
+* Breaking change: as.mxMatrix() preserves supplied dimension names, and generated multi-column moderator names use underscores; clustered tssem1FEM() now honors run=FALSE.
+* Extend sem() to support combined multiple-group and two-level models, cluster-level covariates, and between-level definition variables.
+* Add cluster-robust standard errors and clusterRobustSE(), and t-based tests and intervals for sem() fits.
+* Add SEC() and CCA() for overlapping meta-analyses, and the Chan25 and Turk23 datasets.
+* Improve handling of constraints in sem(), lavaan2RAM(), and osmasem2(), including tighter feasibility tolerance and corrected standard errors. In osmasem2() correlation models, constrain observed total variances even when residual variances are fixed. In osmasem(), retain RAM bounds where A.lbound or A.ubound entries are NA. These changes can affect results.
+* Warn when correlation models may ignore fixed dependent residual variances or factor scales may be unanchored; correct lavaan2RAM() default mean starts and labels.
+* Correct lavaan2RAM() indicator intercepts when a latent mean is explicitly fixed; previous estimates and fit could be wrong. Preserve small variances in two-level summary input, which could otherwise change estimates and likelihood.
+* Match named group and cluster summary inputs by name in sem(); previously mismatched orders could change estimates. Correct two-level sample and cluster counts, warn about unidentified latent means, and fix combined-model submodel name collisions and auxiliary-model summaries.
+* Fix covariance-only likelihood-based intervals in sem() and improve the accuracy of SEM diagrams, including variable names and fixed/free paths.
+* Correct lavaan2RAM() two-level default means: within-only observed variables are no longer fixed at zero, and an explicit intercept no longer fixes other default means at zero. Correct sem() level-1 paths to use the within component of predictors that also appear at level 2. These fixes can change estimates and fit.
+* Pair lavaan2RAM() group blocks with data in block order, including labeled groups; previously, models could be assigned to the wrong groups. Apply parameter-to-constant inequalities as bounds instead of dropping them.
+* Correct osmasem() and osmasem2() to match RAM observed variables to data by name. Previously, different variable orders could associate estimates with the wrong paths; for example, the Roorda pos and neg paths could be swapped. When no names match, positional matching is retained with a warning.
+* Correct variable ordering for direct osmasem(Mmatrix=...) input and path names in wls() and osmasem() plots. Direct-input estimates may change.
+* Match named RAM observed variables to the pooled matrix in wls() and tssem2(); different orders previously could produce incorrect estimates and fit. Correct subset.variables ordering of the asymptotic covariance matrix; this can also change previous results.
+* Correct uniR2mx() variable alignment; different RAM and pooled-matrix orders could previously misassign estimates, especially with unnamed F matrices.
+* Align named correlation matrices by variable name in tssem1() and Cor2DataFrame(); this can affect existing results.
+* Improve convergence and diagnostic warnings, including clear errors for fixed-effects TSSEM studies without observed correlations or variances; retry sem() and osmasem() fits with mxTryHard() when needed. Reject duplicate group or cluster columns in combined sem() summary input.
+* Correct pattern.na(type="osmasem", show.na=FALSE) off-diagonal counts to count studies with both correlations observed, rather than at least one. Diagonal counts and type="tssem" are unaffected; the correction changes the diagnostic table, not osmasem() model fitting.
+* Correct smdMTS() and smdMES() bias adjustments for the standardizer actually used; adjusted estimates and sampling covariances can change. Zero means are retained.
+* Correct osmasem() covariance-moderator calculations and fixed-effect extraction; estimates can change.
+* Align named sampling covariances and separately supplied filter matrices in wls(), and named study matrices in asyCov(); previous estimates can change.
+* Preserve bounds when substituting equality constraints and avoid automatic parameter-label collisions; these changes can affect results. Generated correlation names are made unique when underscores would otherwise cause collisions.
+* Correct multigroup SEM name collisions, WLS pair matching, clustered TSSEM arguments, and CFI at the zero-noncentrality boundary.
+* Correct the Becker09 and Roorda11 random-effects examples to retain reported correlations whose unit diagonals were missing; use implicit diagonal constraints in the Roorda11 stage-two example.
+* Correct fit statistics for zero-degree-of-freedom models.
+* Correct fixed-effects TSSEM baseline likelihoods and use total sample size N for RMSEA estimates and confidence intervals in fixed-effects TSSEM and WLS; chi-square and related fit statistics can change. Retain variance-only studies in covariance analyses.
+* Build the vignettes from source and update their narratives to use fitted results.
+* Restore function and method usage information in the help pages.
+* Improve plotting and fix other issues in SEM and meta-analysis functions.
+
 Release 1.6.0 (Aug 22, 2026)
 ====================================
 * Extend lavaan2RAM() and sem() to fit multiple-group and two-level models specified with lavaan syntax.

@@ -16,6 +16,8 @@ A square matrix of the accumulative sample sizes of the input
 matrices.
 }
 \description{
+Variable names must not contain periods; rename them consistently, e.g., \code{x.1} to \code{x_1}, and check for duplicate names.
+
 It displays the accumulative sample sizes for the covariance matrix.
 }
 \examples{

@@ -4,16 +4,21 @@
 #' It converts the correlation or covariance matrices into a dataframe of
 #' correlations or covariances with their asymptotic sampling covariance
 #' matrices. It uses the \code{asyCov} at the backend.
+#' Variable and appended moderator column names must not contain periods;
+#' rename them consistently, e.g., \code{x.1} to \code{x_1}, and check for
+#' duplicates. Multi-column moderator names generated with periods are
+#' converted to underscores; collisions are rejected. Study names may contain periods. Generated pair labels that would collide are made unique with a \code{_dup} suffix; existing objects with ambiguous duplicate labels must be regenerated.
 #' 
 #' 
 #' @param x A list of data with correlation/covariance matrix in \code{x$data}
-#' and sample sizes \code{x$n}. Additional variables in \code{x} can be
-#' attached.
+#' and sample sizes \code{x$n}. Additional variables in \code{x}, in any
+#' order relative to \code{data} and \code{n}, can be attached. Named matrices are aligned to the first matrix by variable name.
 #' @param n If \code{x} is a list of correlation matrices without \code{x$data}
 #' and \code{x$n}, a vector of sample sizes \code{n} must be provided.
-#' @param v.na.replace Logical. Missing value is not allowed in definition
-#' variables. If it is \code{TRUE} (the default), missing value is replaced by
-#' a large value (1e10). These values are not used in the analysis.
+#' @param v.na.replace Logical. For weighted or unweighted average sampling
+#' covariance matrices, replace missing covariance entries by their available
+#' weighted or unweighted mean before calculating sampling covariances. An
+#' entry missing from every study cannot be replaced and raises an error.
 #' @param cor.analysis Logical. The output is either a correlation or
 #' covariance matrix.
 #' @param acov If it is \code{weighted}, the average correlation/covariance
@@ -28,11 +33,13 @@
 #' otherwise, the calculated sampling covariance matrices of the means are
 #' incorrect.
 #' @param row.names.unique Logical. If it is \code{FALSE} (the default), unique
-#' row names are not created.
+#' row names are not created. If \code{TRUE}, the rows are named by the names
+#' of the studies, made unique.
 #' @param append.vars Whether to append the additional variables to the output
 #' dataframe.
-#' @param asyCovOld Whether to use the old version of \code{asyCov}. See
-#' \code{\link[metaSEM]{asyCov}}.
+#' @param asyCovOld Whether to use the legacy Hessian-based method. It requires
+#' complete covariances among retained variables in its working matrix.
+#' \code{asyCov()} is preferred. See \code{\link[metaSEM]{asyCov}}.
 #' @param \dots Further arguments to be passed to
 #' \code{\link[metaSEM]{asyCov}}.
 #' @return A list of components: (1) a data frame of correlations or
@@ -80,14 +87,19 @@ Cor2DataFrame <- function(x, n, v.na.replace=TRUE, cor.analysis=TRUE,
   if (all(c("data", "n") %in% names(x))) {
     my.cov <- x$data
     n <- x$n
-    obslabels <- colnames(x$data[[1]])
   } else {
     ## x is just a list of correlation matrices. "n" is provided as an argument.
     my.cov <- x
-    obslabels <- colnames(x[[1]])
   }
 
+  .check.cov.names(my.cov)
+  if (!missing(Means)) .check.no.period(colnames(Means), "Mean variable names")
+  if (append.vars && all(c("data", "n") %in% names(x)))
+    .check.no.period(setdiff(names(x), c("data", "n")), "Moderator column names")
+
   if (length(my.cov) != length(n)) stop("Lengths of 'x' and 'n' are different.\n")
+  my.cov <- .align.study.matrices(my.cov)
+  obslabels <- colnames(my.cov[[1]])
   
   if (cor.analysis) {
     ## Standardize and then vechs()
@@ -99,17 +111,23 @@ Cor2DataFrame <- function(x, n, v.na.replace=TRUE, cor.analysis=TRUE,
 
   ## NA is not allowed in definition variables
   ## Check if there are NAs in my.cov and replace them with the weighted or unweighted averages
-  if (any(sapply(my.cov, is.na)) & v.na.replace) {
+  if (any(sapply(my.cov, is.na)) && v.na.replace && acov != "individual") {
     ## Replace NA with 0 before calculations
     my.x <- lapply(my.cov, function(z) {z[is.na(z)] <- 0; z} )
     if (acov=="unweighted") {
       ## x: original covariance matrices in the input
       ## Unweighted means = sum of r/(no. of studies)
-      cov.mean <- Reduce("+", my.x)/pattern.na(my.cov, show.na = FALSE)
+      counts <- pattern.na(my.cov, show.na = FALSE)
+      if (any(counts == 0 & Reduce("|", lapply(my.cov, is.na))))
+        stop("Cannot replace an entry missing from every covariance matrix.")
+      cov.mean <- Reduce("+", my.x)/counts
     } else if (acov=="weighted") {
       my.x <- mapply("*", my.x, n, SIMPLIFY = FALSE)
       ## Weighted means = Cummulative sum of r*n/(sum of n)
-      cov.mean <- Reduce("+", my.x)/pattern.n(my.cov, n)
+      counts <- pattern.n(my.cov, n)
+      if (any(counts == 0 & Reduce("|", lapply(my.cov, is.na))))
+        stop("Cannot replace an entry missing from every covariance matrix.")
+      cov.mean <- Reduce("+", my.x)/counts
     }
     
     my.cov <- lapply(my.cov,
@@ -125,16 +143,29 @@ Cor2DataFrame <- function(x, n, v.na.replace=TRUE, cor.analysis=TRUE,
     acovR <- asyCov(x=my.cov, n=n, cor.analysis=cor.analysis, acov=acov, ...)
   }
 
-  ## x is a list of "data", "n", and moderators, and append
-  ## Append the moderators x[-c(1,2)] into data
-  if (all(c(c("data", "n") %in% names(x), length(names(x))>2, append.vars))) {
-    data <- suppressWarnings(data.frame(my.df, acovR, x[-c(1,2)], check.names=FALSE))        
+  ## x is a list of "data", "n", and moderators. Append the moderators,
+  ## selected by name rather than by position, into data.
+  moderators <- if (all(c("data", "n") %in% names(x)))
+    x[setdiff(names(x), c("data", "n"))] else NULL
+  if (length(moderators) && append.vars) {
+    for (m in moderators) if (is.matrix(m) || is.data.frame(m))
+      .check.no.period(colnames(m), "Moderator column names")
+    data <- suppressWarnings(data.frame(my.df, acovR, moderators, check.names=FALSE))
+    base.cols <- ncol(my.df) + ncol(acovR)
+    if (ncol(data) > base.cols) {
+      moderator.cols <- seq.int(base.cols + 1L, ncol(data))
+      colnames(data)[moderator.cols] <- gsub(".", "_", colnames(data)[moderator.cols], fixed=TRUE)
+    }
   } else {
     data <- suppressWarnings(data.frame(my.df, acovR, check.names=FALSE))
   }
-  
-  ## Use unique row names if the row names are duplicated.
-  if (row.names.unique) rownames(data) <- make.names(names(x), unique=TRUE)    
+
+  ## Use unique row names (the names of the studies) if they are duplicated.
+  if (row.names.unique) {
+    study.names <- names(my.cov)
+    if (is.null(study.names)) study.names <- as.character(seq_along(my.cov))
+    rownames(data) <- make.names(study.names, unique=TRUE)
+  }
 
   #### Additional means
   if (!missing(Means)) {
@@ -175,6 +206,8 @@ The results are likely incorrect unless this is what you want.\n")
     out <- list(data=data, n=n, obslabels=obslabels, ylabels=colnames(my.df),
                 vlabels=colnames(acovR), VyMlabels=NULL)
   }
+  if (anyDuplicated(colnames(out$data)))
+    stop("Generated correlation, sampling covariance, mean, or moderator column names collide; rename the conflicting variables.", call.=FALSE)
 
   ## obslabels: labels of the means (Means) and dimnames in the
   ## correlation/covariance matrices (Cov)

@@ -6,6 +6,7 @@
 #' regression coefficients and variance components on the level-2 and on the
 #' level-3 can be easily imposed by setting the same labels on the parameter
 #' estimates.
+#' Variable names and data column names must not contain periods. Rename them consistently, for example \code{x.1} to \code{x_1}, and check that the new names are unique. Study, group, and cluster values may contain periods.
 #'
 #' \deqn{y_{ij} = \beta_0 + \mathbf{\beta'}*\mathbf{x}_{ij} + u_{(2)ij} +
 #' u_{(3)j} + e_{ij} } where \eqn{y_{ij}} is the effect size for the ith study
@@ -118,6 +119,7 @@ meta3L <- function(y, v, cluster, x, data, intercept.constraints=NULL, coef.cons
                    model.name="Meta analysis with ML",
                    suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
   mf <- match.call()
+  .check.meta.input.names(mf, if (!missing(data)) data else NULL)
   if (missing(data)) {
     data <- sys.frame(sys.parent())
   } else {
@@ -129,7 +131,9 @@ meta3L <- function(y, v, cluster, x, data, intercept.constraints=NULL, coef.cons
   my.v <- mf[[match("v", names(mf))]]
   my.cluster <- mf[[match("cluster", names(mf))]]  
   y <- eval(my.y, data, enclos = sys.frame(sys.parent()))
+  .check.no.period(colnames(y), "Variable column names")
   v <- eval(my.v, data, enclos = sys.frame(sys.parent()))
+  .check.no.period(colnames(v), "Variable column names")
   ## Fixed factors with missing levels reported by David Stanley
   cluster <- eval(my.cluster, data, enclos = sys.frame(sys.parent()))
   if (!is.character(cluster))
@@ -149,6 +153,7 @@ meta3L <- function(y, v, cluster, x, data, intercept.constraints=NULL, coef.cons
     } else {
     my.x <- mf[[match("x", names(mf))]]
     x <- eval(my.x, data, enclos = sys.frame(sys.parent()))
+    .check.no.period(colnames(x), "Variable column names")
     if (is.vector(x)) no.x <- 1 else no.x <- ncol(x)   
     old.labels <- names(my.long)
     my.long <- data.frame(my.long, x)

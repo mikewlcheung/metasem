@@ -84,7 +84,12 @@ is converted into a matrix by \code{as.matrix()}. The default is that all
 covariance/variance components are free. The format of this matrix follows
 \code{\link[metaSEM]{as.mxMatrix}}. Elements of the variance components can
 be constrained equally by using the same labels. If a zero matrix is
-specified, it becomes a fixed-effects meta-analysis.}
+specified, it becomes a fixed-effects meta-analysis. Lower bounds keep the
+variances non-negative, but with free covariances the estimated variance
+component can still be not positive semidefinite; \code{meta()} warns in
+this case, and a diagonal matrix, e.g.,
+\code{RE.constraints=Diag(paste0("0.1*Tau2_", 1:p, "_", 1:p))}, may be
+used instead.}
 
 \item{RE.startvalues}{A vector of \eqn{p}{p} starting values on the
 diagonals of the variance component of the random effects. If only one
@@ -144,6 +149,8 @@ object returned from \code{\link[OpenMx]{mxRun}}} \item{mx0.fit}{A fitted
 object without any predictor returned from \code{\link[OpenMx]{mxRun}}}
 }
 \description{
+Variable names and data column names must not contain periods. Rename them consistently, for example \code{x.1} to \code{x_1}, and check that the new names are unique. Study, group, and cluster values may contain periods.
+
 It conducts univariate and multivariate meta-analysis with maximum
 likelihood estimation method. Mixed-effects meta-analysis can be conducted
 by including study characteristics as predictors. Equality constraints on

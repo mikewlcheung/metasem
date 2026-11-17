@@ -9,6 +9,51 @@
 \alias{plot.osmasem2}
 \alias{plot.mxsem}
 \title{Plot methods for various objects}
+\usage{
+\method{plot}{meta}(x, effect.sizes, add.margin = 0.1, interval = 0.95,
+    main = "Effect Sizes and their Confidence Ellipses",
+    axis.labels = paste("Effect size ", effect.sizes,
+        sep = ""), study.col = "black", study.pch = 19,
+    study.min.cex = 0.8, study.weight.plot = FALSE,
+    study.ellipse.plot = TRUE, study.ellipse.col = "black",
+    study.ellipse.lty = 2, study.ellipse.lwd = 0.5,
+    estimate.col = "blue", estimate.pch = 18, estimate.cex = 2,
+    estimate.ellipse.plot = TRUE, estimate.ellipse.col = "red",
+    estimate.ellipse.lty = 1, estimate.ellipse.lwd = 2,
+    randeff.ellipse.plot = TRUE, randeff.ellipse.col = "green",
+    randeff.ellipse.lty = 1, randeff.ellipse.lwd = 2,
+    univariate.plot = TRUE, univariate.lines.col = "gray",
+    univariate.lines.lty = 3, univariate.lines.lwd = 1,
+    univariate.polygon.width = 0.02, univariate.polygon.col = "red",
+    univariate.arrows.col = "green", univariate.arrows.lwd = 2,
+    diag.panel = FALSE, xlim = NULL, ylim = NULL, ...)
+\method{plot}{character}(x, fixed.x = FALSE, nCharNodes = 0, nCharEdges = 0,
+    layout = c("tree", "circle", "spring", "tree2",
+        "circle2"), sizeMan = 8, sizeLat = 8, edge.label.cex = 1.3,
+    color = "white", ...)
+\method{plot}{wls}(x, manNames = NULL, latNames = NULL, labels = c("labels",
+    "RAM"), what = "est", nCharNodes = 0, nCharEdges = 0,
+    layout = c("tree", "circle", "spring", "tree2",
+        "circle2"), sizeMan = 8, sizeLat = 8, edge.label.cex = 1.3,
+    color = "white", weighted = FALSE, ...)
+\method{plot}{osmasem}(x, manNames = NULL, latNames = NULL, labels = c("labels",
+    "RAM"), what = "est", nCharNodes = 0, nCharEdges = 0,
+    layout = c("tree", "circle", "spring", "tree2",
+        "circle2"), sizeMan = 8, sizeLat = 8, edge.label.cex = 1.3,
+    color = "white", weighted = FALSE, ...)
+\method{plot}{osmasem2}(x, manNames = NULL, latNames = NULL, labels = c("labels",
+    "RAM"), what = "est", nCharNodes = 0, nCharEdges = 0,
+    layout = c("tree", "circle", "spring", "tree2",
+        "circle2"), sizeMan = 8, sizeLat = 8, edge.label.cex = 1.3,
+    color = "white", weighted = FALSE, ...)
+\method{plot}{mxsem}(x, manNames = NULL, latNames = NULL, labels = c("labels",
+    "RAM"), what = "est", nCharNodes = 0, nCharEdges = 0,
+    layout = c("tree", "circle", "spring", "tree2",
+        "circle2"), sizeMan = 8, sizeLat = 8, edge.label.cex = 1.3,
+    color = "white", weighted = FALSE, group = NULL,
+    level = NULL, combine = missing(group) && missing(level),
+    main.line = 2.5, main.adj = NULL, ...)
+}
 \arguments{
 \item{x}{An object returned from either a lavaan model class
 \code{character}, \code{osmasem}, \code{osmasem3L}, \code{wls} or
@@ -122,11 +167,15 @@ defaults estimated from the data.}
 
 \item{fixed.x}{Argument passed to \code{\link[semPlot]{semPlotModel}}.}
 
-\item{manNames}{Argument passed to \code{\link[semPlot]{semPaths}}}
+\item{manNames}{Names of the observed nodes, in the row order of the RAM
+filter matrix F. If
+\code{NULL}, names from the fitted model are used.}
 
-\item{latNames}{Argument passed to \code{\link[semPlot]{semPaths}}}
+\item{latNames}{Names of the latent nodes, in RAM variable order. If
+\code{NULL}, names from the fitted model are used.}
 
-\item{labels}{Argument passed to \code{\link[semPlot]{semPaths}}}
+\item{labels}{For path diagrams, either \code{labels} (the default) to
+use parameter labels, or \code{RAM} to use RAM matrix notation.}
 
 \item{what}{Argument passed to \code{\link[semPlot]{semPaths}}}
 
@@ -159,11 +208,16 @@ resolves to the matching group when it does not also collide with a
 group whose real data value is \code{"a_b"}, never the submodel merely
 named that). When originals and submodel names coincide (the common
 case, e.g. \code{"g1"}), either happens to work, but the original value
-is the one to reach for. Defaults to the first group. Ignored otherwise.}
+is the one to reach for. Defaults to the first group. In a combined
+group and two-level fit, it selects the group whose \code{level} is
+plotted. Ignored otherwise.}
 
-\item{level}{For \code{plot.mxsem} on a two-level \code{sem} fit (see
-\code{\link[metaSEM]{sem}}): either \code{"within"} (default) or
-\code{"between"}, selecting which level to plot. Ignored otherwise
+\item{level}{For \code{plot.mxsem} on a two-level or combined group and
+two-level \code{sem} fit (see \code{\link[metaSEM]{sem}}): either
+\code{"within"} (default) or \code{"between"}, selecting which level to
+plot. In the between-level diagram, the between components of level-1
+variables and the cluster-level observed covariates are drawn as observed
+variables. Ignored otherwise
 (including when \code{combine=TRUE}). \code{semPlot} has no notion of
 the two levels' relational (\code{joinKey}) linkage, so only one level's
 diagram is shown at a time even when combined (below) into one figure.}
@@ -171,7 +225,8 @@ diagram is shown at a time even when combined (below) into one figure.}
 \item{combine}{For \code{plot.mxsem} on a multiple-group or two-level
 \code{sem} fit: if \code{TRUE}, plot every group (or both the
 \code{within} and \code{between} levels) as side-by-side panels of one
-figure, overriding \code{group}/\code{level}. Defaults to \code{TRUE}
+figure, overriding \code{group}/\code{level}. For a combined group and
+two-level fit, each group is a row with its within and between panels. Defaults to \code{TRUE}
 when neither \code{group} nor \code{level} is supplied, and to
 \code{FALSE} (one diagram, as selected by \code{group}/\code{level}) as
 soon as either of them is -- so \code{plot(fit)} shows every panel by
@@ -203,7 +258,23 @@ fully right-aligned) if so. Ignored otherwise.}
 }
 \description{
 It plots the models from either the lavaan model or \code{meta}, \code{wls},
-and \code{osmasem} objects.
+\code{osmasem}, and \code{\link{sem}} (\code{mxsem}) objects.
+}
+\details{
+For \code{mxsem} objects, a path set by a definition variable
+(\code{data.*}), either directly or through a constraint substituted with
+\code{replace.constraints=TRUE}, is shown at the mean of the variable in
+the level-1 data of the group plotted. It is not shown for summary input,
+which has no definition variables. In estimate and standardized diagrams,
+exactly zero paths use a tiny nonzero graphical weight so they remain
+visible; the fitted model's estimates are unchanged. The filter matrix F
+must select distinct observed variables for these plots.
+
+For \code{osmasem} and \code{osmasem2} objects, matrices and implied
+covariances are evaluated at the means of definition variables in the
+fitted data, after any row selection. For older \code{osmasem2} objects
+without a saved RAM specification, matrix names are recovered from
+\code{Fmatrix}.
 }
 \note{
 The estimated effect sizes and random effects are based on the labels

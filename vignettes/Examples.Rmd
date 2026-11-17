@@ -1,0 +1,1239 @@
+---
+title: 'The metaSEM package: Examples'
+author: "Mike W.-L. Cheung"
+date: "`r format(Sys.time(), '%d %B, %Y')`"
+vignette: >
+  %\VignetteIndexEntry{metaSEM: Examples}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+output:
+  html_document:
+    self_contained: yes
+    theme: united
+    toc: yes
+    keep_md: true
+  pdf_document:
+    toc: yes
+  word_document: default
+editor_options: 
+  chunk_output_type: console
+---
+
+```{r, echo=FALSE}
+library(knitr)
+OpenMx::mxOption(NULL, "Number of Threads", 2)
+opts_chunk$set(comment=NA, message=FALSE)
+fit_text <- function(object) {
+  st <- summary(object)$stat[, "Value"]
+  sprintf("χ²(df = %d, N = %d) = %.2f, CFI = %.4f, RMSEA = %.4f, SRMR = %.4f",
+          st["DF of target model"], st["Sample size"],
+          st["Chi-square of target model"], st["CFI"], st["RMSEA"], st["SRMR"])
+}
+comparison_text <- function(result) {
+  z <- result@results
+  z <- z[nrow(z), , drop=FALSE]
+  sprintf("Likelihood-ratio difference = %.4f, df = %d, unadjusted p %s",
+          z$diffLL, z$diffdf,
+          if (z$p < .0001) "< 0.0001" else sprintf("= %.4f", z$p))
+}
+r2_text <- function(result) {
+  z <- result$R2.values
+  sprintf("level-2 R² = %.4f and level-3 R² = %.4f", z["R2", "Level 2"], z["R2", "Level 3"])
+}
+coef_text <- function(result, label) {
+  z <- result$coefficients[label, ]
+  sprintf("%.4f (95%% CI %.4f, %.4f)", z$Estimate, z$lbound, z$ubound)
+}
+cluster_fit_text <- function(object) {
+  paste(vapply(names(object), function(nm)
+    paste0(nm, ": ", fit_text(object[[nm]])), character(1)), collapse="; ")
+}
+```
+
+# Introduction
+* The `metaSEM` package provides functions for conducting univariate and multivariate meta-analysis using a structural equation modeling approach via the `OpenMx` package. It also implemented the two-stage structural equation modeling (TSSEM) approach to conducting a fixed- and random-effects meta-analytic structural equation modeling (MASEM) on correlation/covariance matrices. 
+
+* The `metaSEM` package is based on the following papers:
+    + Cheung, M. W.-L. (2008). A model for integrating fixed-, random-, and mixed-effects meta-analyses into structural equation modeling. *Psychological Methods*, *13*(3), 182–202. https://doi.org/10.1037/a0013163
+    + Cheung, M. W.-L. (2009). Constructing approximate confidence intervals for parameters with structural equation models. *Structural Equation Modeling: A Multidisciplinary Journal*, *16*(2), 267–294. https://doi.org/10.1080/10705510902751291
+    + Cheung, M. W.-L. (2010). Fixed-effects meta-analyses as multiple-group structural equation models. *Structural Equation Modeling: A Multidisciplinary Journal*, *17*(3), 481–509. https://doi.org/10.1080/10705511.2010.489367
+    + Cheung, M. W.-L. (2013). Implementing restricted maximum likelihood estimation in structural equation models. *Structural Equation Modeling: A Multidisciplinary Journal*, *20*(1), 157–167. https://doi.org/10.1080/10705511.2013.742404
+    + Cheung, M. W.-L. (2013). Multivariate meta-analysis as structural equation models. *Structural Equation Modeling: A Multidisciplinary Journal*, *20*(3), 429–454. https://doi.org/10.1080/10705511.2013.797827
+    + Cheung, M. W.-L. (2014). Modeling dependent effect sizes with three-level meta-analyses: A structural equation modeling approach. *Psychological Methods*, *19*(2), 211–229. https://doi.org/10.1037/a0032968
+    + Cheung, M. W.-L. (2014). Fixed- and random-effects meta-analytic structural equation modeling: Examples and analyses in R. *Behavior Research Methods*, *46*(1), 29–40. https://doi.org/10.3758/s13428-013-0361-y
+    + Cheung, M. W.-L. (2015). metaSEM: an R package for meta-analysis using structural equation modeling. *Frontiers in Psychology*, *5*(1521). https://doi.org/10.3389/fpsyg.2014.01521
+    + Cheung, M. W.-L. (2015). *Meta-Analysis: A Structural Equation Modeling Approach*. [Wiley](https://www.wiley.com/en-sg/Meta-Analysis%3A+A+Structural+Equation+Modeling+Approach-p-9781118957820). 
+    + Cheung, M.W.-L. (2018). Computing multivariate effect sizes and their sampling covariance matrices with structural equation modeling: Theory, examples, and computer simulations. *Frontiers in Psychology*, *9*(1387). https://doi.org/10.3389/fpsyg.2018.01387
+    + Cheung, M. W.-L. (2018). Issues in solving the problem of effect size heterogeneity in meta-analytic structural equation modeling: A commentary and simulation study on Yu, Downes, Carter, and O’Boyle (2016). *Journal of Applied Psychology*, *103*(7), 787–803. https://doi.org/10.1037/apl0000284
+    + Cheung, M. W.-L. (2019). Some reflections on combining meta-analysis and structural equation modeling. *Research Synthesis Methods*, *10*(1), 15-22. https://doi.org/10.1002/jrsm.1321
+    + Cheung, M. W.-L. (2022). Synthesizing indirect effects in mediation models with meta-analytic methods. *Alcohol and Alcoholism*, *57*(1), 5–15. https://doi.org/10.1093/alcalc/agab044
+    + Cheung, M. W.-L. (2023). Structural equation modeling (sem)-based meta-analysis. In R. H. Hoyle (Ed.), *Handbook of Structural Equation Modeling* (2nd ed., pp. 664–680). Guilford Press. https://www.guilford.com/books/Handbook-of-Structural-Equation-Modeling/Rick-Hoyle/9781462544646/contents
+    + Cheung, M. W.-L., & Chan, W. (2004). Testing dependent correlation coefficients via structural equation modeling. *Organizational Research Methods*, *7*(2), 206–223. https://doi.org/10.1177/1094428104264024
+    + Cheung, M. W.-L., & Chan, W. (2005). Meta-analytic structural equation modeling: A two-stage approach. *Psychological Methods*, *10*(1), 40–64. https://doi.org/10.1037/1082-989X.10.1.40
+    + Cheung, M. W.-L., & Chan, W. (2005). Classifying correlation matrices into relatively homogeneous subgroups: A cluster analytic approach. *Educational and Psychological Measurement*, *65*(6), 954–979. https://doi.org/10.1177/0013164404273946
+    + Cheung, M. W.-L., & Chan, W. (2009). A two-stage approach to synthesizing covariance matrices in meta-analytic structural equation modeling. *Structural Equation Modeling: A Multidisciplinary Journal*, *16*(1), 28–53. https://doi.org/10.1080/10705510802561295
+    + Cheung, M. W.-L., & Cheung, S. F. (2016). Random-effects models for meta-analytic structural equation modeling: Review, issues, and illustrations. *Research Synthesis Methods*, *7*(2), 140–155. https://doi.org/10.1002/jrsm.1166
+    + Cheung, M. W.-L., & Hafdahl, A. R. (2016). Special issue on meta-analytic structural equation modeling: Introduction from the guest editors. *Research Synthesis Methods*, *7*(2), 112–120. https://doi.org/10.1002/jrsm.1212
+    + Cheung, M. W.-L., & Hong, R. Y. (2017). Applications of meta-analytic structural equation modelling in health psychology: examples, issues, and recommendations. *Health Psychology Review*, *11*(3), 265–279. https://doi.org/10.1080/17437199.2017.1343678
+    + Jak, S., & Cheung, M. W.-L. (2018). Testing moderator hypotheses in meta-analytic structural equation modeling using subgroup analysis. *Behavior Research Methods*, *50*(4), 1359–1373. https://doi.org/10.3758/s13428-018-1046-3
+    + Jak, S., & Cheung, M. W.-L. (2019). Meta-analytic structural equation modeling with moderating effects on SEM parameters.*Psychological Methods*. https://doi.org/10.1037/met0000245
+
+# Univariate meta-analysis
+## Random-effects model
+```{r}
+## Load the library
+library(metaSEM)
+
+## Try to use more than one cores
+mxOption(NULL, 'Number of Threads', 2)
+
+## Show the first few studies of the data set
+head(Becker83)
+
+## Random-effects meta-analysis with ML
+summary( meta(y=di, v=vi, data=Becker83) )
+```
+
+## Fixed-effects model
+```{r}
+## Fixed-effects meta-analysis by fixing the heterogeneity variance at 0
+summary( meta(y=di, v=vi, data=Becker83, RE.constraints=0) )
+```
+
+## Mixed-effects model
+```{r}
+## Mixed-effects meta-analysis with "log(items)" as the predictor
+summary( meta(y=di, v=vi, x=log(items), data=Becker83) ) 
+```
+
+## Handling missing covariates with FIML
+```{r}
+## Sample data from Tenenbaum and Leaper (2002, Table 1).
+Tenenbaum02 <- Tenenbaum02[, c("r", "v", "Offspring_age", "Year_pub")]
+
+## Set seed for reproducibility
+set.seed(1234567)
+
+## Let's drop 40% in Offspring_age
+missing_per <- 0.4
+
+## MCAR
+index <- round(nrow(Tenenbaum02)*missing_per)
+index <- rep(c(TRUE, FALSE), times=c(index, nrow(Tenenbaum02)-index))
+index <- sample(index)
+my.MCAR <- Tenenbaum02
+my.MCAR[index, "Offspring_age"] <- NA
+my.MCAR$Offspring_age <- scale(my.MCAR$Offspring_age, scale=FALSE)
+my.MCAR$Year_pub <- scale(my.MCAR$Year_pub, scale=FALSE)
+
+my.MCAR
+
+## y: effect size
+## v: sampling variance
+## x: covariate
+## av: auxiliary variable
+fit <- metaFIML(y=r, v=v, x=Offspring_age, av=Year_pub, data=my.MCAR)
+summary(fit)
+```
+
+# Multivariate meta-analysis
+## Random-effects model
+```{r}
+## Show the data set
+Berkey98
+
+## Multivariate meta-analysis with a random-effects model
+mult1 <- meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL), data=Berkey98) 
+
+summary(mult1)
+
+## Plot the effect sizes
+plot(mult1)
+
+## Plot the effect sizes with the forest plots
+## Load the library for forest plots 
+library("metafor")
+
+## Create extra panels for the forest plots
+plot(mult1, diag.panel=TRUE, main="Multivariate meta-analysis",
+axis.label=c("PD", "AL"))
+
+## Forest plot for PD
+forest( rma(yi=PD, vi=var_PD, data=Berkey98) )
+title("Forest plot of PD")
+
+## Forest plot for AL
+forest( rma(yi=AL, vi=var_AL, data=Berkey98) )
+title("Forest plot of AL")
+```
+
+## Fixed-effects model
+```{r}
+## Fixed-effects meta-analysis by fixiing the heterogeneity variance component at 
+## a 2x2 matrix of 0.
+summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL), data=Berkey98,
+              RE.constraints=matrix(0, nrow=2, ncol=2)) )
+```
+
+## Mixed-effects model
+```{r}
+## Multivariate meta-analysis with "publication year-1979" as a predictor 
+summary( meta(y=cbind(PD, AL), v=cbind(var_PD, cov_PD_AL, var_AL), data=Berkey98,
+              x=scale(pub_year, center=1979)) )
+```
+
+# Three-level meta-analysis
+* This section illustrates how to conduct three-level meta-analyses using the [metaSEM](https://github.com/mikewlcheung/metasem) package implemented in the [R](https://www.r-project.org/) environment. The `metaSEM` package was written to simplify the procedures to perform a meta-analysis. Most readers may only need to use the `metaSEM` package to conduct the analysis. The next section shows how to conduct two- and three-level meta-analyses with the `meta()` and `meta3L()` functions. The third section demonstrates more complicated three-level meta-analyses using a dataset with more predictors. This section shows how to implement three-level meta-analyses as structural equation models using the `OpenMx` package. It provides detailed steps on how three-level meta-analyses can be formulated as structural equation models.
+
+* This section also demonstrates the advantages of using the SEM approach to conduct three-level meta-analyses. These include flexibility on imposing constraints for model comparisons and construction of likelihood-based confidence interval (LBCI). I also demonstrate how to conduct three-level meta-analysis with restricted (or residual) maximum likelihood (REML) using the `reml3L()` function and handling missing covariates with the full information maximum likelihood (FIML) using the `meta3LFIML()` function. Readers may refer to Cheung (2015) for the design and implementation of the `metaSEM` package and Cheung (2014) for the theory and issues on how to formulate three-level meta-analyses as structural equation models. 
+
+* Two datasets from published meta-analyses were used in the illustrations. The first dataset was based on Cooper et al. (2003) and Konstantopoulos (2011). Konstantopoulos (2011) selected part of the dataset to illustrate how to conduct a three-level meta-analysis. The second dataset was reported by Bornmann et al. (2007) and Marsh et al. (2009). They conducted a three-level meta-analysis on gender effects in peer reviews of grant proposals. 
+
+## Comparisons between two- and three-level models with Cooper et al.'s (2003) dataset
+As an illustration, I first conduct the tradition (two-level) meta-analysis using the `meta()` function. Then I conduct a three-level meta-analysis using the `meta3L()` function. We may compare the similarities and differences between these two sets of results. 
+
+### Inspecting the data
+Before running the analyses, we need to load the `metaSEM` library. The datasets are stored in the library. It is always a good idea to inspect the data before the analyses. We may display the first few cases of the dataset by using the `head()` command. 
+```{r}
+#### Cooper et al. (2003)
+library("metaSEM")
+
+head(Cooper03)
+```
+
+### Two-level meta-analysis
+Similar to other `R` packages, we may use `summary()` to extract the results after running the analyses. I first conduct a random-effects meta-analysis and then a fixed- and mixed-effects meta-analyses.
+
+* Random-effects model
+The summary reports the heterogeneity test, variance, $I^2$, and average effect with its confidence interval.
+```{r}
+#### Two-level meta-analysis
+
+## Random-effects model  
+cooper_random <- summary(meta(y=y, v=v, data=Cooper03))
+cooper_random
+```
+
+The average effect is `r coef_text(cooper_random, "Intercept1")`, the heterogeneity variance is `r sprintf("%.4f", cooper_random$coefficients["Tau2_1_1", "Estimate"])`, and $I^2$ is `r sprintf("%.4f", cooper_random$I2.values[1, "Estimate"])`.
+
+* Fixed-effects model
+A fixed-effects meta-analysis can be conducted by fixing the heterogeneity variance at zero with `RE.constraints`.
+```{r}
+## Fixed-effects model
+cooper_fixed <- summary(meta(y=y, v=v, data=Cooper03, RE.constraints=0))
+cooper_fixed
+```
+
+The common effect is `r coef_text(cooper_fixed, "Intercept1")`.
+
+* Mixed-effects model
+`Year` is centered (but not standardized) with `scale(Year, scale=FALSE)` for the mixed-effects model.
+```{r}
+## Mixed-effects model
+cooper_mixed <- summary(meta(y=y, v=v, x=scale(Year, scale=FALSE), data=Cooper03))
+cooper_mixed
+```
+
+The slope is `r coef_text(cooper_mixed, "Slope1_1")`.
+
+### Three-level meta-analysis
+* Random-effects model
+The three-level model estimates heterogeneity separately for schools and districts.
+```{r}
+#### Three-level meta-analysis
+## Random-effects model
+cooper_three <- summary(meta3L(y=y, v=v, cluster=District, data=Cooper03))
+cooper_three
+```
+
+The average effect is `r coef_text(cooper_three, "Intercept")`; the level-2 and level-3 variances are `r sprintf("%.4f", cooper_three$coefficients["Tau2_2", "Estimate"])` and `r sprintf("%.4f", cooper_three$coefficients["Tau2_3", "Estimate"])`.
+
+* Mixed-effects model
+`Year` is also used as a covariate in the three-level model.
+```{r}
+## Mixed-effects model
+cooper_three_mixed <- summary(meta3L(y=y, v=v, cluster=District, x=scale(Year, scale=FALSE),
+                                    data=Cooper03))
+cooper_three_mixed
+```
+
+The slope is `r coef_text(cooper_three_mixed, "Slope_1")`.
+
+* Model comparisons
+Many research hypotheses involve model comparisons among nested models. `anova()`, a generic function for comparing nested models, may be used to conduct a likelihood ratio test which is also known as a chi-square difference test.
+
+* Testing $H_0: \tau^2_{(3)} = 0$
+    + Based on the data structure, it is clear that a 3-level meta-analysis is preferred to a traditional 2-level meta-analysis. It is still of interest to test whether the 3-level model is statistically better than the 2-level model by testing $H_0: \tau^2_{(3)}=0$. Since the models with $\tau^2_{(3)}$ being freely estimated and with $\tau^2_{(3)}=0$ are nested, we may compare them by the use of a likelihood ratio test. 
+    + The null $H_0: \tau^2_{(3)}=0$ is on the boundary. Under the usual 50:50 mixture reference distribution, a one-degree-of-freedom chi-square _p_ value below .10 corresponds to a mixture _p_ value below .05. This approximation relies on the assumptions for that reference distribution.
+    + The model comparison is reported below.
+```{r}
+## Model comparisons
+  
+model2 <- meta(y=y, v=v, data=Cooper03, model.name="2 level model", silent=TRUE) 
+#### An equivalent model by fixing tau2 at level 3=0 in meta3L()
+## model2 <- meta3L(y=y, v=v, cluster=District, data=Cooper03, 
+##                  model.name="2 level model", RE3.constraints=0) 
+model3 <- meta3L(y=y, v=v, cluster=District, data=Cooper03, 
+                 model.name="3 level model", silent=TRUE) 
+cmp_cooper_level <- anova(model3, model2)
+cmp_cooper_level
+```
+
+`r comparison_text(cmp_cooper_level)`.
+
+* Testing $H_0: \tau^2_{(2)} = \tau^2_{(3)}$
+    + From the results of the 3-level random-effects meta-analysis, it appears the level 3 heterogeneity is much larger than that at level 2. 
+    + We may test the null hypothesis $H_0: \tau^2_{(2)} = \tau^2_{(3)}$ by the use of a likelihood-ratio test.
+    + We may impose an equality constraint on $\tau^2_{(2)} = \tau^2_{(3)}$ by using the same label in `meta3L()`. For example, `Eq_tau2` is used as the label in `RE2.constraints` and `RE3.constraints` meaning that both the level 2 and level 3 random effects heterogeneity variances are constrained equally. The value of `0.1` was used as the starting value in the constraints. 
+    + The model comparison is reported below.
+```{r}
+## Testing \tau^2_2 = \tau^2_3
+modelEqTau2 <- meta3L(y=y, v=v, cluster=District, data=Cooper03, 
+                      model.name="Equal tau2 at both levels",
+                      RE2.constraints="0.1*Eq_tau2", RE3.constraints="0.1*Eq_tau2") 
+cmp_cooper_equal <- anova(model3, modelEqTau2)
+cmp_cooper_equal
+```
+
+`r comparison_text(cmp_cooper_equal)`.
+
+* Likelihood-based confidence interval
+    + A Wald CI is constructed by $\hat{\theta} \pm 1.96 SE$ where $\hat{\theta}$ and $SE$ are the parameter estimate and its estimated standard error. 
+    + An LBCI can be constructed by the use of the likelihood ratio statistic (e.g., Cheung, 2009; Neal & Miller, 1997).  
+    + A Wald CI on a variance component can extend below zero, outside its meaningful range.
+    + An LBCI on the heterogeneity variance is preferred. Since $I^2_{(2)}$ and $I^2_{(3)}$ are functions of $\tau^2_{(2)}$ and $\tau^2_{(3)}$, LBCI on these indices may also be requested and used to indicate the precision of these indices. 
+    + An LBCI may be requested by specifying `LB` in the `intervals.type` argument. 
+    + The summary below reports likelihood-based confidence intervals for the variance and $I^2$ indices.
+```{r}
+## LBCI for random-effects model
+cooper_lb <- summary(meta3L(y=y, v=v, cluster=District, data=Cooper03,
+                             I2=c("I2q", "ICC"), intervals.type="LB"))
+cooper_lb
+
+## LBCI for mixed-effects model
+summary( meta3L(y=y, v=v, cluster=District, x=scale(Year, scale=FALSE), 
+                data=Cooper03, intervals.type="LB") ) 
+```
+
+The level-3 variance is `r coef_text(cooper_lb, "Tau2_3")` using a likelihood-based interval.
+
+* Restricted maximum likelihood estimation
+    + REML may also be used in the three-level meta-analysis.
+```{r}
+## REML
+summary( reml1 <- reml3L(y=y, v=v, cluster=District, data=Cooper03) )
+```
+
+The REML variance estimates are `r sprintf("%.4f", summary(reml1)$coefficients["Tau2_2", "Estimate"])` and `r sprintf("%.4f", summary(reml1)$coefficients["Tau2_3", "Estimate"])`.
+* We may impose an equality constraint on the two variance components and compare the result with the unconstrained model.
+```{r}
+summary( reml0 <- reml3L(y=y, v=v, cluster=District, data=Cooper03,
+                        RE.equal=TRUE, model.name="Equal Tau2") )
+cmp_reml_equal <- anova(reml1, reml0)
+cmp_reml_equal
+```
+
+`r comparison_text(cmp_reml_equal)`.
+* We may also estimate residual heterogeneity after controlling for the covariate.
+```{r}
+reml_mixed <- reml3L(y=y, v=v, cluster=District, x=scale(Year, scale=FALSE),
+                     data=Cooper03)
+summary(reml_mixed)
+```
+
+The residual variance estimates are `r sprintf("%.4f", summary(reml_mixed)$coefficients["Tau2_2", "Estimate"])` and `r sprintf("%.4f", summary(reml_mixed)$coefficients["Tau2_3", "Estimate"])`.
+
+## More complex 3-level meta-analyses with Bornmann et al.'s (2007) dataset
+This section replicates the findings in Table 3 of Marsh et al. (2009). Several additional analyses on model comparisons were conducted. Missing data were artificially introduced to illustrate how missing data might be handled with FIML.
+
+## Inspecting the data
+The effect size and its sampling variance are `logOR` (log of the odds ratio) and `v`, respectively. `Cluster` is the variable representing the cluster effect, whereas the potential covariates are `Year` (year of publication), `Type` (`Grants` vs. `Fellowship`), `Discipline` (`Physical sciences`, `Life sciences/biology`, `Social sciences/humanities` and `Multidisciplinary`) and `Country` (`United States`, `Canada`, `Australia`, `United Kingdom` and `Europe`).
+
+```{r}
+#### Bornmann et al. (2007)
+head(Bornmann07)
+```
+
+## Model 0: Intercept
+The summary reports the average effect and the level-2 and level-3 heterogeneity.
+
+```{r} 
+## Model 0: Intercept  
+summary( Model0 <- meta3L(y=logOR, v=v, cluster=Cluster, data=Bornmann07, 
+                          model.name="3 level model") )
+```
+
+The average effect is `r coef_text(summary(Model0), "Intercept")`; the level-2 and level-3 variances are `r sprintf("%.4f", summary(Model0)$coefficients["Tau2_2", "Estimate"])` and `r sprintf("%.4f", summary(Model0)$coefficients["Tau2_3", "Estimate"])`.
+
+* Testing $H_0: \tau^2_3 = 0$
+The model comparison is reported below.
+```{r}
+## Testing tau^2_3 = 0
+Model0a <- meta3L(logOR, v, cluster=Cluster, data=Bornmann07, 
+                  RE3.constraints=0, model.name="2 level model")
+cmp_bornmann_level <- anova(Model0, Model0a)
+cmp_bornmann_level
+```
+
+`r comparison_text(cmp_bornmann_level)`.
+
+* Testing $H_0: \tau^2_2 = \tau^2_3$
+The model comparison is reported below.
+```{r}
+## Testing tau^2_2 = tau^2_3
+Model0b <- meta3L(logOR, v, cluster=Cluster, data=Bornmann07, 
+                  RE2.constraints="0.1*Eq_tau2", RE3.constraints="0.1*Eq_tau2", 
+                  model.name="tau2_2 equals tau2_3")
+cmp_bornmann_equal <- anova(Model0, Model0b)
+cmp_bornmann_equal
+```
+
+`r comparison_text(cmp_bornmann_equal)`.
+
+## Model 1: `Type` as a covariate
+* Conventionally, one level (e.g., `Grants`) is used as the reference group. The estimated intercept (labeled `Intercept` in the output) represents the estimated effect size for `Grants` and the regression coefficient (labeled `Slope_1` in the output) is the difference between `Fellowship` and `Grants`. 
+    + The model estimates the `Type` slope and the explained variance at each level.
+```{r}
+## Model 1: Type as a covariate  
+## Convert characters into a dummy variable
+## Type2=0 (Grants); Type2=1 (Fellowship)    
+Type2 <- ifelse(Bornmann07$Type=="Fellowship", yes=1, no=0)
+summary( Model1 <- meta3L(logOR, v, x=Type2, cluster=Cluster, data=Bornmann07)) 
+```
+
+The `Type` slope is `r coef_text(summary(Model1), "Slope_1")`. The explained variance is `r r2_text(summary(Model1))`.
+
+* Alternative model: `Grants` and `Fellowship` as indicator variables
+    + If we want to estimate the effects for both `Grants` and `Fellowship`, we may create two indicator variables to represent them. Since we cannot estimate the intercept and these coefficients at the same time, we need to fix the intercept at 0 by specifying the `intercept.constraints=0` argument in `meta3L()`. We are now able to include both `Grants` and `Fellowship` in the analysis.
+
+```{r}
+## Alternative model: Grants and Fellowship as indicators  
+## Indicator variables
+Grant <- ifelse(Bornmann07$Type=="Grant", yes=1, no=0)
+Fellowship <- ifelse(Bornmann07$Type=="Fellowship", yes=1, no=0)
+  
+Model1b <- meta3L(logOR, v, x=cbind(Grant, Fellowship), 
+                  cluster=Cluster, data=Bornmann07,
+                  intercept.constraints=0, model.name="Model 1")
+summary(Model1b)
+```
+
+The estimated effects for grants and fellowships are `r coef_text(summary(Model1b), "Slope_1")` and `r coef_text(summary(Model1b), "Slope_2")`, respectively.
+
+## Model 2: `Year` and `Year^2` as covariates
+* When there are several covariates, we may combine them with the `cbind()` command. For example, `cbind(Year, Year^2)` includes both `Year` and its squared as covariates. In the output, `Slope_1` and `Slope_2` refer to the regression coefficients for `Year` and `Year^2`, respectively. To increase the numerical stability, the covariates are usually centered before creating the quadratic terms. Since Marsh et al. (2009) standardized `Year` in their analysis, I follow this practice here.
+- The summary reports the coefficients and explained variances for this model.
+```{r}
+## Model 2: Year and Year^2 as covariates
+summary( Model2 <- meta3L(logOR, v, x=cbind(scale(Year), scale(Year)^2), 
+                          cluster=Cluster, data=Bornmann07,
+                          model.name="Model 2") ) 
+```
+
+The linear and quadratic slopes are `r coef_text(summary(Model2), "Slope_1")` and `r coef_text(summary(Model2), "Slope_2")`, respectively. The explained variance is `r r2_text(summary(Model2))`.
+
+* Testing $H_0: \beta_{Year} = \beta_{Year^2}=0$
+The following test jointly evaluates the linear and quadratic `Year` coefficients; it does not isolate the quadratic term.
+```{r}
+## Testing beta_{Year} = beta_{Year^2}=0
+cmp_year <- anova(Model2, Model0)
+cmp_year
+```
+
+`r comparison_text(cmp_year)`.
+
+## Model 3: `Discipline` as a covariate
+* There are four categories of `Discipline`. `multidisciplinary` is used as the reference group in the analysis.
+* The summary reports the coefficients and explained variances for this model.
+```{r}
+## Model 3: Discipline as a covariate
+## Create dummy variables using multidisciplinary as the reference group
+DisciplinePhy <- ifelse(Bornmann07$Discipline=="Physical sciences", yes=1, no=0)
+DisciplineLife <- ifelse(Bornmann07$Discipline=="Life sciences/biology", yes=1, no=0)
+DisciplineSoc <- ifelse(Bornmann07$Discipline=="Social sciences/humanities", yes=1, no=0)
+summary( Model3 <- meta3L(logOR, v, x=cbind(DisciplinePhy, DisciplineLife, DisciplineSoc), 
+                          cluster=Cluster, data=Bornmann07,
+                          model.name="Model 3") )
+```
+
+The discipline slopes are `r coef_text(summary(Model3), "Slope_1")`, `r coef_text(summary(Model3), "Slope_2")`, and `r coef_text(summary(Model3), "Slope_3")`.  The explained variance is `r r2_text(summary(Model3))`.
+
+* Testing whether `Discipline` is significant
+    + The model comparison is reported below.
+```{r}
+## Testing whether Discipline is significant
+cmp_discipline <- anova(Model3, Model0)
+cmp_discipline
+```
+
+`r comparison_text(cmp_discipline)`.
+
+## Model 4: `Country` as a covariate
+* There are five categories in `Country`. The `United States` is used as the reference group in the analysis.
+* The summary reports the coefficients and explained variances for this model.
+```{r}
+## Model 4: Country as a covariate
+## Create dummy variables using the United States as the reference group
+CountryAus <- ifelse(Bornmann07$Country=="Australia", yes=1, no=0)
+CountryCan <- ifelse(Bornmann07$Country=="Canada", yes=1, no=0)
+CountryEur <- ifelse(Bornmann07$Country=="Europe", yes=1, no=0)
+CountryUK <- ifelse(Bornmann07$Country=="United Kingdom", yes=1, no=0)
+  
+summary( Model4 <- meta3L(logOR, v, x=cbind(CountryAus, CountryCan, CountryEur, 
+                          CountryUK), cluster=Cluster, data=Bornmann07,
+                          model.name="Model 4") )  
+```
+
+The country slopes are `r coef_text(summary(Model4), "Slope_1")`, `r coef_text(summary(Model4), "Slope_2")`, `r coef_text(summary(Model4), "Slope_3")`, and `r coef_text(summary(Model4), "Slope_4")`.  The explained variance is `r r2_text(summary(Model4))`.
+
+* Testing whether `Country` is significant
+    + The model comparison is reported below.
+```{r}
+  ## Testing whether Country is significant
+  cmp_country <- anova(Model4, Model0)
+cmp_country
+```
+
+`r comparison_text(cmp_country)`.
+
+## Model 5: `Type` and `Discipline` as covariates
+* The summary reports the explained variance at each level.
+```{r}
+## Model 5: Type and Discipline as covariates
+Model5 <- meta3L(logOR, v, x=cbind(Type2, DisciplinePhy, DisciplineLife, 
+                 DisciplineSoc), cluster=Cluster, data=Bornmann07,
+                 model.name="Model 5")
+
+## Rerun to remove error code
+Model5 <- rerun(Model5)
+summary(Model5)
+```
+
+The level 2 and level 3 $R^2$ values are `r sprintf("%.4f", summary(Model5)$R2.values["R2", "Level 2"])` and `r sprintf("%.4f", summary(Model5)$R2.values["R2", "Level 3"])`, respectively. `r if (is.na(summary(Model5)$coefficients["Tau2_3", "Std.Error"])) "The Wald standard error for the level-3 variance is unavailable; inspect the estimate and bounds before making inferences." else ""`
+
+* Testing whether `Discipline` is significant after controlling for `Type`
+    + The model comparison is reported below.
+```{r}
+## Testing whether Discipline is significant after controlling for Type
+cmp_discipline_type <- anova(Model5, Model1)
+cmp_discipline_type
+```
+
+`r comparison_text(cmp_discipline_type)`.
+
+## Model 6: `Type` and `Country` as covariates  
+* The summary reports the explained variance at each level.
+```{r}  
+## Model 6: Type and Country as covariates
+Model6 <- meta3L(logOR, v, x=cbind(Type2, CountryAus, CountryCan, 
+                 CountryEur, CountryUK), cluster=Cluster, data=Bornmann07,
+                 model.name="Model 6") 
+
+## Rerun to remove error code
+Model6 <- rerun(Model6)
+summary(Model6)
+```
+
+The level 2 and level 3 $R^2$ values are `r sprintf("%.4f", summary(Model6)$R2.values["R2", "Level 2"])` and `r sprintf("%.4f", summary(Model6)$R2.values["R2", "Level 3"])`, respectively. `r if (is.na(summary(Model6)$coefficients["Tau2_3", "Std.Error"])) "The Wald standard error for the level-3 variance is unavailable; inspect the estimate and bounds before making inferences." else ""`
+
+* Testing whether `Country` is significant after controlling for `Type`
+    + The model comparison is reported below.
+```{r}
+## Testing whether Country is significant after controlling for Type
+cmp_country_type <- anova(Model6, Model1)
+cmp_country_type
+```
+
+`r comparison_text(cmp_country_type)`.
+
+## Model 7: `Discipline` and `Country` as covariates
+* The summary reports the explained variance at each level.
+```{r}
+## Model 7: Discipline and Country as covariates
+Model7 <- meta3L(logOR, v, x=cbind(DisciplinePhy, DisciplineLife, DisciplineSoc,
+                          CountryAus, CountryCan, CountryEur, CountryUK),
+                 cluster=Cluster, data=Bornmann07, model.name="Model 7")
+summary(Model7)
+```
+
+The explained variance is `r r2_text(summary(Model7))`.
+
+## Model 8: `Type`, `Discipline`, and `Country` as covariates
+* The summary reports the explained variance at each level.
+```{r}
+## Model 8: Type, Discipline and Country as covariates
+Model8 <- meta3L(logOR, v, x=cbind(Type2, DisciplinePhy, DisciplineLife, DisciplineSoc,
+                            CountryAus, CountryCan, CountryEur, CountryUK), 
+                            cluster=Cluster, data=Bornmann07,
+                            model.name="Model 8") 
+## There was an estimation error. The model was rerun again.
+Model8 <- rerun(Model8)
+summary(Model8)
+```
+
+The level 2 and level 3 $R^2$ values are `r sprintf("%.4f", summary(Model8)$R2.values["R2", "Level 2"])` and `r sprintf("%.4f", summary(Model8)$R2.values["R2", "Level 3"])`, respectively. `r if (is.na(summary(Model8)$coefficients["Tau2_3", "Std.Error"])) "The Wald standard error for the level-3 variance is unavailable; inspect the estimate and bounds before making inferences." else ""`
+
+## Handling missing covariates with FIML
+When there are missing data in the covariates, data with missing values are excluded from the analysis in `meta3L()`. The missing covariates can be handled by the use of FIML in `meta3LFIML()`. We illustrate two examples on how to analyze data with missing covariates with missing completely at random (MCAR) and missing at random (MAR) data.
+ 
+### MCAR
+* About 25% of the level-2 covariate `Type` was introduced by the MCAR mechanism. 
+```{r}
+#### Handling missing covariates with FIML
+  
+## MCAR
+## Set seed for replication
+set.seed(1000000)
+  
+## Copy Bornmann07 to my.df
+my.df <- Bornmann07
+## "Fellowship": 1; "Grant": 0
+my.df$Type_MCAR <- ifelse(Bornmann07$Type=="Fellowship", yes=1, no=0)
+
+## Create 17 out of 66 missingness with MCAR
+my.df$Type_MCAR[sample(1:66, 17)] <- NA
+  
+summary( meta3L(y=logOR, v=v, cluster=Cluster, x=Type_MCAR, data=my.df) )
+```  
+* There is no need to specify whether the covariates are level 2 or level 3 in `meta3L()` because the covariates are treated as a design matrix. When `meta3LFIM()` is used, users need to specify whether the covariates are at level 2 (`x2`) or level 3 (`x3`).
+```{r}  
+summary(meta3LFIML(y=logOR, v=v, cluster=Cluster, x2=Type_MCAR, data=my.df))
+```
+
+### MAR
+* For the case of missing covariates with MAR, the missingness in `Type` depends on the values of `Year`. `Type` is missing when `Year` is smaller than 1996. 
+```{r}
+## MAR
+Type_MAR <- ifelse(Bornmann07$Type=="Fellowship", yes=1, no=0)
+  
+## Create 27 out of 66 missingness with MAR for cases Year<1996
+index_MAR <- ifelse(Bornmann07$Year<1996, yes=TRUE, no=FALSE)
+Type_MAR[index_MAR] <- NA
+  
+summary(meta3L(logOR, v, x=Type_MAR, cluster=Cluster, data=Bornmann07)) 
+```
+* It is possible to include level 2 (`av2`) and level 3 (`av3`) auxiliary variables. Auxiliary variables are those that predict the missing values or are correlated with the variables that contain missing values. The inclusion of auxiliary variables can improve the efficiency of the estimation and the parameter estimates. 
+```{r}
+## Include auxiliary variable
+summary(meta3LFIML(y=logOR, v=v, cluster=Cluster, x2=Type_MAR, av2=Year, data=my.df))
+```
+
+
+# Two-stage structural equation modeling (TSSEM)
+
+## Inspect the data: Digman (1997)
+The correlation matrices and the sample sizes were stored in `Digman97$data` and `Digman97$n`, respectively. We may list the first few cases of the data by using the `head()` command.
+```{r}
+#### Load the metaSEM library for TSSEM
+library(metaSEM)
+  
+#### Inspect the data for inspection
+head(Digman97$data)
+
+head(Digman97$n)
+```
+
+## Fixed-effects TSSEM
+### Stage 1 analysis
+Specify `method="FEM"` for fixed-effects TSSEM; the default is random effects. The results are stored in `fixed1` and displayed by `summary()`.
+```{r}
+## Fixed-effects model: Stage 1 analysis
+fixed1 <- tssem1(Cov=Digman97$data, n=Digman97$n, method="FEM")
+summary(fixed1)
+```
+
+Stage 1 fit: `r fit_text(fixed1)`.
+
+The pooled correlation matrix (the parameter estimates) can be extracted by the use of the `coef()` command.
+```{r}
+coef(fixed1)
+```
+
+### Stage 2 analysis
+As an illustration, I continued to fit the structural model based on the pooled correlation matrix. We may specify the two-factor model with the [RAM formulation](https://vipbg.vcu.edu/vipbg/OpenMx2/docs//OpenMx/latest/Examples_Matrix.html). An alternative and easier way to specify the model is to use `lavann`'s syntax.
+```{r}
+model1 <- "## Factor loadings
+           Alpha =~ A+C+ES
+           Beta =~ E+I
+           ## Factor correlation
+           Alpha ~~ Beta"
+
+plot(model1)
+
+RAM1 <- lavaan2RAM(model1, obs.variables=c("A","C","ES","E","I"),
+                   A.notation="on", S.notation="with")
+RAM1
+```
+ 
+Since this is a correlation structure analysis, the error variances are not free parameters.
+```{r}
+fixed2 <- tssem2(fixed1, RAM=RAM1, intervals="LB",
+                 model.name="TSSEM2 Digman97")
+summary(fixed2)
+
+plot(fixed2)
+```
+
+Stage 2 fit: `r fit_text(fixed2)`.
+
+## Fixed-effects TSSEM with cluster
+### Stage 1 analysis
+There are 4 types of sample characteristics in the original `cluster`. We may group them into either younger or older sample. 
+```{r}
+#### Display the frequencies of "cluster"
+table(Digman97$cluster)
+
+#### Fixed-effects TSSEM with several clusters
+#### Create a variable for different cluster
+#### Younger participants: Children and Adolescents
+#### Older participants: others
+clusters <- ifelse(Digman97$cluster %in% c("Children","Adolescents"),
+                   yes="Younger participants", no="Older participants")
+  
+#### Show the clusters
+clusters
+```
+
+We conduct a fixed-effects model for each sample group with `cluster=clusters`.
+```{r}
+## Example of Fixed-effects TSSEM with several clusters
+cluster1 <- tssem1(Digman97$data, Digman97$n, method="FEM", 
+                   cluster=clusters)
+summary(cluster1)
+```
+
+Stage 1 fit by group: `r cluster_fit_text(cluster1)`.
+
+* The pooled correlation matrix for each cluster can be extracted by the use of the `coef()` command.
+```{r}
+coef(cluster1)
+```
+
+### Stage 2 analysis
+We fit the Stage 2 model separately for each group.
+```{r}
+cluster2 <- tssem2(cluster1, RAM=RAM1, intervals.type="z")
+#### Please note that the estimates for the younger participants are problematic.
+summary(cluster2)
+```
+
+Stage 2 fit by group: `r cluster_fit_text(cluster2)`.
+
+We may also plot the parameter estimates of these two groups.
+```{r}
+library(semPlot)
+
+## Convert the model to semPlotModel object with 2 plots
+my.plots <- lapply(X=cluster2, FUN=meta2semPlot, latNames=c("Alpha","Beta"))
+
+## Setup two plots
+layout(t(1:2))
+semPaths(my.plots[[1]], whatLabels="est", nCharNodes=10, color="green")
+title("Younger") 
+semPaths(my.plots[[2]], whatLabels="est", nCharNodes=10, color="yellow")
+title("Older")
+```
+
+## Random-effects TSSEM
+### Stage 1 analysis
+A diagonal random-effects covariance is used because there are too few studies to estimate a full matrix. The summary reports the $I^2$ indices.
+```{r}  
+#### Random-effects TSSEM with random effects on the diagonals
+random1 <- tssem1(Digman97$data, Digman97$n, method="REM", RE.type="Diag")
+summary(random1)
+```
+
+* The pooled correlation coefficients (fixed effects) and the variance components (the random effects) can be extracted by the use of the `coef()` command via the `select` argument.
+```{r}
+## Fixed effects
+coef(random1, select="fixed")
+
+## Random effects
+coef(random1, select="random")
+```
+
+### Stage 2 analysis
+Since this is a correlation structure analysis, the error variances are not free parameters.
+```{r}
+random2 <- tssem2(random1, RAM=RAM1, intervals="LB")
+summary(random2)
+
+## Plot the parameter estimates
+plot(random2, color="green")
+```
+
+Stage 2 fit: `r fit_text(random2)`.
+
+## Becker and Schram (1994)
+### Inspect the data
+* We may list the first few cases of the data by using the `head()` command.
+```{r}
+#### Load the metaSEM library for TSSEM
+library(metaSEM)
+  
+#### Inspect the data for inspection (not required for the analysis)
+head(Becker94$data)
+ 
+head(Becker94$n)
+```
+
+## Fixed-effects TSSEM
+### Stage 1 analysis
+The fixed-effects Stage 1 analysis tests the homogeneity of the correlation matrices.
+```{r}
+#### Fixed-effects model
+## Stage 1 analysis
+fixed1 <- tssem1(Becker94$data, Becker94$n, method="FEM")
+summary(fixed1)
+
+coef(fixed1)
+```
+
+### Stage 2 analysis
+We may specify the model via the RAM formulation. If all variables are observed, there is no need to specify the *F* matrix. Since the *df* of the regression model is 0, the proposed model always fits the data perfectly.
+```{r}
+#### Prepare models for stage 2 analysis
+model2 <- "## Math is modeled by Spatial and Verbal
+           Math ~ Spatial2Math*Spatial + Verbal2Math*Verbal
+           ## Variances of predictors are fixed at 1
+           Spatial ~~ 1*Spatial
+           Verbal ~~ 1*Verbal
+           ## Correlation between the predictors
+           Spatial ~~ SpatialCorVerbal*Verbal
+           ## Error variance
+           Math ~~ ErrorVarMath*Math"
+plot(model2)
+
+RAM2 <- lavaan2RAM(model2)
+RAM2
+
+## Stage 2 analysis
+fixed2 <- tssem2(fixed1, RAM=RAM2, intervals="LB")
+summary(fixed2)
+
+plot(fixed2)
+```
+
+## Fixed-effects TSSEM with cluster
+### Stage 1 analysis
+We examine the Stage 1 fit separately for female and male participants.
+```{r}
+#### Fixed-effects model with cluster
+## Stage 1 analysis
+cluster1 <- tssem1(Becker94$data, Becker94$n, method="FEM", cluster=Becker94$gender)
+summary(cluster1)
+
+coef(cluster1)
+```
+
+### Stage 2 analysis
+```{r}
+## Stage 2 analysis
+cluster2 <- tssem2(cluster1, RAM=RAM2, intervals="LB")
+summary(cluster2)
+```
+
+* We may also plot the parameter estimates of these two groups.
+```{r}
+## Convert the model to semPlotModel object with 2 plots
+my.plots <- lapply(X=cluster2, FUN=meta2semPlot)
+
+## Setup two plots
+layout(t(1:2))
+semPaths(my.plots[[1]], whatLabels="est", nCharNodes=10, color="green")
+title("Females") 
+semPaths(my.plots[[2]], whatLabels="est", nCharNodes=10, color="yellow")
+title("Males")
+```
+
+## Random-effects TSSEM
+### Stage 1 analysis
+The summary reports the $I^2$ indices for the correlations.
+```{r}
+#### Random-effects model
+## Stage 1 analysis: A diagonal matrix for random effects 
+random1 <- tssem1(Becker94$data, Becker94$n, method="REM", RE.type="Diag")
+summary(random1)
+
+coef(random1, select="fixed")
+
+coef(random1, select="random")
+```
+
+### Stage 2 analysis
+```{r}
+## Stage 2 analysis
+random2 <- tssem2(random1, RAM=RAM2, intervals="LB")
+summary(random2)
+```
+
+* We may also plot the models with the labels or the parameter estimates.
+```{r}
+## Plot the model with labels
+plot(random2, whatLabels="path", color="red")
+
+## Plot the parameter estimates
+plot(random2, color="green")
+```
+
+# One-stage meta-analytic structural equation modeling (OSMASEM)
+
+## Nohe15
+* **Data**: Nohe, C., Meier, L. L., Sonntag, K., & Michel, A. (2015). The chicken or the egg? A meta-analysis of panel studies of the relationship between work–family conflict and strain. *Journal of Applied Psychology*, *100*(2), 522–536. https://doi.org/10.1037/a0038012
+
+### Data preparation
+```{r}
+## Convert correlation matrices into a dataframe
+my.df <- Cor2DataFrame(Nohe15A1$data, Nohe15A1$n)
+
+## Add the standardized Lag (moderator) to the data
+my.df$data <- data.frame(my.df$data, Lag=scale(Nohe15A1$Lag), check.names=FALSE)
+head(my.df$data)
+
+## Display the pairwise no. of studies
+pattern.na(my.df, show.na=FALSE, type="osmasem")
+
+## Proposed model
+model3 <- 'W2 ~ w2w*W1 + s2w*S1
+           S2 ~ w2s*W1 + s2s*S1
+           W1 ~~ w1WITHs1*S1
+           W2 ~~ w2WITHs2*S2
+           W1 ~~ 1*W1
+           S1 ~~ 1*S1
+           W2 ~~ Errw2*W2
+           S2 ~~ Errs2*S2'
+
+## Plot the model
+plot(model3, col="yellow", layout="spring")     
+
+## Convert the lavaan syntax into the RAM specification
+RAM3 <- lavaan2RAM(model3, obs.variables=c("W1", "S1", "W2", "S2"))
+RAM3
+```
+
+### Fitting a just-identified model (df=0)
+```{r, message=FALSE}
+# Fit the OSMASEM
+fit0 <- osmasem(model.name="No moderator", RAM=RAM3, data=my.df)
+summary(fit0)
+
+## Plot the fitted model
+plot(fit0, layout="spring", color="yellow")
+
+## Get the estimated coefficients
+coef(fit0)
+
+## A matrix
+mxEval(Amatrix, fit0$mx.fit)
+
+## S matrix
+mxEval(Smatrix, fit0$mx.fit)
+
+## Extract the heterogeneity variance-covariance matrix
+VarCorr(fit0)
+```
+
+### Using `Lag` as a moderator on the A matrix
+```{r, message=FALSE}
+A1 <- create.modMatrix(RAM=RAM3, output="A", mod="Lag")
+A1              
+
+fit1 <- osmasem(model.name="Lag as moderator on Ax", RAM=RAM3, Ax=A1, data=my.df)
+summary(fit1)
+
+## Get the estimated coefficients
+coef(fit1)
+
+## Extract the residual heterogeneity variance-covariance matrix
+VarCorr(fit1)
+
+## Calculate the R2
+osmasemR2(fit1, fit0)
+
+## Compare the models with and without the moderator
+anova(fit1, fit0)
+```
+
+### Using `Lag` as a moderator on the S matrix
+```{r, message=FALSE}
+S1 <- create.modMatrix(RAM=RAM3, output="S", mod="Lag")
+S1
+
+fit2 <- osmasem(model.name="Lag as moderator on Sx", RAM=RAM3, Sx=S1, data=my.df)
+summary(fit2)
+
+## Get the estimated coefficients
+coef(fit2)
+
+## Extract the residual heterogeneity variance-covariance matrix
+VarCorr(fit2)
+
+## Calculate the R2
+osmasemR2(fit2, fit0)
+
+## Compare the models with and without the moderator
+anova(fit2, fit0)
+```
+
+### Using `Lag` as a moderator on both the A and S matrices
+```{r, message=FALSE}
+fit3 <- osmasem(model.name="Lag as moderator on Ax and Sx", 
+                RAM=RAM3, Ax=A1, Sx=S1, data=my.df)
+summary(fit3)
+
+coef(fit3)
+
+VarCorr(fit3)
+
+osmasemR2(fit3, fit0)
+
+anova(fit3, fit0)
+```
+
+
+## Roorda11
+* **Data**: Roorda, D. L., Koomen, H. M. Y., Spilt, J. L., & Oort, F. J. (2011). The influence of affective teacher-student relationships on students' school engagement and achievement a meta-analytic approach. *Review of Educational Research*, *81*(4), 493-529.
+
+### Data preparation
+```{r}
+my.df <- Cor2DataFrame(Roorda11$data, Roorda11$n)
+
+## Add centered SES as a moderator (standardizing SES helps to improve the stability of the results)
+my.df$data <- data.frame(my.df$data, SES=scale(Roorda11$SES), check.names=FALSE)
+head(my.df$data)
+
+## Display the pairwise no. of studies
+pattern.na(my.df, show.na=FALSE, type="osmasem")
+
+## Proposed model
+model4 <- 'enga ~ b31*neg + b32*pos
+           achiev ~ b41*neg + b42*pos + b43*enga
+           pos ~~ p21*neg
+           pos ~~ 1*pos
+           neg ~~ 1*neg
+           enga ~~ p33*enga
+           achiev ~~ p44*achiev'
+
+plot(model4, color="yellow")
+     
+## Convert the lavaan model to the RAM specification
+RAM4 <- lavaan2RAM(model4, obs.variables=c("neg", "pos", "enga", "achiev"))
+RAM4
+```
+
+### Fitting a just-identified model (df=0)
+```{r}
+mx.fit0a <- osmasem(model.name="Just identified model", RAM=RAM4, data= my.df)
+summary(mx.fit0a)
+
+## Plot the fitted model
+plot(mx.fit0a, layout="spring", color="yellow")
+
+coef(mx.fit0a)
+
+## Extract the variance component
+VarCorr(mx.fit0a)
+```
+
+### Fitting an over-identified model with b41=b42=0 (df=2))
+```{r}
+## Proposed model
+model5 <- 'enga ~ b31*neg + b32*pos
+           achiev ~ 0*neg + 0*pos + b43*enga
+           pos ~~ p21*neg
+           pos ~~ 1*pos
+           neg ~~ 1*neg
+           enga ~~ p33*enga
+           achiev ~~ p44*achiev'
+
+plot(model5, layout="tree", color="yellow")
+     
+RAM5 <- lavaan2RAM(model5, obs.variables=c("neg", "pos", "enga", "achiev"))
+RAM5
+
+mx.fit0b <- osmasem(model.name="Over identified model", RAM=RAM5, data= my.df)
+
+## Get the summary and test statistics
+summary(mx.fit0b, fitIndices=TRUE)
+
+## Get the SRMR
+osmasemSRMR(mx.fit0b)
+
+## Get the coefficients
+coef(mx.fit0b)
+
+## Extract the variance component
+VarCorr(mx.fit0b)
+```
+
+### Using `SES` as a moderator on the A matrix on the just-identified model
+```{r}
+## data.SES as a moderator
+A1 <- create.modMatrix(RAM=RAM4, output="A", mod="SES")
+A1
+  
+mx.fit1 <- osmasem(model.name="Ax as moderator", RAM=RAM4, Ax=A1, data= my.df)
+summary(mx.fit1)
+
+## Get the coefficients
+coef(mx.fit1)
+
+## Get the R2
+osmasemR2(mx.fit1, mx.fit0a)
+
+## Extract the variance component
+VarCorr(mx.fit1)
+
+## Comparing with the model without the moderator
+anova(mx.fit1, mx.fit0a)
+```
+
+### Using `SES` as a moderator on the S matrix
+```{r}
+S1 <- create.modMatrix(RAM=RAM4, output="S", mod="SES")
+S1
+
+mx.fit2 <- osmasem(model.name="Sx as moderator", RAM=RAM4, Sx=S1, data= my.df)
+summary(mx.fit2)
+
+## Get the coefficients
+coef(mx.fit2)
+
+## R2
+osmasemR2(mx.fit2, mx.fit0a)
+
+## Extract the variance component
+VarCorr(mx.fit2)
+
+## Comparing with the model without the moderator
+anova(mx.fit2, mx.fit0a)
+```
+
+## Scalco17
+* **Data**: Scalco, A., Noventa, S., Sartori, R., & Ceschi, A. (2017). Predicting organic food consumption: A meta-analytic structural equation model based on the theory of planned behavior. *Appetite*, *112*, 235-248.
+
+### Data preparation
+```{r}
+my.df <- Cor2DataFrame(Scalco17$data, Scalco17$n, acov = "weighted")
+
+## Add the centered Age as a moderator
+my.df$data <- data.frame(my.df$data, Age=scale(Scalco17$Age,  scale=FALSE), check.names=FALSE)
+head(my.df$data)
+
+## Display the pairwise no. of studies
+pattern.na(my.df, show.na=FALSE, type="osmasem")
+
+## Proposed model
+model6 <- 'BI ~ b41*ATT + b42*SN + b43*PBC
+           BEH ~ b54*BI + b53*PBC 
+           ATT ~~ p21*SN
+           ATT ~~ p31*PBC
+           SN ~~ p32*PBC
+           ATT ~~ 1*ATT
+           SN ~~ 1*SN
+           PBC ~~ 1*PBC
+           BI ~~ p44*BI
+           BEH ~~ p44*BEH'
+
+plot(model6, color="yellow")     
+
+RAM6 <- lavaan2RAM(model6, obs.variables=c("ATT", "SN", "PBC", "BI","BEH"))
+RAM6
+```
+
+## Fitting an over-identified model
+```{r}
+mx.fit0 <- osmasem(model.name="No moderator", RAM=RAM6, data=my.df)
+
+## Get the chi-square statistic on the proposed model
+summary(mx.fit0, fitIndices=TRUE)
+
+## Get the SRMR
+osmasemSRMR(mx.fit0)
+
+## Extract the variance component
+diag(VarCorr(mx.fit0))
+```
+
+### Using `Age` as a moderator on the A matrix
+```{r}
+## An index for data without missing value in Age
+indexAge <- !is.na(Scalco17$Age)
+indexAge
+
+A1 <- create.modMatrix(RAM=RAM6, output="A", mod="Age")
+A1                
+
+## Refit the model without any moderator with indexAge
+mx.fit0.Age <- osmasem(model.name="No moderator", RAM=RAM6, data=my.df, subset.rows=indexAge)
+
+mx.fit1 <- osmasem(model.name="Ax as moderator", RAM=RAM6, Ax=A1, data=my.df, subset.rows=indexAge)
+summary(mx.fit1)
+
+coef(mx.fit1)
+
+osmasemR2(mx.fit1, mx.fit0.Age)
+
+## Extract the variance component
+diag(VarCorr(mx.fit1))
+
+anova(mx.fit1, mx.fit0.Age)
+```
+
+### Using `Age` as a moderator on the S matrix
+```{r message = FALSE}
+S1 <- create.modMatrix(RAM=RAM6, output="S", mod="Age")
+S1   
+
+mx.fit2 <- osmasem(model.name="Sx as moderator", RAM=RAM6, Sx=S1, data=my.df, subset.rows=indexAge)
+summary(mx.fit2)
+
+coef(mx.fit2)
+
+osmasemR2(mx.fit2, mx.fit0.Age)
+
+## Extract the variance component
+diag(VarCorr(mx.fit2))
+
+anova(mx.fit2, mx.fit0.Age)
+```
+# Installation and help
+* First of all, you need [R](https://www.r-project.org/) to run it. You can install the `metaSEM` package by running the following command inside an `R` session:
+
+```
+install.packages("metaSEM")
+```
+
+* The developmental version can be installed from [GitHub](https://github.com/mikewlcheung/metasem/) by running:
+
+```
+library(devtools)
+install_github("mikewlcheung/metasem")
+```
+
+## Potential issues with the OpenMx available at CRAN
+* The OpenMx available at [CRAN](https://cran.r-project.org/package=OpenMx) includes the open source `SLSQP` and `CSOLNP` optimizers. 
+* If the `SLSQP` optimizer (default in the `metaSEM` package) does not work well for you, e.g., there are many error codes, you may try to rerun the analysis. For example,
+
+```
+random1 <- meta(y=yi, v=vi, data=Hox02)
+random1 <- rerun(random1)
+summary(random1)
+```
+* If you still prefer the non-free `NPSOL` optimizer, you may install it from the `OpenMx` website and call it by running:
+
+```
+mxOption(NULL, "Default optimizer", "NPSOL")
+```
+
+## Help
+* If you need help, please send your questions to `OpenMx` discussion forum, a discussion forum for the `metaSEM` package in `OpenMx`. Please include information on the R session. It will be helpful if you can include a reproducible example. You may save a copy of your data, say `my.df`, and attach the content of `myData.R` in the post by using
+```
+sessionInfo()
+dump(c("my.df"), file="myData.R")
+```
+
+The files are based on the following versions of `R` and `R` packages:
+```{r}
+sessionInfo()
+```

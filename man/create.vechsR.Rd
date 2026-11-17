@@ -22,7 +22,8 @@ create.vechsR(
 \code{as.mxMatrix}.}
 
 \item{F0}{A Fmatrix, which will be converted into \code{MxMatrix-class} via
-\code{as.mxMatrix}.}
+\code{as.mxMatrix}. If omitted, an identity filter is used with the
+variable names of \code{A0}, when available.}
 
 \item{Ax}{A Amatrix of a list of Amatrix with definition variables as the
 moderators of the Amatrix.}
@@ -47,7 +48,9 @@ matrix by treating the error variances as functions of other parameters.
 \note{
 Since \code{A0} are the intercepts and \code{Ax} are the regression
 coefficients, the parameters in \code{Ax} must be a subset of those in
-\code{A0}.
+\code{A0}. Path models must be acyclic when residual variances are derived
+implicitly. Fixed dependent-variable residual variances in \code{S0}
+are ignored with a warning.
 }
 \examples{
 

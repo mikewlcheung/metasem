@@ -27,8 +27,11 @@ Eight studies from Mak et al. (2009) were reported by Cheung et al. (2012).
 }
 \examples{
 
+## Rename historical columns to meet the naming requirements
+Mak09_clean <- Mak09
+names(Mak09_clean) <- gsub(".", "_", names(Mak09_clean), fixed=TRUE)
 ## Random-effects meta-analysis
-( meta1 <- summary(meta(y=yi, v=vi, data=Mak09, I2=c("I2q", "I2hm"))) )
+( meta1 <- summary(meta(y=yi, v=vi, data=Mak09_clean, I2=c("I2q", "I2hm"))) )
 
 ## Convert the estimates back into odds ratio 
 OR <- with(coef(meta1), exp(c(Estimate[1], lbound[1], ubound[1])))
@@ -36,7 +39,7 @@ names(OR) <- c("Estimate in OR", "lbound in OR", "ubound in OR")
 OR
 
 ## Mixed-effects meta-analysis with mean age as a predictor
-summary( meta(y=yi, v=vi, x=age.mean, data=Mak09) )
+summary( meta(y=yi, v=vi, x=age_mean, data=Mak09_clean) )
 
 }
 \references{

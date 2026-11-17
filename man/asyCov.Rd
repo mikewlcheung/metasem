@@ -29,13 +29,20 @@ asyCov(
 }
 \arguments{
 \item{x}{A correlation/covariance matrix or a list of correlation/covariance
-matrices. \code{NA} on the variables or other values defined in
-\code{na.strings} will be removed before the analysis. Note that it only
-checks the diagonal elements of the matrices. If there are missing values,
-make sure that the diagonals are coded with \code{NA} or values defined in
-\code{na.strings}.}
+matrices. Missing-value patterns must be symmetric, and observed entries must be finite. In \code{asyCov()}, missing input elements can propagate to sampling
+covariance entries. In covariance analysis, entries that can be determined from
+the available values are retained. A known zero times an unknown covariance
+is treated as zero. A missing statistic has a missing row and column in its
+sampling covariance matrix. For lists, \code{acov="weighted"} and
+\code{acov="unweighted"} use available-study averages as a common working
+matrix before calculating sampling covariances. A pair missing from every
+study remains unknown. The resulting missing sampling covariances may need
+an explicit approximation before fitting a meta-analysis. \code{asyCovOld()}
+identifies missing variables using the diagonal. A one-variable covariance
+matrix is supported; a one-variable correlation matrix has no correlations
+to analyze.}
 
-\item{n}{Sample size or a vector of sample sizes}
+\item{n}{Positive finite sample size or vector of sample sizes. For a list of studies, lengths must match unless one input has length one; named study matrices of equal size are aligned by variable names.}
 
 \item{cor.analysis}{Logical. The output is either a correlation or
 covariance matrix.}
@@ -53,13 +60,17 @@ Note that if it is \code{TRUE}, \code{dropNA} will be \code{FALSE}
 automatically. This option is useful when passing the asymptotic covariance
 matrices to \code{\link[metaSEM]{meta}}}
 
-\item{acov}{If it is \code{individual} (the default), the sampling
+\item{acov}{If it is \code{individual}, the sampling
 variance-covariance matrices are calculated based on the individual
 correlation/covariance matrix. If it is either \code{unweighted} or
 \code{weighted}, the average correlation/covariance matrix is calculated
 based on the unweighted or weighted mean with the sample sizes. The average
 correlation/covariance matrix is used to calculate the sampling
-variance-covariance matrices.}
+variance-covariance matrices. Fully specified non-positive-definite input
+or pooled working matrices are rejected. With missing entries, fully
+specified principal submatrices are checked using a bounded search. A
+warning is issued if the search limit is reached. Even a complete search
+does not guarantee that the partial matrix has a positive-definite completion.}
 
 \item{suppressWarnings}{Logical. If \code{TRUE}, warnings are suppressed. It
 is passed to \code{\link[OpenMx]{mxRun}}.}
@@ -80,6 +91,8 @@ correlation/covariance matrix or a list of these matrices. If
 is a stacked matrix.
 }
 \description{
+Variable names and data column names must not contain periods. Rename them consistently, for example \code{x.1} to \code{x_1}, and check that the new names are unique. Study, group, and cluster values may contain periods.
+
 It computes the asymptotic sampling covariance matrix of a
 correlation/covariance matrix under the assumption of multivariate
 normality.
@@ -90,7 +103,11 @@ Chan (2004). After 1.2.6, \code{asyCov} was rewritten based on Olkin and
 Siotani (1976) for correlation matrix and Yuan and Bentler (2007, p. 371)
 for covariance matrix. Arguments such as \code{dropNA},
 \code{suppressWarnings}, \code{silent}, and \code{run} were dropped. The
-original version was renamed to \code{asyCovOld} for compatibility.
+original version was renamed to \code{asyCovOld} for compatibility. It is
+retained as a legacy Hessian-based method; \code{asyCov} is preferred.
+\code{asyCovOld} requires all covariances among variables with observed
+diagonals. Supply an explicit working matrix or use \code{asyCov} for
+partially observed pairs.
 }
 \examples{
 

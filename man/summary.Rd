@@ -27,7 +27,37 @@
 \alias{print.summary.bootuniR2}
 \alias{print.summary.mxsem}
 \title{Summary Method for tssem1, wls, meta, and meta3LFIML Objects}
+\usage{
+\method{summary}{tssem1FEM}(object, ...)
+\method{summary}{tssem1FEM.cluster}(object, ...)
+\method{summary}{tssem1REM}(object, robust = FALSE, ...)
+\method{summary}{wls}(object, df.adjustment = 0, ...)
+\method{summary}{wls.cluster}(object, df.adjustment = 0, ...)
+\method{summary}{meta}(object, homoStat = TRUE, robust = FALSE, ...)
+\method{summary}{meta3LFIML}(object, allX = FALSE, robust = FALSE, ...)
+\method{summary}{reml}(object, ...)
+\method{summary}{CorPop}(object, ...)
+\method{summary}{Cor3L}(object, ...)
+\method{summary}{bootuniR2}(object, probs = c(0, 0.1, 0.5, 0.9, 1), cutoff.chisq.pvalue = 0.05,
+    cutoff.CFI = 0.9, cutoff.SRMR = 0.1, cutoff.RMSEA = 0.05, ...)
+\method{summary}{osmasem}(object, fitIndices = FALSE, numObs, robust = FALSE, ...)
+\method{summary}{osmasem2}(object, fitIndices = FALSE, numObs, robust = FALSE, mxTryHard = FALSE,
+    ...)
+\method{summary}{mxsem}(object, robust = FALSE, smallSample = FALSE, t.df = NULL, ...)
+\method{print}{summary.tssem1FEM}(x, ...)
+\method{print}{summary.wls}(x, ...)
+\method{print}{summary.meta}(x, ...)
+\method{print}{summary.meta3LFIML}(x, ...)
+\method{print}{summary.reml}(x, ...)
+\method{print}{summary.CorPop}(x, ...)
+\method{print}{summary.Cor3L}(x, ...)
+\method{print}{summary.bootuniR2}(x, ...)
+\method{print}{summary.mxsem}(x, ...)
+}
 \arguments{
+\item{mxTryHard}{Logical. For \code{osmasem2} fit indices, whether to use
+\code{\link[OpenMx]{mxTryHard}} when fitting the comparison models.}
+
 \item{object}{An object returned from either class \code{tssem1FEM}, class
 \code{tssem1FEM.cluster}, class \code{tssem1REM}, class \code{wls}, class
 \code{wls.cluster}, class \code{meta}, class \code{meta3LFIML}, class
@@ -44,12 +74,34 @@ sizes.}
 \item{allX}{Logical. Whether to report the predictors and the auxiliary
 variables.}
 
-\item{robust}{Logicial. Whether to use robust standard error from
-\code{\link[OpenMx]{imxRobustSE}}.}
+\item{robust}{Logical. Whether to use robust (sandwich) standard errors.
+For \code{meta}, \code{meta3LFIML}, and \code{tssem1REM} objects they are
+from \code{\link[OpenMx]{imxRobustSE}}. For \code{mxsem} objects, see the
+section \sQuote{Robust and small-sample inference for mxsem objects}.}
+
+\item{smallSample}{Logical, for \code{mxsem} objects only. If \code{TRUE}
+(with \code{robust=TRUE}), the cluster-robust covariance of a
+single-level clustered fit is also multiplied by \eqn{(N-1)/(N-p)}, where
+\eqn{N} is the number of rows and \eqn{p} the number of free parameters,
+including those determined by constraints or at a bound.
+Not available for two-level fits. See \code{\link{clusterRobustSE}}.}
+
+\item{t.df}{\code{NULL} or a single positive number, for \code{mxsem}
+objects only. If \code{NULL} (the default), Wald tests and 95\% Wald
+confidence intervals use the standard normal distribution (\eqn{z}). If a
+number, they use a \eqn{t} distribution with \code{t.df} degrees of
+freedom: the \eqn{p} values and intervals of all parameters and the
+delta-method intervals of defined (\code{:=}) parameters. The standard
+errors themselves are unchanged. Requires \code{intervals.type="z"}. It
+can be combined with model-based or robust standard errors, but it is
+intended for cluster-robust inference with few independent clusters; see
+the section \sQuote{Robust and small-sample inference for mxsem objects}
+for how to choose it.}
 
 \item{df.adjustment}{Numeric. Adjust the degrees of freedom manually. It may
 be necessary if the df calculated is incorrect when
-\code{diag.constraints=TRUE}.}
+\code{diag.constraints=TRUE}. For \code{wls.cluster} objects, the
+adjustment is applied to each fitted model.}
 
 \item{probs}{Quantiles for the parameter estimates.}
 
@@ -73,12 +125,127 @@ in osmasem. If it is missing, the total number of observations is used.}
 \code{\link[stats]{printCoefmat}}}
 }
 \description{
+For fixed-effects TSSEM and WLS summaries with positive degrees of freedom,
+the RMSEA estimate is
+\deqn{\sqrt{G\max(\chi^2-df,0)/(N\,df)}}{sqrt(G * max(chi^2 - df, 0) / (N * df))}
+where \eqn{\chi^2} is the target model statistic. For fixed-effects TSSEM,
+\eqn{N} is the sum of the study sample sizes and \eqn{G} is the number of
+studies. For WLS, \eqn{N} is the supplied \code{n} and \eqn{G=1};
+\code{tssem2()} supplies the total sample size from the first stage.
+Confidence limits transform the corresponding noncentrality limits using
+the same \eqn{N} and \eqn{G}. The denominator is \eqn{N}, not \eqn{N-G}
+or \eqn{N-1}; this scaling matches the normal-ML convention used by lavaan.
+For WLS, the scaling of the supplied sampling covariance matrix should also
+be considered when comparing fit statistics. When \eqn{df=0}, RMSEA and
+its confidence limits are reported as zero; when \eqn{df<0}, they are NA.
+
 It summaries results for various class.
 }
 \note{
 If the OpenMx status1 is either 0 or 1, the estimation is considered
 fine. If the OpenMx status1 is other values, it indicates estimation
 problems. Users should refer to `OpenMx` website for more details.
+}
+\section{Robust and small-sample inference for mxsem objects}{
+
+\code{summary(fit, robust=TRUE)} replaces the model-based standard errors
+of an \code{mxsem} fit by sandwich standard errors: an observation-level
+sandwich for a single-level fit without \code{cluster}, a cluster
+sandwich for a single-level fit with \code{cluster} (see
+\code{\link{clusterRobustSE}}), and a cluster-score sandwich for a
+two-level fit (see \code{\link{sem}}). A cluster sandwich is justified as
+the number of \emph{independent clusters} grows (studies in a
+meta-analysis, not effect sizes). With few clusters its standard errors
+tend to be too small, and \eqn{z} tests and intervals are then liberal.
+
+\code{t.df} replaces the \eqn{z} reference distribution by a \eqn{t}
+distribution with the given degrees of freedom, which widens the
+intervals and raises the \eqn{p} values when \code{t.df} is small. It
+does not change the estimates or the standard errors, and it is not
+computed automatically, because the appropriate value depends on the
+design and the parameter:
+\itemize{
+\item \emph{Fixed effects of a meta-analysis} (the intercept and the
+regression coefficients of moderators) with cluster-robust standard
+errors: \code{t.df = K - p}, where \eqn{K} is the number of independent
+studies (clusters; reported by \code{summary()} as \dQuote{Number of
+clusters}, not the number of effect sizes) and \eqn{p} the number of fixed-effect coefficients
+in the mean model, including the intercept. For example, an intercept
+and two moderators give \eqn{p=3}. This is the reference distribution
+of robust variance estimation proposed by Hedges, Tipton, and Johnson
+(2010), and of \code{metafor::robust()}. Note that \eqn{p} counts the
+coefficients of the mean model only, not all free parameters as in
+\code{smallSample}.
+\item \emph{Other clustered models}: \code{t.df = G - 1}, where \eqn{G}
+is the number of independent clusters, is a common convention for
+cluster-robust tests (Cameron & Miller, 2015; McNeish, 2026). In
+multiple-group models, \eqn{G} is the total number of clusters.
+}
+
+Limitations:
+\itemize{
+\item The same \code{t.df} is applied to every parameter. The literature
+that justifies it concerns regression coefficients and intercepts of
+the mean model. It does not justify tests of variance components,
+factor loadings, or other covariance parameters, and it does not
+address estimates at or near a bound, whose robust standard errors are
+\code{NA}.
+\item \eqn{K - p} can still be too large, and the test liberal, when a
+moderator is unbalanced or varies mainly between studies (Tipton, 2015).
+Tests with fewer than about 4 degrees of freedom are unreliable. In those
+cases, the CR2 correction with Satterthwaite degrees of freedom
+(Pustejovsky & Tipton, 2018), available in the \pkg{clubSandwich}
+package for meta-regression models, is preferable.
+\item It does not affect likelihood-ratio tests or model-fit statistics.
+}
+
+References:
+\itemize{
+\item Cameron, A. C., & Miller, D. L. (2015). A practitioner's guide to
+cluster-robust inference. \emph{Journal of Human Resources}, \bold{50}(2),
+317--372.
+\item Hedges, L. V., Tipton, E., & Johnson, M. C. (2010). Robust variance
+estimation in meta-regression with dependent effect size estimates.
+\emph{Research Synthesis Methods}, \bold{1}(1), 39--65.
+\doi{10.1002/jrsm.5}
+\item McNeish, D. (2026). A practical guide to selecting and blending
+approaches for clustered data: Clustered errors, multilevel models, and
+fixed-effect models. \emph{Psychological Methods}, \bold{31}(2), 225--251.
+\doi{10.1037/met0000620}
+\item Pustejovsky, J. E., & Tipton, E. (2018). Small-sample methods for
+cluster-robust variance estimation and hypothesis testing in fixed
+effects models. \emph{Journal of Business & Economic Statistics},
+\bold{36}(4), 672--683. \doi{10.1080/07350015.2016.1247004}
+\item Tipton, E. (2015). Small sample adjustments for robust variance
+estimation with meta-regression. \emph{Psychological Methods},
+\bold{20}(3), 375--393. \doi{10.1037/met0000011}
+}
+}
+
+\examples{
+\donttest{
+## Flat meta-regression of 66 effect sizes nested in 21 clusters, with
+## study-clustered robust standard errors.
+data(Bornmann07)
+Bornmann07$Fellowship <- ifelse(Bornmann07$Type == "Fellowship", 1, 0)
+model <- "f =~ 1*logOR
+          f ~~ tau2*f
+          logOR ~~ data.v*logOR
+          f ~ b0*1
+          logOR ~ b1*Fellowship"
+RAM <- lavaan2RAM(model, obs.variables=c("logOR", "Fellowship"),
+                  std.lv=FALSE)
+fit <- sem(RAM=RAM, data=Bornmann07, cluster="Cluster")
+
+## z tests and intervals
+summary(fit, robust=TRUE)
+
+## t tests and intervals with K - p degrees of freedom: K = 21 clusters
+## and p = 2 fixed effects (b0 and b1). Only the rows of b0 and b1 are
+## justified by the literature.
+K <- length(unique(Bornmann07$Cluster))
+summary(fit, robust=TRUE, t.df=K - 2)
+}
 }
 \seealso{
 \code{\link[metaSEM]{tssem1}}, \code{\link[metaSEM]{wls}},

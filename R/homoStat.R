@@ -54,7 +54,7 @@ homoStat <- function(y, v) {
     beta <- sum(y*w)/sum(w)
     Q <- sum( w*(y-beta)^2 )
     Q.df <- length(y)-1
-    pval <- 1-pchisq(Q, df=Q.df)
+    pval <- pchisq(Q, df=Q.df, lower.tail=FALSE)
   } else {
     ## V is block diagonal (one p x p block per study), so rather than
     ## building the full k*p x k*p matrix and inverting it in one shot
@@ -86,7 +86,7 @@ homoStat <- function(y, v) {
 
     Q <- YtVinvY - XtVinvY %*% solve(XtVinvX, XtVinvY)
     Q.df <- n.obs - no.y
-    pval <- 1-pchisq(Q, df=Q.df)
+    pval <- pchisq(Q, df=Q.df, lower.tail=FALSE)
   }
     list(Q=Q, Q.df=Q.df, pval=pval)
 }

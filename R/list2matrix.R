@@ -1,9 +1,12 @@
 #' Convert a List of Symmetric Matrices into a Stacked Matrix
+#'
+#' Variable names and data column names must not contain periods. Rename them consistently, for example \code{x.1} to \code{x_1}, and check that the new names are unique. Study, group, and cluster values may contain periods.
 #' 
 #' It converts a list of symmetric matrices into a stacked matrix. Dimensions
 #' of the symmetric matrices have to be the same. It tries to preserve the
 #' dimension names if possible. Dimension names will be created if there are no
-#' dimension names in the first symmetric matrix.
+#' dimension names in the first symmetric matrix. When matrices are named,
+#' both axes of each matrix are aligned to the first matrix by variable name.
 #' 
 #' 
 #' @param x A list of \eqn{k}{k} \eqn{p}{p} x \eqn{p}{p} symmetric matrices.
@@ -36,20 +39,8 @@
 #' # [2,] 0.4  NA  NA
 #' 
 list2matrix <- function(x, diag=FALSE) {
-  if (length(x) == 0) {
-    stop("\"x\" cannot be an empty list.")
-  }
-
-  if (!all(sapply(x, is.matrix))) {
-    stop("All elements of \"x\" must be matrices.")
-  }
-
-  if (!is.list(x))
-    stop("Input \"x\" must be a list of matrices.")
-
-  ## if (!identical(0, var(sapply(x, function(x){dim(x)[[1]]}))))
-  if (length(unique(sapply(x, function(x) dim(x)[[1]]))) != 1)
-    stop("Dimensions of matrices in \"x\" have to be the same in order to stack them together.")
+  .check.cov.names(x)
+  x <- .align.study.matrices(x)
   
   if (is.null(dimnames(x[[1]]))) {
     oldNames <- paste("x", 1:dim(x[[1]])[[1]], sep = "")
@@ -58,12 +49,12 @@ list2matrix <- function(x, diag=FALSE) {
   }
    
   if (diag) {
-    psNames <- vech(outer(oldNames, oldNames, paste, sep = "_"))
+    psNames <- .genCorNames(oldNames, cor.analysis=FALSE)$ylabels
     ## out <- t(sapply(x, function(x) {(vech(x))}))
     ## out is a list
     out <- lapply(x, vech)    
   } else {
-    psNames <- vechs(outer(oldNames, oldNames, paste, sep = "_"))
+    psNames <- .genCorNames(oldNames, cor.analysis=TRUE)$ylabels
     ## Fix a bug found by Steffen Zitzmann when x is a 2x2 matrix with diag=FALSE
     ## It returns 1xn vector rather than nx1 because of sapply().
     ## out <- t(sapply(x, function(x) {(vechs(x))}))
@@ -76,4 +67,39 @@ list2matrix <- function(x, diag=FALSE) {
   
   dimnames(out) <- list(names(x), psNames)
   out
+}
+
+## Align a list of named study matrices to the first matrix's variable order.
+.align.study.matrices <- function(x) {
+  if (!is.list(x) || !length(x) ||
+      any(!vapply(x, is.matrix, logical(1))))
+    stop("Input must be a nonempty list of matrices.")
+  dimensions <- vapply(x, dim, integer(2))
+  if (any(dimensions[1, ] != dimensions[2, ]) ||
+      length(unique(dimensions[1, ])) != 1L)
+    stop("Dimensions of study matrices are not the same square size.")
+
+  has.rows <- vapply(x, function(z) !is.null(rownames(z)), logical(1))
+  has.cols <- vapply(x, function(z) !is.null(colnames(z)), logical(1))
+  if (any(has.rows != has.cols) || (any(has.rows) && !all(has.rows)))
+    stop("Either every study matrix needs row and column variable names, or none may have them.")
+  if (!all(has.rows)) return(x)
+
+  variable.names <- colnames(x[[1]])
+  if (anyNA(variable.names) || any(!nzchar(variable.names)) ||
+      anyDuplicated(variable.names))
+    stop("Study variable names must be nonempty and unique.")
+  aligned <- lapply(seq_along(x), function(i) {
+    z <- x[[i]]
+    rows <- rownames(z)
+    cols <- colnames(z)
+    if (anyNA(rows) || anyNA(cols) || any(!nzchar(rows)) ||
+        any(!nzchar(cols)) || anyDuplicated(rows) ||
+        anyDuplicated(cols) || !setequal(rows, variable.names) ||
+        !setequal(cols, variable.names))
+      stop("Study ", i, " variable names differ from the first study.")
+    z[variable.names, variable.names, drop=FALSE]
+  })
+  names(aligned) <- names(x)
+  aligned
 }

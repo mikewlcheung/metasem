@@ -4,6 +4,7 @@
 #' It estimates the variance components of random-effects in univariate and
 #' multivariate meta-analysis with restricted (residual) maximum likelihood
 #' (REML) estimation method.
+#' Variable names and data column names must not contain periods. Rename them consistently, for example \code{x.1} to \code{x_1}, and check that the new names are unique. Study, group, and cluster values may contain periods.
 #'
 #' Restricted (residual) maximum likelihood obtains the parameter estimates on
 #' the transformed data that do not include the fixed-effects parameters. A
@@ -105,6 +106,7 @@ reml <- function(y, v, x, data, RE.constraints=NULL, RE.startvalues=0.1, RE.lbou
                  intervals.type=c("z", "LB"), model.name="Variance component with REML",
                  suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
   mf <- match.call()
+  .check.meta.input.names(mf, if (!missing(data)) data else NULL)
   if (missing(data)) {
     data <- sys.frame(sys.parent())
   } else {
@@ -115,7 +117,9 @@ reml <- function(y, v, x, data, RE.constraints=NULL, RE.startvalues=0.1, RE.lbou
   my.y <- mf[[match("y", names(mf))]]
   my.v <- mf[[match("v", names(mf))]]    
   y <- eval(my.y, data, enclos = sys.frame(sys.parent()))
+  .check.no.period(colnames(y), "Variable column names")
   v <- eval(my.v, data, enclos = sys.frame(sys.parent()))
+  .check.no.period(colnames(v), "Variable column names")
   
   if (is.vector(y)) {
     no.y <- 1
@@ -134,6 +138,7 @@ reml <- function(y, v, x, data, RE.constraints=NULL, RE.startvalues=0.1, RE.lbou
   } else {
     my.x <- mf[[match("x", names(mf))]]
     x <- eval(my.x, data, enclos = sys.frame(sys.parent()))
+    .check.no.period(colnames(x), "Variable column names")
     if (is.vector(x)) {
       no.x <- 1
     } else {
@@ -216,7 +221,8 @@ reml <- function(y, v, x, data, RE.constraints=NULL, RE.startvalues=0.1, RE.lbou
   if (is.matrix(RE.lbound)) {
     
     if (!all(dim(RE.lbound)==c(no.y, no.y)))
-      stop("Dimensions of \"RE.lbound\" are incorrect.")    
+      stop("Dimensions of \"RE.lbound\" are incorrect.")
+    lbound <- RE.lbound
     } else {
 
       lbound <- matrix(NA, nrow=no.y, ncol=no.y)
@@ -236,11 +242,11 @@ reml <- function(y, v, x, data, RE.constraints=NULL, RE.startvalues=0.1, RE.lbou
   if (is.null(RE.constraints)) {
     
     if (is.matrix(RE.startvalues)) {
-      # FIXME: test symmetry
       if (!all(dim(RE.startvalues)==c(no.y, no.y)))
-        # stop instead of warning here
-        stop("Dimensions of \"RE.startvalues\" are incorrect.")                    
-      #values <- matrix(c(RE.startvalues), nrow=no.y, ncol=no.y)
+        stop("Dimensions of \"RE.startvalues\" are incorrect.")
+      if (!isSymmetric(RE.startvalues))
+        stop("\"RE.startvalues\" must be symmetric.")
+      values <- RE.startvalues
     } else {      
       values <- Diag(x=RE.startvalues, nrow=no.y, ncol=no.y)
     }    

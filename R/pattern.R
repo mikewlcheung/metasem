@@ -1,6 +1,7 @@
 #' Display the Accumulative Sample Sizes for the Covariance Matrix
 #' 
 #' It displays the accumulative sample sizes for the covariance matrix.
+#' Variable names must not contain periods; rename them consistently, e.g., \code{x.1} to \code{x_1}, and check for duplicate names.
 #' 
 #' 
 #' @param x A list of square matrices
@@ -21,6 +22,7 @@
 #' # Supervisor     3605      3322        3231       3765
 #' 
 pattern.n <- function(x, n) {    
+    .check.cov.names(x)
     if (!is.list(x)) stop("\"x\" must be a list of matrices.\n")
     if (length(x)!=length(n)) stop("The lengths of \"x\" and \"n\" must be the same.\n")
     
@@ -42,6 +44,8 @@ pattern.n <- function(x, n) {
 #' 
 #' It displays the pattern of missing data (or pattern of data that are
 #' present) of a list of square matrices with the same dimensions.
+#' Variable names must not contain periods; rename them consistently, e.g.,
+#' \code{x.1} to \code{x_1}, and check for duplicate names.
 #' 
 #' 
 #' @param x A list of square matrices
@@ -49,8 +53,9 @@ pattern.n <- function(x, n) {
 #' If it is \code{FALSE}, it shows the pattern of data that are present.
 #' @param type If it is \code{tssem}, it reports the pattern of missing
 #' correlations for the tssem approach. If it is \code{osmasem}, it reports the
-#' pattern of missing correlations for the data created by
-#' \code{\link[metaSEM]{Cor2DataFrame}}.
+#' pairwise pattern for the data created by
+#' \code{\link[metaSEM]{Cor2DataFrame}}: present counts require both statistics
+#' to be observed, and missing counts require both to be missing.
 #' @return A square matrix of numerical values with the same dimensions of the
 #' input matrices.
 #' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
@@ -79,6 +84,8 @@ pattern.na <- function(x, show.na=TRUE,
                        type=c("tssem", "osmasem")) {
 
     type <- match.arg(type)
+    if (type == "tssem") .check.cov.names(x) else
+      .check.no.period(x$obslabels, "Observed variable names")
 
     if (type=="tssem") {
         out <- Reduce("+", lapply(x, is.na))
@@ -86,16 +93,13 @@ pattern.na <- function(x, show.na=TRUE,
             out <- length(x)-out
         }    
     } else {
-        out <- x$data[, x$ylabels]
-        out <- split(out, seq_len(nrow(out)))
-        out <- lapply(out, function(x) { x <- is.na(x)
-                        matrix(x, ncol=1, nrow=length(x)) %*% 
-                        matrix(x, ncol=length(x), nrow=1) })
-        out <- Reduce("+", out)
+        if (anyDuplicated(x$ylabels) || anyDuplicated(colnames(x$data)))
+            stop("Ambiguous correlation or data column names; recreate the data with Cor2DataFrame().", call.=FALSE)
+        present <- !is.na(x$data[, x$ylabels, drop=FALSE])
+        ## Joint availability requires both entries to be observed.
+        out <- crossprod(!present)
+        if (show.na==FALSE) out <- crossprod(present)
         dimnames(out) <- list(x$ylabels, x$ylabels)
-        if (show.na==FALSE) {
-            out <- nrow(x$data)-out
-        }
     }    
     out
 } 

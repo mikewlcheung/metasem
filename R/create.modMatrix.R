@@ -7,6 +7,8 @@
 #' from \code{\link[metaSEM]{lavaan2RAM}}.
 #' @param output Whether the output is an "A" or "S" matrix.
 #' @param mod A string of moderator in the dataset.
+#' The moderator column name must not contain periods; for example, use
+#' \code{mod_1} instead of \code{mod.1}.
 #' @return A character matrix.
 #' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
 #' @keywords utilities
@@ -30,6 +32,8 @@
 #' S1
 #' 
 create.modMatrix <- function(RAM, output=c("A", "S"), mod) {
+    .check.ram.names(RAM)
+    .check.no.period(mod, "Moderator column names")
     output <- match.arg(output)
 
     switch(output,

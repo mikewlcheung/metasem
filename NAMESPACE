@@ -77,6 +77,7 @@ S3method(print, tssem1FEM)
 S3method(print, tssem1FEM.cluster)
 S3method(print, tssem1REM)
 S3method(print, meta)
+S3method(print, SEC)
 S3method(print, meta3LFIML)
 S3method(print, reml)
 S3method(print, summary.wls)
@@ -97,7 +98,7 @@ importFrom("graphics", "abline", "arrows", "layout", "par", "plot",
 importFrom("stats", "as.formula", "coef", "cov2cor", "deriv",
            "na.omit", "pchisq", "pnorm", "printCoefmat", "qchisq",
            "qnorm", "reshape", "var", "vcov", "weighted.mean", "uniroot",
-           "cov", "cor", "rWishart", "sd", "quantile", "setNames")
+           "cov", "cor", "rWishart", "sd", "quantile", "setNames", "pt", "qt")
 importFrom("utils", "read.table")
 
 importFrom("lavaan", "sem", "lavaanify", "inspect", "coef", "vcov")

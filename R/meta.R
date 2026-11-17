@@ -5,6 +5,7 @@
 #' by including study characteristics as predictors. Equality constraints on
 #' intercepts, regression coefficients, and variance components can be easily
 #' imposed by setting the same labels on the parameter estimates.
+#' Variable names and data column names must not contain periods. Rename them consistently, for example \code{x.1} to \code{x_1}, and check that the new names are unique. Study, group, and cluster values may contain periods.
 #' 
 #' 
 #' @aliases meta metaFIML
@@ -42,7 +43,12 @@
 #' covariance/variance components are free. The format of this matrix follows
 #' \code{\link[metaSEM]{as.mxMatrix}}. Elements of the variance components can
 #' be constrained equally by using the same labels. If a zero matrix is
-#' specified, it becomes a fixed-effects meta-analysis.
+#' specified, it becomes a fixed-effects meta-analysis. Lower bounds keep the
+#' variances non-negative, but with free covariances the estimated variance
+#' component can still be not positive semidefinite; \code{meta()} warns in
+#' this case, and a diagonal matrix, e.g.,
+#' \code{RE.constraints=Diag(paste0("0.1*Tau2_", 1:p, "_", 1:p))}, may be
+#' used instead.
 #' @param RE.startvalues A vector of \eqn{p}{p} starting values on the
 #' diagonals of the variance component of the random effects. If only one
 #' scalar is given, it will be duplicated across the diagonals. Starting values
@@ -130,6 +136,7 @@ meta <- function(y, v, x, data, intercept.constraints=NULL, coef.constraints=NUL
                  model.name="Meta analysis with ML",
                  suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
   mf <- match.call()
+  .check.meta.input.names(mf, if (!missing(data)) data else NULL)
   if (missing(data)) {
     data <- sys.frame(sys.parent())
   } else {
@@ -138,13 +145,16 @@ meta <- function(y, v, x, data, intercept.constraints=NULL, coef.constraints=NUL
   my.y <- mf[[match("y", names(mf))]]
   my.v <- mf[[match("v", names(mf))]]    
   y <- eval(my.y, data, enclos = sys.frame(sys.parent()))
+  .check.no.period(colnames(y), "Variable column names")
   v <- eval(my.v, data, enclos = sys.frame(sys.parent()))
+  .check.no.period(colnames(v), "Variable column names")
    
   if (is.vector(y)) no.y <- 1 else no.y <- ncol(y)  
   if (is.vector(v)) no.v <- 1 else no.v <- ncol(v)
   if (missing(x)) no.x <- 0 else {
     my.x <- mf[[match("x", names(mf))]]
     x <- eval(my.x, data, enclos = sys.frame(sys.parent()))
+    .check.no.period(colnames(x), "Variable column names")
     if (is.vector(x)) no.x <- 1 else no.x <- ncol(x)
   }
   
@@ -155,6 +165,7 @@ meta <- function(y, v, x, data, intercept.constraints=NULL, coef.constraints=NUL
   y.labels <- paste("y", 1:no.y, sep="")
   x.labels <- paste("x", 1:no.x, sep="")
 
+  .check.missing.sampling.cov(y, v)
   ## If is.na(v), convert y into NA. NA in y will be handled automatically.
   ## Since NA in v (definition variable) is not allowed. Convert v into 1e10.
   ## Select variances only
@@ -368,6 +379,7 @@ meta <- function(y, v, x, data, intercept.constraints=NULL, coef.constraints=NUL
     warning(print(mx.fit))
     return(mx.fit)
   } else {
+     .warn.Tau.not.psd(mxEvalByName("Tau", mx.fit, compute=TRUE), "Tau")
      out <- list(call=mf, data=input.df, no.y=no.y, no.x=no.x, miss.x=miss.x, mx.model=mx.model,
                  I2=I2, R2=R2, mx.fit=mx.fit, mx0.fit=mx0.fit, intervals.type=intervals.type)
      class(out) <- "meta"

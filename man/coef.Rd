@@ -13,7 +13,20 @@
 \alias{coef.osmasem}
 \alias{coef.osmasem2}
 \alias{coef.mxsem}
-\title{Extract Parameter Estimates from various classes.}
+\title{Extract Parameter Estimates from various classes}
+\usage{
+\method{coef}{tssem1FEM}(object, ...)
+\method{coef}{tssem1FEM.cluster}(object, ...)
+\method{coef}{tssem1REM}(object, select = c("all", "fixed", "random"), ...)
+\method{coef}{wls}(object, ...)
+\method{coef}{wls.cluster}(object, ...)
+\method{coef}{meta}(object, select = c("all", "fixed", "random"), ...)
+\method{coef}{meta3LFIML}(object, select = c("all", "fixed", "random", "allX"), ...)
+\method{coef}{reml}(object, ...)
+\method{coef}{osmasem}(object, select = c("fixed", "all", "random"), ...)
+\method{coef}{osmasem2}(object, select = c("fixed", "all", "random"), ...)
+\method{coef}{mxsem}(object, ...)
+}
 \arguments{
 \item{object}{An object returned from either class \code{tssem1FEM}, class
 \code{tssem1FEM.cluster}, class \code{tssem1REM}, class \code{wls}, class

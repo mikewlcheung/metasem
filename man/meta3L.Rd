@@ -187,6 +187,8 @@ auxiliary variables where \eqn{m}{m} is the number of variables.}
 auxiliary variables where \eqn{m}{m} is the number of variables.}
 }
 \description{
+Variable names and data column names must not contain periods. Rename them consistently, for example \code{x.1} to \code{x_1}, and check that the new names are unique. Study, group, and cluster values may contain periods.
+
 It conducts three-level univariate meta-analysis with maximum likelihood
 estimation method. Mixed-effects meta-analysis can be conducted by including
 study characteristics as predictors. Equality constraints on the intercepts,

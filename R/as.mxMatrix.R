@@ -1,6 +1,10 @@
 #' Convert a Matrix into MxMatrix-class
 #' 
 #' It converts a matrix into \code{MxMatrix-class} via \code{mxMatrix}.
+#' Ordinary parameter labels must not contain periods. Definition-variable
+#' references such as \code{data.x_1} are allowed, provided the referenced
+#' column name contains no period. When matrix dimension names are copied, they are
+#' preserved rather than converted with \code{make.names()}.
 #' 
 #' If there are non-numeric values in \code{x}, they are treated as the labels
 #' of the parameters. If a "*" is present, the numeric value on the left-hand
@@ -79,6 +83,7 @@ as.mxMatrix <- function(x, name, ...) {
     if (!is.matrix(x)) {
         x <- as.matrix(x)
     }
+    .check.matrix.labels(x)
 
     # suppress warnings
     ## warn <- options()$warn
@@ -105,10 +110,16 @@ as.mxMatrix <- function(x, name, ...) {
 
     if (length(freePara1)>0) {
         freePara2 <- strsplit(freePara1, "*", fixed=TRUE)
-        # replace NA with starting values 0.5 before "0.5*a"
-        values[free] <- suppressWarnings(sapply(freePara2, function(x){ as.numeric(x[1])}))
+        has.star <- grepl("*", freePara1, fixed=TRUE)
+        # Retain an unspecified starting value for bare and "*label" entries.
+        values[free] <- suppressWarnings(vapply(seq_along(freePara2), function(i){
+            if (has.star[i]) as.numeric(freePara2[[i]][1]) else NA_real_
+        }, numeric(1)))
         labels <- matrix(NA, ncol=nCol, nrow=nRow)
-        labels[free] <- sapply(freePara2, function(x){ x[2]})
+        labels[free] <- vapply(seq_along(freePara2), function(i){
+            if (!has.star[i]) freePara2[[i]][1] else
+                if (length(freePara2[[i]]) >= 2L) freePara2[[i]][2] else NA_character_
+        }, character(1))
     
         ## Replace TRUE by FALSE in free when there are definition variables
         ## or [,]. "." in grep()'s regex means "any character" -- a
@@ -141,8 +152,8 @@ as.mxMatrix <- function(x, name, ...) {
     if (!is.null(dimnames(x))) {
         if (!is.null(rownames(x))) {
             if (rownames(x)[1] != "1") {
-                ## Make the names valid for the Mmatrix, which has "1" as the rownames
-                dim.names <- lapply(dimnames(x), make.names)
+                ## Preserve supplied variable names; Mmatrix may have "1" as its row name.
+                dim.names <- dimnames(x)
                 dimnames(out@values) <- dimnames(out@labels) <- dimnames(out@free) <- dim.names
             }
         }

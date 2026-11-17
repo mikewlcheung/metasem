@@ -6,6 +6,8 @@
 #' symmetric. Variables with \code{NA} in the diagonals will be removed before
 #' testing. It returns \code{NA} when there are missing correlations even after
 #' deleting the missing variables.
+#' When both row and column names are supplied they must agree; one-sided
+#' dimension names do not affect the numerical symmetry test.
 #' 
 #' 
 #' @param x A square matrix or a list of square matrices
@@ -17,8 +19,7 @@
 #' positive-definiteness in \code{x}. It is adopted from
 #' \code{\link[MASS]{mvrnorm}}.
 #' @return If the input is a matrix, it returns \code{TRUE}, \code{FALSE} or
-#' \code{NA}. If the input is a list of matrices, it returns a list of
-#' \code{TRUE}, \code{FALSE} or \code{NA}.
+#' \code{NA}. If the input is a list of matrices, it returns a logical vector.
 #' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
 #' @keywords utilities
 #' @examples
@@ -41,9 +42,11 @@
 #' 
 is.pd <- function(x, check.aCov=FALSE, cor.analysis=TRUE, tol=1e-06) {
     if (is.list(x)) {
-        return(sapply(x, is.pd, check.aCov=check.aCov, cor.analysis=cor.analysis, tol=tol))
+        return(vapply(x, is.pd, logical(1), check.aCov=check.aCov, cor.analysis=cor.analysis, tol=tol))
     }
     else {
+        if (!is.matrix(x) || nrow(x) != ncol(x) || !is.numeric(x))
+            return(FALSE)
         ## Criteria based on asyCov()
         if (check.aCov) {
             if (cor.analysis) Diag(x)[is.na(Diag(x))] <- 1 else Diag(x)[is.na(Diag(x))] <- mean(Diag(x), na.rm=TRUE)
@@ -51,8 +54,14 @@ is.pd <- function(x, check.aCov=FALSE, cor.analysis=TRUE, tol=1e-06) {
         } else {
         ## Normal definition of pd    
             miss.index <- is.na(Diag(x)) 
-            x <- x[!miss.index, !miss.index]
+            x <- x[!miss.index, !miss.index, drop=FALSE]
         }
+
+        if (nrow(x)==0L || anyNA(x)) return(NA)
+        dn <- dimnames(x)
+        if (!is.null(dn[[1]]) && !is.null(dn[[2]]) && !identical(dn[[1]], dn[[2]]))
+            return(FALSE)
+        if (!isSymmetric(unname(x), tol=tol)) return(FALSE)
         
         ## Catch the error when there are NA in the matrix
         lambda <- tryCatch(eigen(x, only.values = TRUE)$values, error=function(e) e)
@@ -64,7 +73,7 @@ is.pd <- function(x, check.aCov=FALSE, cor.analysis=TRUE, tol=1e-06) {
             ## if (lambda[length(lambda)]/lambda[1] > tol) {
           
             ## Use the definition in MASS::mvrnorm
-            if (all(lambda >= -tol*abs(lambda[1L]))) {
+            if (all(lambda > tol*max(abs(lambda)))) {
                 out <- TRUE
             } else {
                 out <- FALSE

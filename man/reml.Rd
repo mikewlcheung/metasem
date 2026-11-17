@@ -88,6 +88,8 @@ before the analysis if they are \code{TRUE}} \item{mx.fit}{A fitted object
 returned from \code{\link[OpenMx]{mxRun}}}
 }
 \description{
+Variable names and data column names must not contain periods. Rename them consistently, for example \code{x.1} to \code{x_1}, and check that the new names are unique. Study, group, and cluster values may contain periods.
+
 It estimates the variance components of random-effects in univariate and
 multivariate meta-analysis with restricted (residual) maximum likelihood
 (REML) estimation method.
@@ -104,14 +106,12 @@ removed from the model. Thus, only the parameters of random-effects are
 estimated.
 
 An alternative but equivalent approach is to minimize the -2*log-likelihood
-function: \deqn{ }{
-log(det|V+T^2|)+log(det|X'(V+T^2)^{-1}X|)+(y-X\alpha)'(V+T^2)^{-1}(y-X*\alpha)}\deqn{
+function: \deqn{
 \log(\det|V+T^2|)+\log(\det|X'(V+T^2)^{-1}X|)+(y-X\hat{\alpha})'(V+T^2)^{-1}(y-X\hat{\alpha})}{
 log(det|V+T^2|)+log(det|X'(V+T^2)^{-1}X|)+(y-X\alpha)'(V+T^2)^{-1}(y-X*\alpha)}
 where \eqn{V}{V} is the known conditional sampling covariance matrix of
 \eqn{y}{y}, \eqn{T^2}{T^2} is the variance component of the random effects,
 and \eqn{\hat{\alpha}=(X'(V+T^2)^{-1}X)^{-1}
-}{\hat{\alpha}=(t(X)(V+T^2)^{-1}X)^{-1}t(X)(V+T^2)^{-1}y}\eqn{
 X'(V+T^2)^{-1}y}{\hat{\alpha}=(t(X)(V+T^2)^{-1}X)^{-1}t(X)(V+T^2)^{-1}y}.
 \code{reml()} minimizes the above likelihood function to obtain the
 parameter estimates.
@@ -142,7 +142,7 @@ estimators in the random-effects model. \emph{Journal of Educational and
 Behavioral Statistics}, \bold{30(3)}, 261-293.
 }
 \seealso{
-\code{\link[metaSEM]{meta}}, \code{\link[metaSEM]{reml3}},
+\code{\link[metaSEM]{meta}}, \code{\link[metaSEM]{reml3L}},
 \code{\link[metaSEM]{Hox02}}, \code{\link[metaSEM]{Berkey98}}
 }
 \author{

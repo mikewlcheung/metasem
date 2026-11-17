@@ -45,7 +45,9 @@ single matrix}
 
 \item{V}{A variance-covariance matrix of Sigma.}
 
-\item{n}{A vector or a single sample sizes.}
+\item{n}{A vector or a single sample sizes.
+For \code{rCorSam()}, \code{Sigma} and \code{n} must have equal lengths,
+or either may have length one and be reused for each element of the other.}
 
 \item{corr}{Logical. Whether to generate correlation or covariance matrices.}
 
@@ -76,6 +78,8 @@ An object of the generated population/sample correlation/covariance
 matrices.
 }
 \description{
+Variable names and data column names must not contain periods. Rename them consistently, for example \code{x.1} to \code{x_1}, and check that the new names are unique. Study, group, and cluster values may contain periods.
+
 It generates (nested) random sample or population correlation or covariance
 matrices. \code{rCor()} is a wrapper to call \code{rCorPop()} and then
 \code{rCorSam()}.

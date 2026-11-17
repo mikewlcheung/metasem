@@ -42,6 +42,7 @@ osmasem2(
   replace.constraints = FALSE,
   mxModel.Args = NULL,
   run = TRUE,
+  subset.variables = NULL,
   ...
 )
 }
@@ -55,7 +56,9 @@ from \code{\link[metaSEM]{lavaan2RAM}}. If it is given, \code{Mmatrix} and
 
 \item{Mmatrix}{A list of matrices of the model implied correlation matrix
 created by the \code{create.vechsR}. It is only required when \code{RAM} is
-null.}
+null. A named filter matrix is matched to the data by name, retaining its
+parameter settings; an unnamed filter is matched by position. Its number
+of rows must match the number of observed variables in the data.}
 
 \item{Tmatrix}{A list of matrices of the heterogeneity variance-covariance
 matrix created by the \code{create.Tau2}. It is only required when
@@ -72,7 +75,13 @@ moderators of the Amatrix. It is used to create the \code{Mmatrix}.}
 moderators of the Smatrix. It is used to create the \code{Mmatrix}.}
 
 \item{A.lbound}{A matrix of lower bound of the Amatrix. If a scalar is
-given, the lbound matrix will be filled with this scalar.}
+given, the lbound matrix will be filled with this scalar. Bounds from
+inequalities in the lavaan syntax of \code{RAM} (see
+\code{\link{lavaan2RAM}}) are applied to the parameters with those labels
+in any matrix; on the Amatrix, \code{A.lbound} and \code{A.ubound} take
+precedence over them when the corresponding entry is not \code{NA}; \code{NA} entries retain RAM bounds. Conflicting explicit bounds for repeated labels are rejected. Bounds on parameters that \code{osmasem()} computes
+rather than estimates (e.g., error variances of dependent variables) are
+ignored with a warning.}
 
 \item{A.ubound}{A matrix of upper bound of the Amatrix. If a scalar is
 given, the ubound matrix will be filled with this scalar.}
@@ -87,7 +96,12 @@ variance component when \code{RE.type="User"}. See
 \item{data}{A list of data created by the \code{Cor2DataFrame}.}
 
 \item{subset.variables}{A character vector of the observed variables
-selected for the analysis.}
+selected for the analysis, in any order. The analysis keeps the order of
+the variables in the data. Each variable can be given only once. In
+\code{osmasem2()}, it also selects the means, their sampling covariances,
+and the sampling covariances between the correlations or covariances and
+the means (\code{VyMlabels}, if present). Studies without any of the
+selected correlations or covariances do not contribute to the fit.}
 
 \item{subset.rows}{A logical vector of the same length as the number of rows
 in the data to select which rows are used in the analysis.}
@@ -103,14 +117,18 @@ likelihood-based CIs on the parameter estimates.}
 \item{mxRun.Args}{A list of arguments passed to \code{\link[OpenMx]{mxRun}}.}
 
 \item{suppressWarnings}{Logical. If it is \code{TRUE}, warnings are
-suppressed. This argument is passed to \code{\link[OpenMx]{mxRun}}.}
+suppressed. This argument is passed to \code{\link[OpenMx]{mxRun}}. If
+it is \code{FALSE}, warnings during the fit are shown after it, so that
+they cannot stop it. In both cases, they are stored in the \code{warning}
+element of the output.}
 
 \item{silent}{Logical. An argument is passed to \code{\link[OpenMx]{mxRun}}}
 
 \item{run}{Logical. If \code{FALSE}, only return the mx model without
 running the analysis.}
 
-\item{\dots}{Not used yet.}
+\item{\dots}{Not used, except that \code{osmasem()} rejects
+\code{cor.analysis=FALSE}; use \code{osmasem2()} for covariance data.}
 
 \item{cor.analysis}{Whether to analyze correlation or covariance structure
 analysis.}
@@ -131,12 +149,26 @@ there are new parameters in RAM.}
 \item{replace.constraints}{It is relevant only when there are constraints in
 RAM. If it is \code{FALSE}, these constraints will be imposed. If it is
 \code{TRUE}, the parameters on the left-hand side will be replaced by the
-algebras on the right-hand side.}
+algebras on the right-hand side. In \code{osmasem2()}, chained replacements
+are resolved before substitution, including in remaining constraints and
+defined parameters; parameter bounds are retained.
+Parameters appearing only in equality expressions require substitution or
+an explicit parameter matrix supplied through \code{mxModel.Args}.
+For correlation analysis in \code{osmasem2()}, unit-variance restrictions
+are imposed for all selected observed variables at every distinct observed
+definition-variable pattern, even when a residual variance is fixed.
+Algebraic identities and linearly dependent polynomial restrictions are
+omitted where they can be established for an acyclic RAM, allowing for
+floating-point cancellation relative to each monomial's coefficients. Small
+independent terms are retained. Residual variance
+specifications must be compatible with the moderator effects across studies.}
 }
 \value{
 An object of class \code{osmasem}
 }
 \description{
+Variable names and data column names must not contain periods. Rename them consistently, for example \code{x.1} to \code{x_1}, and check that the new names are unique. Study, group, and cluster values may contain periods.
+
 It fits MASEM with the one-stage MASEM (OSMASEM) approach.
 }
 \details{
@@ -156,9 +188,20 @@ In contrast, \code{osmasem2()} reports the heterogeneity matrix in the
 parameter table. 4. \code{osmasem()} accepts either
 \code{intervals.type="z"} or \code{intervals.type="LB"}, whereas
 \code{osmasem2()} only uses \code{intervals.type="z"}. Thus, this argument
-is removed in \code{osmasem2()}. 5. \code{osmasem2()} allows the imposing
-linear and nonlinear constraints and the creation of parameter functions in
-\code{RAM}, which \code{osmasem} cannot.
+is removed in \code{osmasem2()}: a request for \code{LB} raises an error and \code{z} is deprecated. 5. Both functions accept linear and
+nonlinear constraints and parameter functions (\code{:=}) in \code{RAM};
+only \code{osmasem2()} can substitute equality constraints into the model
+with \code{replace.constraints=TRUE}.
+
+The observed variables of \code{RAM} are matched to the data by name and
+reordered to the order of the variables in the data. They must be the
+variables in \code{subset.variables} if it is given, and all variables in
+the data otherwise. If none of the names of the observed variables in
+\code{RAM} are in the data (e.g., \code{A1}, \code{D2}, ... in \code{RAM}
+and \code{x1}, \code{x2}, ... in the data) and their numbers are equal,
+they are matched by position with a warning. Both functions warn if the estimated
+heterogeneity matrix is not positive semidefinite, which bounds on its
+variances cannot prevent when its covariances or correlations are free.
 }
 \references{
 Jak, S., & Cheung, M. W.-L. (2020). Meta-analytic structural

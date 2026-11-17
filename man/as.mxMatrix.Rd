@@ -25,6 +25,10 @@ A \code{\link[OpenMx]{MxMatrix-class}} object with the same
 dimensions as \code{x}
 }
 \description{
+Ordinary parameter labels must not contain periods. Definition-variable
+references such as \code{data.x_1} are allowed, provided the referenced
+column name contains no period. When matrix dimension names are copied, they are preserved rather than converted with \code{make.names()}.
+
 It converts a matrix into \code{MxMatrix-class} via \code{mxMatrix}.
 }
 \details{

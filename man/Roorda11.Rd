@@ -28,8 +28,17 @@ vector of sample sizes} \item{SES}{A vector of average socio-economic status
 
 \donttest{
 
+## These are correlation matrices; set a missing diagonal to 1 when the
+## corresponding variable has a reported correlation.
+roorda_cor <- lapply(Roorda11$data, function(S) {
+  observed <- vapply(seq_len(nrow(S)), function(i) any(!is.na(S[i, -i])), logical(1))
+  d <- diag(S)
+  d[is.na(d) & observed] <- 1
+  diag(S) <- d
+  S
+})
 ## Random-effects model: First stage analysis
-random1 <- tssem1(Cov = Roorda11$data, n = Roorda11$n, method = "REM",
+random1 <- tssem1(Cov = roorda_cor, n = Roorda11$n, method = "REM",
                   RE.type = "Diag")
 summary(random1)
 
@@ -70,8 +79,9 @@ RAM
 ## S
 
 ## Random-effects model: Second stage analysis
-random2 <- tssem2(random1, RAM=RAM, diag.constraints=TRUE,
-                  intervals="LB")
+## Calculate dependent-variable residual variances implicitly.
+random2 <- tssem2(random1, RAM=RAM, diag.constraints=FALSE,
+                  intervals.type="LB")
 summary(random2)
 
 ## Display the model with the parameter estimates    

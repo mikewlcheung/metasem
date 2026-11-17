@@ -1,38 +1,77 @@
+## Reorder the observed variables of RAM (the rows of F) to 'obslabels',
+## the order of the variables in the data. The model-implied correlations
+## are matched to the data by position, so a RAM in another order would pair
+## them with the wrong coefficients. A RAM whose names share none with the
+## data (e.g., A1, D2, ... vs. x1, x2, ...) is matched by position, as before
+## 1.6.1, with a warning.
+.match.RAM.obs <- function(RAM, obslabels, subset.hint=FALSE) {
+  obs <- rownames(RAM$F)
+  if (is.null(obs)) {
+    if (nrow(RAM$F) != length(obslabels))
+      stop("RAM has ", nrow(RAM$F), " observed variables, but the data have ",
+           length(obslabels), ".\n")
+    return(RAM)
+  }
+  if (length(obs) == length(obslabels) && !any(obs %in% obslabels)) {
+    warning("None of the observed variables in RAM (", paste(obs, collapse=", "),
+            ") are in the data (", paste(obslabels, collapse=", "),
+            "), so they are matched by position (", obs[1], " with ",
+            obslabels[1], ", ...). Rename the variables in RAM or in the data ",
+            "to match them by name.", call.=FALSE)
+    return(RAM)
+  }
+  if (length(obs) != length(obslabels) || !setequal(obs, obslabels))
+    stop("The observed variables in RAM (", paste(obs, collapse=", "),
+         ") do not match those in the data (", paste(obslabels, collapse=", "),
+         "). ", if (subset.hint) "Use 'subset.variables' or a" else "Use a",
+         " RAM with the same variables.\n")
+  RAM$F <- RAM$F[obslabels, , drop=FALSE]
+  RAM
+}
+
+## Check 'subset.variables' of osmasem() and osmasem2() against the
+## variables in the data.
+.check.subset.variables <- function(subset.variables, obslabels) {
+  absent <- setdiff(subset.variables, obslabels)
+  if (length(absent))
+    stop(paste(absent, collapse=", "), " are not in the data.\n")
+  duplicated.names <- unique(subset.variables[duplicated(subset.variables)])
+  if (length(duplicated.names))
+    stop("'subset.variables' contains ", paste(duplicated.names, collapse=", "),
+         " more than once.\n")
+  invisible(NULL)
+}
+
+## Warn if an estimated heterogeneity (random-effects) covariance matrix is
+## not positive semidefinite. Bounds on its variances do not prevent this
+## when the covariances are free: the likelihood requires only Tau+V to be
+## positive definite.
+.warn.Tau.not.psd <- function(Tau, name="Tau") {
+  Tau <- as.matrix(Tau)
+  if (nrow(Tau) < 2 || anyNA(Tau)) return(invisible(NULL))
+  ev <- eigen((Tau + t(Tau))/2, symmetric=TRUE, only.values=TRUE)$values
+  if (min(ev) < -1e-6 * max(1, abs(ev)))
+    warning("The estimated heterogeneity matrix '", name, "' is not positive ",
+            "semidefinite (smallest eigenvalue = ", signif(min(ev), 3), "), so ",
+            "it is not a valid covariance matrix. Consider a simpler ",
+            "random-effects structure, e.g., a diagonal one.", call.=FALSE)
+  invisible(NULL)
+}
+
 ## A function to extract levels of path directions started from IVs to DVs
 .pathLevels <- function(A) {
-  ## assuming non-recursive models
-  A <- A$free
-        
-  ## no. of variables
-  p <- ncol(A)
-  dv <- apply(A, 1, any)
-  ## iv: variables pointed towards other variables
-  iv <- apply(A, 2, any)
-  
-  Level <- list()
-  ## IVs
-  Level[[1]] <- iv==TRUE&dv==FALSE
-  ## no. of variables counted
-  count <- length((1:p)[Level[[1]]])
-
-  ## do until all p variables are countered
-  while(p > count) {
-    level <- length(Level)
-
-    ## predicated by previous level
-    cand1 <- A[, Level[[level]], drop=FALSE]
-    cand1 <- apply(cand1, 1, any)
-
-    ## predicted by cand1
-    cand2 <- A[, cand1, drop=FALSE]
-    cand2 <- apply(cand2, 1, any)
-    Level[[level+1]] <- cand1==TRUE&cand2==FALSE
-
-    ## no. of elements counted
-    count <- count + length((1:p)[Level[[level+1]]])
+  edges <- A$free | (!is.na(A$values) & A$values != 0)
+  p <- ncol(edges)
+  remaining <- rep(TRUE, p)
+  levels <- list()
+  while (any(remaining)) {
+    eligible <- remaining & rowSums(edges[, remaining, drop=FALSE]) == 0
+    if (!any(eligible))
+      stop("The path matrix contains a directed cycle; implicit error variances require an acyclic model.")
+    levels[[length(levels)+1L]] <- eligible
+    remaining[eligible] <- FALSE
   }
-
-  list(IV=Level[1], DV=Level[-1])
+  list(IV=levels[1L], DV=levels[-1L])
 }
 
 
@@ -54,7 +93,8 @@
 #' @param S0 A Smatrix, which will be converted into \code{MxMatrix-class} via
 #' \code{as.mxMatrix}.
 #' @param F0 A Fmatrix, which will be converted into \code{MxMatrix-class} via
-#' \code{as.mxMatrix}.
+#' \code{as.mxMatrix}. If omitted, an identity filter is used with the
+#' variable names of \code{A0}, when available.
 #' @param Ax A Amatrix of a list of Amatrix with definition variables as the
 #' moderators of the Amatrix.
 #' @param Sx A Smatrix of a list of Smatrix with definition variables as the
@@ -67,7 +107,9 @@
 #' matrix is computed in \code{impliedR} and \code{vechsR}.
 #' @note Since \code{A0} are the intercepts and \code{Ax} are the regression
 #' coefficients, the parameters in \code{Ax} must be a subset of those in
-#' \code{A0}.
+#' \code{A0}. Path models must be acyclic when residual variances are derived
+#' implicitly. Fixed dependent-variable residual variances in \code{S0}
+#' are ignored with a warning.
 #' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
 #' @seealso \code{\link[metaSEM]{osmasem}}, \code{\link[metaSEM]{create.Tau2}},
 #' \code{\link[metaSEM]{create.V}}
@@ -113,6 +155,9 @@
 create.vechsR <- function(A0, S0, F0=NULL, Ax=NULL, Sx=NULL,
                           A.lbound=NULL, A.ubound=NULL) {
 
+  for (mat in c(list(A0, S0, F0), if (is.list(Ax)) Ax else list(Ax),
+                if (is.list(Sx)) Sx else list(Sx))) .check.model.matrix(mat)
+
   if (is.matrix(A0)) {
     A0 <- as.mxMatrix(A0, name="A0")
   } else {
@@ -139,6 +184,8 @@ create.vechsR <- function(A0, S0, F0=NULL, Ax=NULL, Sx=NULL,
   if (is.null(F0)) {
     Fmatrix <- Iden
     Fmatrix$name <- "Fmatrix"
+    dimnames(Fmatrix@values) <- dimnames(Fmatrix@labels) <-
+      dimnames(Fmatrix@free) <- dimnames(A0$values)
   } else {
     Fmatrix <- as.mxMatrix(F0, name="Fmatrix")
   }
@@ -146,7 +193,10 @@ create.vechsR <- function(A0, S0, F0=NULL, Ax=NULL, Sx=NULL,
   ## Consider error variances as functions of parameters
   ## Check types of variables
   ## dv (not ivs): variables pointed by some variables
-  dv <- apply(A0$free, 1, any)
+  dv <- rowSums(A0$free | (!is.na(A0$values) & A0$values != 0)) > 0
+
+  if (any(dv & !diag(S0$free)))
+    warning("For correlation analysis, create.vechsR() computes dependent-variable residual variances; fixed values in S0 for those variables are ignored.", call.=FALSE)
 
   ## ## iv: variables pointed towards other variables
   ## iv <- apply(Amatrix$free, 2, any)
@@ -170,7 +220,7 @@ create.vechsR <- function(A0, S0, F0=NULL, Ax=NULL, Sx=NULL,
 
   ## When there is no predictor, only A0.
   ## Amatrix=A0
-  ## ToCheck: Use mxalgebra or copy A0 to Amatrix?
+  A.mod <- Ax.mats <- S.mod <- Sx.mats <- list()
   if (is.null(Ax)) {
     Amatrix <- mxAlgebra(A0, name="Amatrix")
   } else {
@@ -179,39 +229,30 @@ create.vechsR <- function(A0, S0, F0=NULL, Ax=NULL, Sx=NULL,
 
     ## Basic checking on Ax
     lapply(Ax, function(x) checkRAM(Amatrix=x))
-        
-    for (i in seq_len(length(Ax))) {
-      
+
+    for (i in seq_along(Ax)) {
       ## Parameters for the moderator based on the Ax, not A0
       ## When the labels include "data", they are labels of the moderator.
       index_mod <- apply(Ax[[i]], 1:2, function(x) grepl("data", x))
-      
-      ## A temp A0. The free parameters are based on Ax, not A0
-      Atemp <- A0
-      Atemp$free <- index_mod
-      Atemp$labels[!index_mod] <- NA
 
-      text1 <- paste0("A",i, " <- Atemp; A",i, "$name <- 'A",i, "'")
-      eval(parse(text=text1))
-
+      ## A copy of A0 whose free parameters are based on Ax, not A0
+      Ai <- A0
+      Ai$free <- index_mod
+      Ai$labels[!index_mod] <- NA
+      Ai$name <- paste0("A", i)
       ## Labels = Labels in A0 + "_1", "_2", etc.
-      text2 <- paste0("A",i, "$labels <- apply(A",i,
-                      "$labels, 1:2, function(x) {if (is.na(x)) NA else paste0(x,", "'_",i, "')})")
-      eval(parse(text=text2))            
+      Ai$labels <- apply(Ai$labels, 1:2, function(x) if (is.na(x)) NA else paste0(x, "_", i))
+      A.mod[[i]] <- Ai
 
       ## Values of the moderators with definition variables
-      text3 <- paste0("Ax",i, " <- as.mxMatrix(Ax[[",
-                      i, "]], name='Ax",i, "')")
-      eval(parse(text=text3))
-    }  ## from 'for'
+      Ax.mats[[i]] <- as.mxMatrix(Ax[[i]], name=paste0("Ax", i))
+    }
 
     ## Amatrix= A0+A1*Ax1+A2*Ax2+...
-    text4 <- paste0("A", seq_len(length(Ax)), "*Ax",  seq_len(length(Ax)),
-                    collapse=" + ")   
-    text5 <- paste0("Amatrix <- mxAlgebra(A0 + ", text4, ", name='Amatrix')")
-    eval(parse(text=text5))
-        
-  }   ## from 'if else' 
+    Amatrix <- mxAlgebraFromString(paste0("A0 + ", paste0("A", seq_along(Ax), "*Ax",
+                                                         seq_along(Ax), collapse=" + ")),
+                                   name="Amatrix")
+  }
 
   ## When there is no predictor, only S0.
   ## SnoErr=S0
@@ -224,97 +265,67 @@ create.vechsR <- function(A0, S0, F0=NULL, Ax=NULL, Sx=NULL,
     ## Basic checking on Sx
     ## Don't check the diagonals
     lapply(Sx, function(x) checkRAM(Smatrix=x, cor.analysis=FALSE))
-        
-    for (i in seq_len(length(Sx))) {
-      
-      ## Parameters for the moderator
-      text1 <- paste0("S",i, " <- S0; S",i, "$name <- 'S",i, "'")
-      eval(parse(text=text1))
 
-      ## Relabel the parameter labels
+    for (i in seq_along(Sx)) {
+      ## Parameters for the moderator
+      Si <- S0
+      Si$name <- paste0("S", i)
       ## Labels = Labels in S0 + "_1", "_2", etc.
-      text2 <- paste0("S",i, "$labels <- apply(S",i,
-                      "$labels, 1:2, function(x) {if (is.na(x)) NA else paste0(x,", "'_",i, "')})")
-      eval(parse(text=text2))            
+      Si$labels <- apply(Si$labels, 1:2, function(x) if (is.na(x)) NA else paste0(x, "_", i))
+      ## Fix the diagonals of S1, S2... to 0
+      values <- Si$values
+      diag(values) <- 0
+      Si$values <- values
+      S.mod[[i]] <- Si
 
       ## Values of the moderators with definition variables
-      text3 <- paste0("Sx",i, " <- as.mxMatrix(Sx[[",
-                      i, "]], name='Sx",i, "')")
-      eval(parse(text=text3))
-
-      ## Fix the diagonals of S1, S2... to 0
-      text4 <- paste0("diag(S",i,"$values) <- 0")
-      eval(parse(text=text4))
-    }  ## from 'if else' 
+      Sx.mats[[i]] <- as.mxMatrix(Sx[[i]], name=paste0("Sx", i))
+    }
 
     ## Not the final Smatrix as it does not include the error variances
     ## S_no_err= S0+S1*Sx1+S2*Sx2+...
-    text4 <- paste0("S", seq_len(length(Sx)), "*Sx",  seq_len(length(Sx)),
-                    collapse=" + ")   
-    text5 <- paste0("SnoErr <- mxAlgebra(S0 + ", text4, ", name='SnoErr')")
-    eval(parse(text=text5))
-        
-  }   ## from 'else' 
-
+    SnoErr <- mxAlgebraFromString(paste0("S0 + ", paste0("S", seq_along(Sx), "*Sx",
+                                                        seq_along(Sx), collapse=" + ")),
+                                  name="SnoErr")
+  }
 
   ## No error variance involved for ALL variables
   invS0 <- mxAlgebra( solve(Iden-Amatrix)%&%SnoErr, name="invS0")
 
   ## Setup for error variances for mediators and dvs
   ## Excluded level1 as they are IVs
-  for (i in 1:length(Level)) {
+  F.list <- E.list <- invS.list <- list()
+  for (i in seq_along(Level)) {
     ## Select the diagonals of mediators
-    text1 <- paste0("F",i, " <- as.mxMatrix(diag(Level[[",i,"]]), name='F",i,"')")
-    eval(parse(text=text1))
+    F.list[[i]] <- as.mxMatrix(diag(Level[[i]]), name=paste0("F", i))
 
     ## Extract the error variances of mediators based on the previous
     ## model implied covariance matrix (i-1)
-    text2 <- paste0("E",i, " <- mxAlgebra(vec2diag(diag2vec(Iden-invS",i-1,"))*F",
-                    i, ", name='E", i, "')")
-    eval(parse(text=text2))
+    E.list[[i]] <- mxAlgebraFromString(paste0("vec2diag(diag2vec(Iden-invS", i-1,
+                                              "))*F", i), name=paste0("E", i))
 
     ## Implied covariance matrix with estimated error variances on mediators for (i)
-    text3 <- paste("E", 1:i, sep="", collapse="+")
-    text4 <- paste("invS",i, " <- mxAlgebra(solve(Iden-Amatrix)%&%(S0+", text3,
-                   "), name='invS",i,"')", sep="")
-    eval(parse(text=text4))
+    invS.list[[i]] <- mxAlgebraFromString(paste0("solve(Iden-Amatrix)%&%(SnoErr+",
+                                                 paste0("E", seq_len(i), collapse="+"), ")"),
+                                          name=paste0("invS", i))
   }
 
-  ## Final Smatrix including all error variances
-  text5 <- paste("E", seq_len(length(Level)), sep="", collapse="+")
-
   ## Final Smatrix=SnoErr +E1+E2+E3...
-  text6 <- paste0("Smatrix <- mxAlgebra(SnoErr+", text5, ", name='Smatrix')")
-  eval(parse(text=text6))
+  ## Without dependent variables (e.g., a model of correlations only), there
+  ## are no error variances to add.
+  Smatrix <- mxAlgebraFromString(paste0("SnoErr", if (length(Level))
+                                          paste0("+E", seq_along(Level), collapse="")),
+                                 name="Smatrix")
 
   ## Final impliedR
-  impliedR <- eval(parse(text="mxAlgebra((Fmatrix%*%solve(Iden-Amatrix))%&%Smatrix, name='impliedR')"))
+  impliedR <- mxAlgebraFromString("(Fmatrix%*%solve(Iden-Amatrix))%&%Smatrix",
+                                  name="impliedR")
   ## Vectorized form of impliedR
   vechsR <- mxAlgebra(t(vechs(impliedR)), name="vechsR")
 
-  ## Output the matrices
-  text7 <- paste0("invS", seq_len(length(Level)), collapse=",")
-  text8 <- paste0("E", seq_len(length(Level)), collapse=",")
-  text9 <- paste0("F", seq_len(length(Level)), collapse=",")
-  text10 <- paste0("list(Amatrix, Smatrix, Fmatrix, impliedR, vechsR, A0, S0, SnoErr, invS0, Iden,",
-                   text7, ",", text8, ",", text9)
-  
-  ## Add moderators if there are any
-  if (!is.null(Ax)) {
-    text10 <- paste0(text10, ",",
-                     paste0("A", seq_len(length(Ax)), collapse=","), ",",
-                     paste0("Ax", seq_len(length(Ax)), collapse=","))
-  }
-
-  if (!is.null(Sx)) {
-    text10 <- paste0(text10, ",",
-                     paste0("S", seq_len(length(Sx)), collapse=","), ",",
-                     paste0("Sx", seq_len(length(Sx)), collapse=","))
-  }
-
-  ## Remember to close it    
-  text10 <- paste0(text10, ")")
-  out <- eval(parse(text=text10))
+  ## Output the matrices, followed by those of the moderators if there are any
+  out <- c(list(Amatrix, Smatrix, Fmatrix, impliedR, vechsR, A0, S0, SnoErr, invS0, Iden),
+           invS.list, E.list, F.list, A.mod, Ax.mats, S.mod, Sx.mats)
 
   ## Add names of the elements in the list
   names(out) <- sapply(out, function(x) x$name)
@@ -322,7 +333,7 @@ create.vechsR <- function(A0, S0, F0=NULL, Ax=NULL, Sx=NULL,
   ## Add lbound and ubound to A0
   if (!is.null(A.lbound)) {
     if (is.matrix(A.lbound)) {
-      if (dim(A.lbound)==dim(out$A0$values)) {
+      if (all(dim(A.lbound)==dim(out$A0$values))) {
         out$A0$lbound <- A.lbound
       } else {
         stop("The dimensions of 'A.lbound' do not match those in 'A0'.\n")
@@ -336,7 +347,7 @@ create.vechsR <- function(A0, S0, F0=NULL, Ax=NULL, Sx=NULL,
 
   if (!is.null(A.ubound)) {
     if (is.matrix(A.ubound)) {
-      if (dim(A.ubound)==dim(out$A0$values)) {
+      if (all(dim(A.ubound)==dim(out$A0$values))) {
         out$A0$ubound <- A.ubound
       } else {
         stop("The dimensions of 'A.ubound' do not match those in 'A0'.\n")
@@ -365,7 +376,7 @@ create.vechsR <- function(A0, S0, F0=NULL, Ax=NULL, Sx=NULL,
 #' \code{no.var} argument. It represents the \code{no.var} by \code{no.var} of
 #' the random effects).
 #' @param Tau1.labels Parameter labels in \code{Tau1}. The default is
-#' \code{Tau1_1}, \code{Tau1_2}, etc.
+#' \code{Tau1_1}, \code{Tau1_2}, etc. Labels must not contain periods.
 #' @param RE.type Either \code{"Diag"}, \code{"CSymm"}, \code{"HCSymm"},
 #' \code{"Symm"}, \code{"Zero"} or \code{"User"}. If it is\code{"Diag"} (the
 #' default if missing), a diagonal matrix is used for the random effects
@@ -409,6 +420,8 @@ create.Tau2 <- function(RAM, no.var, Tau1.labels=seq(no.var),
                         RE.User=NULL, Transform=c("expLog", "sqSD"),
                         RE.startvalues=0.05) {
 
+  if (!missing(RAM)) .check.ram.names(RAM)
+
   level <- match.arg(level)
   switch(level,
          single = level_suffix <- "",
@@ -425,6 +438,7 @@ create.Tau2 <- function(RAM, no.var, Tau1.labels=seq(no.var),
   if (no.var<1) stop("'no.var' must be at least 1.\n")
   
   if (length(Tau1.labels) != no.var) stop("Length of \"Tau1.labels\" is different from \"no.var\".\n")
+  .check.no.period(Tau1.labels, "Random-effect parameter labels")
   Tau1.labels <- paste0(Tau1.labels, level_suffix)
     
   RE.type <- match.arg(RE.type)
@@ -580,7 +594,7 @@ create.V <- function(x, type=c("Symm", "Diag", "Full"), as.mxMatrix=TRUE) {
          Full = {
            no.var <- sqrt(length(x))
            if (no.var%%1 != 0) {
-             stop("Length of '", x, "' is not a square.\n")
+             stop("Length of 'x' (", length(x), ") is not a square.\n")
            } else {
              out <- matrix(x, nrow=no.var, ncol=no.var, byrow=FALSE)
            }
@@ -598,6 +612,7 @@ create.V <- function(x, type=c("Symm", "Diag", "Full"), as.mxMatrix=TRUE) {
 #' One-stage meta-analytic structural equation modeling
 #' 
 #' It fits MASEM with the one-stage MASEM (OSMASEM) approach.
+#' Variable names and data column names must not contain periods. Rename them consistently, for example \code{x.1} to \code{x_1}, and check that the new names are unique. Study, group, and cluster values may contain periods.
 #' 
 #' \code{osmasem()} was implemented based on Jak and Cheung (2020) for
 #' meta-analyzing correlation matrices. \code{osmasem2()} was a rewritten
@@ -615,9 +630,20 @@ create.V <- function(x, type=c("Symm", "Diag", "Full"), as.mxMatrix=TRUE) {
 #' parameter table. 4. \code{osmasem()} accepts either
 #' \code{intervals.type="z"} or \code{intervals.type="LB"}, whereas
 #' \code{osmasem2()} only uses \code{intervals.type="z"}. Thus, this argument
-#' is removed in \code{osmasem2()}. 5. \code{osmasem2()} allows the imposing
-#' linear and nonlinear constraints and the creation of parameter functions in
-#' \code{RAM}, which \code{osmasem} cannot.
+#' is removed in \code{osmasem2()}: a request for \code{LB} raises an error and \code{z} is deprecated. 5. Both functions accept linear and
+#' nonlinear constraints and parameter functions (\code{:=}) in \code{RAM};
+#' only \code{osmasem2()} can substitute equality constraints into the model
+#' with \code{replace.constraints=TRUE}.
+#'
+#' The observed variables of \code{RAM} are matched to the data by name and
+#' reordered to the order of the variables in the data. They must be the
+#' variables in \code{subset.variables} if it is given, and all variables in
+#' the data otherwise. If none of the names of the observed variables in
+#' \code{RAM} are in the data (e.g., \code{A1}, \code{D2}, ... in \code{RAM}
+#' and \code{x1}, \code{x2}, ... in the data) and their numbers are equal,
+#' they are matched by position with a warning. Both functions warn if the estimated
+#' heterogeneity matrix is not positive semidefinite, which bounds on its
+#' variances cannot prevent when its covariances or correlations are free.
 #' 
 #' @aliases osmasem osmasem2
 #' @param model.name A string for the model name in
@@ -627,7 +653,9 @@ create.V <- function(x, type=c("Symm", "Diag", "Full"), as.mxMatrix=TRUE) {
 #' \code{Tmatrix} arguments will be ignored.
 #' @param Mmatrix A list of matrices of the model implied correlation matrix
 #' created by the \code{create.vechsR}. It is only required when \code{RAM} is
-#' null.
+#' null. A named filter matrix is matched to the data by name, retaining its
+#' parameter settings; an unnamed filter is matched by position. Its number
+#' of rows must match the number of observed variables in the data.
 #' @param Tmatrix A list of matrices of the heterogeneity variance-covariance
 #' matrix created by the \code{create.Tau2}. It is only required when
 #' \code{RAM} is null.
@@ -639,7 +667,15 @@ create.V <- function(x, type=c("Symm", "Diag", "Full"), as.mxMatrix=TRUE) {
 #' @param Sx A Smatrix of a list of Smatrix with definition variables as the
 #' moderators of the Smatrix. It is used to create the \code{Mmatrix}.
 #' @param A.lbound A matrix of lower bound of the Amatrix. If a scalar is
-#' given, the lbound matrix will be filled with this scalar.
+#' given, the lbound matrix will be filled with this scalar. Bounds from
+#' inequalities in the lavaan syntax of \code{RAM} (see
+#' \code{\link{lavaan2RAM}}) are applied to the parameters with those labels
+#' in any matrix; on the Amatrix, \code{A.lbound} and \code{A.ubound} take
+#' precedence over them when the corresponding entry is not \code{NA};
+#' \code{NA} entries retain RAM bounds. Conflicting explicit bounds for
+#' repeated labels are rejected. Bounds on parameters that \code{osmasem()} computes
+#' rather than estimates (e.g., error variances of dependent variables) are
+#' ignored with a warning.
 #' @param A.ubound A matrix of upper bound of the Amatrix. If a scalar is
 #' given, the ubound matrix will be filled with this scalar.
 #' @param RE.type Type of the random effects. See
@@ -649,7 +685,12 @@ create.V <- function(x, type=c("Symm", "Diag", "Full"), as.mxMatrix=TRUE) {
 #' \code{\link[metaSEM]{create.Tau2}} for details.
 #' @param data A list of data created by the \code{Cor2DataFrame}.
 #' @param subset.variables A character vector of the observed variables
-#' selected for the analysis.
+#' selected for the analysis, in any order. The analysis keeps the order of
+#' the variables in the data. Each variable can be given only once. In
+#' \code{osmasem2()}, it also selects the means, their sampling covariances,
+#' and the sampling covariances between the correlations or covariances and
+#' the means (\code{VyMlabels}, if present). Studies without any of the
+#' selected correlations or covariances do not contribute to the fit.
 #' @param subset.rows A logical vector of the same length as the number of rows
 #' in the data to select which rows are used in the analysis.
 #' @param intervals.type Either \code{z} (default if missing) or \code{LB}. If
@@ -660,11 +701,15 @@ create.V <- function(x, type=c("Symm", "Diag", "Full"), as.mxMatrix=TRUE) {
 #' \code{\link[OpenMx]{mxModel}}.
 #' @param mxRun.Args A list of arguments passed to \code{\link[OpenMx]{mxRun}}.
 #' @param suppressWarnings Logical. If it is \code{TRUE}, warnings are
-#' suppressed. This argument is passed to \code{\link[OpenMx]{mxRun}}.
+#' suppressed. This argument is passed to \code{\link[OpenMx]{mxRun}}. If
+#' it is \code{FALSE}, warnings during the fit are shown after it, so that
+#' they cannot stop it. In both cases, they are stored in the \code{warning}
+#' element of the output.
 #' @param silent Logical. An argument is passed to \code{\link[OpenMx]{mxRun}}
 #' @param run Logical. If \code{FALSE}, only return the mx model without
 #' running the analysis.
-#' @param \dots Not used yet.
+#' @param \dots Not used, except that \code{osmasem()} rejects
+#' \code{cor.analysis=FALSE}; use \code{osmasem2()} for covariance data.
 #' @param cor.analysis Whether to analyze correlation or covariance structure
 #' analysis.
 #' @param RE.type.Sigma Type of the random effects of the correlation or
@@ -678,7 +723,19 @@ create.V <- function(x, type=c("Symm", "Diag", "Full"), as.mxMatrix=TRUE) {
 #' @param replace.constraints It is relevant only when there are constraints in
 #' RAM. If it is \code{FALSE}, these constraints will be imposed. If it is
 #' \code{TRUE}, the parameters on the left-hand side will be replaced by the
-#' algebras on the right-hand side.
+#' algebras on the right-hand side. In \code{osmasem2()}, chained replacements
+#' are resolved before substitution, including in remaining constraints and
+#' defined parameters; parameter bounds are retained.
+#' Parameters appearing only in equality expressions require substitution or
+#' an explicit parameter matrix supplied through \code{mxModel.Args}.
+#' For correlation analysis in \code{osmasem2()}, unit-variance restrictions
+#' are imposed for all selected observed variables at every distinct observed
+#' definition-variable pattern, even when a residual variance is fixed.
+#' Algebraic identities and linearly dependent polynomial restrictions are
+#' omitted where they can be established for an acyclic RAM, allowing for
+#' floating-point cancellation relative to each monomial's coefficients. Small
+#' independent terms are retained. Residual variance
+#' specifications must be compatible with the moderator effects across studies.
 #' @return An object of class \code{osmasem}
 #' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
 #' @seealso \code{\link[metaSEM]{Cor2DataFrame}},
@@ -704,7 +761,20 @@ osmasem <- function(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
                     intervals.type = c("z", "LB"),
                     mxModel.Args=NULL, mxRun.Args=NULL,
                     suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
-  
+  .check.ram.names(RAM)
+  .check.no.period(data$obslabels, "Observed variable names")
+  .check.no.period(colnames(data$data), "Data column names")
+  .check.no.period(subset.variables, "subset.variables")
+  if (!is.null(Mmatrix))
+    for (mat in Mmatrix) .check.model.matrix(mat)
+  dots <- list(...)
+  if ("cor.analysis" %in% names(dots) && !identical(dots$cor.analysis, TRUE))
+    stop("osmasem() supports correlation analysis only; use osmasem2(cor.analysis=FALSE) for covariances.", call.=FALSE)
+  expected <- .genCorNames(data$obslabels, cor.analysis=TRUE)$ylabels
+  if (length(data$ylabels) != length(expected) || anyDuplicated(data$ylabels) ||
+      !setequal(data$ylabels, expected))
+    stop("osmasem() requires correlation data from Cor2DataFrame(cor.analysis=TRUE).", call.=FALSE)
+
   RE.type <- match.arg(RE.type)
     
   intervals.type <- match.arg(intervals.type)
@@ -717,14 +787,13 @@ osmasem <- function(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
 
   ## Filter out variables not used in the analysis
   if (!is.null(subset.variables)) {
-    index  <- !(subset.variables %in% data$obslabels)
-    if (any(index)) {
-      stop(paste0(paste0(subset.variables[index], collapse = ", "), " are not in the ylabels.\n"))
-    }
-    temp <- .genCorNames(subset.variables, cor.analysis=TRUE)
-    obslabels <- subset.variables
+    .check.subset.variables(subset.variables, data$obslabels)
+    ## Keep the order of the variables in the data, which the names of the
+    ## correlations and their sampling covariances follow.
+    temp <- .subset.Cor2DataFrame(data, subset.variables, cor.analysis=TRUE)
+    obslabels <- temp$obslabels
     ylabels <- temp$ylabels
-    vlabels <- temp$vlabels        
+    vlabels <- temp$vlabels
   } else {
     obslabels <- data$obslabels
     ylabels <- data$ylabels
@@ -733,9 +802,62 @@ osmasem <- function(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
 
   ## If RAM is provided, create the matrices based on it.
   if (!is.null(RAM)) {
+    RAM <- .match.RAM.obs(RAM, obslabels, subset.hint=is.null(subset.variables))
+    ## Bounds from inequalities in the lavaan syntax (see lavaan2RAM()) are
+    ## applied by label to the model below. On the A matrix, 'A.lbound' and
+    ## 'A.ubound' take precedence.
+    A.parameters <- as.mxMatrix(RAM$A, name="A")
+    A.labels <- A.parameters$labels
+    RAM.lbound <- attr(RAM, "lbound")
+    RAM.ubound <- attr(RAM, "ubound")
+    overridden <- function(bound) {
+      if (is.null(bound)) return(NULL)
+      if (!(is.numeric(bound) || is.logical(bound)) || is.complex(bound) || !length(bound))
+        stop("A bounds must be numeric and nonempty.", call.=FALSE)
+      if (is.logical(bound)) bound <- bound * 1
+      if (!is.matrix(bound))
+        bound <- matrix(bound, nrow=nrow(A.labels), ncol=ncol(A.labels))
+      if (!identical(dim(bound), dim(A.labels)))
+        stop("The dimensions of the A bounds do not match those in the RAM A matrix.", call.=FALSE)
+      use <- !is.na(bound) & !is.na(A.labels) & A.parameters$free
+      labels <- A.labels[use]; values <- bound[use]
+      for (lab in unique(labels))
+        if (length(unique(values[labels == lab])) > 1L)
+          stop("Conflicting A bounds for shared parameter '", lab, "'.", call.=FALSE)
+      keep <- !duplicated(labels)
+      as.list(setNames(values[keep], labels[keep]))
+    }
+    A.lower.override <- overridden(A.lbound)
+    A.upper.override <- overridden(A.ubound)
+    RAM.lbound <- RAM.lbound[setdiff(names(RAM.lbound), names(A.lower.override))]
+    RAM.ubound <- RAM.ubound[setdiff(names(RAM.ubound), names(A.upper.override))]
     Mmatrix <- create.vechsR(A0=RAM$A, S0=RAM$S, F0=RAM$F, Ax=Ax, Sx=Sx,
                              A.lbound=A.lbound, A.ubound=A.ubound)
     Tmatrix <- create.Tau2(RAM=RAM, RE.type=RE.type, RE.User=RE.User, Transform="expLog")
+  } else if (inherits(Mmatrix$Fmatrix, "MxMatrix")) {
+    filter <- Mmatrix$Fmatrix
+    if (nrow(filter$values) != length(obslabels))
+      stop("Mmatrix has ", nrow(filter$values), " observed variables, but the data have ",
+           length(obslabels), ". Check 'subset.variables' and the model.", call.=FALSE)
+    obs <- rownames(filter$values)
+    if (is.null(obs) && !is.null(Mmatrix$A0) &&
+        nrow(filter$values) == ncol(filter$values) &&
+        isTRUE(all.equal(unname(filter$values), diag(nrow(filter$values)))) &&
+        !any(filter$free)) {
+      obs <- rownames(Mmatrix$A0$values)
+      if (!is.null(obs)) dimnames(filter@values) <- list(obs, obs)
+    }
+    if (!is.null(obs)) {
+      if (length(obs) == length(obslabels) && !anyDuplicated(obs) &&
+          !anyDuplicated(obslabels) && setequal(obs, obslabels)) {
+        filter <- filter[match(obslabels, obs), , drop=FALSE]
+      } else {
+        warning("Observed variable names in Mmatrix and data do not match; ",
+                "matching by position. Check the variable order and possible typos; ",
+                "estimates may be affected.", call.=FALSE)
+      }
+    }
+    Mmatrix$Fmatrix <- filter
   }
 
   ## Create known sampling variance covariance matrix
@@ -775,7 +897,8 @@ osmasem <- function(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
     }
     ## check if they are mxalgebra, not mxconstraint
     algebra.names <- names(RAM$mxalgebras)
-    isalgebra <- !grepl("^constraint[0-9]+", algebra.names)
+    isalgebra <- !vapply(RAM$mxalgebras, inherits, logical(1),
+                         what="MxConstraint")
     if (any(isalgebra)) {
       mx.model <- mxModel(mx.model, mxCI(algebra.names[isalgebra]))
     }
@@ -790,28 +913,56 @@ osmasem <- function(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
 
   ## Assign same starting values, e.g., A and S matrices are different from those in provided in Jmatrix
   mx.model <- omxAssignFirstParameters(mx.model)
+  if (!is.null(RAM)) {
+    mx.model <- .set.label.bounds(mx.model, RAM.lbound, RAM.ubound)
+    ## Apply explicit overrides by label after OpenMx reconciles shared
+    ## parameters, so an NA in another occurrence cannot erase the bound.
+    mx.model <- .set.label.bounds(mx.model, A.lower.override, A.upper.override)
+  }
+  mx.model <- .tighten.feasibility(mx.model)
     
+  warning.msg <- error.msg <- NULL
   if (run) {
-    warning.msg <- error.msg <- NULL
-    mx.fit <- tryCatch(do.call(mxRun, c(list(mx.model, intervals=intervals,
-                                             suppressWarnings=suppressWarnings,
-                                             silent=silent),
-                                        mxRun.Args)),
-                       warning = function(w) {
-                         warning.msg <<- conditionMessage(w)
-                         cat(warning.msg)
-                       },
-                       error=function(e) {
-                         error.msg <<- conditionMessage(e)
-                         cat(error.msg)
-                       })
+    mx.fit <- tryCatch(
+      withCallingHandlers(
+        do.call(mxRun, c(list(mx.model, intervals=intervals,
+                              suppressWarnings=suppressWarnings,
+                              silent=silent), mxRun.Args)),
+        warning=function(w) {
+          warning.msg <<- c(warning.msg, conditionMessage(w))
+          invokeRestart("muffleWarning")
+        }),
+      error=function(e) {
+        error.msg <<- conditionMessage(e)
+        e
+      })
+    if (inherits(mx.fit, "error")) stop(mx.fit)
+    ## Retry a fit without status 0 or 1 (see .retry.bad.status()).
+    status <- NULL
+    if (!.status.ok(mx.fit)) {
+      status <- mx.fit@output$status$code
+      record <- function(expr) withCallingHandlers(
+        tryCatch(expr, error=function(e) e),
+        warning=function(w) {
+          warning.msg <<- c(warning.msg, conditionMessage(w))
+          invokeRestart("muffleWarning")
+        })
+      mx.fit <- .retry.bad.status(mx.fit, record=record,
+                                  rerun=if (intervals) function(fit)
+                                    do.call(mxRun, c(list(fit, intervals=TRUE,
+                                                          suppressWarnings=TRUE,
+                                                          silent=silent), mxRun.Args)))
+    }
+    ## Warnings are recorded so that they cannot abort the fit, and are
+    ## shown after it unless suppressWarnings=TRUE.
+    if (!suppressWarnings)
+      for (w in unique(warning.msg)) warning(w, call.=FALSE)
+    mx.fit <- .check.constraints(mx.fit, intervals=intervals)
+    .warn.bad.status(mx.fit, status)
+    if (!is.null(mx.fit$Tau2))
+      .warn.Tau.not.psd(mxEvalByName("Tau2", mx.fit, compute=TRUE), "Tau2")
   } else {
     mx.fit <- mx.model
-  }
-
-  # try to run it with error message as output
-  if (inherits(mx.fit, "error")) {
-    warning(print(mx.fit))
   }
 
   out <- list(call=match.call(), 
@@ -834,24 +985,68 @@ osmasem <- function(model.name="osmasem", RAM=NULL, Mmatrix=NULL,
 }
 
 coef.osmasem <- function(object, select=c("fixed", "all", "random"), ...) {
-  if (!is.element("osmasem", class(object)))
+  if (!inherits(object, "osmasem"))
     stop("\"object\" must be an object of class \"osmasem\".")
     
   mx.coef <- coef(object$mx.fit)
   ## index for untransformed random effects (not the correct ones!) 
-  index <- grep("Tau1_|Cor_", names(mx.coef))
+  index <- names(mx.coef) %in% .osmasem.random.labels(object)
   
   select <- match.arg(select)
   switch(select,
-         fixed =  mx.coef <- mx.coef[-index],
+         fixed =  mx.coef <- mx.coef[!index],
          random = mx.coef <- mx.coef[index])
   if (select!="fixed") warning("\"Tau1_xx\" is not the variance component of the random effects.\nPlease use VarCorr() to get the variance component.\n")    
   mx.coef    
 }
 
+## Heterogeneity labels come from the actual random-effects matrices, not
+## from substrings in arbitrary user-supplied fixed-effect labels.
+.osmasem.random.labels <- function(object) {
+  matrices <- object$Tmatrix
+  if (is.null(matrices)) return(character())
+  unique(unlist(lapply(matrices, function(m) {
+    if (inherits(m, "MxMatrix")) m$labels[m$free] else NULL
+  }), use.names=FALSE))
+}
+
+## Set lower and upper bounds (named lists keyed by parameter label) on the
+## free parameters of an osmasem() model, in whichever matrix they are.
+## Parameters that are not free in the model (e.g., error variances that
+## osmasem() computes from the other parameters) are ignored with a warning.
+.set.label.bounds <- function(model, lbound=NULL, ubound=NULL) {
+  free <- names(omxGetParameters(model))
+  ignored <- setdiff(names(c(lbound, ubound)), free)
+  if (length(ignored))
+    warning("Bounds on parameter(s) ", paste(unique(ignored), collapse=", "),
+            " are ignored: they are not free parameters in the osmasem() model.",
+            call.=FALSE)
+  lbound <- lbound[intersect(names(lbound), free)]
+  ubound <- ubound[intersect(names(ubound), free)]
+  if (length(lbound))
+    model <- omxSetParameters(model, labels=names(lbound), lbound=unlist(lbound))
+  if (length(ubound))
+    model <- omxSetParameters(model, labels=names(ubound), ubound=unlist(ubound))
+  model
+}
+
+## Covariance of the estimates of osmasem() and osmasem2() fits. With
+## mxConstraints, OpenMx's covariance (also the bread of imxRobustSE()) is
+## replaced by .model.vcov() and the sandwich of .robust.observation.vcov().
+.osmasem.vcov <- function(model, robust=FALSE) {
+  if (!.has.constraints(model)) {
+    if (robust) suppressMessages(imxRobustSE(model, details=TRUE))$cov
+    else vcov(model)
+  } else if (robust) {
+    .robust.observation.vcov(model)
+  } else {
+    .model.vcov(model)
+  }
+}
+
 vcov.osmasem <- function(object, select=c("fixed", "all", "random"),
                          robust=FALSE, ...) {
-  if (!is.element("osmasem", class(object)))
+  if (!inherits(object, "osmasem"))
     stop("\"object\" must be an object of class \"osmasem\".")
   
   # labels of the parameters    
@@ -860,26 +1055,16 @@ vcov.osmasem <- function(object, select=c("fixed", "all", "random"),
   my.name <- my.name[!is.na(my.name)]
 
   ## index for untransformed random effects (not the correct ones!) 
-  index.random <- grep("Tau1_|Cor_", my.name) 
+  index.random <- my.name %in% .osmasem.random.labels(object)
 
-  ## Fix a bug reported by Zhiming Lu with index.random=integer(0) when there is no random effects with RE.type="Zero"
   select <- match.arg(select)
-    
-  if (length(index.random) != 0) {             
-    switch( select,
-           ## all = my.name <- my.name,
-           fixed =  my.name <- my.name[-index.random],
-           random = my.name <- my.name[index.random]
-           )
-  }
+  switch(select,
+    fixed = my.name <- my.name[!index.random],
+    random = my.name <- my.name[index.random])
 
-  if (robust) {
-    out <- suppressMessages(imxRobustSE(object$mx.fit, details=TRUE))$cov
-  } else {
-    out <- vcov(object$mx.fit)
-  }
+  out <- .osmasem.vcov(object$mx.fit, robust=robust)
   if (select!="fixed") warning("\"Tau1_xx\" is not the variance component of the random effects.")
-  out[my.name, my.name]
+  out[my.name, my.name, drop=FALSE]
 }
 
 
@@ -914,9 +1099,9 @@ VarCorr <- function(x, ...) {
   ## switch(class(x)[1],
   ## Assuming only one class in x
   switch(class(x)[class(x) %in% c("meta", "osmasem", "osmasem3L")],
-         meta = out <- eval(parse(text="mxEval(Tau, x$mx.fit)")),
+         meta = out <- mxEvalByName("Tau", x$mx.fit),
          osmasem = {
-           out <- eval(parse(text="mxEval(Tau2, x$mx.fit)"))
+           out <- mxEvalByName("Tau2", x$mx.fit)
            
            ## ## No. of variables in the model
            ## p <- ncol(out)
@@ -928,14 +1113,14 @@ VarCorr <- function(x, ...) {
            dimnames(out) <- list(names.tau2, names.tau2)},
          osmasem3L = {
            ## Tau2 (within)
-           Tau2W <- eval(parse(text="mxEval(Tau2W, x$mx.fit)"))
+           Tau2W <- mxEvalByName("Tau2W", x$mx.fit)
            ## Labels ended with "W"
            names.tau2W <- gsub("W$", "", c(x$TmatrixW$vecTau1$labels))
            names.tau2W <- gsub("Tau1", "Tau2", names.tau2W)               
            dimnames(Tau2W) <- list(names.tau2W, names.tau2W)
 
            ## Tau2 (between)
-           Tau2B <- eval(parse(text="mxEval(B.Tau2B, x$mx.fit)"))
+           Tau2B <- mxEvalByName("B.Tau2B", x$mx.fit)
            ## Labels ended with "B" 
            names.tau2B <- gsub("B$", "", c(x$TmatrixB$vecTau1$labels))
            names.tau2B <- gsub("Tau1", "Tau2", names.tau2B)
@@ -965,13 +1150,19 @@ VarCorr <- function(x, ...) {
     data <- osmasem.obj$data
     ylabels <- osmasem.obj$labels$ylabels
     Vmatrix <- osmasem.obj$Vmatrix        
+    subset.rows <- osmasem.obj$subset.rows
   } else {
-    ## FIXME: It does not work.
-    ## If there is no osmasem.obj, create a new saturated/independence model from data.
+    ## Build a saturated/independence model directly from Cor2DataFrame data.
+    if (missing(data) || is.null(data$data) || is.null(data$ylabels) ||
+        is.null(data$vlabels))
+      stop("'data' must be an object returned by Cor2DataFrame().")
+    if (missing(Tmatrix))
+      stop("'Tmatrix' is required when 'osmasem.obj' is NULL.")
     ylabels <- data$ylabels
     p <- length(ylabels)
     ## Create known sampling variance covariance matrix
-    Vmatrix <- create.V(data$labels$vlabels, type="Symm", as.mxMatrix=TRUE)
+    Vmatrix <- create.V(data$vlabels, type="Symm", as.mxMatrix=TRUE)
+    subset.rows <- rep(TRUE, nrow(data$data))
   }    
 
   model <- match.arg(model)
@@ -983,8 +1174,6 @@ VarCorr <- function(x, ...) {
                         labels=paste0("Mu", seq_len(p)),
                         nrow=1, ncol=p, dimnames=list(NULL, ylabels), name="Mu")
     
-    Mmatrix <- mxMatrix(type="Full", free=TRUE, labels=paste0("Mu", seq_len(p)),
-                        nrow=1, ncol=p, name="Mu")
   } else {
     ## Independence model
     Mmatrix <- mxMatrix(type="Full", free=FALSE, labels=paste0("Mu", seq_len(p)),
@@ -992,14 +1181,14 @@ VarCorr <- function(x, ...) {
   }
 
   ## Filter the data for the analysis
-  mx.data <- data$data[osmasem.obj$subset.rows, ]
+  mx.data <- data$data[subset.rows, , drop=FALSE]
   
   ## Dirty trick to avoid the warning of "no visible binding for global variable"
   mx.model <- eval(parse(text="mxModel(model=model,
                                mxData(observed=mx.data, type='raw'),
                                mxExpectationNormal(covariance='expCov',
                                                    means='Mu',
-                                                   dimnames=osmasem.obj$labels$ylabels),
+                                                   dimnames=ylabels),
                                mxFitFunctionML(), Mmatrix, Tmatrix, Vmatrix,
                                mxAlgebra(Tau2+V, name='expCov'))"))
     
@@ -1040,7 +1229,7 @@ anova.osmasem <- function(object, ..., all=FALSE) {
 
 summary.osmasem <- function(object, fitIndices=FALSE, numObs,
                             robust=FALSE, ...) {
-  if (!is.element("osmasem", class(object)))
+  if (!inherits(object, "osmasem"))
     stop("\"object\" must be an object of class \"osmasem\".")
   
   ## Ind.stat <- summary(.osmasemSatIndMod(object, model="Independence",
@@ -1129,15 +1318,16 @@ summary.osmasem <- function(object, fitIndices=FALSE, numObs,
     out <- summary(object$mx.fit, numObs=numObs, ...)
   }
 
-  ## Modified the SE with robust SE
-  if (robust) {
-    robust.SE <- suppressMessages(imxRobustSE(object$mx.fit))
-    out$parameters[, "Std.Error"] <- robust.SE[out$parameters$name]
+  ## Modified the SE with robust SE, or with model-based SE when there are
+  ## mxConstraints
+  if (robust || .has.constraints(object$mx.fit)) {
+    SE <- sqrt(diag(.osmasem.vcov(object$mx.fit, robust=robust)))
+    out$parameters[, "Std.Error"] <- SE[out$parameters$name]
   }
 
   ## Additional output to the mx summary
-  out$parameters$`z value` <- with(out$parameters, Estimate/Std.Error)
-  out$parameters$`Pr(>|z|)` <- 2*(1-pnorm(abs(out$parameters$`z value`)))
+  out$parameters$`z value` <- out$parameters$Estimate / out$parameters$Std.Error
+  out$parameters$`Pr(>|z|)` <- 2*pnorm(-abs(out$parameters$`z value`))
   out
 }
 
@@ -1149,8 +1339,8 @@ summary.osmasem <- function(object, fitIndices=FALSE, numObs,
 #' heterogeneity variances.
 #' 
 #' 
-#' @param model1 An object in class \code{osmasem}.
-#' @param model0 An object in class \code{osmasem}.
+#' @param model1 An object inheriting from class \code{osmasem}.
+#' @param model0 An object inheriting from class \code{osmasem}.
 #' @param R2.truncate Whether to truncate the negative R2 to zero.
 #' @return \code{model1} and \code{model0} are the models with and without the
 #' moderators, respectively. The function does not check whether the models are
@@ -1162,7 +1352,7 @@ summary.osmasem <- function(object, fitIndices=FALSE, numObs,
 #' @seealso \code{\link[metaSEM]{osmasem}}
 #' @keywords osmasem osmasem3L
 osmasemR2 <- function(model1, model0, R2.truncate=TRUE) {
-  if (!all(c(class(model0), class(model1)) %in% "osmasem"))
+  if (!inherits(model0, "osmasem") || !inherits(model1, "osmasem"))
     stop("Both \"model0\" and \"model1\" must be objects of class \"osmasem\".")
 
   ## Tau2.0 <- diag(eval(parse(text = "mxEval(Tau2, model0$mx.fit)")))       
@@ -1206,10 +1396,10 @@ osmasemSRMR <- function(x) {
   Sat.stat <- .osmasemSatIndMod(x, model="Saturated", Std.Error=FALSE, silent=TRUE)
 
   ## Similar to the sample correlation matrix
-  sampleR <- vec2symMat(eval(parse(text = "mxEval(Mu, Sat.stat)")), diag=FALSE)
+  sampleR <- vec2symMat(mxEvalByName("Mu", Sat.stat), diag=FALSE)
 
   ## Model implied correlation matrix
-  impliedR <- mxEval(impliedR, x$mx.fit)
+  impliedR <- mxEvalByName("impliedR", x$mx.fit)
 
   ## SRMR (Cheung, 2015 book, Eq. 2.36)
   sqrt(mean(vechs(sampleR-impliedR)^2))

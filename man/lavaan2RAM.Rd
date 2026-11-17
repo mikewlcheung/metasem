@@ -16,7 +16,14 @@ lavaan2RAM(
   auto.var = TRUE,
   std.lv = TRUE,
   ngroups = 1,
-  ...
+  auto.cov.lv.x = FALSE,
+  auto.cov.x = FALSE,
+  auto.cov.y = FALSE,
+  auto.fix.first = FALSE,
+  auto.fix.single = FALSE,
+  constraints = NULL,
+  ...,
+  auto = NULL
 )
 }
 \arguments{
@@ -55,11 +62,13 @@ free. See \code{\link[lavaan]{model.syntax}}.}
 
 \item{std.lv}{Logical. If \code{TRUE} (the default), the metric of each
 latent variable is determined by fixing their variances to 1.0. If
-\code{FALSE}, the metric of each latent variable is determined by fixing
-the factor loading of the first indicator to 1.0. See
-\code{\link[lavaan]{model.syntax}}. \code{std.lv=TRUE} always fixes every
-latent variable's variance at 1, even overriding an explicit \code{"~~"}
-specification for it in \code{model} (e.g. \code{"f ~~ c(vf1,vf2)*f"} to
+\code{FALSE}, no marker loading is fixed automatically: fix a loading or
+variance in the model, or set \code{auto.fix.first=TRUE}. A warning is
+issued if no fixed nonzero loading or variance, or label constrained to a
+nonzero constant, is found for a factor; this heuristic is not a complete
+identification check. \code{std.lv=TRUE} fixes a latent variance at 1 unless the model explicitly
+fixes it to another value, and can override a free \code{"~~"} specification
+in \code{model} (e.g. \code{"f ~~ c(vf1,vf2)*f"} to
 free a factor's variance per group) with no error -- the label is simply
 discarded, since the parameter is fixed rather than estimated. Pass
 \code{std.lv=FALSE} whenever \code{model} identifies a latent variable's
@@ -70,15 +79,31 @@ when this happens (any parameter given an explicit label in \code{model}
 that ends up fixed rather than free), but the warning is general --
 checking \code{std.lv} first is faster than working backward from it.}
 
-\item{ngroups}{Number. The number of groups in the \code{model}. See
+\item{ngroups}{Positive integer. The number of groups in the \code{model}.
+A numeric character value is accepted with a deprecation warning. See
 \code{\link[lavaan]{model.syntax}}. Parameters without an explicit label
 in \code{model} are free and distinct in each group by default (as in
 \code{lavaan}); use \code{lavaan}'s \code{c(label, label)} syntax to
 constrain a parameter to be equal across groups. Has no effect (and is
-rejected with an error) on two-level (\code{level:}) models -- see below.}
+rejected with an error) on two-level (\code{level:}) models unless
+\code{group:} and \code{level:} blocks are nested -- see below. Groups
+are numbered in the order of their \code{group:} blocks, whatever their
+labels (e.g., \code{group: B} before \code{group: A}), because
+\code{lavaan} and \code{\link{sem}} pair them with the groups in the data
+by position. The block labels are stored in the
+\code{"group.labels"} attribute.}
 
-\item{\dots}{Further arguments to be passed to
-\code{\link[lavaan]{model.syntax}}}
+\item{auto.cov.lv.x, auto.cov.x, auto.cov.y}{Logical, default \code{FALSE}. Request lavaan's automatic covariances for exogenous latent variables, exogenous observed variables, and dependent variables, respectively.}
+
+\item{auto.fix.first}{Logical, default \code{FALSE}. Fix the first loading of each factor to one. With \code{std.lv=TRUE} this can impose an additional restriction because the latent variance is also fixed.}
+
+\item{auto.fix.single}{Logical, default \code{FALSE}. Fix the residual variance of a single indicator to zero.}
+
+\item{constraints}{Optional lavaan constraints using explicit parameter labels. Defined parameters and equality and inequality constraints may also be included in \code{model}; see the limitations below.}
+
+\item{\dots}{Reserved for detecting unsupported arguments. Arbitrary arguments are not passed to \code{lavaanify}; use exact argument names. In particular, \code{orthogonal}, \code{warn}, \code{debug}, \code{effect.coding}, \code{group.equal}, and \code{correlation} are not supported. Specify shared group parameters with explicit labels.}
+
+\item{auto}{Reserved to detect an unsupported argument; do not supply it. It is not lavaan's \code{auto} option.}
 }
 \value{
 A list of RAM specification with \code{A}, \code{S}, \code{F}, and
@@ -88,29 +113,67 @@ group) is returned instead, with class \code{"RAM_multigroup"}. When
 \code{level: 2} blocks), a list with \code{within} and \code{between}
 elements (each themselves a list of \code{A}, \code{S}, \code{F}, and
 \code{M} matrices) is returned instead, with class \code{"RAM_twolevel"}.
-Level-1 (within) manifest variables default to a fixed-at-zero mean (the
-overall intercept lives at the between level by convention); level-2
+Level-1 (within) manifest variables that also appear at level 2 default
+to a fixed-at-zero mean (the overall intercept lives at the between level
+by convention), whereas within-only observed variables, which have no
+between component, default to a free level-1 mean, as in \code{lavaan};
+level-2
 (between) "shadow" variables backing a level-1 manifest variable default
 to a free mean, while genuine level-2-only latent factors default to
 fixed-at-zero, mirroring the usual latent-variable convention. Genuine
 level-2-only observed covariates (e.g. a real cluster-level covariate
 with its own data column, as opposed to a level-1 manifest variable's
-between-cluster component) are not yet supported and raise an error,
-rather than being silently treated as an ordinary latent variable with
-no connection to any data; neither is combining two-level with multiple
-groups (also an error).
+between-cluster component) are supported when their data values are
+constant within each cluster. Models with nested \code{group:} and
+\code{level:} blocks and \code{ngroups > 1} return a list of two-level
+RAM objects with class \code{"RAM_multigroup_twolevel"}.
 }
 \description{
+Automatically generated parameter labels that collide with another parameter are made unique with an \code{_auto} suffix and a warning.
+
+Variable names and ordinary parameter labels must not contain periods. Rename consistently throughout the model and data, e.g., \code{x.1} to \code{x_1}, and check that the new names are unique. Definition-variable references such as \code{data.x_1} remain supported: only the column name following \code{data.} must be period-free. Group and cluster values may contain periods.
+
 It converts models specified in \code{lavaan} model syntax to RAM models.
 }
 \details{
+Continuous RAM syntax supports regressions, loadings, variances, covariances, means, and the constraints described below. Ordinal thresholds, composites, exploratory factor blocks, scaling operators, and group weights are not supported and are rejected. The returned RAM describes a covariance model; correlation restrictions are handled by the fitting function (for example, \code{cor.analysis} in \code{wls} or \code{osmasem2}).
+
+
+Automatically generated observed intercepts are free by default. For a
+free latent mean with one indicator, the indicator intercept defaults to
+zero for compatibility. With several indicators, specify an identifying
+intercept constraint; a warning is given when all are free. For two-level
+models the warning is checked separately at each level and does not impose
+an identifying constraint.
+
 It uses the \code{\link[lavaan]{model.syntax}} to do the conversion.
 Experimental: functions of parameters (`:=` in lavaan) and constraints
 (`==`, `>`, and `<` in lavaan) will be converted to mxAlgebra and
 mxConstraint in OpenMx. As there are differences between lavaan and OpenMx,
 they may not work properly.
+
+An inequality between a parameter and a constant, e.g., \code{b > 0},
+\code{2 < c}, or \code{lower(0)*x}, is converted to a bound on that
+parameter rather than to an mxConstraint. This includes parameters introduced
+only in equality expressions. The bounds are stored in the
+\code{"lbound"} and \code{"ubound"} attributes of the output (named lists
+keyed by parameter label) and are applied by \code{\link{sem}},
+\code{\link{wls}} (and hence \code{\link{tssem2}}), \code{\link{osmasem}},
+and \code{\link{osmasem2}}. \code{\link{osmasem}} ignores, with a
+warning, bounds on parameters that it computes rather than estimates
+(e.g., error variances of dependent variables), and its \code{A.lbound}
+and \code{A.ubound} arguments take precedence on the \code{A} matrix.
+Other inequalities, e.g., \code{b > 2*a}, remain
+mxConstraints, which OpenMx satisfies within its feasibility tolerance
+(see \code{\link[OpenMx]{mxOption}}).
 }
 \examples{
+## Request an automatic residual covariance between dependent variables.
+lavaan2RAM("y ~ x\nz ~ x", auto.cov.y=TRUE)
+## Choose a marker-loading scale when the latent variance is not fixed.
+lavaan2RAM("f =~ y1 + y2 + y3", std.lv=FALSE, auto.fix.first=TRUE)
+## Parameter constraints use explicit labels.
+lavaan2RAM("y ~ b*x", constraints="b == 0.5")
 
 ## Regression model on correlation matrix
 model1 <- "## y is modelled by x1, x2, and x3

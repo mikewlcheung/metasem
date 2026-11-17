@@ -6,28 +6,37 @@
 \alias{tssem1REM}
 \title{First Stage of the Two-Stage Structural Equation Modeling (TSSEM)}
 \usage{
-tssem1(
-  Cov,
-  n,
-  method = c("REM", "FEM"),
-  cor.analysis = TRUE,
-  cluster = NULL,
-  RE.type = c("Diag", "Symm", "Zero", "User"),
-  RE.startvalues = 0.1,
-  RE.lbound = 1e-10,
-  RE.constraints = NULL,
-  I2 = "I2q",
-  acov = c("weighted", "individual", "unweighted"),
-  asyCovOld = FALSE,
-  model.name = NULL,
-  suppressWarnings = TRUE,
-  silent = TRUE,
-  run = TRUE,
-  ...
-)
+tssem1(Cov, n, method = c("REM", "FEM"), cor.analysis = TRUE,
+    cluster = NULL, RE.type = c("Diag", "Symm", "Zero",
+        "User"), RE.startvalues = 0.1, RE.lbound = 1e-10,
+    RE.constraints = NULL, I2 = "I2q", acov = c("weighted",
+        "individual", "unweighted"), asyCovOld = FALSE,
+    model.name = NULL, suppressWarnings = TRUE, silent = TRUE,
+    run = TRUE, ...)
+tssem1FEM(Cov, n, cor.analysis = TRUE, model.name = NULL,
+    cluster = NULL, suppressWarnings = TRUE, silent = TRUE,
+    run = TRUE, ...)
+tssem1REM(Cov, n, cor.analysis = TRUE, RE.type = c("Diag",
+    "Symm", "Zero", "User"), RE.startvalues = 0.1,
+    RE.lbound = 1e-10, RE.constraints = NULL, I2 = "I2q",
+    acov = c("weighted", "individual", "unweighted"),
+    asyCovOld = FALSE, model.name = NULL, suppressWarnings = TRUE,
+    silent = TRUE, run = TRUE, ...)
 }
 \arguments{
-\item{Cov}{A list of correlation/covariance matrices}
+\item{Cov}{A list of correlation/covariance matrices. For both TSSEM methods,
+named matrices must all have unique row and column names for the
+same variables; each study is aligned to the first study's variable order
+before pooling and calculating sampling covariances. If all matrices are
+unnamed, their positions are used. Fixed-effects TSSEM requires complete
+correlations among the variables present in each study; random-effects
+TSSEM can handle partially missing correlations. It rejects a reported
+statistic whose sampling variance is unavailable rather than silently
+removing that statistic. Supply the missing information or choose an
+appropriate pooled working matrix. For correlation analysis, reported covariances require both corresponding variances so they can be standardized.
+Fixed-effects covariance analysis retains studies reporting only a variance.
+Fixed-effects correlation analysis rejects studies with no observed correlations;
+covariance analysis rejects studies with no observed variances.}
 
 \item{n}{A vector of sample sizes}
 
@@ -86,8 +95,7 @@ or weighted mean with the sample sizes. The average correlation/covariance
 matrix is used to calculate the sampling variance-covariance matrices. This
 argument is ignored with the \code{method="FEM"} argument.}
 
-\item{asyCovOld}{Whether the old \code{asyCov} is used. See
-\code{\link[metaSEM]{asyCov}}.}
+\item{asyCovOld}{Whether to use the legacy Hessian-based method. It requires complete covariances among retained variables in its working matrix. \code{asyCov()} is preferred. See \code{\link[metaSEM]{asyCov}}.}
 
 \item{model.name}{A string for the model name in
 \code{\link[OpenMx]{mxModel}}.}
@@ -110,10 +118,14 @@ an object of class \code{tssem1FEM.cluster} for fixed-effects TSSEM with
 random-effects TSSEM.
 }
 \description{
+Variable names and data column names must not contain periods. Rename them consistently, for example \code{x.1} to \code{x_1}, and check that the new names are unique. Study, group, and cluster values may contain periods.
+
 It conducts the first stage analysis of TSSEM by pooling
 correlation/covariance matrices. \code{tssem1FEM()} and \code{tssem1REM()}
 use fixed- and random-effects models, respectively. \code{tssem1()} is a
 wrapper of these functions.
+The fixed-effects summary reports RMSEA using total sample size N as the
+denominator; see \code{\link[metaSEM]{summary}} for the formula.
 }
 \references{
 Cheung, M. W.-L. (2014). Fixed- and random-effects meta-analytic

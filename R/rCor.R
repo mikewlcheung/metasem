@@ -2,6 +2,8 @@
 
 
 #' Generate (Nested) Sample/Population Correlation/Covariance Matrices
+#'
+#' Variable names and data column names must not contain periods. Rename them consistently, for example \code{x.1} to \code{x_1}, and check that the new names are unique. Study, group, and cluster values may contain periods.
 #' 
 #' It generates (nested) random sample or population correlation or covariance
 #' matrices. \code{rCor()} is a wrapper to call \code{rCorPop()} and then
@@ -15,6 +17,8 @@
 #' @param V.B A variance-covariance matrix of between-study Sigma.
 #' @param V.W A variance-covariance matrix of within-study Sigma
 #' @param n A vector or a single sample sizes.
+#' For \code{rCorSam()}, \code{Sigma} and \code{n} must have equal lengths,
+#' or either may have length one and be reused for each element of the other.
 #' @param cluster A vector of number of studies in clusters.
 #' @param corr Logical. Whether to generate correlation or covariance matrices.
 #' @param raw.data Logical. Whether correlation/covariance matrices are
@@ -73,6 +77,8 @@ rCor <- function(Sigma, V, n, corr=TRUE, raw.data=FALSE,
 #' @rdname rCor
 rCorPop <- function(Sigma, V, k, corr=TRUE,
                     nonPD.pop=c("replace", "nearPD", "accept")) {
+
+  .check.cov.names(Sigma)
 
   ## Convert them to matrices
   if (!is.matrix(Sigma)) Sigma <- as.matrix(Sigma)
@@ -207,11 +213,16 @@ print.summary.CorPop <- function(x, ...) {
 #' @rdname rCor
 rCorSam <- function(Sigma, n, corr=TRUE, raw.data=FALSE,
                     nonPD.sam=c("stop", "nearPD")) {
+  .check.cov.names(Sigma)
   ## Convert Sigma into a list
   if (!is.list(Sigma)) Sigma <- list(Sigma)
   
   ## Convert Sigma into matrices
   Sigma <- lapply(Sigma, as.matrix)
+
+  if (length(Sigma) == 0L || length(n) == 0L ||
+      (length(Sigma) != length(n) && length(Sigma) != 1L && length(n) != 1L))
+    stop("'Sigma' and 'n' must have equal lengths, or one must have length 1.", call.=FALSE)
 
   nonPD.sam <- match.arg(nonPD.sam)
     

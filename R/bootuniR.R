@@ -50,6 +50,8 @@ bootuniR1 <- function(x, Rep, nonPD.pop=c("replace", "nearPD", "accept")) {
 #' al. (2016). It is included in this package for research interests. Please
 #' refer to Cheung (2018) for the issues associated with this parametric
 #' bootstrap approach.
+#' Variable names and ordinary parameter labels must not contain periods;
+#' rename consistently, e.g., \code{x.1} to \code{x_1}.
 #' 
 #' @param model A model in \code{\link[lavaan]{sem}} syntax.
 #' @param data A list of correlation matrices.
@@ -69,6 +71,8 @@ bootuniR1 <- function(x, Rep, nonPD.pop=c("replace", "nearPD", "accept")) {
 #' modeling.  \emph{Journal of Applied Psychology}, \bold{101}, 1457-1473.
 #' @keywords bootuniR
 bootuniR2 <- function(model, data, n, ...) {
+  .check.cov.names(data)
+  .check.lavaan.model.names(model)
   ## if (!requireNamespace("lavaan", quietly=TRUE))
   ##   stop("\"lavaan\" package is required for this function.")
 

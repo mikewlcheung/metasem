@@ -19,6 +19,9 @@ bootuniR2(model, data, n, ...)
 A list of the fitted object from \code{\link[lavaan]{sem}}.
 }
 \description{
+Variable names and ordinary parameter labels must not contain periods;
+rename consistently, e.g., \code{x.1} to \code{x_1}.
+
 It fits structural equation models on the bootstrapped correlation matrices.
 }
 \details{

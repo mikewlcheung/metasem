@@ -14,14 +14,18 @@ If it is \code{FALSE}, it shows the pattern of data that are present.}
 
 \item{type}{If it is \code{tssem}, it reports the pattern of missing
 correlations for the tssem approach. If it is \code{osmasem}, it reports the
-pattern of missing correlations for the data created by
-\code{\link[metaSEM]{Cor2DataFrame}}.}
+pairwise pattern for the data created by
+\code{\link[metaSEM]{Cor2DataFrame}}: present counts require both statistics
+to be observed, and missing counts require both to be missing.}
 }
 \value{
 A square matrix of numerical values with the same dimensions of the
 input matrices.
 }
 \description{
+Variable names must not contain periods; rename them consistently, e.g.,
+\code{x.1} to \code{x_1}, and check for duplicate names.
+
 It displays the pattern of missing data (or pattern of data that are
 present) of a list of square matrices with the same dimensions.
 }

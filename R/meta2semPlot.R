@@ -45,9 +45,11 @@ meta2semPlot <- function(object, manNames=NULL, latNames=NULL, labels=c("labels"
 
        F <- object$mx.fit@matrices$Fmatrix$values
        ## Try to get the names of the latent variables
-       lat_index <- dimnames(F)[[2]] %in% dimnames(F)[[1]]
-       lat_names <- dimnames(F)[[2]][!lat_index]
-       F <- unname(F)
+       selector <- all(is.finite(F)) && all(F %in% c(0, 1)) &&
+                   all(rowSums(F) == 1) && all(colSums(F) <= 1)
+       observed <- if (selector) colSums(F) == 1 else
+                   dimnames(F)[[2]] %in% dimnames(F)[[1]]
+       lat_names <- colnames(F)[!observed]
 
        Id <- diag(nrow(S))
        ObsCovs <- object$Cov
@@ -75,9 +77,19 @@ meta2semPlot <- function(object, manNames=NULL, latNames=NULL, labels=c("labels"
                if (no.latent > 0) latNames <- paste("L", seq(1,no.latent), sep="")
            }    
        }
-    
-       out <- semPlot::ramModel(A=A, S=S, F=F, manNames=manNames, latNames=latNames, ObsCovs=ObsCovs, 
-                                ImpCovs=ImpCovs, ...)
+
+       if (selector && !("Names" %in% names(list(...)))) {
+           node.names <- character(ncol(F))
+           node.names[observed] <- manNames[max.col(t(F[, observed, drop=FALSE]))]
+           node.names[!observed] <- latNames
+           out <- semPlot::ramModel(A=A, S=S, F=unname(F), manNames=manNames,
+                                    latNames=latNames, Names=node.names,
+                                    ObsCovs=ObsCovs, ImpCovs=ImpCovs, ...)
+       } else {
+           out <- semPlot::ramModel(A=A, S=S, F=unname(F), manNames=manNames,
+                                    latNames=latNames, ObsCovs=ObsCovs,
+                                    ImpCovs=ImpCovs, ...)
+       }
     
        labels <- match.arg(labels)    
        if (labels=="labels") {
@@ -146,39 +158,31 @@ plot.osmasem <- function(x, manNames=NULL, latNames=NULL, labels=c("labels", "RA
   if (!requireNamespace("semPlot", quietly=TRUE))    
     stop("\"semPlot\" package is required for this function.")
 
-  if (!is.element(class(x), c("osmasem", "osmasem2", "osmasem3L")))
+  if (!inherits(x, c("osmasem", "osmasem2", "osmasem3L")))
       stop("\"x\" must be an object of either class \"osmasem\", \"osmasem2\", or \"osmasem3L\".")
 
-  if (is.element(class(x), "osmasem2")) {
-    A <- x$mx.fit$Amatrix$values
-    S <- x$mx.fit$Smatrix$values
-  } else {
-    ## osmasem and osmasem3L: different from osmasem2 coz they replace error
-    ## variances with other parameters 
-    A <- x$mx.fit$Amatrix$result
-    S <- x$mx.fit$Smatrix$result
-    ## S can be calculated when diag.constraints=FALSE
-    if (is.null(S)) {
-      S <- x$mx.fit$algebras$Smatrix$result
-    }
-  }
+  at.means <- .osmasem.plot.at.means(x$mx.fit)
+  get.matrix <- function(name, source=NULL)
+    .osmasem.plot.matrix(name, at.means, source)
+  A <- get.matrix("Amatrix", x$RAM$A)
+  S <- get.matrix("Smatrix", x$RAM$S)
 
   F <- x$mx.fit$Fmatrix$values
   Id <- diag(nrow(S))
 
   ## Approximate sample covariance matrix
   ## The means in osmasem are correlation matrix
-  if (is.element(class(x), "osmasem2")) {    
+  if (inherits(x, "osmasem2")) {
     ObsCovs <- vec2symMat(apply(x$data$data[, x$data$ylabels, drop=FALSE], 2, mean, na.rm=TRUE),
                           diag=!x$cor.analysis)       
-    ImpCovs <- x$mx.fit$expSigma$result
+    ImpCovs <- get.matrix("expSigma")
     if (is.null(manNames)) manNames <- x$data$obslabels
   } else {
     ## A labels slot is required because osmasem allows subset.
     ## labels can be shorter than those in data$labels
-    ObsCovs <- vec2symMat(apply(x$data$data[, x$labels$ylabels], drop=FALSE, 2, mean,
+    ObsCovs <- vec2symMat(apply(x$data$data[, x$labels$ylabels, drop=FALSE], 2, mean,
                                 na.rm=TRUE), diag=FALSE)        
-    ImpCovs <- x$mx.fit$impliedR$result
+    ImpCovs <- get.matrix("impliedR")
     if (is.null(manNames)) manNames <- x$labels$obslabels
   }
   ## If manNames is still NULL
@@ -186,39 +190,35 @@ plot.osmasem <- function(x, manNames=NULL, latNames=NULL, labels=c("labels", "RA
 
   dimnames(ImpCovs) <- dimnames(ObsCovs) <- list(manNames, manNames)
 
-  ## Try to get the names of the latent variables
-  lat_index <- dimnames(F)[[2]] %in% dimnames(F)[[1]]
-  lat_names <- dimnames(F)[[2]][!lat_index]
-
+  ## Map each observed RAM column to the corresponding row of F. This also
+  ## handles data names and custom names that differ from the RAM names.
+  selector <- all(is.finite(F)) && all(F %in% c(0, 1)) &&
+              all(rowSums(F) == 1) && all(colSums(F) <= 1)
+  observed <- if (selector) colSums(F) == 1 else
+              colnames(F) %in% rownames(F)
+  lat_names <- colnames(F)[!observed]
   if (is.null(latNames)) {
-      if (!is.null(lat_names)) {
-          latNames <- lat_names
-      } else {
-          no.latent <- ncol(F) - nrow(F)
-          if (no.latent > 0) latNames <- paste("L", seq(1,no.latent), sep="")
-      }    
+    if (!is.null(lat_names)) latNames <- lat_names
+    else if (ncol(F) > nrow(F)) latNames <- paste0("L", seq_len(ncol(F)-nrow(F)))
   }
-
-  if (is.element(class(x), "osmasem2")) {
-    if (x$mean.analysis) {
-      ## osmasem2 with mean structure
-      M <- x$mx.fit$Mmatrix$values
-      colnames(M) <- colnames(F)
-      out <- semPlot::ramModel(A=A, S=S, F=F, M=M, manNames=manNames,
-                               latNames=latNames, ObsCovs=ObsCovs, 
-                               ImpCovs=ImpCovs)
-    } else {
-      ## osmasem2 without mean structure
-      out <- semPlot::ramModel(A=A, S=S, F=F, manNames=manNames, latNames=latNames,
-                               ObsCovs=ObsCovs, ImpCovs=ImpCovs)
-    }
-  } else {
-    ## osmasem and osmasem3L
-    out <- semPlot::ramModel(A=A, S=S, F=F, manNames=manNames, latNames=latNames,
-                             ObsCovs=ObsCovs, ImpCovs=ImpCovs)
+  args <- list(A=A, S=S, F=F, manNames=manNames, latNames=latNames,
+               ObsCovs=ObsCovs, ImpCovs=ImpCovs)
+  if (selector) {
+    if (length(manNames) != sum(observed) || length(latNames) != sum(!observed))
+      stop("Lengths of 'manNames' and 'latNames' must match the observed and latent variables.")
+    node.names <- character(ncol(F))
+    node.names[observed] <- manNames[max.col(t(F[, observed, drop=FALSE]))]
+    node.names[!observed] <- latNames
+    args$Names <- node.names
   }
+  if (inherits(x, "osmasem2") && x$mean.analysis) {
+    M <- get.matrix("Mmatrix", x$RAM$M)
+    colnames(M) <- colnames(F)
+    args$M <- M
+  }
+  out <- do.call(semPlot::ramModel, args)
 
-  if (is.element(class(x), c("osmasem", "osmasem3L"))) {
+  if (inherits(x, c("osmasem", "osmasem3L"))) {
     labels <- match.arg(labels)
     if (labels=="labels") {
       A.labels <- x$mx.fit$A0$labels
@@ -261,3 +261,46 @@ plot.osmasem2 <- function(x, manNames=NULL, latNames=NULL, labels=c("labels", "R
 ##                  layout=layout, sizeMan=sizeMan, sizeLat=sizeLat,
 ##                  edge.label.cex=edge.label.cex, color=color, weighted=weighted, ...)
 ## }
+
+
+## Use the fitted rows, including any subset, as the reference population.
+.osmasem.plot.at.means <- function(model) {
+  if (is.null(model@data) || model@data$type != "raw") return(model)
+  variables <- unique(unlist(lapply(model@matrices,function(m) c(m$labels))))
+  variables <- sub("^data\\.","",grep("^data\\.",variables,value=TRUE))
+  observed <- model@data@observed
+  variables <- intersect(variables,names(observed))
+  if (!length(variables)) return(model)
+  reference <- observed[1,,drop=FALSE]
+  for (v in variables) reference[[v]] <- mean(observed[[v]],na.rm=TRUE)
+  model@data <- mxData(reference,type="raw",primaryKey=model@data@primaryKey)
+  for (nm in names(model@matrices)) {
+    m <- model@matrices[[nm]]
+    for (v in variables) {
+      index <- !is.na(m$labels) & m$labels == paste0("data.",v)
+      m$values[index] <- reference[[v]]
+    }
+    model@matrices[[nm]] <- m
+  }
+  model
+}
+
+.osmasem.plot.matrix <- function(name, model, source=NULL) {
+  object <- model[[name]]
+  if (is.null(object)) return(NULL)
+  value <- if (inherits(object,"MxMatrix")) object$values else
+    mxEvalByName(name,model,compute=TRUE)
+  if (is.null(dimnames(value))) {
+    fallback <- dimnames(source)
+    if (is.null(fallback) && !is.null(model$Fmatrix)) {
+      all.names <- colnames(model$Fmatrix$values)
+      observed <- rownames(model$Fmatrix$values)
+      fallback <- switch(name,
+        Amatrix=list(all.names,all.names), Smatrix=list(all.names,all.names),
+        Mmatrix=list(NULL,all.names), expSigma=list(observed,observed),
+        impliedR=list(observed,observed), NULL)
+    }
+    dimnames(value) <- fallback
+  }
+  value
+}

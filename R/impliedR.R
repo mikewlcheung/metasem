@@ -2,6 +2,7 @@
 #' 
 #' It creates or generates the model implied correlation or covariance matrices
 #' based on the RAM model specification.
+#' Variable names must not contain periods; rename them consistently, e.g., \code{x.1} to \code{x_1}, and check for duplicate names.
 #' 
 #' This function can be used to generate the model implied correlation matrix
 #' for the standardized parameters with the \code{corr=TRUE} argument. Suppose
@@ -152,6 +153,12 @@
 impliedR <- function(RAM, Amatrix, Smatrix, Fmatrix, Mmatrix, corr=TRUE,
                      labels, ...) {
 
+  if (!missing(RAM)) .check.ram.names(RAM)
+  for (mat in list(if (!missing(Amatrix)) Amatrix,
+                   if (!missing(Smatrix)) Smatrix,
+                   if (!missing(Fmatrix)) Fmatrix,
+                   if (!missing(Mmatrix)) Mmatrix)) .check.model.matrix(mat)
+
   if (!missing(RAM)) {
     Amatrix <- RAM$A
     Smatrix <- RAM$S
@@ -219,13 +226,13 @@ impliedR <- function(RAM, Amatrix, Smatrix, Fmatrix, Mmatrix, corr=TRUE,
 
   mx.fit <- mxRun(model, silent=TRUE)
 
-  A <- eval(parse(text = "mxEval(Amatrix, mx.fit)"))
-  S <- eval(parse(text = "mxEval(Smatrix, mx.fit)"))
-  F <- eval(parse(text = "mxEval(Fmatrix, mx.fit)"))
-  M <- eval(parse(text = "mxEval(Mmatrix, mx.fit)"))
-  SigmaObs <- eval(parse(text = "mxEval(SigmaObs, mx.fit)"))
-  SigmaAll <- eval(parse(text = "mxEval(SigmaAll, mx.fit)"))
-  Mu <- eval(parse(text = "mxEval(Mu, mx.fit)"))
+  A <- mxEvalByName("Amatrix", mx.fit)
+  S <- mxEvalByName("Smatrix", mx.fit)
+  F <- mxEvalByName("Fmatrix", mx.fit)
+  M <- mxEvalByName("Mmatrix", mx.fit)
+  SigmaObs <- mxEvalByName("SigmaObs", mx.fit)
+  SigmaAll <- mxEvalByName("SigmaAll", mx.fit)
+  Mu <- mxEvalByName("Mu", mx.fit)
 
   ## Create the labels for the matrices
   ## Index for the observed variables
@@ -257,7 +264,7 @@ impliedR <- function(RAM, Amatrix, Smatrix, Fmatrix, Mmatrix, corr=TRUE,
   if (corr) {
     ## minFit is the amount of misfit on the constraints
     ## It should be close to zero.
-    minFit <- c(eval(parse(text = "mxEval(minFit, mx.fit)")))
+    minFit <- c(mxEvalByName("minFit", mx.fit))
     status <- c(mx.fit$output$status[[1]])
   } else {
     ## It is zero by definition for covariance matrix.
@@ -313,6 +320,11 @@ print.impliedR <- function(x, ...) {
 #' @rdname impliedR
 rimpliedR <- function(RAM, Amatrix, Smatrix, Fmatrix, AmatrixSD, SmatrixSD, k=1,
                       corr=TRUE, nonPD.pop=c("replace", "nearPD", "accept")) {
+
+  if (!missing(RAM)) .check.ram.names(RAM)
+  for (mat in list(if (!missing(Amatrix)) Amatrix,
+                   if (!missing(Smatrix)) Smatrix,
+                   if (!missing(Fmatrix)) Fmatrix)) .check.model.matrix(mat)
 
   ## Only values are used in matrices
   if (!missing(RAM)) {

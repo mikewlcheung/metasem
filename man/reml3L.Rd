@@ -6,24 +6,14 @@
 \title{Estimate Variance Components in Three-Level Univariate Meta-Analysis with
 Restricted (Residual) Maximum Likelihood Estimation}
 \usage{
-reml3L(
-  y,
-  v,
-  cluster,
-  x,
-  data,
-  RE2.startvalue = 0.1,
-  RE2.lbound = 1e-10,
-  RE3.startvalue = RE2.startvalue,
-  RE3.lbound = RE2.lbound,
-  RE.equal = FALSE,
-  intervals.type = c("z", "LB"),
-  model.name = "Variance component with REML",
-  suppressWarnings = TRUE,
-  silent = TRUE,
-  run = TRUE,
-  ...
-)
+reml3L(y, v, cluster, x, data, RE2.startvalue = 0.1, RE2.lbound = 1e-10,
+    RE3.startvalue = RE2.startvalue, RE3.lbound = RE2.lbound, RE.equal = FALSE,
+    intervals.type = c("z", "LB"), model.name = "Variance component with REML",
+    suppressWarnings = TRUE, silent = TRUE, run = TRUE, ...)
+reml3(y, v, cluster, x, data, RE2.startvalue = 0.1, RE2.lbound = 1e-10,
+    RE3.startvalue = RE2.startvalue, RE3.lbound = RE2.lbound, RE.equal = FALSE,
+    intervals.type = c("z", "LB"), model.name = "Variance component with REML",
+    suppressWarnings = TRUE, silent = TRUE, run = TRUE, ...)
 }
 \arguments{
 \item{y}{A vector of \eqn{k}{k} studies of effect size.}
@@ -76,6 +66,8 @@ An object of class \code{reml} with a list of
 \item{mx.fit}{A fitted object returned from \code{\link[OpenMx]{mxRun}}}
 }
 \description{
+Variable names and data column names must not contain periods. Rename them consistently, for example \code{x.1} to \code{x_1}, and check that the new names are unique. Study, group, and cluster values may contain periods.
+
 It estimates the variance components of random-effects in three-level
 univariate meta-analysis with restricted (residual) maximum likelihood
 (REML) estimation method.
@@ -92,14 +84,12 @@ removed from the model. Thus, only the parameters of random-effects are
 estimated.
 
 An alternative but equivalent approach is to minimize the
--2*log-likelihood function: \deqn{ }{
-log(det|V+T^2|)+log(det|X'(V+T^2)^{-1}X|)+(y-X\alpha)'(V+T^2)^{-1}(y-X*\alpha)}\deqn{
+-2*log-likelihood function: \deqn{
 \log(\det|V+T^2|)+\log(\det|X'(V+T^2)^{-1}X|)+(y-X\hat{\alpha})'(V+T^2)^{-1}(y-X\hat{\alpha})}{
 log(det|V+T^2|)+log(det|X'(V+T^2)^{-1}X|)+(y-X\alpha)'(V+T^2)^{-1}(y-X*\alpha)}
 where \eqn{V}{V} is the known conditional sampling covariance matrix of
 \eqn{y}{y}, \eqn{T^2}{T^2} is the variance component combining level-2 and
 level-3 random effects, and \eqn{\hat{\alpha}=(X'(V+T^2)^{-1}X)^{-1}
-}{\hat{\alpha}=(t(X)(V+T^2)^{-1}X)^{-1}t(X)(V+T^2)^{-1}y}\eqn{
 X'(V+T^2)^{-1}y}{\hat{\alpha}=(t(X)(V+T^2)^{-1}X)^{-1}t(X)(V+T^2)^{-1}y}.
 \code{reml()} minimizes the above likelihood function to obtain the
 parameter estimates.
@@ -107,11 +97,9 @@ parameter estimates.
 \note{
 \code{reml} is more computationally intensive than \code{meta}.
 Moreover, \code{reml} is more likely to encounter errors during
-optimization. Since a likelihood function is directly employed to obtain the
-parameter estimates, there is no number of studies and number of observed
-statistics returned by \code{\link[OpenMx]{mxRun}}. Ad hoc steps are used to
-modify \code{mx.fit@runstate$objectives[[1]]@numObs} and
-\code{mx.fit@runstate$objectives[[1]]@numStats}.
+optimization. The algebra fit function records the number of studies and
+the number of residual statistics (studies minus columns of the fixed-effects
+design matrix), including when \code{RE.equal=TRUE}.
 }
 \references{
 Cheung, M. W.-L. (2013). Implementing restricted maximum

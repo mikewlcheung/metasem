@@ -77,6 +77,8 @@ which should also be zero when the optimization is fine. The last object is
 the diagnosis.
 }
 \description{
+Variable names must not contain periods; rename them consistently, e.g., \code{x.1} to \code{x_1}, and check for duplicate names.
+
 It creates or generates the model implied correlation or covariance matrices
 based on the RAM model specification.
 }

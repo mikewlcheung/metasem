@@ -6,6 +6,11 @@
 \alias{readStackVec}
 \alias{readLowTriMat}
 \title{Read External Correlation/Covariance Matrices}
+\usage{
+readFullMat(file, ...)
+readStackVec(file, ...)
+readLowTriMat(file, no.var, ...)
+}
 \arguments{
 \item{file}{File name of the data.}
 

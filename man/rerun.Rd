@@ -12,7 +12,7 @@ rerun(object, autofixtau2 = FALSE, extraTries = 10, ...)
 class \code{osmasem}, class \code{osmasem3L}, and class \code{MxModel}.}
 
 \item{autofixtau2}{Logical. Whether automatically fixes elements of tau2
-with NA of standard errors. It only works for objects of class
+with NaN standard errors after a retry. Plain NA standard errors produce a warning because their cause is unclear and are not automatically fixed. It only works for objects of class
 \code{tssem1REM}, class \code{meta}, and class \code{osmasem}.}
 
 \item{extraTries}{The number of attempts to run the model in addition to the
@@ -22,7 +22,8 @@ first.}
 \code{\link[OpenMx]{mxTryHard}}}
 }
 \description{
-It reruns models via mxTryHard().
+It reruns models via mxTryHard(). Subclasses of the supported classes
+are accepted; subclass metadata is preserved for clustered lists.
 }
 \examples{
 

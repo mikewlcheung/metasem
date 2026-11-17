@@ -21,8 +21,7 @@ positive-definiteness in \code{x}. It is adopted from
 }
 \value{
 If the input is a matrix, it returns \code{TRUE}, \code{FALSE} or
-\code{NA}. If the input is a list of matrices, it returns a list of
-\code{TRUE}, \code{FALSE} or \code{NA}.
+\code{NA}. If the input is a list of matrices, it returns a logical vector.
 }
 \description{
 It tests the positive definiteness of a square matrix or a list of square
@@ -31,6 +30,8 @@ returns \code{FALSE} if the matrix is either non-positive definite or not
 symmetric. Variables with \code{NA} in the diagonals will be removed before
 testing. It returns \code{NA} when there are missing correlations even after
 deleting the missing variables.
+When both row and column names are supplied they must agree; one-sided
+dimension names do not affect the numerical symmetry test.
 }
 \examples{
 

@@ -73,6 +73,14 @@ NULL
 #'
 #'
 #' @name anova
+#' @usage
+#' \method{anova}{wls}(object, ..., all = FALSE)
+#' \method{anova}{meta}(object, ..., all = FALSE)
+#' \method{anova}{meta3LFIML}(object, ..., all = FALSE)
+#' \method{anova}{reml}(object, ..., all = FALSE)
+#' \method{anova}{osmasem}(object, ..., all = FALSE)
+#' \method{anova}{osmasem2}(object, ..., all = FALSE)
+#' \method{anova}{mxsem}(object, ..., all = FALSE)
 #' @aliases anova.wls anova.meta anova.meta3LFIML anova.reml anova.osmasem anova.osmasem2 anova.mxsem
 #' @param object An object or a list of objects of various classes. It will be
 #' passed to the \code{base} argument in \code{\link[OpenMx]{mxCompare}}.
@@ -291,8 +299,17 @@ NULL
 #'
 #'
 #' #### Random-effects model
+#' ## These are correlation matrices. In study 5, two variables have reported
+#' ## correlations but missing diagonals; set those observed diagonals to 1.
+#' becker_cor <- lapply(Becker09$data, function(S) {
+#'   observed <- vapply(seq_len(nrow(S)), function(i) any(!is.na(S[i, -i])), logical(1))
+#'   d <- diag(S)
+#'   d[is.na(d) & observed] <- 1
+#'   diag(S) <- d
+#'   S
+#' })
 #' ## First stage analysis
-#' random1 <- tssem1(Becker09$data, Becker09$n, method="REM", RE.type="Diag")
+#' random1 <- tssem1(becker_cor, Becker09$n, method="REM", RE.type="Diag")
 #' summary(random1)
 #'
 #' ## Second stage analysis
@@ -862,6 +879,108 @@ NULL
 
 
 
+#' Corrected Misinformation and Correction Data from Chan and Albarracin (2023, 2025)
+#'
+#' Standardized mean differences and study characteristics from the corrected
+#' dataset accompanying Chan and Albarracin's meta-analysis of science-relevant
+#' misinformation. The name \code{Chan25} refers to the 2025 Author Correction.
+#'
+#' The data retain all rows, variable names, missing values, and numeric values
+#' from the first worksheet of \code{meta-scirelmisinfo_v20240320.xlsx}.
+#' No effect sizes, variances, or moderator codes are recalculated or imputed.
+#' Row \code{r_86} stores \code{PctFemale} and \code{PctMale} as proportions
+#' (0.6081632653 and 0.3918367347), whereas the other rows use percentages.
+#' These entries are retained unchanged. Yousuf et al. (2021), Table 1,
+#' report 596 female participants among 980 in total, confirming that the female
+#' entry is already a proportion. Analyses requiring proportions must account
+#' for this difference in units rather than divide every entry by 100.
+#' The primary report is available at \doi{10.1016/j.eclinm.2021.100881}.
+#'
+#' The 207 wide-format rows contain 156 correction effects and 89 reversed
+#' misinformation-persistence effects, giving 245 effects in total.
+#'
+#' Several rows share a \code{PaperNumber}; rows must not be assumed independent.
+#' The identifier is retained as character data. Sampling covariances between
+#' \code{mis.g} and \code{es1.g} are not supplied. A working correlation used
+#' for robust variance estimation in the source analysis does not establish
+#' this sampling covariance. Sample sizes may recur across rows and should not
+#' be summed as counts of distinct participants.
+#'
+#' @name Chan25
+#' @docType data
+#' @format A data frame with 207 observations on 30 variables and 75 distinct
+#' source \code{PaperNumber} identifiers.
+#' \describe{
+#' \item{\code{rid}}{Source row identifier, stored as character data.}
+#' \item{\code{PaperNumber}}{Source report/study grouping identifier, stored as
+#' character data; decimal suffixes are retained.}
+#' \item{\code{Authors}}{Authors of the source report.}
+#' \item{\code{PubYear}}{Publication year of the source report.}
+#' \item{\code{ExpNum}}{Experiment number as supplied by the source authors.}
+#' \item{\code{SourceType}}{Publication category: published article (1), working
+#' paper (5), dissertation or thesis (6), or unpublished data (7).}
+#' \item{\code{RowNoteCond}}{Source notes identifying the experimental condition
+#' or comparison represented by the row.}
+#' \item{\code{BetweenWithin}}{Method of effect-size calculation:
+#' between-subjects (1) or within-subjects (2).}
+#' \item{\code{InPersonCorrect}}{Correction delivered in person (1) or not (-1).}
+#' \item{\code{LabOnline}}{Laboratory (1) or online (2) setting.}
+#' \item{\code{Nrow}}{Sample size assigned to the source row.}
+#' \item{\code{MeanAge}}{Mean participant age in years.}
+#' \item{\code{PctFemale}}{Female composition as supplied, usually a percentage;
+#' row \code{r_86} is a proportion. See Details.}
+#' \item{\code{PctMale}}{Male composition as supplied, usually a percentage;
+#' row \code{r_86} is a proportion. See Details.}
+#' \item{\code{NegMisinfo}}{Neutral (1) or negative (2) misinformation topic.}
+#' \item{\code{DetailedCorrect}}{Succinct (1) or detailed (2) correction.}
+#' \item{\code{LikelyFamiliar}}{Topic likely familiar (1) or unfamiliar (-1).}
+#' \item{\code{DomainMisinfo}}{Misinformation domain: politics (1), health (2),
+#' environment (3), or other (-1).}
+#' \item{\code{FictIssue}}{Fictitious (1) or real (-1) issue.}
+#' \item{\code{IssuePolarize}}{Politically polarizing (1) or non-polarizing (-1)
+#' topic in the country of the experiment.}
+#' \item{\code{USOther}}{United States (1) or other-country (2) sample.}
+#' \item{\code{AttCongenial}}{Correction congenial to prior attitudes (1), or
+#' incongruent/non-partisan (-1).}
+#' \item{\code{es1.g}}{Bias-adjusted standardized mean difference for correction,
+#' as supplied by the source authors.}
+#' \item{\code{es2.g}}{Reversed misinformation-persistence effect, as stored
+#' in the source data and labelled in the source analysis code.}
+#' \item{\code{es1.gv}}{Supplied sampling variance of \code{es1.g}.}
+#' \item{\code{es2.gv}}{Supplied sampling variance of \code{es2.g}.}
+#' \item{\code{mis.g}}{Bias-adjusted standardized mean difference for
+#' misinformation, before imputation.}
+#' \item{\code{mis.gv}}{Supplied sampling variance of \code{mis.g}.}
+#' \item{\code{impmis.g}}{Misinformation effect used in the source analysis
+#' including imputed values.}
+#' \item{\code{impmis.gv}}{Supplied variance associated with \code{impmis.g};
+#' missing values are retained.}
+#' }
+#' @source Chan, M.-P. S., & Albarracin, D. (2023). A meta-analysis of correction
+#' effects in science-relevant misinformation. \emph{Nature Human Behaviour},
+#' \bold{7}(9), 1514--1525. \doi{10.1038/s41562-023-01623-8}
+#'
+#' Chan, M.-P. S., & Albarracin, D. (2025). Author Correction: A meta-analysis of
+#' correction effects in science-relevant misinformation. \emph{Nature Human
+#' Behaviour}, \bold{9}(9), 1992--1994. \doi{10.1038/s41562-025-02294-3}
+#'
+#' Data and analysis code: \url{https://osf.io/vkygw/}. Source spreadsheet:
+#' \code{meta-scirelmisinfo_v20240320.xlsx}, first worksheet, obtained on
+#' 19 October 2026.
+#' @keywords datasets
+#' @examples
+#' data(Chan25)
+#' dim(Chan25)
+#' head(Chan25[c("rid", "PaperNumber", "es1.g", "es1.gv", "mis.g", "mis.gv")])
+#'
+#' ## Complete rows for regression of correction on misinformation
+#' vars <- c("PaperNumber", "es1.g", "es1.gv", "mis.g", "mis.gv")
+#' dat <- Chan25[complete.cases(Chan25[vars]), vars]
+#' nrow(dat)
+#' length(unique(dat$PaperNumber))
+NULL
+
+
 #' Fifty Studies of Correlation Matrices used in Cheung and Chan (2000)
 #'
 #' This data set includes fifty studies of correlation matrices on the theory
@@ -1032,12 +1151,24 @@ NULL
 
 
 
-#' Extract Parameter Estimates from various classes.
+#' Extract Parameter Estimates from various classes
 #'
 #' It extracts the parameter estimates from objects of various classes.
 #'
 #'
 #' @name coef
+#' @usage
+#' \method{coef}{tssem1FEM}(object, ...)
+#' \method{coef}{tssem1FEM.cluster}(object, ...)
+#' \method{coef}{tssem1REM}(object, select = c("all", "fixed", "random"), ...)
+#' \method{coef}{wls}(object, ...)
+#' \method{coef}{wls.cluster}(object, ...)
+#' \method{coef}{meta}(object, select = c("all", "fixed", "random"), ...)
+#' \method{coef}{meta3LFIML}(object, select = c("all", "fixed", "random", "allX"), ...)
+#' \method{coef}{reml}(object, ...)
+#' \method{coef}{osmasem}(object, select = c("fixed", "all", "random"), ...)
+#' \method{coef}{osmasem2}(object, select = c("fixed", "all", "random"), ...)
+#' \method{coef}{mxsem}(object, ...)
 #' @aliases coef.tssem1FEM coef.tssem1FEM.cluster coef.tssem1REM coef.wls coef.wls.cluster coef.meta coef.meta3LFIML coef.reml coef.osmasem coef.osmasem2 coef.mxsem
 #' @param object An object returned from either class \code{tssem1FEM}, class
 #' \code{tssem1FEM.cluster}, class \code{tssem1REM}, class \code{wls}, class
@@ -1420,8 +1551,8 @@ NULL
 #' ## Assuming homogeneity of covariance matrices
 #' my.MES <- t(apply(Gleser94$MES, MARGIN=1,
 #'             function(x)
-#'             smdMES(m1=x[c("Mean.Uncoached.Math", "Mean.Uncoached.Verbal")],
-#'                    m2=x[c("Mean.Coached.Math", "Mean.Coached.Verbal")],
+#'             smdMES(m1=unname(x[c("Mean.Uncoached.Math", "Mean.Uncoached.Verbal")]),
+#'                    m2=unname(x[c("Mean.Coached.Math", "Mean.Coached.Verbal")]),
 #'                    V1=vec2symMat(x[c("Uncoached.V11", "Uncoached.V21", "Uncoached.V22")]),
 #'                    V2=vec2symMat(x[c("Coached.V11", "Coached.V21", "Coached.V22")]),
 #'                    n1=x["N.Uncoached"],
@@ -2019,8 +2150,11 @@ NULL
 #' @keywords datasets
 #' @examples
 #'
+#' ## Rename historical columns to meet the naming requirements
+#' Mak09_clean <- Mak09
+#' names(Mak09_clean) <- gsub(".", "_", names(Mak09_clean), fixed=TRUE)
 #' ## Random-effects meta-analysis
-#' ( meta1 <- summary(meta(y=yi, v=vi, data=Mak09, I2=c("I2q", "I2hm"))) )
+#' ( meta1 <- summary(meta(y=yi, v=vi, data=Mak09_clean, I2=c("I2q", "I2hm"))) )
 #'
 #' ## Convert the estimates back into odds ratio 
 #' OR <- with(coef(meta1), exp(c(Estimate[1], lbound[1], ubound[1])))
@@ -2028,7 +2162,7 @@ NULL
 #' OR
 #'
 #' ## Mixed-effects meta-analysis with mean age as a predictor
-#' summary( meta(y=yi, v=vi, x=age.mean, data=Mak09) )
+#' summary( meta(y=yi, v=vi, x=age_mean, data=Mak09_clean) )
 #'
 NULL
 
@@ -2151,7 +2285,7 @@ NULL
 #' equation modeling on the correlation and covariance matrices.
 #'
 #' \tabular{ll}{ Package: \tab metaSEM\cr Type: \tab Package\cr Version: \tab
-#' 1.5.5\cr Date: \tab 2026-05-02\cr License: \tab GPL (>=2)\cr LazyLoad: \tab
+#' 2.0\cr Date: \tab 2026-11-15\cr License: \tab GPL (>=2)\cr LazyLoad: \tab
 #' yes\cr }
 #'
 #' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
@@ -2518,10 +2652,68 @@ NULL
 #' Plot methods for various objects
 #'
 #' It plots the models from either the lavaan model or \code{meta}, \code{wls},
-#' and \code{osmasem} objects.
+#' \code{osmasem}, and \code{\link{sem}} (\code{mxsem}) objects.
 #'
+#' For \code{mxsem} objects, a path set by a definition variable
+#' (\code{data.*}), either directly or through a constraint substituted with
+#' \code{replace.constraints=TRUE}, is shown at the mean of the variable in
+#' the level-1 data of the group plotted. It is not shown for summary input,
+#' which has no definition variables. In estimate and standardized diagrams,
+#' exactly zero paths use a tiny nonzero graphical weight so they remain
+#' visible; the fitted model's estimates are unchanged. The filter matrix F
+#' must select distinct observed variables for these plots.
+#'
+#' For \code{osmasem} and \code{osmasem2} objects, matrices and implied
+#' covariances are evaluated at the means of definition variables in the
+#' fitted data, after any row selection. For older \code{osmasem2} objects
+#' without a saved RAM specification, matrix names are recovered from
+#' \code{Fmatrix}.
 #'
 #' @name plot
+#' @usage
+#' \method{plot}{meta}(x, effect.sizes, add.margin = 0.1, interval = 0.95,
+#'     main = "Effect Sizes and their Confidence Ellipses",
+#'     axis.labels = paste("Effect size ", effect.sizes,
+#'         sep = ""), study.col = "black", study.pch = 19,
+#'     study.min.cex = 0.8, study.weight.plot = FALSE,
+#'     study.ellipse.plot = TRUE, study.ellipse.col = "black",
+#'     study.ellipse.lty = 2, study.ellipse.lwd = 0.5,
+#'     estimate.col = "blue", estimate.pch = 18, estimate.cex = 2,
+#'     estimate.ellipse.plot = TRUE, estimate.ellipse.col = "red",
+#'     estimate.ellipse.lty = 1, estimate.ellipse.lwd = 2,
+#'     randeff.ellipse.plot = TRUE, randeff.ellipse.col = "green",
+#'     randeff.ellipse.lty = 1, randeff.ellipse.lwd = 2,
+#'     univariate.plot = TRUE, univariate.lines.col = "gray",
+#'     univariate.lines.lty = 3, univariate.lines.lwd = 1,
+#'     univariate.polygon.width = 0.02, univariate.polygon.col = "red",
+#'     univariate.arrows.col = "green", univariate.arrows.lwd = 2,
+#'     diag.panel = FALSE, xlim = NULL, ylim = NULL, ...)
+#' \method{plot}{character}(x, fixed.x = FALSE, nCharNodes = 0, nCharEdges = 0,
+#'     layout = c("tree", "circle", "spring", "tree2",
+#'         "circle2"), sizeMan = 8, sizeLat = 8, edge.label.cex = 1.3,
+#'     color = "white", ...)
+#' \method{plot}{wls}(x, manNames = NULL, latNames = NULL, labels = c("labels",
+#'     "RAM"), what = "est", nCharNodes = 0, nCharEdges = 0,
+#'     layout = c("tree", "circle", "spring", "tree2",
+#'         "circle2"), sizeMan = 8, sizeLat = 8, edge.label.cex = 1.3,
+#'     color = "white", weighted = FALSE, ...)
+#' \method{plot}{osmasem}(x, manNames = NULL, latNames = NULL, labels = c("labels",
+#'     "RAM"), what = "est", nCharNodes = 0, nCharEdges = 0,
+#'     layout = c("tree", "circle", "spring", "tree2",
+#'         "circle2"), sizeMan = 8, sizeLat = 8, edge.label.cex = 1.3,
+#'     color = "white", weighted = FALSE, ...)
+#' \method{plot}{osmasem2}(x, manNames = NULL, latNames = NULL, labels = c("labels",
+#'     "RAM"), what = "est", nCharNodes = 0, nCharEdges = 0,
+#'     layout = c("tree", "circle", "spring", "tree2",
+#'         "circle2"), sizeMan = 8, sizeLat = 8, edge.label.cex = 1.3,
+#'     color = "white", weighted = FALSE, ...)
+#' \method{plot}{mxsem}(x, manNames = NULL, latNames = NULL, labels = c("labels",
+#'     "RAM"), what = "est", nCharNodes = 0, nCharEdges = 0,
+#'     layout = c("tree", "circle", "spring", "tree2",
+#'         "circle2"), sizeMan = 8, sizeLat = 8, edge.label.cex = 1.3,
+#'     color = "white", weighted = FALSE, group = NULL,
+#'     level = NULL, combine = missing(group) && missing(level),
+#'     main.line = 2.5, main.adj = NULL, ...)
 #' @aliases plot.meta plot.character plot.wls plot.osmasem plot.osmasem2 plot.mxsem
 #' @param x An object returned from either a lavaan model class
 #' \code{character}, \code{osmasem}, \code{osmasem3L}, \code{wls} or
@@ -2598,9 +2790,13 @@ NULL
 #' @param ylim NULL or a numeric vector of length 2; if it is NULL, it provides
 #' defaults estimated from the data.
 #' @param fixed.x Argument passed to \code{\link[semPlot]{semPlotModel}}.
-#' @param manNames Argument passed to \code{\link[semPlot]{semPaths}}
-#' @param latNames Argument passed to \code{\link[semPlot]{semPaths}}
-#' @param labels Argument passed to \code{\link[semPlot]{semPaths}}
+#' @param manNames Names of the observed nodes, in the row order of the RAM
+#' filter matrix F. If
+#' \code{NULL}, names from the fitted model are used.
+#' @param latNames Names of the latent nodes, in RAM variable order. If
+#' \code{NULL}, names from the fitted model are used.
+#' @param labels For path diagrams, either \code{labels} (the default) to
+#' use parameter labels, or \code{RAM} to use RAM matrix notation.
 #' @param what Argument passed to \code{\link[semPlot]{semPaths}}
 #' @param nCharNodes Argument passed to \code{\link[semPlot]{semPaths}}
 #' @param nCharEdges Argument passed to \code{\link[semPlot]{semPaths}}
@@ -2623,17 +2819,23 @@ NULL
 #' group whose real data value is \code{"a_b"}, never the submodel merely
 #' named that). When originals and submodel names coincide (the common
 #' case, e.g. \code{"g1"}), either happens to work, but the original value
-#' is the one to reach for. Defaults to the first group. Ignored otherwise.
-#' @param level For \code{plot.mxsem} on a two-level \code{sem} fit (see
-#' \code{\link[metaSEM]{sem}}): either \code{"within"} (default) or
-#' \code{"between"}, selecting which level to plot. Ignored otherwise
+#' is the one to reach for. Defaults to the first group. In a combined
+#' group and two-level fit, it selects the group whose \code{level} is
+#' plotted. Ignored otherwise.
+#' @param level For \code{plot.mxsem} on a two-level or combined group and
+#' two-level \code{sem} fit (see \code{\link[metaSEM]{sem}}): either
+#' \code{"within"} (default) or \code{"between"}, selecting which level to
+#' plot. In the between-level diagram, the between components of level-1
+#' variables and the cluster-level observed covariates are drawn as observed
+#' variables. Ignored otherwise
 #' (including when \code{combine=TRUE}). \code{semPlot} has no notion of
 #' the two levels' relational (\code{joinKey}) linkage, so only one level's
 #' diagram is shown at a time even when combined (below) into one figure.
 #' @param combine For \code{plot.mxsem} on a multiple-group or two-level
 #' \code{sem} fit: if \code{TRUE}, plot every group (or both the
 #' \code{within} and \code{between} levels) as side-by-side panels of one
-#' figure, overriding \code{group}/\code{level}. Defaults to \code{TRUE}
+#' figure, overriding \code{group}/\code{level}. For a combined group and
+#' two-level fit, each group is a row with its within and between panels. Defaults to \code{TRUE}
 #' when neither \code{group} nor \code{level} is supplied, and to
 #' \code{FALSE} (one diagram, as selected by \code{group}/\code{level}) as
 #' soon as either of them is -- so \code{plot(fit)} shows every panel by
@@ -2688,20 +2890,34 @@ NULL
 #'
 #' Print methods for the \code{tssem1FEM}, \code{tssem1FEM.cluster},
 #' \code{tssem1REM}, \code{wls}, \code{meta}, \code{meta3LFIML}, \code{reml},
-#' \code{uniR1} and \code{impliedR} objects.
+#' \code{uniR1}, \code{impliedR} and \code{SEC} objects. The print method for
+#' \code{SEC} objects rounds the results to \code{digits=4} digits by default.
 #'
 #'
 #' @name print
-#' @aliases print.tssem1FEM print.tssem1FEM.cluster print.tssem1REM print.wls print.meta print.meta3LFIML print.reml print.uniR1 print.impliedR
+#' @usage
+#' \method{print}{tssem1FEM}(x, ...)
+#' \method{print}{tssem1FEM.cluster}(x, ...)
+#' \method{print}{tssem1REM}(x, ...)
+#' \method{print}{wls}(x, ...)
+#' \method{print}{meta}(x, ...)
+#' \method{print}{meta3LFIML}(x, ...)
+#' \method{print}{reml}(x, ...)
+#' \method{print}{uniR1}(x, ...)
+#' \method{print}{impliedR}(x, ...)
+#' \method{print}{SEC}(x, digits = 4, ...)
+#' @aliases print.tssem1FEM print.tssem1FEM.cluster print.tssem1REM print.wls print.meta print.meta3LFIML print.reml print.uniR1 print.impliedR print.SEC
 #' @param x An object returned from either class \code{tssem1FEM}, class
 #' \code{tssem1FEM.cluster}, class \code{tssem1REM}, class \code{wls}, class
-#' \code{meta}, class \code{meta3LFIML}, class \code{reml}, class \code{uniR1}
-#' or class \code{impliedR}
+#' \code{meta}, class \code{meta3LFIML}, class \code{reml}, class \code{uniR1},
+#' class \code{impliedR} or class \code{SEC}
+#' @param digits Number of digits used when printing a \code{SEC} object.
 #' @param \dots Further arguments to be passed to \code{summary.default} or
 #' unused.
 #' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>
 #' @seealso \code{\link[metaSEM]{tssem1}}, \code{\link[metaSEM]{wls}},
-#' \code{\link[metaSEM]{meta}}, \code{\link[metaSEM]{reml}}
+#' \code{\link[metaSEM]{meta}}, \code{\link[metaSEM]{reml}},
+#' \code{\link[metaSEM]{SEC}}
 #' @keywords methods
 NULL
 
@@ -2716,6 +2932,10 @@ NULL
 #'
 #'
 #' @name readData
+#' @usage
+#' readFullMat(file, ...)
+#' readStackVec(file, ...)
+#' readLowTriMat(file, no.var, ...)
 #' @aliases readFullMat readStackVec readLowTriMat
 #' @param file File name of the data.
 #' @param no.var The number of variables in the data.
@@ -2875,8 +3095,17 @@ NULL
 #'
 #' \donttest{
 #'
+#' ## These are correlation matrices; set a missing diagonal to 1 when the
+#' ## corresponding variable has a reported correlation.
+#' roorda_cor <- lapply(Roorda11$data, function(S) {
+#'   observed <- vapply(seq_len(nrow(S)), function(i) any(!is.na(S[i, -i])), logical(1))
+#'   d <- diag(S)
+#'   d[is.na(d) & observed] <- 1
+#'   diag(S) <- d
+#'   S
+#' })
 #' ## Random-effects model: First stage analysis
-#' random1 <- tssem1(Cov = Roorda11$data, n = Roorda11$n, method = "REM",
+#' random1 <- tssem1(Cov = roorda_cor, n = Roorda11$n, method = "REM",
 #'                   RE.type = "Diag")
 #' summary(random1)
 #'
@@ -2917,8 +3146,9 @@ NULL
 #' ## S
 #'
 #' ## Random-effects model: Second stage analysis
-#' random2 <- tssem2(random1, RAM=RAM, diag.constraints=TRUE,
-#'                   intervals="LB")
+#' ## Calculate dependent-variable residual variances implicitly.
+#' random2 <- tssem2(random1, RAM=RAM, diag.constraints=FALSE,
+#'                   intervals.type="LB")
 #' summary(random2)
 #'
 #' ## Display the model with the parameter estimates    
@@ -2987,10 +3217,50 @@ NULL
 
 #' Summary Method for tssem1, wls, meta, and meta3LFIML Objects
 #'
+#' For fixed-effects TSSEM and WLS summaries with positive degrees of freedom,
+#' the RMSEA estimate is
+#' \deqn{\sqrt{G\max(\chi^2-df,0)/(N\,df)}}{sqrt(G * max(chi^2 - df, 0) / (N * df))}
+#' where \eqn{\chi^2} is the target model statistic. For fixed-effects TSSEM,
+#' \eqn{N} is the sum of the study sample sizes and \eqn{G} is the number of
+#' studies. For WLS, \eqn{N} is the supplied \code{n} and \eqn{G=1};
+#' \code{tssem2()} supplies the total sample size from the first stage.
+#' Confidence limits transform the corresponding noncentrality limits using
+#' the same \eqn{N} and \eqn{G}. The denominator is \eqn{N}, not \eqn{N-G}
+#' or \eqn{N-1}; this scaling matches the normal-ML convention used by lavaan.
+#' For WLS, the scaling of the supplied sampling covariance matrix should also
+#' be considered when comparing fit statistics. When \eqn{df=0}, RMSEA and
+#' its confidence limits are reported as zero; when \eqn{df<0}, they are NA.
+#'
 #' It summaries results for various class.
 #'
 #'
 #' @name summary
+#' @usage
+#' \method{summary}{tssem1FEM}(object, ...)
+#' \method{summary}{tssem1FEM.cluster}(object, ...)
+#' \method{summary}{tssem1REM}(object, robust = FALSE, ...)
+#' \method{summary}{wls}(object, df.adjustment = 0, ...)
+#' \method{summary}{wls.cluster}(object, df.adjustment = 0, ...)
+#' \method{summary}{meta}(object, homoStat = TRUE, robust = FALSE, ...)
+#' \method{summary}{meta3LFIML}(object, allX = FALSE, robust = FALSE, ...)
+#' \method{summary}{reml}(object, ...)
+#' \method{summary}{CorPop}(object, ...)
+#' \method{summary}{Cor3L}(object, ...)
+#' \method{summary}{bootuniR2}(object, probs = c(0, 0.1, 0.5, 0.9, 1), cutoff.chisq.pvalue = 0.05,
+#'     cutoff.CFI = 0.9, cutoff.SRMR = 0.1, cutoff.RMSEA = 0.05, ...)
+#' \method{summary}{osmasem}(object, fitIndices = FALSE, numObs, robust = FALSE, ...)
+#' \method{summary}{osmasem2}(object, fitIndices = FALSE, numObs, robust = FALSE, mxTryHard = FALSE,
+#'     ...)
+#' \method{summary}{mxsem}(object, robust = FALSE, smallSample = FALSE, t.df = NULL, ...)
+#' \method{print}{summary.tssem1FEM}(x, ...)
+#' \method{print}{summary.wls}(x, ...)
+#' \method{print}{summary.meta}(x, ...)
+#' \method{print}{summary.meta3LFIML}(x, ...)
+#' \method{print}{summary.reml}(x, ...)
+#' \method{print}{summary.CorPop}(x, ...)
+#' \method{print}{summary.Cor3L}(x, ...)
+#' \method{print}{summary.bootuniR2}(x, ...)
+#' \method{print}{summary.mxsem}(x, ...)
 #' @aliases summary.tssem1FEM summary.tssem1FEM.cluster summary.tssem1REM summary.wls summary.wls.cluster summary.meta summary.meta3LFIML summary.reml summary.CorPop summary.Cor3L summary.bootuniR2 summary.osmasem summary.osmasem2 summary.mxsem print.summary.tssem1FEM print.summary.tssem1FEM.cluster print.summary.wls print.summary.meta print.summary.meta3LFIML print.summary.reml print.summary.CorPop print.summary.Cor3L print.summary.bootuniR2 print.summary.mxsem
 #' @param object An object returned from either class \code{tssem1FEM}, class
 #' \code{tssem1FEM.cluster}, class \code{tssem1REM}, class \code{wls}, class
@@ -3004,11 +3274,31 @@ NULL
 #' sizes.
 #' @param allX Logical. Whether to report the predictors and the auxiliary
 #' variables.
-#' @param robust Logicial. Whether to use robust standard error from
-#' \code{\link[OpenMx]{imxRobustSE}}.
+#' @param robust Logical. Whether to use robust (sandwich) standard errors.
+#' For \code{meta}, \code{meta3LFIML}, and \code{tssem1REM} objects they are
+#' from \code{\link[OpenMx]{imxRobustSE}}. For \code{mxsem} objects, see the
+#' section \sQuote{Robust and small-sample inference for mxsem objects}.
+#' @param smallSample Logical, for \code{mxsem} objects only. If \code{TRUE}
+#' (with \code{robust=TRUE}), the cluster-robust covariance of a
+#' single-level clustered fit is also multiplied by \eqn{(N-1)/(N-p)}, where
+#' \eqn{N} is the number of rows and \eqn{p} the number of free parameters,
+#' including those determined by constraints or at a bound.
+#' Not available for two-level fits. See \code{\link{clusterRobustSE}}.
+#' @param t.df \code{NULL} or a single positive number, for \code{mxsem}
+#' objects only. If \code{NULL} (the default), Wald tests and 95\% Wald
+#' confidence intervals use the standard normal distribution (\eqn{z}). If a
+#' number, they use a \eqn{t} distribution with \code{t.df} degrees of
+#' freedom: the \eqn{p} values and intervals of all parameters and the
+#' delta-method intervals of defined (\code{:=}) parameters. The standard
+#' errors themselves are unchanged. Requires \code{intervals.type="z"}. It
+#' can be combined with model-based or robust standard errors, but it is
+#' intended for cluster-robust inference with few independent clusters; see
+#' the section \sQuote{Robust and small-sample inference for mxsem objects}
+#' for how to choose it.
 #' @param df.adjustment Numeric. Adjust the degrees of freedom manually. It may
 #' be necessary if the df calculated is incorrect when
-#' \code{diag.constraints=TRUE}.
+#' \code{diag.constraints=TRUE}. For \code{wls.cluster} objects, the
+#' adjustment is applied to each fitted model.
 #' @param probs Quantiles for the parameter estimates.
 #' @param cutoff.chisq.pvalue Cutoff of the p-value for the chi-square
 #' statistic.
@@ -3020,8 +3310,107 @@ NULL
 #' statistics of the saturated and independence models are required.
 #' @param numObs The number of observations in calculating the fit statistics
 #' in osmasem. If it is missing, the total number of observations is used.
+#' @param mxTryHard Logical. For \code{osmasem2} fit indices, whether to use
+#' \code{\link[OpenMx]{mxTryHard}} when fitting the comparison models.
 #' @param \dots Further arguments to be passed to
 #' \code{\link[stats]{printCoefmat}}
+#' @section Robust and small-sample inference for mxsem objects:
+#' \code{summary(fit, robust=TRUE)} replaces the model-based standard errors
+#' of an \code{mxsem} fit by sandwich standard errors: an observation-level
+#' sandwich for a single-level fit without \code{cluster}, a cluster
+#' sandwich for a single-level fit with \code{cluster} (see
+#' \code{\link{clusterRobustSE}}), and a cluster-score sandwich for a
+#' two-level fit (see \code{\link{sem}}). A cluster sandwich is justified as
+#' the number of \emph{independent clusters} grows (studies in a
+#' meta-analysis, not effect sizes). With few clusters its standard errors
+#' tend to be too small, and \eqn{z} tests and intervals are then liberal.
+#'
+#' \code{t.df} replaces the \eqn{z} reference distribution by a \eqn{t}
+#' distribution with the given degrees of freedom, which widens the
+#' intervals and raises the \eqn{p} values when \code{t.df} is small. It
+#' does not change the estimates or the standard errors, and it is not
+#' computed automatically, because the appropriate value depends on the
+#' design and the parameter:
+#' \itemize{
+#' \item \emph{Fixed effects of a meta-analysis} (the intercept and the
+#' regression coefficients of moderators) with cluster-robust standard
+#' errors: \code{t.df = K - p}, where \eqn{K} is the number of independent
+#' studies (clusters; reported by \code{summary()} as \dQuote{Number of
+#' clusters}, not the number of effect sizes) and \eqn{p} the number of fixed-effect coefficients
+#' in the mean model, including the intercept. For example, an intercept
+#' and two moderators give \eqn{p=3}. This is the reference distribution
+#' of robust variance estimation proposed by Hedges, Tipton, and Johnson
+#' (2010), and of \code{metafor::robust()}. Note that \eqn{p} counts the
+#' coefficients of the mean model only, not all free parameters as in
+#' \code{smallSample}.
+#' \item \emph{Other clustered models}: \code{t.df = G - 1}, where \eqn{G}
+#' is the number of independent clusters, is a common convention for
+#' cluster-robust tests (Cameron & Miller, 2015; McNeish, 2026). In
+#' multiple-group models, \eqn{G} is the total number of clusters.
+#' }
+#'
+#' Limitations:
+#' \itemize{
+#' \item The same \code{t.df} is applied to every parameter. The literature
+#' that justifies it concerns regression coefficients and intercepts of
+#' the mean model. It does not justify tests of variance components,
+#' factor loadings, or other covariance parameters, and it does not
+#' address estimates at or near a bound, whose robust standard errors are
+#' \code{NA}.
+#' \item \eqn{K - p} can still be too large, and the test liberal, when a
+#' moderator is unbalanced or varies mainly between studies (Tipton, 2015).
+#' Tests with fewer than about 4 degrees of freedom are unreliable. In those
+#' cases, the CR2 correction with Satterthwaite degrees of freedom
+#' (Pustejovsky & Tipton, 2018), available in the \pkg{clubSandwich}
+#' package for meta-regression models, is preferable.
+#' \item It does not affect likelihood-ratio tests or model-fit statistics.
+#' }
+#'
+#' References:
+#' \itemize{
+#' \item Cameron, A. C., & Miller, D. L. (2015). A practitioner's guide to
+#' cluster-robust inference. \emph{Journal of Human Resources}, \bold{50}(2),
+#' 317--372.
+#' \item Hedges, L. V., Tipton, E., & Johnson, M. C. (2010). Robust variance
+#' estimation in meta-regression with dependent effect size estimates.
+#' \emph{Research Synthesis Methods}, \bold{1}(1), 39--65.
+#' \doi{10.1002/jrsm.5}
+#' \item McNeish, D. (2026). A practical guide to selecting and blending
+#' approaches for clustered data: Clustered errors, multilevel models, and
+#' fixed-effect models. \emph{Psychological Methods}, \bold{31}(2), 225--251.
+#' \doi{10.1037/met0000620}
+#' \item Pustejovsky, J. E., & Tipton, E. (2018). Small-sample methods for
+#' cluster-robust variance estimation and hypothesis testing in fixed
+#' effects models. \emph{Journal of Business & Economic Statistics},
+#' \bold{36}(4), 672--683. \doi{10.1080/07350015.2016.1247004}
+#' \item Tipton, E. (2015). Small sample adjustments for robust variance
+#' estimation with meta-regression. \emph{Psychological Methods},
+#' \bold{20}(3), 375--393. \doi{10.1037/met0000011}
+#' }
+#' @examples
+#' \donttest{
+#' ## Flat meta-regression of 66 effect sizes nested in 21 clusters, with
+#' ## study-clustered robust standard errors.
+#' data(Bornmann07)
+#' Bornmann07$Fellowship <- ifelse(Bornmann07$Type == "Fellowship", 1, 0)
+#' model <- "f =~ 1*logOR
+#'           f ~~ tau2*f
+#'           logOR ~~ data.v*logOR
+#'           f ~ b0*1
+#'           logOR ~ b1*Fellowship"
+#' RAM <- lavaan2RAM(model, obs.variables=c("logOR", "Fellowship"),
+#'                   std.lv=FALSE)
+#' fit <- sem(RAM=RAM, data=Bornmann07, cluster="Cluster")
+#'
+#' ## z tests and intervals
+#' summary(fit, robust=TRUE)
+#'
+#' ## t tests and intervals with K - p degrees of freedom: K = 21 clusters
+#' ## and p = 2 fixed effects (b0 and b1). Only the rows of b0 and b1 are
+#' ## justified by the literature.
+#' K <- length(unique(Bornmann07$Cluster))
+#' summary(fit, robust=TRUE, t.df=K - 2)
+#' }
 #' @note If the OpenMx status1 is either 0 or 1, the estimation is considered
 #' fine. If the OpenMx status1 is other values, it indicates estimation
 #' problems. Users should refer to `OpenMx` website for more details.
@@ -3076,7 +3465,117 @@ NULL
 
 
 
+#' Overlapping Meta-Analyses of Psychological Interventions for ADHD Reported
+#' by Turk et al. (2023)
+#'
+#' Summary estimates and the citation matrix of five meta-analyses of
+#' psychological interventions for parent-rated ADHD symptoms in children and
+#' adolescents, included in the umbrella review and meta-meta-analysis of
+#' Turk et al. (2023). The meta-analyses share some primary studies; e.g., all
+#' 15 studies of Sonuga-Barke et al. (2013) are also included in Daley et al.
+#' (2014).
+#'
+#' The summary estimates and their 95\% confidence intervals are from eTable 4
+#' of Turk et al. (2023). The sign of Storebo et al. (2019) is reversed so that
+#' positive values favor the intervention in all meta-analyses, as in Turk et
+#' al. (2023). The estimate of Richardson et al. (2015) is based on randomized
+#' controlled trials only. The citation matrix is the \code{psych_parent}
+#' worksheet of the supplementary file
+#' \code{1-s2.0-S0272735823000296-mmc3.xlsx}. Repeated spaces in the names of
+#' the primary studies were removed; the names are otherwise as supplied.
+#' Rimestad et al. was published in 2019, although the supplementary materials
+#' label it 2016. The number of studies in each column of \code{X} equals
+#' \code{k} in \code{data}. The CCA is 0.125, as reported by Turk et al.
+#' (2023).
+#'
+#' The rows of \code{X} are publications. Since the meta-analyses differ in
+#' their interventions and outcome measures, a publication shared by two
+#' meta-analyses may not contribute the same estimand to both.
+#'
+#' @name Turk23
+#' @docType data
+#' @format A list of data with the following structure:
+#' \describe{
+#' \item{data}{A data frame of the five meta-analyses with the variables:
+#' \describe{
+#' \item{\code{Review}}{First author and year of the meta-analysis}
+#' \item{\code{Intervention}}{Type of psychological intervention}
+#' \item{\code{Measure}}{Effect size: Hedges' g (\code{"g"}) or standardized
+#' mean difference (\code{"SMD"})}
+#' \item{\code{N}}{Total sample size}
+#' \item{\code{k}}{Number of primary studies}
+#' \item{\code{y}}{Summary estimate; positive values favor the intervention}
+#' \item{\code{lower}}{Lower limit of the 95\% confidence interval of \code{y}}
+#' \item{\code{upper}}{Upper limit of the 95\% confidence interval of \code{y}}
+#' }}
+#' \item{X}{A 42 x 5 citation matrix of the primary studies (rows) and the
+#' meta-analyses (columns). An element is 1 when the study is included in the
+#' meta-analysis and 0 otherwise.}
+#' }
+#' @references Daley, D., van der Oord, S., Ferrin, M., Danckaerts, M.,
+#' Doepfner, M., Cortese, S., et al. (2014). Behavioral interventions in
+#' attention-deficit/hyperactivity disorder: A meta-analysis of randomized
+#' controlled trials across multiple outcome domains. \emph{Journal of the
+#' American Academy of Child and Adolescent Psychiatry}, \bold{53}(8),
+#' 835--847. \doi{10.1016/j.jaac.2014.05.013}
+#'
+#' Richardson, M., Moore, D. A., Gwernan-Jones, R., Thompson-Coon, J.,
+#' Ukoumunne, O., Rogers, M., et al. (2015). Non-pharmacological interventions
+#' for attention-deficit/hyperactivity disorder (ADHD) delivered in school
+#' settings: Systematic reviews of quantitative and qualitative research.
+#' \emph{Health Technology Assessment}, \bold{19}(45), 1--470.
+#' \doi{10.3310/hta19450}
+#'
+#' Rimestad, M. L., Lambek, R., Zacher Christiansen, H., & Hougaard, E.
+#' (2019). Short- and long-term effects of parent training for preschool
+#' children with or at risk of ADHD: A systematic review and meta-analysis.
+#' \emph{Journal of Attention Disorders}, \bold{23}(5), 423--434.
+#' \doi{10.1177/1087054716648775}
+#'
+#' Sonuga-Barke, E. J., Brandeis, D., Cortese, S., Daley, D., Ferrin, M.,
+#' Holtmann, M., et al. (2013). Nonpharmacological interventions for ADHD:
+#' Systematic review and meta-analyses of randomized controlled trials of
+#' dietary and psychological treatments. \emph{American Journal of
+#' Psychiatry}, \bold{170}(3), 275--289. \doi{10.1176/appi.ajp.2012.12070991}
+#'
+#' Storebo, O. J., Elmose Andersen, M., Skoog, M., Hansen, S. J., Simonsen,
+#' E., Pedersen, N., et al. (2019). Social skills training for attention
+#' deficit hyperactivity disorder (ADHD) in children aged 5 to 18 years.
+#' \emph{Cochrane Database of Systematic Reviews}, \bold{6}, CD008223.
+#' \doi{10.1002/14651858.CD008223.pub3}
+#' @source Turk, S., Korfmacher, A.-K., Gerger, H., van der Oord, S., &
+#' Christiansen, H. (2023). Interventions for ADHD in childhood and
+#' adolescence: A systematic umbrella review and meta-meta-analysis.
+#' \emph{Clinical Psychology Review}, \bold{102}, 102271.
+#' \doi{10.1016/j.cpr.2023.102271}
+#' @seealso \code{\link[metaSEM]{CCA}}, \code{\link[metaSEM]{SEC}}
+#' @keywords datasets
+#' @examples
+#' data(Turk23)
+#' Turk23$data
+#'
+#' ## Standard errors of the summary estimates from their 95% CIs
+#' se <- with(Turk23$data, (upper-lower)/(2*qnorm(0.975)))
+#'
+#' ## CCA of 0.125 reported by Turk et al. (2023)
+#' CCA(Turk23$X)
+#'
+#' ## Count-based SEC, CCA, and the sampling covariance matrix
+#' fit <- SEC(Turk23$X, V=se^2)
+#' fit
+NULL
+
+
+
+
+
 #' Second Stage analysis of the univariate R (uniR) approach
+#'
+#' In \code{uniR2mx()}, observed variables are aligned by name when possible.
+#' For both second-stage functions, variable names and ordinary parameter labels must not contain periods;
+#' rename consistently, e.g., \code{x.1} to \code{x_1}.
+#' If the pooled matrix is named but observed names are unavailable or differ,
+#' positional matching is used with a warning; check the variable order.
 #'
 #' It conducts the second stage analysis of the uniR analysis by fitting
 #' structural equation models on the average correlation matrix.
@@ -3091,6 +3590,10 @@ NULL
 #' approach is preferred (e.g., Cheung, 2015; Cheung & Chan, 2005).
 #'
 #' @name uniR2
+#' @usage
+#' uniR2mx(x, RAM = NULL, Amatrix = NULL, Smatrix = NULL, Fmatrix = NULL, model.name = NULL,
+#'     suppressWarnings = TRUE, silent = TRUE, run = TRUE, ...)
+#' uniR2lavaan(x, model, ...)
 #' @aliases uniR2mx uniR2lavaan
 #' @param x An object of class \code{uniR1} from \code{\link[metaSEM]{uniR1}}.
 #' @param RAM A RAM object including a list of matrices of the model returned
@@ -3199,6 +3702,19 @@ NULL
 #'
 #'
 #' @name vcov
+#' @usage
+#' \method{vcov}{tssem1FEM}(object, ...)
+#' \method{vcov}{tssem1FEM.cluster}(object, ...)
+#' \method{vcov}{tssem1REM}(object, select = c("all", "fixed", "random"), robust = FALSE, ...)
+#' \method{vcov}{wls}(object, ...)
+#' \method{vcov}{wls.cluster}(object, ...)
+#' \method{vcov}{meta}(object, select = c("all", "fixed", "random"), robust = FALSE, ...)
+#' \method{vcov}{meta3LFIML}(object, select = c("all", "fixed", "random", "allX"), robust = FALSE,
+#'     ...)
+#' \method{vcov}{reml}(object, ...)
+#' \method{vcov}{osmasem}(object, select = c("fixed", "all", "random"), robust = FALSE, ...)
+#' \method{vcov}{osmasem2}(object, select = c("fixed", "all", "random"), robust = FALSE, ...)
+#' \method{vcov}{mxsem}(object, robust = FALSE, smallSample = FALSE, ...)
 #' @aliases vcov.tssem1FEM vcov.tssem1FEM.cluster vcov.tssem1REM vcov.wls vcov.wls.cluster vcov.meta vcov.meta3LFIML vcov.reml vcov.osmasem vcov.osmasem2 vcov.mxsem
 #' @param object An object returned from objects of various classes
 #' @param select Select \code{all} for both fixed- and random-effects
@@ -3208,9 +3724,14 @@ NULL
 #' auxiliary variables.
 #' @param robust Logicial. Whether to use robust standard error from
 #' \code{\link[OpenMx]{imxRobustSE}}.
+#' @param smallSample Logical. For \code{mxsem} objects, whether to apply the
+#' small-sample correction to the cluster-robust covariance matrix; requires
+#' \code{robust=TRUE}. See \code{\link{clusterRobustSE}}.
 #' @param \dots Further arguments; currently not in use except for
 #' \code{tssemRobust1}, which to be passed to \code{\link[metafor]{robust}}.
-#' @return A variance-covariance matrix of the parameter estimates.
+#' @return A variance-covariance matrix of the parameter estimates. For
+#' \code{osmasem} and \code{osmasem2}, the result remains a matrix when
+#' one parameter is selected; an empty selection returns a 0 by 0 matrix.
 #' @note \code{vcov} returns \code{NA} when the \code{diag.constraints=TRUE}
 #' argument is used in \code{wls} objects.
 #' @author Mike W.-L. Cheung <mikewlcheung@@nus.edu.sg>

@@ -16,24 +16,19 @@ summary.wls <- function(object, df.adjustment=0, ...) {
     }
     tB <- object$indepModelChisq
     dfB <- object$indepModelDf
-    p <- pchisq(tT, df=dfT, lower.tail=FALSE)
-    sampleS <- mxEval(sampleS, object$mx.fit)
-    impliedS <- mxEval(impliedS, object$mx.fit)
+    sampleS <- mxEvalByName("sampleS", object$mx.fit)
+    impliedS <- mxEvalByName("impliedS", object$mx.fit)
 
     cor.analysis <- object$cor.analysis
 
     ## Hu and Bentler (1998) Psychological Methods
-    ## Protect RMSEA divided by 0
-    if (dfT==0) {
-      RMSEA <- 0
-    } else {
-      RMSEA <- sqrt(max((tT-dfT)/(n-1),0)/dfT)
-    }
-    ## RMSEA 95% CI
-    RMSEA.CI <- .rmseaCI(chi.squared=tT, df=dfT, N=n, G=1, lower=.05, upper=.95)
-    
-    TLI <- (tB/dfB - tT/dfT)/(tB/dfB-1)
-    CFI <- 1 - max((tT-dfT),0)/max((tT-dfT),(tB-dfB),0)
+    ## df=0 and df<0 are handled in .fitIndices()
+    fit <- .fitIndices(tT=tT, dfT=dfT, tB=tB, dfB=dfB, N=n, G=1)
+    p <- fit$p
+    RMSEA <- fit$RMSEA
+    RMSEA.CI <- fit$RMSEA.CI
+    TLI <- fit$TLI
+    CFI <- fit$CFI
 	## FIXME: better to use -2LL+2r where r is the no. of free parameters (Mplus, p. 22; R ?AIC)
 	## This will be more consistent with logLik(). However, it seems that df not npar is used in logLik().
     AIC <- tT-2*dfT
@@ -70,9 +65,10 @@ summary.wls <- function(object, df.adjustment=0, ...) {
     ## Unsafe to check my.mx$CI
     if (object$intervals.type=="z") {
         
-      ## Use OpenMx's vcov
-      if (object$diag.constraints)
-        my.para$Std.Error <- sqrt(Diag(vcov.wls(object)))
+      ## With mxConstraints (e.g., diag.constraints=TRUE), OpenMx's SEs are
+      ## replaced by those from vcov.wls()
+      if (.has.constraints(object$mx.fit))
+        my.para$Std.Error <- sqrt(diag(vcov.wls(object)))[my.para$name]
         
       my.para$lbound <- my.para$Estimate - qnorm(.975)*my.para$Std.Error
       my.para$ubound <- my.para$Estimate + qnorm(.975)*my.para$Std.Error
@@ -127,7 +123,7 @@ summary.wls <- function(object, df.adjustment=0, ...) {
       coefficients <- my.para[, -c(1:4, 8)] 
     }
     coefficients$"z value" <- coefficients$Estimate/coefficients$Std.Error
-    coefficients$"Pr(>|z|)" <- 2*(1-pnorm(abs(coefficients$"z value")))
+    coefficients$"Pr(>|z|)" <- 2*pnorm(-abs(coefficients$"z value"))
     
     ## Extract mx.algebras (and CI)
     if (is.null(object$mx.algebras)) {
@@ -250,24 +246,16 @@ summary.tssem1FEM <- function(object, ...) {
     dfT <- my.fit$degreesOfFreedom
     ## tB <- object$independentMinus2LL - object$saturatedMinus2LL
     ## dfB <- mx.fit$degreesOfFreedom + ps
-    p <- pchisq(tT, df=dfT, lower.tail=FALSE)
 
     no.groups <- length(object$mx.fit@submodels)
-    ## Steiger (1998, Eq. 24) A note on multiple sample extensions of the RMSEA fit indices. SEM, 5(4), 411-419.
-    RMSEA <- sqrt(no.groups)*sqrt(max((tT-dfT)/(sum(n)-1),0)/dfT)
-
-    ## Fixed a minor bug that returns an error when tT=NA; it returns NA for RMSEA.CI now
-    ## RMSEA 95% CI
-    if (is.na(tT)) {
-      RMSEA.CI <- c(NA, NA)
-      attr(RMSEA.CI, "names") <- c("lower", "upper")
-    } else {
-      RMSEA.CI <- .rmseaCI(chi.squared=tT, df=dfT, N=sum(n), G=no.groups, lower=.05, upper=.95)   
-    }
-    
-    ## Hu and Bentler (1998)
-    TLI <- (tB/dfB - tT/dfT)/(tB/dfB-1)
-    CFI <- 1 - max((tT-dfT),0)/max((tT-dfT),(tB-dfB),0)
+    ## RMSEA (Steiger, 1998), its 95% CI, TLI and CFI (Hu and Bentler, 1998)
+    ## tT=NA, df=0 and df<0 are handled in .fitIndices()
+    fit <- .fitIndices(tT=tT, dfT=dfT, tB=tB, dfB=dfB, N=sum(n), G=no.groups)
+    p <- fit$p
+    RMSEA <- fit$RMSEA
+    RMSEA.CI <- fit$RMSEA.CI
+    TLI <- fit$TLI
+    CFI <- fit$CFI
     ## FIXME: definitions of AIC
     AIC <- tT-2*dfT
     BIC <- tT-log(sum(n))*dfT
@@ -278,13 +266,13 @@ summary.tssem1FEM <- function(object, ...) {
     srmr <- function(sampleS, pooledS, cor.analysis) {
       index <- is.na(Diag(sampleS))
       # Selection matrix to select complete data
-      Sel <- Diag(rep(1, ncol(pooledS)))
-      Sel <- Sel[!index, ]
-      sampleS <- sampleS[!index, !index]
+      Sel <- diag(ncol(pooledS))
+      Sel <- Sel[!index, , drop=FALSE]
+      sampleS <- sampleS[!index, !index, drop=FALSE]
       if (cor.analysis) {
         sqrt(mean( vechs( cov2cor(sampleS)- Sel %*% pooledS %*% t(Sel) )^2 ))
       } else {
-        stand <- Diag(1/sqrt(Diag(sampleS)))
+        stand <- diag(1/sqrt(diag(sampleS)), nrow=nrow(sampleS))
         sqrt(mean( vech( stand %*% (sampleS - Sel %*% pooledS %*% t(Sel) ) %*% stand )^2 ))
       }
     }
@@ -316,7 +304,7 @@ summary.tssem1FEM <- function(object, ...) {
     dimnames(my.para)[[1]] <- my.para$name
     coefficients <- my.para[, c(5,6)]
     coefficients$"z value" <- coefficients$Estimate/coefficients$Std.Error
-    coefficients$"Pr(>|z|)" <- 2*(1-pnorm(abs(coefficients$"z value")))
+    coefficients$"Pr(>|z|)" <- 2*pnorm(-abs(coefficients$"z value"))
     
     out <- list(call=object$call, coefficients=coefficients, stat=stat, Mx.status1=object$mx.fit@output$status[[1]])
     class(out) <- "summary.tssem1FEM"
@@ -471,7 +459,7 @@ summary.meta <- function(object, homoStat=TRUE, robust=FALSE, ...) {
       ## coefficients$"Pr(>|z|)" <- NA         
     }
     coefficients$"z value" <- coefficients$Estimate/coefficients$Std.Error
-    coefficients$"Pr(>|z|)" <- 2*(1-pnorm(abs(coefficients$"z value")))
+    coefficients$"Pr(>|z|)" <- 2*pnorm(-abs(coefficients$"z value"))
 
     intervals.type <- object$call[[match("intervals.type", names(object$call))]]
     # default
@@ -688,7 +676,7 @@ summary.reml <- function(object, ...) {
     } 
       
     coefficients$"z value" <- coefficients$Estimate/coefficients$Std.Error
-    coefficients$"Pr(>|z|)" <- 2*(1-pnorm(abs(coefficients$"z value")))
+    coefficients$"Pr(>|z|)" <- 2*pnorm(-abs(coefficients$"z value"))
 
     ## intervals.type <- object$call[[match("intervals.type", names(object$call))]]
     ## # default
@@ -823,7 +811,7 @@ vcov.tssem1REM <- function(object, select=c("all", "fixed", "random"),
 vcov.wls <- function(object, ...) {
   if (!is.element("wls", class(object)))
     stop("\"object\" must be an object of class \"wls\".")
-  vcov(object$mx.fit)
+  .model.vcov(object$mx.fit)
   
   ## if (object$diag.constraints) {
   ##   ## Parametric bootstrap for vcov when there are nonlinear constraints
@@ -904,7 +892,7 @@ coef.tssem1FEM <- function(object, ...) {
     if (!is.element("tssem1FEM", class(object)))
     stop("\"object\" must be an object of class \"tssem1FEM\".")
 
-    pooledS <- eval(parse(text = "mxEval(S, object$mx.fit)"))
+    pooledS <- mxEvalByName("S", object$mx.fit)
     dimnames(pooledS) <- list(object$original.names, object$original.names)  
     pooledS
 }
@@ -993,7 +981,7 @@ summary.tssem1FEM.cluster <- function(object, ...) {
 summary.wls.cluster <- function(object, df.adjustment=0, ...) {
     if (!is.element("wls.cluster", class(object)))
     stop("\"object\" must be an object of class \"wls.cluster\".")
-    lapply(object, summary.wls, df.adjustment=0, ...)
+    lapply(object, summary.wls, df.adjustment=df.adjustment, ...)
 }
 
 summary.meta3LFIML <- function(object, allX=FALSE, robust=FALSE, ...) {
@@ -1050,7 +1038,7 @@ summary.meta3LFIML <- function(object, allX=FALSE, robust=FALSE, ...) {
     }
     dimnames(coefficients)[[1]] <- my.para$label
     coefficients$"z value" <- coefficients$Estimate/coefficients$Std.Error
-    coefficients$"Pr(>|z|)" <- 2*(1-pnorm(abs(coefficients$"z value")))
+    coefficients$"Pr(>|z|)" <- 2*pnorm(-abs(coefficients$"z value"))
 
     intervals.type <- object$call[[match("intervals.type", names(object$call))]]
     # default

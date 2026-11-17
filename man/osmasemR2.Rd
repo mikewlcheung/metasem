@@ -7,9 +7,9 @@
 osmasemR2(model1, model0, R2.truncate = TRUE)
 }
 \arguments{
-\item{model1}{An object in class \code{osmasem}.}
+\item{model1}{An object inheriting from class \code{osmasem}.}
 
-\item{model0}{An object in class \code{osmasem}.}
+\item{model0}{An object inheriting from class \code{osmasem}.}
 
 \item{R2.truncate}{Whether to truncate the negative R2 to zero.}
 }

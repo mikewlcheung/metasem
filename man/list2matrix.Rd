@@ -16,13 +16,16 @@ used to vectorize the (covariance) matrices. If it is \code{FALSE},
 \value{
 A \eqn{k}{k} x \eqn{p*}{p*} stacked matrix where \eqn{p* = p(p-1)/2
 }{p* = p(p-1)/2} for \code{diag}=\code{FALSE} or \eqn{p* = p(p+1)/2 }{p* =
-p(p+1)/2}\eqn{ }{p* = p(p+1)/2} for \code{diag}=\code{TRUE}.
+p(p+1)/2} for \code{diag}=\code{TRUE}.
 }
 \description{
+Variable names and data column names must not contain periods. Rename them consistently, for example \code{x.1} to \code{x_1}, and check that the new names are unique. Study, group, and cluster values may contain periods.
+
 It converts a list of symmetric matrices into a stacked matrix. Dimensions
 of the symmetric matrices have to be the same. It tries to preserve the
 dimension names if possible. Dimension names will be created if there are no
-dimension names in the first symmetric matrix.
+dimension names in the first symmetric matrix. When matrices are named,
+both axes of each matrix are aligned to the first matrix by variable name.
 }
 \examples{
 

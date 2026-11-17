@@ -20,15 +20,16 @@ Cor2DataFrame(
 }
 \arguments{
 \item{x}{A list of data with correlation/covariance matrix in \code{x$data}
-and sample sizes \code{x$n}. Additional variables in \code{x} can be
-attached.}
+and sample sizes \code{x$n}. Additional variables in \code{x}, in any
+order relative to \code{data} and \code{n}, can be attached. Named matrices are aligned to the first matrix by variable name.}
 
 \item{n}{If \code{x} is a list of correlation matrices without \code{x$data}
 and \code{x$n}, a vector of sample sizes \code{n} must be provided.}
 
-\item{v.na.replace}{Logical. Missing value is not allowed in definition
-variables. If it is \code{TRUE} (the default), missing value is replaced by
-a large value (1e10). These values are not used in the analysis.}
+\item{v.na.replace}{Logical. For weighted or unweighted average sampling
+covariance matrices, replace missing covariance entries by their available
+weighted or unweighted mean before calculating sampling covariances. An
+entry missing from every study cannot be replaced and raises an error.}
 
 \item{cor.analysis}{Logical. The output is either a correlation or
 covariance matrix.}
@@ -47,13 +48,13 @@ otherwise, the calculated sampling covariance matrices of the means are
 incorrect.}
 
 \item{row.names.unique}{Logical. If it is \code{FALSE} (the default), unique
-row names are not created.}
+row names are not created. If \code{TRUE}, the rows are named by the names
+of the studies, made unique.}
 
 \item{append.vars}{Whether to append the additional variables to the output
 dataframe.}
 
-\item{asyCovOld}{Whether to use the old version of \code{asyCov}. See
-\code{\link[metaSEM]{asyCov}}.}
+\item{asyCovOld}{Whether to use the legacy Hessian-based method. It requires complete covariances among retained variables in its working matrix. \code{asyCov()} is preferred. See \code{\link[metaSEM]{asyCov}}.}
 
 \item{\dots}{Further arguments to be passed to
 \code{\link[metaSEM]{asyCov}}.}
@@ -65,6 +66,8 @@ sizes; (3) labels of the correlations; and (4) labels of their sampling
 covariance matrices.
 }
 \description{
+Variable and appended moderator column names must not contain periods; rename them consistently, e.g., \code{x.1} to \code{x_1}, and check for duplicates. Multi-column moderator names generated with periods are converted to underscores; collisions are rejected. Study names may contain periods. Generated pair labels that would collide are made unique with a \code{_dup} suffix; existing objects with ambiguous duplicate labels must be regenerated.
+
 It converts the correlation or covariance matrices into a dataframe of
 correlations or covariances with their asymptotic sampling covariance
 matrices. It uses the \code{asyCov} at the backend.

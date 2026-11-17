@@ -29,7 +29,7 @@ homogeneity of variances is not assumed. The standard deviation of the first
 group is used as the standardizer in calculating the effect sizes.}
 
 \item{bias.adjust}{If it is \code{TRUE} (the default), the effect sizes are
-adjusted for small bias by multiplying \eqn{1-3/(4*(n1+n2)-9)}.}
+adjusted under normality for the standard deviation actually used. With a first-group standardizer the exact correction uses its degrees of freedom; with a common standardizer it accounts for the sample-size-weighted pooled variance. The standardizer must have more than one degree of freedom. }
 
 \item{all.comparisons}{If it is \code{FALSE} (the default), all groups
 (except the first group) are compared against the first group. If it is
@@ -50,6 +50,12 @@ covariance matrix for \emph{k} multiple treatment studies. The first group
 is assumed as the control group.
 }
 \details{
+Zero sample means are retained. Groups with missing means, variances, or
+sample sizes, or with nonpositive variances or sample sizes, are excluded;
+comparisons involving these groups are returned as \code{NA}.
+With \code{homogeneity="none"} and \code{all.comparisons=TRUE}, the
+first group must be complete because it supplies the standardizer.
+
 Gleser and Olkin (2009) introduce formulas to calculate the standardized
 mean differences and their sampling covariance matrix for multiple treatment
 studies under the assumption of homogeneity of the covariance matrix. This

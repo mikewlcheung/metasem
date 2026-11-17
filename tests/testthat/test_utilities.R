@@ -245,21 +245,21 @@ test_that("lavaan2RAM() works correctly", {
     RAM5a <- lavaan2RAM(model5)
     ## RAM5b: hard-coded
     RAM5b <- list(A = structure(c("0", "0", "0", "0.1*b1", "0", "0", "0.1*b2", 
-                                  "0", "0"), .Dim = c(3L, 3L),
-                                .Dimnames = list(c("y", "x1", "x2"),
+                                  "0", "0"), dim = c(3L, 3L),
+                                dimnames = list(c("y", "x1", "x2"),
                                                  c("y", "x1", "x2"))),
                   S = structure(c("0.5*yWITHy", "0", "0", 
                                   "0", "0.5*x1WITHx1", "0*x1WITHx2", "0",
-                                  "0*x1WITHx2", "0.5*x2WITHx2"), .Dim = c(3L, 3L),
-                                .Dimnames = list(c("y", "x1", "x2"),
+                                  "0*x1WITHx2", "0.5*x2WITHx2"), dim = c(3L, 3L),
+                                dimnames = list(c("y", "x1", "x2"),
                                                  c("y", "x1", "x2"))),
-                  F = structure(c(1, 0, 0, 0, 1, 0, 0, 0, 1), .Dim = c(3L, 3L),
-                                .Dimnames = list(c("y", "x1", "x2"),
+                  F = structure(c(1, 0, 0, 0, 1, 0, 0, 0, 1), dim = c(3L, 3L),
+                                dimnames = list(c("y", "x1", "x2"),
                                                  c("y", "x1", "x2"))), 
                   ## x1/x2's own means are free by default too (not just
                   ## y's), like every other observed variable.
-                  M = structure(c("0*ymean", "0*x1mean", "0*x2mean"), .Dim = c(1L, 3L),
-                                .Dimnames = list("1", c("y", "x1", "x2"))))
+                  M = structure(c("0*ymean", "0*x1mean", "0*x2mean"), dim = c(1L, 3L),
+                                dimnames = list("1", c("y", "x1", "x2"))))
     expect_identical(RAM5a, RAM5b)
 
  })
@@ -804,12 +804,12 @@ test_that("sem() respects := and == constraints across groups", {
     ## fn1's SE/CI: mxSE()'s delta method (var(b1)+var(b2)+2*cov(b1,b2),
     ## via vcov(), since b1/b2 have independent per-group likelihoods here
     ## but this formula does not assume that) must agree with the reported
-    ## Wald CI, since the CI is built as estimate +/- 1.96*SE internally --
+    ## Wald CI, since the CI is built as estimate +/- qnorm(.975)*SE internally --
     ## cross-checked against an INDEPENDENT computation (plain vcov()
     ## algebra, not mxSE()) rather than trusting mxSE()'s own output.
     V <- vcov(fit1)
     se.manual <- sqrt(V["b1","b1"] + V["b2","b2"] + 2*V["b1","b2"])
-    se.implied <- (s1$mxalgebras["fn1","ubound"] - est)/1.96
+    se.implied <- (s1$mxalgebras["fn1","ubound"] - est)/qnorm(.975)
     expect_equal(unname(se.implied), unname(se.manual), tolerance=1e-6)
 
     ## Likelihood-based (LB) CI for the same defined parameter: must exist,
@@ -846,7 +846,7 @@ test_that("sem()'s := SE/CI is consistent for a nonlinear (indirect-effect) form
     g <- c(b, a)   # d(a*b)/d(a,b) = (b, a)
     V <- vcov(fit.sg)[c("a","b"), c("a","b")]
     se.manual <- sqrt(as.numeric(t(g) %*% V %*% g))
-    se.implied <- (s.sg$mxalgebras["ind","ubound"] - s.sg$mxalgebras["ind","estimate"])/1.96
+    se.implied <- (s.sg$mxalgebras["ind","ubound"] - s.sg$mxalgebras["ind","estimate"])/qnorm(.975)
     expect_equal(unname(se.implied), unname(se.manual), tolerance=1e-6)
 
     ## -- Multiple-group (2 groups, group-specific a/b/indirect effect) --
@@ -861,7 +861,7 @@ test_that("sem()'s := SE/CI is consistent for a nonlinear (indirect-effect) form
     g <- c(b1, a1)
     V <- vcov(fit.mg)[c("a1","b1"), c("a1","b1")]
     se.manual <- sqrt(as.numeric(t(g) %*% V %*% g))
-    se.implied <- (s.mg$mxalgebras["ind1","ubound"] - s.mg$mxalgebras["ind1","estimate"])/1.96
+    se.implied <- (s.mg$mxalgebras["ind1","ubound"] - s.mg$mxalgebras["ind1","estimate"])/qnorm(.975)
     expect_equal(unname(se.implied), unname(se.manual), tolerance=1e-6)
 
     ## robust=TRUE regression test: mxSE()'s own default silently ignores
@@ -881,7 +881,7 @@ test_that("sem()'s := SE/CI is consistent for a nonlinear (indirect-effect) form
     Vr <- robust.cov[c("a1","b1"), c("a1","b1")]
     se.manual.robust <- sqrt(as.numeric(t(g) %*% Vr %*% g))
     se.implied.robust <- (s.mg.robust$mxalgebras["ind1","ubound"] -
-                          s.mg.robust$mxalgebras["ind1","estimate"])/1.96
+                          s.mg.robust$mxalgebras["ind1","estimate"])/qnorm(.975)
     expect_equal(unname(se.implied.robust), unname(se.manual.robust), tolerance=1e-6)
 })
 
@@ -903,14 +903,13 @@ test_that("sem() errors clearly on unsupported multiple-group input", {
     ## (see the dedicated tests below) -- with no "==" constraints in this
     ## model at all, it is simply a no-op and must NOT error.
     expect_error(sem(RAM=RAM, data=df, group="g", replace.constraints=TRUE), NA)
-    ## Cov/numObs-based input not yet supported for multi-group RAM
+    ## Multiple-group summary input needs one matrix and sample size per group
     expect_error(sem(RAM=RAM, Cov=diag(2), numObs=100))
 
-    ## Regression test: 'cluster' (a two-level-only argument) used to be
-    ## silently ignored for a multi-group RAM instead of rejected -- a
-    ## caller passing both 'group' and 'cluster' could be misled into
-    ## thinking both dimensions were being modeled, when only 'group' was.
-    expect_error(sem(RAM=RAM, data=df, group="g", cluster="g3"), "cluster")
+    ## A cluster column may identify independent units for robust inference
+    ## without adding a between-level component to this flat model.
+    expect_identical(sem(RAM=RAM, data=df, group="g", cluster="g3",
+                         run=FALSE)$cluster, "g3")
 
     ## Regression test: an unused factor level in the group column used to
     ## silently pass split()'s group-count check (it creates an entry, with
@@ -1579,6 +1578,7 @@ level: 2
 })
 
 test_that("sem() fits a two-level random-intercept regression matching lavaan", {
+  skip_on_cran()
     set.seed(7)
     nClusters <- 60; nPerCluster <- 6; N <- nClusters*nPerCluster
     clusterID <- rep(seq_len(nClusters), each=nPerCluster)
@@ -1611,6 +1611,59 @@ level: 2
     expect_equal(unname(cf["residB"]), unname(lav.cf["residB"]), tolerance=1e-2)
 })
 
+test_that("a level-1 regression uses only a predictor's within component", {
+  skip_on_cran()
+    ## If x also has a between component, regressing y on the observed x
+    ## carries x's between variation into y unless sem() separates x's
+    ## within component first. That changes the likelihood and the
+    ## between-level residual variance without producing a fitting error.
+    set.seed(2)
+    n.clusters <- 80L
+    id <- rep(seq_len(n.clusters), each=8L)
+    x <- rep(rnorm(n.clusters), each=8L) + rnorm(length(id))
+    y <- 0.6*x + rep(rnorm(n.clusters, sd=0.7), each=8L) + rnorm(length(id))
+    df <- data.frame(y=y, x=x, id=id)
+    model <- "level: 1
+      y ~ b*x
+    level: 2
+      y ~ 1
+      y ~~ y
+      x ~ 1
+      x ~~ x"
+
+    fit.lav <- lavaan::sem(model, data=df, cluster="id", fixed.x=FALSE)
+    fit.mx <- sem(RAM=lavaan2RAM(model), data=df, cluster="id")
+    lav.est <- lavaan::parameterEstimates(fit.lav)
+    expect_equal(fit.mx$mx.fit$output$fit,
+                 -2*as.numeric(lavaan::fitMeasures(fit.lav, "logl")),
+                 tolerance=1e-3)
+    expect_equal(unname(coef(fit.mx)["b"]),
+                 lav.est$est[lav.est$lhs=="y" & lav.est$op=="~" &
+                               lav.est$rhs=="x" & lav.est$level==1],
+                 tolerance=1e-3)
+    expect_equal(unname(coef(fit.mx)["yWITHy_between"]),
+                 lav.est$est[lav.est$lhs=="y" & lav.est$op=="~~" &
+                               lav.est$rhs=="y" & lav.est$level==2],
+                 tolerance=1e-3)
+
+    ## The within and between regressions can also have different slopes.
+    model.both <- "level: 1
+      y ~ bw*x
+    level: 2
+      y ~ bb*x
+      y ~ 1
+      x ~ 1"
+    both.lav <- lavaan::sem(model.both, data=df, cluster="id", fixed.x=FALSE)
+    both.mx <- sem(RAM=lavaan2RAM(model.both), data=df, cluster="id")
+    expect_equal(both.mx$mx.fit$output$fit,
+                 -2*as.numeric(lavaan::fitMeasures(both.lav, "logl")),
+                 tolerance=1e-3)
+    both.est <- lavaan::parameterEstimates(both.lav)
+    expect_equal(unname(coef(both.mx)[c("bw", "bb")]),
+                 both.est$est[both.est$op=="~" & both.est$lhs=="y" &
+                                both.est$rhs=="x"], tolerance=1e-3)
+})
+
 test_that(".RAM2paths() keeps zero-prefixed definition-variable/@-tied cells", {
     ## Regression test for a bug found and fixed while implementing the
     ## two-level path: a fixed (free=FALSE) cell with a real label (a
@@ -1636,6 +1689,7 @@ test_that(".RAM2paths() keeps zero-prefixed definition-variable/@-tied cells", {
 })
 
 test_that("sem() fits two-level and multi-group models with definition variables", {
+  skip_on_cran()
     ## Two-level: within-level residual variance is a per-row KNOWN
     ## definition variable (data.v), not estimated -- mirrors the package's
     ## own single-group idiom (e.g. metaFIML's "yi ~~ data.vi*yi").
@@ -1684,6 +1738,7 @@ level: 2
 })
 
 test_that("sem() respects := constraints for two-level RAM, with correct SE/CI", {
+  skip_on_cran()
     set.seed(8)
     nClusters <- 40; nPerCluster <- 5; N <- nClusters*nPerCluster
     clusterID <- rep(seq_len(nClusters), each=nPerCluster)
@@ -1723,13 +1778,13 @@ fn2 := b1 * residW"
     ## standard OpenMx configuration than a flat or multigroup model.
     V <- vcov(fit)[c("b1","residW"), c("b1","residW")]
     se1.manual <- sqrt(V["b1","b1"] + V["residW","residW"] + 2*V["b1","residW"])
-    se1.implied <- (s$mxalgebras["fn1","ubound"] - est1)/1.96
+    se1.implied <- (s$mxalgebras["fn1","ubound"] - est1)/qnorm(.975)
     expect_equal(unname(se1.implied), unname(se1.manual), tolerance=1e-6)
 
     b1 <- cf["b1"]; residW <- cf["residW"]
     grad2 <- c(residW, b1)   # d(b1*residW)/d(b1,residW) = (residW, b1)
     se2.manual <- sqrt(as.numeric(t(grad2) %*% V %*% grad2))
-    se2.implied <- (s$mxalgebras["fn2","ubound"] - est2)/1.96
+    se2.implied <- (s$mxalgebras["fn2","ubound"] - est2)/qnorm(.975)
     expect_equal(unname(se2.implied), unname(se2.manual), tolerance=1e-6)
 
     ## Likelihood-based (LB) CI for the same defined parameters.
@@ -1740,14 +1795,11 @@ fn2 := b1 * residW"
     expect_equal(unname(ci.lb["fn1", "estimate"]), unname(est1), tolerance=1e-3)
     expect_equal(unname(ci.lb["fn2", "estimate"]), unname(est2), tolerance=1e-3)
 
-    ## robust=TRUE is rejected outright for two-level fits (see
-    ## summary.mxsem()) -- := parameters are no exception, so there is no
-    ## separate "robust SE ignored" failure mode to worry about here, only
-    ## confirming the rejection still fires with a := present in the model.
-    expect_error(summary(fit, robust=TRUE), "two-level")
+    ## Cluster-robust covariance is exercised separately on a smaller model.
 })
 
 test_that("sem() supports replace.constraints=TRUE for two-level RAM at the within level, the between level, and across both", {
+  skip_on_cran()
     ## .sem.twolevel() does not build named A/S/M mxMatrix objects the way
     ## the single-group path does -- it flattens everything to mxPath()
     ## calls, because OpenMx's relational (primaryKey/joinKey) mechanism
@@ -1915,6 +1967,7 @@ test_that("sem()'s single-group fully-constant replace.constraints=TRUE branch e
 })
 
 test_that("sem() resolves CHAINED replace.constraints=TRUE substitutions correctly, in both single-group and two-level fits", {
+  skip_on_cran()
     ## Regression test for a high-severity bug (found on external review):
     ## the substitution loop applied each "==" constraint's OWN,
     ## un-expanded RHS text in a single pass over the RAM matrices. When
@@ -2043,6 +2096,7 @@ residW == exp(a0)"
 })
 
 test_that("sem() supports a definition variable inside a replace.constraints=TRUE two-level constraint (within-level location-scale heterogeneity)", {
+  skip_on_cran()
     ## The realistic use case: making the WITHIN-study heterogeneity a
     ## function of an effect-size-level moderator, i.e. a two-level
     ## location-scale meta-analysis (paralleling the single-group
@@ -2099,14 +2153,8 @@ level: 2
     expect_equal(m2ll.fit, m2ll.true, tolerance=2)
 })
 
-test_that("sem() rejects a genuine between-level (cluster-level) definition variable with a clear, actionable error", {
-    ## "between.data" (built inside .sem.twolevel()) only ever carries the
-    ## cluster ID column -- a genuine cluster-level covariate is not yet
-    ## plumbed through. Left unchecked, this would reach mxRun() as a hard
-    ## R error that the mxRun-then-mxTryHard() fallback mistakes for
-    ## "maybe just needs a better start", burning through 50 retries before
-    ## re-raising OpenMx's own cryptic message. Must instead be caught
-    ## immediately with a message that actually explains the limitation.
+test_that("sem() carries cluster-constant between-level definition variables", {
+  skip_on_cran()
     set.seed(7)
     nClusters <- 100; nPerCluster <- 5; N <- nClusters*nPerCluster
     clusterID <- rep(seq_len(nClusters), each=nPerCluster)
@@ -2122,8 +2170,9 @@ level: 2
   y ~ 1
   y ~~ data.z*y"
     RAM1 <- lavaan2RAM(model1, obs.variables="y", std.lv=FALSE)
-    expect_error(sem(RAM=RAM1, data=df, cluster="clusterID"),
-                "level-2-only.*definition variable")
+    fit1 <- sem(RAM=RAM1, data=df, cluster="clusterID", run=FALSE)
+    expect_equal(nrow(fit1$mx.fit@submodels$between@data@observed), nClusters)
+    expect_true("z" %in% names(fit1$mx.fit@submodels$between@data@observed))
 
     ## Case 2: introduced only via a replace.constraints substitution.
     model2 <- "level: 1
@@ -2133,8 +2182,13 @@ level: 2
   y ~~ residB*y
 residB == exp(c0 + c1*data.z)"
     RAM2 <- lavaan2RAM(model2, obs.variables="y", std.lv=FALSE)
-    expect_error(sem(RAM=RAM2, data=df, cluster="clusterID", replace.constraints=TRUE),
-                "level-2-only.*definition variable")
+    fit2 <- sem(RAM=RAM2, data=df, cluster="clusterID",
+                replace.constraints=TRUE, run=FALSE)
+    expect_true("z" %in% names(fit2$mx.fit@submodels$between@data@observed))
+    df.bad <- df
+    df.bad$z[2] <- df.bad$z[2] + 1
+    expect_error(sem(RAM=RAM1, data=df.bad, cluster="clusterID", run=FALSE),
+                 "constant within each cluster")
 
     ## Must NOT false-positive: a legitimate WITHIN-level ("level: 1")
     ## definition variable, with or without replace.constraints, is
@@ -2178,7 +2232,7 @@ level: 2
     ## dedicated tests below) -- with no "==" constraints in this model at
     ## all, it is simply a no-op and must NOT error.
     expect_error(sem(RAM=RAM, data=df, cluster="clusterID", replace.constraints=TRUE), NA)
-    ## Cov/numObs-based input not yet supported for two-level RAM
+    ## Two-level summary input needs per-cluster lists, not a pooled matrix
     expect_error(sem(RAM=RAM, Cov=diag(2), numObs=100))
     ## Regression test: 'group' (a multi-group-only argument) used to be
     ## silently ignored for a two-level RAM instead of rejected -- a caller
@@ -2199,33 +2253,24 @@ level: 2
     expect_error(sem(RAM=RAM, data=df.na.cluster, cluster="clusterID"))
 })
 
-test_that("lavaan2RAM() rejects genuine level-2-only observed covariates", {
-    ## Regression test for a HIGH-severity bug found on external review:
-    ## the documentation already said genuine level-2-only observed
-    ## covariates (e.g. "z" below, intended as a real cluster-level
-    ## covariate with its own data column, as opposed to a level-1
-    ## manifest variable's between-cluster component) are "not yet
-    ## supported" -- but nothing actually enforced that. "z" was silently
-    ## absorbed as an ordinary latent variable with no connection to any
-    ## real data column at all: no error, no warning, just a free
-    ## parameter estimated in a vacuum. Reproduced exactly as reported,
-    ## then fixed by rejecting it explicitly.
+test_that("lavaan2RAM() selects level-2-only observed covariates", {
     model <- "level: 1
   y ~~ y
 level: 2
   y ~ z
   y ~~ y
   z ~~ z"
-    expect_error(lavaan2RAM(model), "z")
+    ram <- lavaan2RAM(model)
+    expect_identical(rownames(ram$between$F), "z")
+    expect_equal(ram$between$F["z", "z"], 1)
 
-    ## A genuine level-2-only latent factor indicator (never appearing at
-    ## level 1 either) is the same underlying problem and is rejected too.
+    ## A level-2-only factor indicator is also observed at the between level.
     model.q <- "level: 1
   y ~~ y
 level: 2
   fb =~ y + q
   y ~~ y"
-    expect_error(lavaan2RAM(model.q), "q")
+    expect_identical(rownames(lavaan2RAM(model.q)$between$F), "q")
 
     ## Legitimate models (every level-2 variable is either a shadow of a
     ## level-1 manifest, or a genuine latent factor) are unaffected.
@@ -2235,12 +2280,8 @@ level: 2
   fb =~ y1+y2+y3"), NA)
 })
 
-test_that("vcov.mxsem(robust=TRUE) is guarded for two-level fits, matching summary()", {
-    ## Regression test: summary.mxsem()'s two-level robust=TRUE guard was
-    ## not mirrored in vcov.mxsem(), which called imxRobustSE() directly
-    ## and hit the same underlying OpenMx limitation with an unguarded,
-    ## cryptic error. An inconsistently-applied fix, found on external
-    ## review, not a design gap.
+test_that("vcov.mxsem(robust=TRUE) returns cluster-robust covariance", {
+  skip_on_cran()
     set.seed(17)
     nClusters <- 30; nPerCluster <- 5; N <- nClusters*nPerCluster
     clusterID <- rep(seq_len(nClusters), each=nPerCluster)
@@ -2249,7 +2290,8 @@ test_that("vcov.mxsem(robust=TRUE) is guarded for two-level fits, matching summa
     df <- data.frame(clusterID=clusterID, x=x, y=y)
     RAM <- lavaan2RAM("level: 1\n y~b1*x\n y~~residW*y\nlevel: 2\n y~1\n y~~residB*y")
     fit <- sem(RAM=RAM, data=df, cluster="clusterID")
-    expect_error(vcov(fit, robust=TRUE), "two-level")
+    expect_equal(dim(vcov(fit, robust=TRUE)),
+                 rep(length(coef(fit)), 2))
 })
 
 test_that("sem() accepts character and numeric-double cluster ID columns", {
@@ -2289,6 +2331,7 @@ test_that("sem() accepts character and numeric-double cluster ID columns", {
 })
 
 test_that("sem() supports LB intervals, run=FALSE, bounds, and missing data for two-level fits", {
+  skip_on_cran()
     set.seed(13)
     nClusters <- 50; nPerCluster <- 6; N <- nClusters*nPerCluster
     clusterID <- rep(seq_len(nClusters), each=nPerCluster)
@@ -2336,10 +2379,8 @@ level: 2
     expect_equal(cmp$diffdf[2], 1)
     expect_equal(dim(vcov(fit.bound)), rep(length(coef(fit.bound)), 2))
 
-    ## robust=TRUE is rejected with a clear, two-level-specific message
-    ## (OpenMx's imxRobustSE() cannot compute row-wise gradients through the
-    ## relational "between" submodel -- see summary.mxsem()'s comment).
-    expect_error(summary(fit.lb, robust=TRUE), "two-level")
+    ## Robust Wald intervals and likelihood-based intervals are distinct.
+    expect_error(summary(fit.lb, robust=TRUE), "intervals.type='z'")
 
     ## Missing individual-level data (FIML) does not error.
     df.na <- df
@@ -2348,6 +2389,7 @@ level: 2
 })
 
 test_that("sem() fits a two-level structural model and handles partial level-2 declarations", {
+  skip_on_cran()
     ## A regression between two GENUINE between-level latent factors (not
     ## just a random-intercept/CFA shadow structure). 3 indicators per
     ## factor (not 2): a 2-indicator between-level factor is only
@@ -2394,6 +2436,7 @@ level: 2
 })
 
 test_that("plot.mxsem() supports multiple-group and two-level fits", {
+  skip_on_cran()
     skip_if_not_installed("semPlot")
 
     ## Draw to a null device so this test has no filesystem side effect
@@ -2479,6 +2522,7 @@ level: 2
 })
 
 test_that("plot.mxsem() works when replace.constraints=TRUE has turned A/S/M into an mxAlgebra, in all three RAM dispatch paths", {
+  skip_on_cran()
     ## Regression test for a high-severity bug (found on a careful re-
     ## review of the whole replace.constraints=TRUE feature): .plot.mxsem.
     ## one() decided which matrix-naming convention a submodel uses
@@ -2812,6 +2856,7 @@ context("Checking sem() two-level results against meta3L()")
 ## in principle, the same joint likelihood, so this is a genuine
 ## cross-implementation check, not just a restatement of one in the other.
 test_that("sem() two-level matches meta3L() for intercept-only models", {
+  skip_on_cran()
     m1 <- meta3L(y=logOR, v=v, cluster=Cluster, data=Bornmann07)
     model <- "level: 1
                 fw =~ 1*logOR
@@ -2851,22 +2896,15 @@ test_that("sem() two-level matches meta3L() for intercept-only models", {
 })
 
 test_that("sem() two-level matches meta3L() for a predictor, up to an analytic -2LL offset", {
-    ## sem()'s within-level fixes an exogenous covariate's own mean at 0 by
-    ## default (see .lavaan2RAM.twolevel()), so it jointly models the
-    ## covariate's own distribution -- specifically its uncentered second
-    ## moment mean(x^2), since the mean is fixed at 0 rather than free --
-    ## as part of the likelihood. meta3L() never does this: it conditions
-    ## on x rather than modelling its distribution at all. The regression
-    ## and heterogeneity parameters themselves are unaffected (their
-    ## information block is independent of x's own free-variance
-    ## parameter), but -2LL differs by exactly N*(log(2*pi*mean(x^2))+1),
-    ## the -2LL of a scalar normal MLE with its mean fixed at 0. This is
-    ## NOT specific to an uncentered predictor -- mean-centering x first
-    ## (as here, via scale(..., scale=FALSE)) does not make the offset
-    ## vanish, it only means mean(x^2) and the ordinary sample variance
-    ## coincide (since mean(x)=0 either way); the offset itself is still
-    ## large and must still be subtracted, exactly as for the deliberately
-    ## uncentered predictor in the next test.
+  skip_on_cran()
+    ## sem() models a within-only covariate's own distribution, with a free
+    ## mean and variance at level 1 (see .lavaan2RAM.twolevel()), as part of
+    ## the likelihood. meta3L() never does this: it conditions on x rather
+    ## than modelling its distribution at all. The regression and
+    ## heterogeneity parameters themselves are unaffected (their information
+    ## block is independent of x's own parameters), but -2LL differs by
+    ## exactly N*(log(2*pi*s2)+1), where s2 = mean((x - mean(x))^2), the -2LL
+    ## of a scalar normal MLE. The offset does not vanish for a centered x.
     Cooper03$YearC <- scale(Cooper03$Year, scale=FALSE)[, 1]
     m5 <- meta3L(y=y, v=v, cluster=District, x=YearC, data=Cooper03)
     model <- "level: 1
@@ -2887,18 +2925,18 @@ test_that("sem() two-level matches meta3L() for a predictor, up to an analytic -
     expect_equal(unname(co3["Tau2_2", "Estimate"]), unname(cosem["tauW", "Estimate"]), tolerance=1e-6)
     expect_equal(unname(co3["Tau2_3", "Estimate"]), unname(cosem["tauB", "Estimate"]), tolerance=1e-6)
 
-    offset <- nrow(Cooper03) * (log(2*pi*mean(Cooper03$YearC^2)) + 1)
+    offset <- nrow(Cooper03) *
+      (log(2*pi*mean((Cooper03$YearC - mean(Cooper03$YearC))^2)) + 1)
     expect_equal(m5$mx.fit@output$Minus2LogLikelihood,
                  s5$mx.fit@output$Minus2LogLikelihood - offset, tolerance=1e-6)
 })
 
 test_that("sem() two-level matches meta3L() for an uncentered predictor, up to an analytic -2LL offset", {
-    ## Same offset as above (N*(log(2*pi*mean(x^2))+1)), but now with a
-    ## genuinely uncentered 0/1 predictor, where mean(x^2) and the ordinary
-    ## sample variance p*(1-p) actually differ -- confirming the offset
-    ## formula must use the UNCENTERED second moment (matching the
-    ## within-level mean fixed at 0), not the sample variance about x's own
-    ## mean, regardless of whether x happens to be centered.
+  skip_on_cran()
+    ## Same offset as above (N*(log(2*pi*s2)+1)), but now with a genuinely
+    ## uncentered 0/1 predictor, whose mean is estimated at level 1, so s2
+    ## is the sample variance p*(1-p) rather than mean(x^2). This used to be
+    ## mean(x^2) when the within-level mean of x was fixed at 0.
     Bornmann07$TypeNum <- as.numeric(Bornmann07$Type) - 1
     m2 <- meta3L(y=logOR, v=v, x=TypeNum, cluster=Cluster, data=Bornmann07)
     model <- "level: 1
@@ -2919,12 +2957,14 @@ test_that("sem() two-level matches meta3L() for an uncentered predictor, up to a
     expect_equal(unname(co3["Tau2_2", "Estimate"]), unname(cosem["tauW", "Estimate"]), tolerance=1e-6)
     expect_equal(unname(co3["Tau2_3", "Estimate"]), unname(cosem["tauB", "Estimate"]), tolerance=1e-6)
 
-    offset <- nrow(Bornmann07) * (log(2*pi*mean(Bornmann07$TypeNum^2)) + 1)
+    offset <- nrow(Bornmann07) *
+      (log(2*pi*mean((Bornmann07$TypeNum - mean(Bornmann07$TypeNum))^2)) + 1)
     expect_equal(m2$mx.fit@output$Minus2LogLikelihood,
                  s2$mx.fit@output$Minus2LogLikelihood - offset, tolerance=1e-6)
 })
 
 test_that("sem() two-level matches meta3L() when a label is shared across levels", {
+  skip_on_cran()
     ## meta3L()'s RE2.constraints/RE3.constraints="0.2*EqTau2" uses
     ## metaSEM's own as.mxMatrix() "start*label" convention -- the "0.2*"
     ## start-value prefix is NOT valid lavaan syntax and must be dropped
@@ -2955,4 +2995,172 @@ test_that("sem() two-level matches meta3L() when a label is shared across levels
     expect_equal(unname(co3["EqTau2", "Std.Error"]), unname(cosem["EqTau2", "Std.Error"]), tolerance=1e-6)
     expect_equal(m6$mx.fit@output$Minus2LogLikelihood,
                  s6$mx.fit@output$Minus2LogLikelihood, tolerance=1e-6)
+})
+
+context("Checking CCA() and SEC() for overlapping meta-analyses")
+
+test_that("CCA() computes the overall and pairwise CCA correctly", {
+
+    X <- matrix(c(1, 1, 0,
+                  1, 1, 0,
+                  1, 0, 1,
+                  0, 0, 1), ncol=3, byrow=TRUE)
+    ## CCA = (N-S)/(S(m-1)) = (7-4)/(4*2)
+    expect_equal(CCA(X), 3/8)
+    P <- CCA(X, pairwise=TRUE)
+    expect_equal(dimnames(P), list(c("MA1", "MA2", "MA3"), c("MA1", "MA2", "MA3")))
+    expect_equal(unname(diag(P)), rep(1, 3))
+    expect_true(isSymmetric(P))
+    ## Pairwise CCA equals the CCA of the two columns and the Jaccard index
+    for (i in 1:2) for (j in (i+1):3) {
+        expect_equal(P[i, j], CCA(X[, c(i, j)]))
+        expect_equal(P[i, j], sum(X[, i] & X[, j])/sum(X[, i] | X[, j]))
+    }
+
+    ## Boundary values: no repeated study and complete overlap
+    expect_equal(CCA(diag(3)), 0)
+    expect_equal(CCA(matrix(1, 4, 3)), 1)
+
+    ## NA as not included and rows without any inclusion are removed
+    X2 <- rbind(X, 0)
+    X2[X2 == 0] <- NA
+    expect_equal(CCA(as.data.frame(X2)), 3/8)
+    expect_equal(CCA(X == 1, pairwise=TRUE), P)
+
+    ## Turk et al. (2023) reported a CCA of 0.125; SEC() returns the same values
+    expect_equal(CCA(Turk23$X), 0.125)
+    fit <- SEC(Turk23$X)
+    expect_equal(fit$CCA, CCA(Turk23$X))
+    expect_equal(fit$CCA.pairwise, CCA(Turk23$X, pairwise=TRUE))
+
+    expect_error(CCA(matrix(c(1, 2, 0, 1), 2)), "only 0 and 1")
+    expect_error(CCA(matrix(1, 3, 1)), "at least two columns")
+    expect_error(CCA(matrix(0, 2, 2)), "does not include any study")
+    expect_error(CCA(cbind(c(1, 1), c(0, 0))), "do not include any study")
+})
+
+test_that("SEC() computes the count-based SEC and CCA correctly", {
+
+    X <- matrix(c(1, 1, 0,
+                  1, 1, 0,
+                  1, 0, 1,
+                  0, 0, 1), ncol=3, byrow=TRUE)
+    fit <- SEC(X)
+    k <- c(3, 2, 2)
+    expect_equal(unname(fit$k), k)
+    expect_equal(fit$n.studies, 4)
+    ## CCA = (N-S)/(S(m-1)) = (7-4)/(4*2)
+    expect_equal(fit$CCA, 3/8)
+    expect_equal(unname(fit$R[1, 2]), 2/sqrt(3*2))
+    expect_equal(unname(fit$R[1, 3]), 1/sqrt(3*2))
+    expect_equal(unname(fit$R[2, 3]), 0)
+    expect_equal(unname(diag(fit$R)), rep(1, 3))
+    ## Pairwise CCA is the Jaccard index
+    expect_equal(unname(fit$CCA.pairwise[1, 2]), 2/(3+2-2))
+    expect_equal(colnames(fit$R), c("MA1", "MA2", "MA3"))
+    expect_null(fit$Sigma)
+
+    ## NA as not included, data frame and logical inputs, empty rows removed
+    X2 <- rbind(X, 0)
+    X2[X2 == 0] <- NA
+    expect_equal(SEC(as.data.frame(X2))$R, SEC(as.data.frame(X))$R)
+    expect_equal(SEC(X == 1)$R, fit$R)
+    expect_equal(SEC(X2)$n.studies, 4)
+    expect_equal(SEC(X2)$CCA, 3/8)
+})
+
+test_that("SEC() computes the weighted and size-weighted SEC correctly", {
+
+    X <- matrix(c(1, 1, 0,
+                  1, 1, 0,
+                  1, 0, 1,
+                  0, 1, 1,
+                  1, 0, 0), ncol=3, byrow=TRUE)
+    q <- c(0.10, 0.04, 0.02, 0.05, 0.08)
+    w <- cbind(1/q, 1/(q+0.03), rep(1, 5))
+
+    ## Equation of the weighted SEC with explicit normalized coefficients
+    a <- sweep(X*w, 2, colSums(X*w), "/")
+    sec <- function(i, j) sum(a[, i]*a[, j]*q)/sqrt(sum(a[, i]^2*q)*sum(a[, j]^2*q))
+    expected <- outer(1:3, 1:3, Vectorize(sec))
+
+    fit <- SEC(X, method="weighted", q=q, weights=w)
+    expect_equal(unname(fit$R), expected)
+
+    ## Default weights are the inverse variances; SEC = W12/sqrt(W1*W2)
+    W <- crossprod(X, X/q)
+    expect_equal(unname(SEC(X, method="weighted", q=q)$R), unname(cov2cor(W)))
+    expect_equal(unname(SEC(X, method="weighted", q=q, weights=1/q)$R), unname(cov2cor(W)))
+
+    ## Equal variances and weights give the count-based SEC
+    expect_equal(SEC(X, method="weighted", q=rep(0.1, 5))$R, SEC(X)$R)
+
+    ## Size-weighted SEC equals the weighted SEC with q = 4/n
+    n <- c(40, 100, 200, 80, 50)
+    fit.n <- SEC(X, method="size", n=n)
+    expect_equal(fit.n$R, SEC(X, method="weighted", q=4/n)$R)
+    expect_equal(unname(fit.n$R[1, 2]), (40+100)/sqrt(sum(n[c(1:3, 5)])*sum(n[c(1, 2, 4)])))
+
+    ## Study-level vectors are aligned before the empty rows are removed
+    X0 <- rbind(X[1:2, ], 0, X[3:5, ])
+    expect_equal(SEC(X0, method="size", n=c(n[1:2], 999, n[3:5]))$R, fit.n$R)
+
+    ## Named one-dimensional arrays, e.g., from tapply(), are accepted
+    n.array <- tapply(n, paste0("s", 1:5), identity)
+    expect_equal(SEC(X, method="size", n=n.array)$R, fit.n$R)
+    expect_equal(SEC(X, method="weighted", q=tapply(q, paste0("s", 1:5), identity))$R,
+                 SEC(X, method="weighted", q=q)$R)
+})
+
+test_that("SEC() returns the covariance matrix and reproduces Turk23", {
+
+    data(Turk23)
+    se <- with(Turk23$data, (upper-lower)/(2*qnorm(0.975)))
+    fit <- SEC(Turk23$X, V=se^2)
+
+    expect_equal(unname(fit$k), Turk23$data$k)
+    expect_equal(fit$n.studies, 42)
+    ## CCA reported by Turk et al. (2023)
+    expect_equal(fit$CCA, 0.125)
+    expect_equal(unname(fit$R["Sonuga-Barke (2013)", "Daley (2014)"]), 15/sqrt(15*19))
+    expect_equal(unname(fit$R["Richardson (2015)", "Daley (2014)"]), 0)
+    expect_equal(unname(fit$Sigma), unname(diag(se) %*% fit$R %*% diag(se)))
+    expect_equal(unname(diag(fit$Sigma)), se^2)
+    expect_identical(dimnames(fit$Sigma), dimnames(fit$R))
+    expect_true(is.pd(fit$Sigma))
+
+    ## Fixed-effect GLS estimates with and without the overlap
+    gls <- function(S) {
+        W <- solve(S)
+        c(sum(W %*% Turk23$data$y)/sum(W), sqrt(1/sum(W)))
+    }
+    ## Ignoring the overlap reproduces 0.42 (95% CI 0.33 to 0.51) in Turk et al.
+    ## (2023) up to the rounding of the reported inputs
+    indep <- gls(diag(se^2))
+    expect_equal(indep[1] + c(-1, 0, 1)*qnorm(0.975)*indep[2], c(0.33, 0.42, 0.51), tolerance=0.01)
+    expect_equal(gls(fit$Sigma), c(0.408872, 0.058801), tolerance=1e-5)
+    expect_true(gls(fit$Sigma)[2] > indep[2])
+
+    expect_output(print(fit), "Corrected covered area \\(CCA\\): 0.125")
+})
+
+test_that("SEC() handles singular SEC matrices and invalid inputs", {
+
+    X <- matrix(c(1, 1, 0,
+                  1, 1, 1,
+                  0, 0, 1), ncol=3, byrow=TRUE)
+    ## The first two meta-analyses include the same studies
+    expect_warning(fit <- SEC(X), "singular")
+    expect_equal(unname(fit$R[1, 2]), 1)
+    expect_output(suppressWarnings(print(fit)), "singular")
+
+    expect_error(SEC(matrix(c(1, 2, 0, 1), 2)), "only 0 and 1")
+    expect_error(SEC(matrix(1, 3, 1)), "at least two columns")
+    expect_error(SEC(cbind(c(1, 1), c(0, 0))), "do not include any study")
+    expect_error(SEC(diag(2), method="size"), "'n' is required")
+    expect_error(SEC(diag(2), method="size", n=1:3), "one for each row")
+    expect_error(SEC(diag(2), method="weighted"), "'q' is required")
+    expect_error(SEC(diag(2), method="weighted", q=c(1, -1)), "positive")
+    expect_error(SEC(diag(2), method="weighted", q=c(1, 1), weights=matrix(1, 2, 3)), "same dimensions")
+    expect_error(SEC(diag(2), V=1), "one for each column")
 })

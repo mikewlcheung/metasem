@@ -28,21 +28,21 @@ group.}
 \item{V2}{A \emph{p} by \emph{p} sample covariance matrix of the second
 group.}
 
-\item{n1}{The sample size of the first group.}
+\item{n1}{A finite sample size greater than 1 for the first group.}
 
-\item{n2}{The sample size of the second group.}
+\item{n2}{A finite sample size greater than 1 for the second group.}
 
 \item{homogeneity}{If it is \code{covariance} (the default), homogeneity of
 covariance matrices is assumed. The common standard deviations are used as
 the standardizers in calculating the effect sizes. If it is
-\code{correlation}, homogeneity of correlation is not assumed. The standard
+\code{correlation}, homogeneity of correlation is assumed. The standard
 deviations of the first group are used as the standardizer in calculating
 the effect sizes. If it is \code{none}, no homogeneity assumption is made.
 The standard deviations of the first group are used as the standardizer in
 calculating the effect sizes.}
 
 \item{bias.adjust}{If it is \code{TRUE} (the default), the effect sizes are
-adjusted for small bias by multiplying \eqn{1-3/(4*(n1+n2)-9)}.}
+adjusted under normality for the standard deviation actually used. With a first-group standardizer the exact correction uses its degrees of freedom; with a common standardizer it accounts for the sample-size-weighted pooled variance. The standardizer must have more than one degree of freedom. The correction for multiple outcomes with \code{homogeneity="correlation"} is approximate and produces a warning.}
 
 \item{list.output}{If it is \code{TRUE} (the default), the effect sizes and
 their sampling covariance matrix are outputed as a list. If it is
@@ -53,11 +53,19 @@ and its sampling covariance matrix are reported. If it is \code{TRUE}, it
 outputs the fitted \code{\link[lavaan]{lavaan-class}} object.}
 }
 \description{
+Named endpoints must not contain periods; rename them consistently, e.g.,
+\code{x.1} to \code{x_1}, and check for duplicate names.
+
 It computes the standardized mean differences and their asymptotic sampling
 covariance matrix for two multiple end-point studies with \emph{p} effect
 sizes.
 }
 \details{
+Zero sample means are retained. Endpoints with missing means or missing
+or nonpositive diagonal variances in either group are excluded and returned
+as \code{NA}. At least one endpoint must remain. Covariances among retained
+endpoints must be available.
+
 Gleser and Olkin (2009) introduce formulas to calculate the standardized
 mean differences and their sampling covariance matrix for multiple end-point
 studies under the assumption of homogeneity of the covariance matrix. This

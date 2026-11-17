@@ -5,25 +5,17 @@
 \alias{create.mxModel}
 \title{Fit a structural equation model using OpenMx}
 \usage{
-sem(
-  model.name = "sem",
-  RAM = NULL,
-  data = NULL,
-  Cov = NULL,
-  means = NULL,
-  numObs,
-  intervals.type = c("z", "LB"),
-  startvalues = NULL,
-  lbound = NULL,
-  ubound = NULL,
-  replace.constraints = FALSE,
-  mxModel.Args = NULL,
-  run = TRUE,
-  silent = TRUE,
-  group = NULL,
-  cluster = NULL,
-  ...
-)
+sem(model.name = "sem", RAM = NULL, data = NULL,
+    Cov = NULL, means = NULL, numObs, intervals.type = c("z",
+        "LB"), startvalues = NULL, lbound = NULL, ubound = NULL,
+    replace.constraints = FALSE, mxModel.Args = NULL,
+    run = TRUE, silent = TRUE, group = NULL, cluster = NULL,
+    ...)
+create.mxModel(model.name = "sem", RAM = NULL, data = NULL,
+    Cov = NULL, means = NULL, numObs, intervals.type = c("z",
+        "LB"), startvalues = NULL, replace.constraints = FALSE,
+    mxModel.Args = NULL, run = TRUE, silent = TRUE,
+    ...)
 }
 \arguments{
 \item{model.name}{A string for the model name in
@@ -34,11 +26,27 @@ from \code{\link[metaSEM]{lavaan2RAM}}.}
 
 \item{data}{A data frame or matrix of data.}
 
-\item{Cov}{A covariance matrix may also be used if \code{data}==NULL.}
+\item{Cov}{If \code{data=NULL}, a covariance matrix for a single-level
+model, a list of matrices (one per group) for a multiple-group model, or
+a list of matrices (one per cluster) for a two-level model. For a combined
+group and two-level model, supply a list of groups, each containing a list
+of cluster covariance matrices. Matrices must have named variables and
+use the usual unbiased covariance denominator \code{n-1}. For two-level
+summary input, covariance reconstruction is checked in each variable's
+scale; incompatible matrices are rejected. When group or cluster names are
+supplied on both \code{Cov} and \code{means} or \code{numObs}, entries are
+matched by name; names must be complete, unique, and consistent. Unnamed
+entries are matched by position.}
 
-\item{means}{A named vector of means (optional) if \code{Cov} is used.}
+\item{means}{Means corresponding to \code{Cov}: a named vector for a
+single-level model, a list of vectors for multiple groups or clusters,
+or a nested list for combined group and two-level models. Means are
+required for two-level summary input. For single-level and multiple-group
+input they are optional; omitted means remove the mean structure.}
 
-\item{numObs}{If \code{Cov} is used, a sample size must be provided.}
+\item{numObs}{Sample sizes corresponding to \code{Cov}: a scalar for a
+single-level model, a vector for multiple groups or clusters, or a list
+of vectors for combined group and two-level models.}
 
 \item{intervals.type}{Either \code{z} (default if missing) or \code{LB}. If
 it is \code{z}, it calculates the 95\% confidence intervals (CIs) based on
@@ -49,10 +57,14 @@ likelihood-based CIs on the parameter estimates.}
 e.g., list(a=1, b=2)}
 
 \item{lbound}{A list of lower bound of the free parameters. If it is not
-provided, all free parameters are assumed \code{NA}.}
+provided, all free parameters are assumed \code{NA}. Bounds from
+inequalities in the lavaan syntax, recorded by
+\code{\link[metaSEM]{lavaan2RAM}}, are also applied; a bound given here
+for the same parameter takes precedence. Bounds must be named and refer to model parameters. Bounds on substituted expressions remain constraints; definition-variable substitutions with bounds are unsupported.}
 
 \item{ubound}{A list of upper bound of the free parameters. If it is not
-provided, all free parameters are assumed \code{NA}.}
+provided, all free parameters are assumed \code{NA}. Bounds from the
+lavaan syntax are handled as for \code{lbound}.}
 
 \item{replace.constraints}{Logical. If \code{TRUE}, the parameters on the
 left hand side will be replaced by the constraints on the right hand side.
@@ -65,11 +77,15 @@ the model.}
 \item{run}{Logical. If \code{FALSE}, only return the mx model without
 running the analysis.}
 
-\item{silent}{Logical. An argument is passed to either
-\code{\link[OpenMx]{mxRun}} or \code{\link[OpenMx]{mxTryHard}}}
+\item{silent}{Logical. Passed to \code{\link[OpenMx]{mxRun}}. If
+\code{FALSE}, warnings and errors during the \code{mxTryHard()} retries
+are also printed as messages. A fit that ends with an OpenMx status code
+other than 0 or 1 is retried once with \code{\link[OpenMx]{mxTryHard}}
+from its estimates; a warning is given if the status code is still
+neither 0 nor 1.}
 
-\item{group}{A character string naming the column in \code{data}
-identifying group membership. Required (and only used) when \code{RAM} is
+\item{group}{For combined group and cluster summary inputs, group and cluster must name different columns. A character string naming the column in \code{data}
+identifying group membership. Required when \code{RAM} is
 a multiple-group RAM object, i.e., created by \code{\link[metaSEM]{lavaan2RAM}}
 with \code{ngroups > 1}. \code{data} must be a single data frame in this
 case; it is split internally by the unique values of \code{data[[group]]}
@@ -77,7 +93,10 @@ in \emph{first-appearance order in the data} (not sorted, and not a
 factor's own \code{levels()} order, even for a factor column -- this
 matches how \code{lavaan} itself numbers groups), which must correspond,
 in order, to the groups used when the model was specified (e.g.,
-\code{lavaan}'s \code{c(...)} syntax numbers groups the same way). A
+\code{lavaan}'s \code{c(...)} syntax numbers groups the same way, and so
+do \code{group:} blocks, in their order in the syntax rather than by
+their labels). A warning is given when the labels of \code{group:} blocks
+are the values of \code{data[[group]]} in a different order. A
 group value that is not itself a legal \code{\link[OpenMx]{mxModel}} name
 (e.g. purely numeric, or containing a character such as \code{.} or
 \code{-}) is sanitized into one internally; the resulting submodel names
@@ -89,8 +108,8 @@ with the original, unsanitized group value. An unused factor level in
 simply never treated as a group in the first place (this is what
 first-appearance order, above, naturally does); if that leaves fewer
 groups than \code{RAM} expects, it is reported as a group-count
-mismatch. \code{Cov}/\code{numObs}-based input is not yet supported for
-multiple-group models. \code{replace.constraints=TRUE} IS supported
+mismatch. \code{Cov}/\code{numObs} input is supported with one covariance
+matrix and sample size per group. \code{replace.constraints=TRUE} is supported
 (substituting a constraint into whichever group's \code{A}/\code{S}/
 \code{M} matrices contain it, including a constraint that spans
 multiple groups, e.g. constraining one group's variance to be a
@@ -100,21 +119,15 @@ used in, since (unlike two-level's between level) every group already
 carries its own full data slice.}
 
 \item{cluster}{A character string naming the column in \code{data}
-identifying level-2 (cluster) membership. Required (and only used) when
-\code{RAM} is a two-level RAM object, i.e., created by
-\code{\link[metaSEM]{lavaan2RAM}} from \code{lavaan}'s two-level
-(\code{level: 1} / \code{level: 2}) syntax. \code{data} must be a single
-data frame of individual-level (level-1) rows in this case.
-\code{Cov}/\code{numObs}-based input is not yet supported for two-level
-models, and neither is combining two-level and multiple-group models in
-the same call. \code{replace.constraints=TRUE} IS supported for
-two-level models (substituting a constraint into whichever of the
-within-/between-level \code{A}/\code{S}/\code{M} matrices contains it,
-including a constraint that spans both levels); a definition variable
-(\code{data.*}) may be used in such a constraint for a level-1 (within)
-parameter, but not yet for a genuine level-2-only (between, cluster-level)
-covariate, since \code{data} passed to the level-2 submodel currently
-carries only the cluster ID column.}
+identifying cluster membership. It is required when \code{RAM} is a
+two-level RAM object, i.e., created by \code{\link[metaSEM]{lavaan2RAM}}
+from \code{lavaan}'s two-level (\code{level: 1} / \code{level: 2})
+syntax; \code{data} must then be a single data frame of individual-level
+(level-1) rows. In a single-level or flat multiple-group model, it records
+the independent units for cluster-robust standard errors in
+\code{summary(fit, robust=TRUE)} and \code{vcov(fit, robust=TRUE)}; the
+fitted likelihood and estimates do not change, and raw data are required.
+See Details.}
 
 \item{\dots}{Further arguments will be passed to either
 \code{\link[OpenMx]{mxRun}} or \code{\link[OpenMx]{mxTryHard}}}
@@ -123,7 +136,91 @@ carries only the cluster ID column.}
 An object of class \code{mxsem}
 }
 \description{
+Variable names, raw data column names, and ordinary parameter labels must not contain periods. Rename consistently, e.g., \code{x.1} to \code{x_1}, and check for duplicate names. Definition-variable references such as \code{data.x_1} and group or cluster values containing periods are allowed.
+
 It fits a structural equation model by creating a mxModel from a RAM object.
+}
+\details{
+\strong{Two-level models.} A manifest variable appearing at both levels
+is internally split into within and between components. Consequently, a
+level-1 regression uses only the predictor's within component, as in
+\code{lavaan}. Two-level summary input requires separate means,
+covariance matrices, and sample sizes for each cluster; a pooled
+covariance matrix cannot identify within- and between-cluster variation.
+For complete Gaussian data these summaries reproduce the raw-data
+likelihood. Combined group and two-level models use nested
+\code{group:}/\code{level:} lavaan syntax and both \code{group} and
+\code{cluster} arguments. \code{replace.constraints=TRUE} is supported
+for two-level models (substituting a constraint into whichever of the
+within-/between-level \code{A}/\code{S}/\code{M} matrices contains it,
+including a constraint that spans both levels); a definition variable
+(\code{data.*}) may be used in such a constraint at either level if its
+between-level values are constant within each cluster. Cluster-level
+observed covariates likewise require a constant value within each
+cluster. The reported number of observations and the information
+criteria use the number of level-1 rows with at least one observed
+level-1 variable, as in \code{lavaan}. A cluster with a measured
+between-level variable still contributes, even if all its level-1 data
+are missing.
+
+\strong{Constraints.} Models with constraints between parameters
+(\code{==}, \code{<}, or \code{>}) are fitted with an OpenMx
+feasibility tolerance of 1e-6 unless one has been set with
+\code{mxOption()}, and their model-based standard errors are computed
+from the Hessian of the Lagrangian of -2LL and the constraints that hold
+at the estimates instead of being taken from OpenMx. They equal those of
+the same model with the constraints substituted
+(\code{replace.constraints=TRUE}); for nonlinear constraints they can
+differ from \code{lavaan}'s, which omit the curvature of the constraints.
+
+\strong{Robust standard errors.} With a single-level model and no
+\code{cluster}, robust covariance uses the observation-level sandwich of
+OpenMx's \code{imxRobustSE()}, whose meat is multiplied by \eqn{N/(N-1)}.
+With \code{cluster}, it sums the row scores within clusters before
+forming the sandwich and multiplies the meat by \eqn{G/(G-1)}, where
+\eqn{G} is the number of clusters, as \code{lavaan} does for
+single-group models; this allows within-cluster dependence. With one row
+per cluster it equals the robust covariance without \code{cluster}. For
+flat multiple-group models, the same cluster ID in different groups
+denotes the same independent unit; use distinct IDs when groups contain
+distinct clusters. The bread uses the observed information, so it
+matches \code{lavaan} with \code{information="observed"};
+\code{lavaan}'s default for \code{cluster=}, the expected information,
+can give much smaller standard errors with data missing at random (see
+\code{\link{clusterRobustSE}}). The optional \code{smallSample=TRUE} in
+\code{summary()} or \code{vcov()} also multiplies the meat by
+\eqn{(N-1)/(N-p)}, where \eqn{N} is the number of rows and \eqn{p} the
+number of free parameters (including those determined by constraints or
+at a bound), for a total factor of \eqn{G/(G-1) \cdot (N-1)/(N-p)}. With
+few independent clusters, \code{summary(fit, robust=TRUE, t.df=)} uses a
+\eqn{t} reference distribution instead of \eqn{z}; see
+\code{\link[metaSEM]{summary}} for how to choose its degrees of freedom.
+Row scores are computed by numerical differentiation of the row
+likelihoods, so their cost hardly depends on the number of rows.
+Parameters estimated at a binding bound have no valid robust covariance:
+their robust standard errors are \code{NA}, with a warning, and the other
+parameters treat them as fixed. A bound binds if the estimate would move
+past it without the bound; an estimate merely close to a bound has the
+usual robust standard error. A defined (\code{:=}) parameter has an
+\code{NA} robust standard error if it depends on any bounded parameter.
+Robust covariance also warns when the OpenMx status code is neither 0
+nor 1, because the fit may not have converged.
+
+For two-level fits, robust covariance uses each cluster's complete
+relational-model likelihood score, without a \eqn{G/(G-1)} factor, as in
+\code{lavaan}'s two-level models. Each score needs one OpenMx run that
+differentiates the cluster's likelihood numerically, which takes several
+likelihood evaluations per free parameter, so computing time grows with
+both the number of clusters and the number of parameters. In combined
+group and two-level models, clusters are nested within groups: each
+group's clusters are formed from that group's rows only, so a cluster ID
+used in two groups denotes two different clusters, and a unit spanning
+groups cannot be represented. \code{sem()} warns when an ID appears in
+more than one group, and robust covariance stops with an error in that
+case. Cluster IDs generated from summary input are prefixed by the
+group's position (e.g., \code{"2.5"} for cluster \code{5} in the second
+group) when they would otherwise repeat. Robust summaries require
+\code{intervals.type="z"}; likelihood-based intervals are not robust.
 }
 \examples{
 

@@ -1,13 +1,16 @@
 #' Rerun models via mxTryHard()
 #'
-#' It reruns models via mxTryHard().
+#' It reruns models via mxTryHard(). Subclasses of the supported classes
+#' are accepted; subclass metadata is preserved for clustered lists.
 #'
 #'
 #' @param object An object of either class \code{tssem1FEM}, class
 #' \code{tssem1REM}, class \code{wls}, class \code{meta}, class \code{reml},
 #' class \code{osmasem}, class \code{osmasem3L}, and class \code{MxModel}.
 #' @param autofixtau2 Logical. Whether automatically fixes elements of tau2
-#' with NA of standard errors. It only works for objects of class
+#' with NaN standard errors after a retry. Plain NA standard errors produce a
+#' warning because their cause is unclear and are not automatically fixed.
+#' It only works for objects of class
 #' \code{tssem1REM}, class \code{meta}, and class \code{osmasem}.
 #' @param extraTries The number of attempts to run the model in addition to the
 #' first.
@@ -23,8 +26,19 @@
 #' summary(random1_rerun)
 #' }
 #'
+.rerun.tau.zero <- function(formula) {
+  if ("exp" %in% all.names(formula, functions=TRUE)) -Inf else 0
+}
+
+.rerun.invalid.tau.se <- function(se) {
+  nan <- is.nan(se)
+  if (any(is.na(se) & !nan))
+    warning("Some random-effect standard errors are NA; their cause is unclear, so those parameters were not automatically fixed.", call.=FALSE)
+  nan
+}
+
 rerun <- function(object, autofixtau2=FALSE, extraTries=10, ...) {
-  if (!is.element(class(object)[1], c("wls", "tssem1FEM", "tssem1REM", "meta",
+  if (!inherits(object, c("wls", "tssem1FEM", "tssem1REM", "meta",
                                       "meta3LFIML", "reml",
                                       "tssem1FEM.cluster", "wls.cluster",
                                       "osmasem", "osmasem2", "osmasem3L",
@@ -35,17 +49,17 @@ rerun <- function(object, autofixtau2=FALSE, extraTries=10, ...) {
 
   ## Run a rerun without autofixtau2 to minimize over-fixing
   ## Many of the NA in SEs may disappear after rerunning it.
-  if (autofixtau2 & is.element(class(object)[1], c("tssem1REM", "meta",
+  if (autofixtau2 & inherits(object, c("tssem1REM", "meta",
                                                    "osmasem", "osmasem2"))) {
     object <- rerun(object, autofixtau2=FALSE, extraTries=extraTries, ...)
   }
 
   ## Automatically fix the problematic Tau2 into 0 for tssem1REM and meta objects
   ## osmasem2 object is similar to meta object as it uses Tau2
-  if (autofixtau2 & is.element(class(object)[1], c("tssem1REM", "meta",
+  if (autofixtau2 & inherits(object, c("tssem1REM", "meta",
                                                    "osmasem2"))) {
     se_tau2 <- suppressWarnings(sqrt(diag(vcov(object, select="random"))))
-    nan_idx <- is.nan(se_tau2)
+    nan_idx <- .rerun.invalid.tau.se(se_tau2)
     if (any(nan_idx)) {
       object$mx.fit <- omxSetParameters(object$mx.fit, names(se_tau2)[nan_idx],
                                         free=FALSE, values=0)
@@ -53,31 +67,24 @@ rerun <- function(object, autofixtau2=FALSE, extraTries=10, ...) {
   }
 
   ## Automatically fix the problematic Tau2 into 0 for osmasem objects
-  if (autofixtau2 & class(object)[1] == "osmasem") {
+  if (autofixtau2 & inherits(object, "osmasem")) {
     se_tau2 <- suppressWarnings(sqrt(diag(vcov(object, select="random"))))
-    nan_idx <- is.nan(se_tau2)
+    nan_idx <- .rerun.invalid.tau.se(se_tau2)
 
     if (any(nan_idx)) {
-      ## Detect the transformation used in Tau2 (expLog uses exp(); sqSD uses squaring)
-      my.transform <- gsub("\\s", "", deparse(object$mx.fit$Tau2$formula))
-      if (grepl("exp", my.transform)) {
-        ## exp(-Inf) = 0
-        values <- -Inf
-      } else {
-        ## 0^2 = 0
-        values <- 0
-      }
+      ## exp(-Inf) = 0; an untransformed or squared SD uses zero.
+      values <- .rerun.tau.zero(object$mx.fit$Tau2$formula)
       object$mx.fit <- omxSetParameters(object$mx.fit, names(se_tau2)[nan_idx],
                                         free=FALSE, values=values)
     }
   }
 
   ## Cluster related objects
-  if (is.element(class(object)[1], c("tssem1FEM.cluster", "wls.cluster"))) {
-    out <- lapply(object, rerun, extraTries=extraTries, ...)
-    class(out) <- class(object)[1]
+  if (inherits(object, c("tssem1FEM.cluster", "wls.cluster"))) {
+    out <- object
+    out[] <- lapply(object, rerun, extraTries=extraTries, ...)
     ## Pure MxModel objects
-  } else if (class(object)[1] == "MxModel") {
+  } else if (inherits(object, "MxModel")) {
     out <- mxTryHard(object, extraTries=extraTries, greenOK=TRUE, paste=FALSE,
                      bestInitsOutput=FALSE, ...)
     ## Other metaSEM objects

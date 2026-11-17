@@ -11,12 +11,27 @@
 \alias{print.reml}
 \alias{print.uniR1}
 \alias{print.impliedR}
+\alias{print.SEC}
 \title{Print Methods for various Objects}
+\usage{
+\method{print}{tssem1FEM}(x, ...)
+\method{print}{tssem1FEM.cluster}(x, ...)
+\method{print}{tssem1REM}(x, ...)
+\method{print}{wls}(x, ...)
+\method{print}{meta}(x, ...)
+\method{print}{meta3LFIML}(x, ...)
+\method{print}{reml}(x, ...)
+\method{print}{uniR1}(x, ...)
+\method{print}{impliedR}(x, ...)
+\method{print}{SEC}(x, digits = 4, ...)
+}
 \arguments{
+\item{digits}{Number of digits used when printing a \code{SEC} object.}
+
 \item{x}{An object returned from either class \code{tssem1FEM}, class
 \code{tssem1FEM.cluster}, class \code{tssem1REM}, class \code{wls}, class
-\code{meta}, class \code{meta3LFIML}, class \code{reml}, class \code{uniR1}
-or class \code{impliedR}}
+\code{meta}, class \code{meta3LFIML}, class \code{reml}, class \code{uniR1},
+class \code{impliedR} or class \code{SEC}}
 
 \item{\dots}{Further arguments to be passed to \code{summary.default} or
 unused.}
@@ -24,11 +39,13 @@ unused.}
 \description{
 Print methods for the \code{tssem1FEM}, \code{tssem1FEM.cluster},
 \code{tssem1REM}, \code{wls}, \code{meta}, \code{meta3LFIML}, \code{reml},
-\code{uniR1} and \code{impliedR} objects.
+\code{uniR1}, \code{impliedR} and \code{SEC} objects. The print method for
+\code{SEC} objects rounds the results to \code{digits=4} digits by default.
 }
 \seealso{
 \code{\link[metaSEM]{tssem1}}, \code{\link[metaSEM]{wls}},
-\code{\link[metaSEM]{meta}}, \code{\link[metaSEM]{reml}}
+\code{\link[metaSEM]{meta}}, \code{\link[metaSEM]{reml}},
+\code{\link[metaSEM]{SEC}}
 }
 \author{
 Mike W.-L. Cheung <mikewlcheung@nus.edu.sg>

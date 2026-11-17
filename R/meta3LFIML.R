@@ -4,6 +4,7 @@ meta3LFIML <- function(y, v, cluster, x2, x3, av2, av3, data, intercept.constrai
                    RE3.constraints=NULL, RE3.lbound=1e-10, intervals.type=c("z", "LB"), R2=TRUE,
                    model.name="Meta analysis with ML", suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
   mf <- match.call()
+  .check.meta.input.names(mf, if (!missing(data)) data else NULL)
   if (missing(data)) {
     data <- sys.frame(sys.parent())
   } else {
@@ -15,7 +16,9 @@ meta3LFIML <- function(y, v, cluster, x2, x3, av2, av3, data, intercept.constrai
   my.v <- mf[[match("v", names(mf))]]
   my.cluster <- mf[[match("cluster", names(mf))]]  
   y <- eval(my.y, data, enclos = sys.frame(sys.parent()))  
+  .check.no.period(colnames(y), "Variable column names")
   v <- eval(my.v, data, enclos = sys.frame(sys.parent()))
+  .check.no.period(colnames(v), "Variable column names")
   cluster <- as.character(eval(my.cluster, data, enclos = sys.frame(sys.parent())))
   ## check if there are missing data in cluster
   if (any(is.na(cluster)))
@@ -30,6 +33,7 @@ meta3LFIML <- function(y, v, cluster, x2, x3, av2, av3, data, intercept.constrai
   } else {
     my.x2 <- mf[[match("x2", names(mf))]]
     x2 <- eval(my.x2, data, enclos = sys.frame(sys.parent()))
+    .check.no.period(colnames(x2), "Variable column names")
     if (is.vector(x2)) {
       no.x2 <- 1
       x2 <- matrix(x2, ncol=1)      
@@ -50,6 +54,7 @@ meta3LFIML <- function(y, v, cluster, x2, x3, av2, av3, data, intercept.constrai
   } else {
     my.x3 <- mf[[match("x3", names(mf))]]
     x3 <- eval(my.x3, data, enclos = sys.frame(sys.parent()))
+    .check.no.period(colnames(x3), "Variable column names")
     if (is.vector(x3)) {
       if (!check.level3(x3))
         stop("\"x3\" is not a level 3 variable!\n")
@@ -79,6 +84,7 @@ meta3LFIML <- function(y, v, cluster, x2, x3, av2, av3, data, intercept.constrai
     } else {
       my.av2 <- mf[[match("av2", names(mf))]]
       av2 <- eval(my.av2, data, enclos = sys.frame(sys.parent()))
+      .check.no.period(colnames(av2), "Variable column names")
       if (is.vector(av2)) {
         no.av2 <- 1
         av2 <- matrix(av2, ncol=1)
@@ -94,6 +100,7 @@ meta3LFIML <- function(y, v, cluster, x2, x3, av2, av3, data, intercept.constrai
     } else {
       my.av3 <- mf[[match("av3", names(mf))]]
       av3 <- eval(my.av3, data, enclos = sys.frame(sys.parent()))        
+      .check.no.period(colnames(av3), "Variable column names")
       if (is.vector(av3)) {
         if (!check.level3(av3))
           stop("\"av3\" is not a level 3 variable!\n")
@@ -307,6 +314,7 @@ meta3LFIML <- function(y, v, cluster, x2, x3, av2, av3, data, intercept.constrai
     ## Tau2 <- as.mxMatrix(RE2.constraints, name="Tau2", lbound=RE2.lbound)
     if (length(RE2.constraints)!=1) 
       stop("Length of \"RE2.constraints\" is not 1.\n") 
+    tau2 <- RE2.constraints
   }
 
   if ( is.null(RE3.constraints) ) {
@@ -315,6 +323,7 @@ meta3LFIML <- function(y, v, cluster, x2, x3, av2, av3, data, intercept.constrai
     ## Tau3 <- as.mxMatrix(RE3.constraints, name="Tau3", lbound=RE3.lbound)
     if (length(RE3.constraints)!=1) 
       stop("Length of \"RE3.constraints\" is not 1.\n")
+    tau3 <- RE3.constraints
   }
 
   ## Tau for both tau2 and tau3

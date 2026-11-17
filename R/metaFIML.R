@@ -6,6 +6,7 @@ metaFIML <- function(y, v, x, av, data, intercept.constraints=NULL,
                      model.name="Meta analysis with FIML",
                      suppressWarnings=TRUE, silent=TRUE, run=TRUE, ...) {
     mf <- match.call()
+    .check.meta.input.names(mf, if (!missing(data)) data else NULL)
     if (missing(data)) {
         data <- sys.frame(sys.parent())
     } else {
@@ -15,7 +16,9 @@ metaFIML <- function(y, v, x, av, data, intercept.constraints=NULL,
     my.y <- mf[[match("y", names(mf))]]
     my.v <- mf[[match("v", names(mf))]]    
     y <- eval(my.y, data, enclos = sys.frame(sys.parent()))
+    .check.no.period(colnames(y), "Variable column names")
     v <- eval(my.v, data, enclos = sys.frame(sys.parent()))
+    .check.no.period(colnames(v), "Variable column names")
 
     if (is.vector(y)) no.y <- 1 else no.y <- ncol(y)  
     if (is.vector(v)) no.v <- 1 else no.v <- ncol(v)
@@ -26,6 +29,7 @@ metaFIML <- function(y, v, x, av, data, intercept.constraints=NULL,
     } else {
         my.x <- mf[[match("x", names(mf))]]
         x <- eval(my.x, data, enclos = sys.frame(sys.parent()))
+        .check.no.period(colnames(x), "Variable column names")
         if (is.vector(x)) no.x <- 1 else no.x <- ncol(x)
     }
 
@@ -44,11 +48,13 @@ metaFIML <- function(y, v, x, av, data, intercept.constraints=NULL,
     } else {
         my.av <- mf[[match("av", names(mf))]]
         av <- eval(my.av, data, enclos = sys.frame(sys.parent()))
+        .check.no.period(colnames(av), "Variable column names")
         if (is.vector(av)) no.av <- 1 else no.av <- ncol(av)
         av.labels <- paste("av", 1:no.av, sep="")
         all.labels <- c(all.labels, av.labels)
     }     
 
+    .check.missing.sampling.cov(y, v)
     ## If is.na(v), convert y into NA. NA in y will be handled automatically.
     ## Since NA in v (definition variable) is not allowed. Convert v into 1e10.
     ## Select variances only
@@ -77,9 +83,11 @@ metaFIML <- function(y, v, x, av, data, intercept.constraints=NULL,
     if (is.null(intercept.constraints)) {
         My <- matrix( paste("0*Intercept", 1:no.y, sep=""), nrow=1, ncol=no.y )
     } else {
+        if (!is.matrix(intercept.constraints))
+            intercept.constraints <- t(as.matrix(intercept.constraints))
         if (!all(dim(intercept.constraints)==c(1, no.y)))
             stop("Dimensions of \"intercept.constraints\" are incorrect.")
-        My <- as.mxMatrix(t(intercept.constraints), name="My")
+        My <- matrix(intercept.constraints, nrow=1, ncol=no.y)
     }
 
     ## Intercept of x and av
